@@ -1,0 +1,42 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Xcode-Version anzeigen
+        run: xcodebuild -version
+
+      - name: App bauen
+        run: |
+          xcodebuild -project Earmark.xcodeproj -scheme Earmark -configuration Release \
+            -derivedDataPath build -destination 'generic/platform=macOS' \
+            CODE_SIGN_IDENTITY="-" CODE_SIGNING_REQUIRED=NO \
+            build
+
+      - name: DMG erstellen
+        run: |
+          mkdir -p dist/dmg
+          cp -R build/Build/Products/Release/Earmark.app dist/dmg/
+          ln -s /Applications dist/dmg/Applications
+          hdiutil create -volname Earmark -srcfolder dist/dmg -ov -format UDZO dist/Earmark.dmg
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Earmark
+          path: dist/Earmark.dmg
+
+      - name: Release veröffentlichen
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/Earmark.dmg
+          generate_release_notes: true

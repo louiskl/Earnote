@@ -1,0 +1,197 @@
+#!/usr/bin/env python3
+"""Erzeugt Earmark.xcodeproj (deterministisch) aus den Dateien im Ordner Earmark/.
+Aufruf: python3 scripts/generate_xcodeproj.py"""
+import hashlib, os
+
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+SRC = os.path.join(ROOT, "Earmark")
+PROJ = os.path.join(ROOT, "Earmark.xcodeproj")
+
+def uid(*parts):
+    return hashlib.md5("/".join(parts).encode()).hexdigest()[:24].upper()
+
+objects = {}
+def add(key, body):
+    objects[key] = body
+
+swift_files, groups = [], {}
+for dirpath, dirnames, filenames in os.walk(SRC):
+    dirnames.sort()
+    rel = os.path.relpath(dirpath, SRC)
+    if rel.endswith(".xcassets") or ".xcassets" in rel:
+        dirnames[:] = []
+        continue
+    groups.setdefault(rel, {"dirs": [], "files": []})
+    for d in dirnames:
+        if d.endswith(".xcassets"):
+            groups[rel]["files"].append(d)
+        else:
+            groups[rel]["dirs"].append(os.path.normpath(os.path.join(rel, d)))
+    for f in sorted(filenames):
+        if f.startswith("."):
+            continue
+        groups[rel]["files"].append(f)
+        if f.endswith(".swift"):
+            swift_files.append(os.path.normpath(os.path.join(rel, f)))
+
+def ftype(name):
+    return {"swift": "sourcecode.swift", "plist": "text.plist.xml", "entitlements": "text.plist.entitlements",
+            "xcassets": "folder.assetcatalog"}.get(name.rsplit(".", 1)[-1], "text")
+
+file_refs = {}
+for rel, g in groups.items():
+    for f in g["files"]:
+        path = os.path.normpath(os.path.join(rel, f))
+        key = uid("fileref", path)
+        file_refs[path] = key
+        add(key, f'{{isa = PBXFileReference; lastKnownFileType = {ftype(f)}; path = "{f}"; sourceTree = "<group>"; }};')
+
+def group_key(rel):
+    return uid("group", rel)
+
+for rel, g in groups.items():
+    children = [group_key(d) for d in sorted(g["dirs"])] + [file_refs[os.path.normpath(os.path.join(rel, f))] for f in g["files"]]
+    name = "Earmark" if rel == "." else os.path.basename(rel)
+    add(group_key(rel), "{isa = PBXGroup; children = (" + "".join(f"{c}, " for c in children) +
+        f'); path = "{name}"; sourceTree = "<group>"; }};')
+
+PRODUCT = uid("product")
+add(PRODUCT, '{isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Earmark.app; sourceTree = BUILT_PRODUCTS_DIR; };')
+PRODUCTS_GROUP = uid("productsgroup")
+add(PRODUCTS_GROUP, f'{{isa = PBXGroup; children = ({PRODUCT}, ); name = Products; sourceTree = "<group>"; }};')
+MAIN_GROUP = uid("maingroup")
+add(MAIN_GROUP, f'{{isa = PBXGroup; children = ({group_key(".")}, {PRODUCTS_GROUP}, ); sourceTree = "<group>"; }};')
+
+# Swift Package WhisperKit
+PKG = uid("pkg", "whisperkit")
+add(PKG, '{isa = XCRemoteSwiftPackageReference; repositoryURL = "https://github.com/argmaxinc/WhisperKit"; '
+         'requirement = {kind = upToNextMinorVersion; minimumVersion = 0.13.0; }; };')
+PKG_PRODUCT = uid("pkgproduct", "whisperkit")
+add(PKG_PRODUCT, f'{{isa = XCSwiftPackageProductDependency; package = {PKG}; productName = WhisperKit; }};')
+PKG_BUILD = uid("pkgbuild", "whisperkit")
+add(PKG_BUILD, f'{{isa = PBXBuildFile; productRef = {PKG_PRODUCT}; }};')
+
+build_files = []
+for f in swift_files:
+    key = uid("build", f)
+    add(key, f'{{isa = PBXBuildFile; fileRef = {file_refs[f]}; }};')
+    build_files.append(key)
+assets_path = "Resources/Assets.xcassets"
+ASSETS_BUILD = uid("build", assets_path)
+add(ASSETS_BUILD, f'{{isa = PBXBuildFile; fileRef = {file_refs[assets_path]}; }};')
+
+SOURCES = uid("phase", "sources")
+add(SOURCES, "{isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (" + "".join(f"{b}, " for b in build_files) + "); runOnlyForDeploymentPostprocessing = 0; };")
+RESOURCES = uid("phase", "resources")
+add(RESOURCES, f"{{isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = ({ASSETS_BUILD}, ); runOnlyForDeploymentPostprocessing = 0; }};")
+FRAMEWORKS = uid("phase", "frameworks")
+add(FRAMEWORKS, f"{{isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = ({PKG_BUILD}, ); runOnlyForDeploymentPostprocessing = 0; }};")
+
+def settings_block(d):
+    out = []
+    for k, v in d.items():
+        vs = v if isinstance(v, str) and v.replace("_", "").replace(".", "").isalnum() and v else f'"{v}"'
+        out.append(f"{k} = {vs}; ")
+    return "{" + "".join(out) + "}"
+
+common_target = {
+    "ASSETCATALOG_COMPILER_APPICON_NAME": "AppIcon",
+    "ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME": "AccentColor",
+    "CODE_SIGN_ENTITLEMENTS": "Earmark/Resources/Earmark.entitlements",
+    "CODE_SIGN_IDENTITY": "-",
+    "CODE_SIGN_STYLE": "Automatic",
+    "COMBINE_HIDPI_IMAGES": "YES",
+    "CURRENT_PROJECT_VERSION": "1",
+    "DEVELOPMENT_TEAM": "",
+    "ENABLE_HARDENED_RUNTIME": "YES",
+    "GENERATE_INFOPLIST_FILE": "NO",
+    "INFOPLIST_FILE": "Earmark/Resources/Info.plist",
+    "LD_RUNPATH_SEARCH_PATHS": "$(inherited) @executable_path/../Frameworks",
+    "MACOSX_DEPLOYMENT_TARGET": "14.4",
+    "MARKETING_VERSION": "0.1.0",
+    "PRODUCT_BUNDLE_IDENTIFIER": "app.earmark.Earmark",
+    "PRODUCT_NAME": "$(TARGET_NAME)",
+    "SWIFT_EMIT_LOC_STRINGS": "YES",
+    "SWIFT_VERSION": "5.0",
+}
+TCFG_D, TCFG_R = uid("cfg", "target", "debug"), uid("cfg", "target", "release")
+add(TCFG_D, "{isa = XCBuildConfiguration; buildSettings = " + settings_block(common_target) + "; name = Debug; };")
+add(TCFG_R, "{isa = XCBuildConfiguration; buildSettings = " + settings_block(common_target) + "; name = Release; };")
+
+base = {
+    "ALWAYS_SEARCH_USER_PATHS": "NO",
+    "CLANG_ENABLE_MODULES": "YES",
+    "CLANG_ENABLE_OBJC_ARC": "YES",
+    "COPY_PHASE_STRIP": "NO",
+    "ENABLE_STRICT_OBJC_MSGSEND": "YES",
+    "ENABLE_USER_SCRIPT_SANDBOXING": "YES",
+    "GCC_C_LANGUAGE_STANDARD": "gnu17",
+    "MACOSX_DEPLOYMENT_TARGET": "14.4",
+    "SDKROOT": "macosx",
+}
+debug = dict(base, **{"DEBUG_INFORMATION_FORMAT": "dwarf", "ENABLE_TESTABILITY": "YES", "GCC_OPTIMIZATION_LEVEL": "0",
+                      "ONLY_ACTIVE_ARCH": "YES", "SWIFT_ACTIVE_COMPILATION_CONDITIONS": "DEBUG $(inherited)",
+                      "SWIFT_OPTIMIZATION_LEVEL": "-Onone", "MTL_ENABLE_DEBUG_INFO": "INCLUDE_SOURCE"})
+release = dict(base, **{"DEBUG_INFORMATION_FORMAT": "dwarf-with-dsym", "ENABLE_NS_ASSERTIONS": "NO",
+                        "SWIFT_COMPILATION_MODE": "wholemodule", "SWIFT_OPTIMIZATION_LEVEL": "-O", "MTL_ENABLE_DEBUG_INFO": "NO"})
+PCFG_D, PCFG_R = uid("cfg", "proj", "debug"), uid("cfg", "proj", "release")
+add(PCFG_D, "{isa = XCBuildConfiguration; buildSettings = " + settings_block(debug) + "; name = Debug; };")
+add(PCFG_R, "{isa = XCBuildConfiguration; buildSettings = " + settings_block(release) + "; name = Release; };")
+
+TLIST, PLIST = uid("cfglist", "target"), uid("cfglist", "proj")
+add(TLIST, f"{{isa = XCConfigurationList; buildConfigurations = ({TCFG_D}, {TCFG_R}, ); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; }};")
+add(PLIST, f"{{isa = XCConfigurationList; buildConfigurations = ({PCFG_D}, {PCFG_R}, ); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; }};")
+
+TARGET = uid("target")
+add(TARGET, f"{{isa = PBXNativeTarget; buildConfigurationList = {TLIST}; buildPhases = ({SOURCES}, {FRAMEWORKS}, {RESOURCES}, ); "
+            f"buildRules = (); dependencies = (); name = Earmark; packageProductDependencies = ({PKG_PRODUCT}, ); "
+            f"productName = Earmark; productReference = {PRODUCT}; productType = \"com.apple.product-type.application\"; }};")
+PROJECT = uid("project")
+add(PROJECT, f"{{isa = PBXProject; attributes = {{BuildIndependentTargetsInParallel = 1; LastSwiftUpdateCheck = 1600; LastUpgradeCheck = 1600; "
+             f"TargetAttributes = {{{TARGET} = {{CreatedOnToolsVersion = 16.0; }}; }}; }}; buildConfigurationList = {PLIST}; "
+             f"compatibilityVersion = \"Xcode 14.0\"; developmentRegion = de; hasScannedForEncodings = 0; knownRegions = (de, en, Base, ); "
+             f"mainGroup = {MAIN_GROUP}; packageReferences = ({PKG}, ); productRefGroup = {PRODUCTS_GROUP}; projectDirPath = \"\"; "
+             f"projectRoot = \"\"; targets = ({TARGET}, ); }};")
+
+os.makedirs(os.path.join(PROJ, "project.xcworkspace"), exist_ok=True)
+with open(os.path.join(PROJ, "project.pbxproj"), "w") as f:
+    f.write("// !$*UTF8*$!\n{\n\tarchiveVersion = 1;\n\tclasses = {\n\t};\n\tobjectVersion = 60;\n\tobjects = {\n")
+    for k in sorted(objects):
+        f.write(f"\t\t{k} = {objects[k]}\n")
+    f.write(f"\t}};\n\trootObject = {PROJECT};\n}}\n")
+with open(os.path.join(PROJ, "project.xcworkspace", "contents.xcworkspacedata"), "w") as f:
+    f.write('<?xml version="1.0" encoding="UTF-8"?>\n<Workspace version = "1.0">\n   <FileRef location = "self:">\n   </FileRef>\n</Workspace>\n')
+
+# Schema, damit "Run" sofort funktioniert
+sd = os.path.join(PROJ, "xcshareddata", "xcschemes")
+os.makedirs(sd, exist_ok=True)
+ref = f'<BuildableReference BuildableIdentifier = "primary" BlueprintIdentifier = "{TARGET}" BuildableName = "Earmark.app" BlueprintName = "Earmark" ReferencedContainer = "container:Earmark.xcodeproj"></BuildableReference>'
+with open(os.path.join(sd, "Earmark.xcscheme"), "w") as f:
+    f.write(f'''<?xml version="1.0" encoding="UTF-8"?>
+<Scheme LastUpgradeVersion = "1600" version = "1.7">
+   <BuildAction parallelizeBuildables = "YES" buildImplicitDependencies = "YES">
+      <BuildActionEntries>
+         <BuildActionEntry buildForTesting = "YES" buildForRunning = "YES" buildForProfiling = "YES" buildForArchiving = "YES" buildForAnalyzing = "YES">
+            {ref}
+         </BuildActionEntry>
+      </BuildActionEntries>
+   </BuildAction>
+   <TestAction buildConfiguration = "Debug" selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB" selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB" shouldUseLaunchSchemeArgsEnv = "YES">
+   </TestAction>
+   <LaunchAction buildConfiguration = "Debug" selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB" selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB" launchStyle = "0" useCustomWorkingDirectory = "NO" ignoresPersistentStateOnLaunch = "NO" debugDocumentVersioning = "YES" debugServiceExtension = "internal" allowLocationSimulation = "YES">
+      <BuildableProductRunnable runnableDebuggingMode = "0">
+         {ref}
+      </BuildableProductRunnable>
+   </LaunchAction>
+   <ProfileAction buildConfiguration = "Release" shouldUseLaunchSchemeArgsEnv = "YES" savedToolIdentifier = "" useCustomWorkingDirectory = "NO" debugDocumentVersioning = "YES">
+      <BuildableProductRunnable runnableDebuggingMode = "0">
+         {ref}
+      </BuildableProductRunnable>
+   </ProfileAction>
+   <AnalyzeAction buildConfiguration = "Debug">
+   </AnalyzeAction>
+   <ArchiveAction buildConfiguration = "Release" revealArchiveInOrganizer = "YES">
+   </ArchiveAction>
+</Scheme>
+''')
+print(f"{len(swift_files)} Swift-Dateien → {PROJ}")

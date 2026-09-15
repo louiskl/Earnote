@@ -1,0 +1,18 @@
+# Xcode
+build/
+DerivedData/
+*.xcuserstate
+xcuserdata/
+*.xcscmblueprint
+.swiftpm/
+.build/
+Package.resolved.orig
+
+# macOS
+.DS_Store
+
+# Release-Artefakte
+*.dmg
+*.zip
+dist/
+icon-preview.png
