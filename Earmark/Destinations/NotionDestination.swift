@@ -33,7 +33,7 @@ struct NotionDestination: Destination {
         return (me["bot"] as? [String: Any]).flatMap { ($0["workspace_name"] as? String) } ?? (me["name"] as? String ?? "Notion")
     }
 
-    /// Legt unter der angegebenen Seite die Datenbank "Earmark" an.
+    /// Legt unter der angegebenen Seite eine Datenbank mit dem App-Namen an.
     static func createDatabase(parentLink: String, categories: [RecordingCategory]) async throws -> (id: String, url: String) {
         guard let parent = extractID(from: parentLink) else {
             throw LLMError(message: "Im Link wurde keine Notion-Seiten-ID gefunden.")
@@ -43,7 +43,7 @@ struct NotionDestination: Destination {
         let db = try await call("POST", "/databases", [
             "parent": ["type": "page_id", "page_id": parent],
             "icon": ["type": "emoji", "emoji": "🎙️"],
-            "title": [["type": "text", "text": ["content": "Earmark"]]],
+            "title": [["type": "text", "text": ["content": AppInfo.name]]],
             "properties": [
                 "Name": ["title": [:] as [String: Any]],
                 "Datum": ["date": [:] as [String: Any]],

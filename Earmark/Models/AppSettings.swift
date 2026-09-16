@@ -17,7 +17,7 @@ enum AIProviderKind: String, Codable, CaseIterable, Identifiable {
 
     var label: String {
         switch self {
-        case .localModel: return "Earmark-KI"
+        case .localModel: return "Lokale KI"
         case .appleIntelligence: return "Apple Intelligence"
         case .ollama: return "Ollama"
         case .lmStudio: return "LM Studio"
@@ -35,7 +35,7 @@ enum AIProviderKind: String, Codable, CaseIterable, Identifiable {
     var subtitle: String {
         switch self {
         case .localModel: return "Läuft komplett auf deinem Mac. Kostenlos, ohne Konto, auch offline – und nichts aus deinen Meetings verlässt das Gerät."
-        case .appleIntelligence: return "Kostenlos, lokal auf deinem Mac. Ab macOS 26 mit Apple Intelligence. Einfachere Notizen als die Earmark-KI."
+        case .appleIntelligence: return "Kostenlos, lokal auf deinem Mac. Ab macOS 26 mit Apple Intelligence. Einfachere Notizen als die lokale KI."
         case .ollama: return "Kostenlos & lokal. Benötigt die Ollama-App."
         case .lmStudio: return "Kostenlos & lokal. Benötigt LM Studio mit aktiviertem Server."
         case .anthropic: return "Sehr gute Qualität. Benötigt einen API-Schlüssel (nutzungsbasiert)."
@@ -125,13 +125,13 @@ struct DestinationSettings: Codable, Hashable {
     var notionDatabaseURL: String = ""
     // Obsidian
     var obsidianVaultPath: String = ""
-    var obsidianFolder: String = "Earmark"
+    var obsidianFolder: String = AppInfo.name
     // Markdown-Ordner
     var markdownFolderPath: String = ""
     // Apple Notes
-    var appleNotesFolder: String = "Earmark"
+    var appleNotesFolder: String = AppInfo.name
     // Bear
-    var bearTags: String = "earmark"
+    var bearTags: String = AppInfo.name.lowercased()
     // Craft
     var craftSpaceID: String = ""
 }

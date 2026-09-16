@@ -9,7 +9,7 @@ final class SystemAudioTap {
     private var aggregateID: AudioObjectID = .unknown
     private var procID: AudioDeviceIOProcID?
     private var file: AVAudioFile?
-    private let queue = DispatchQueue(label: "app.earmark.systemtap", qos: .userInitiated)
+    private let queue = DispatchQueue(label: "\(AppInfo.bundleIdentifier).systemtap", qos: .userInitiated)
     private let lock = NSLock()
     private var _level: Float = 0
     private var _paused = false
@@ -45,8 +45,8 @@ final class SystemAudioTap {
         }
 
         let aggregate: [String: Any] = [
-            kAudioAggregateDeviceNameKey: "Earmark Systemaudio",
-            kAudioAggregateDeviceUIDKey: "app.earmark.aggregate.\(UUID().uuidString)",
+            kAudioAggregateDeviceNameKey: "\(AppInfo.name) Systemaudio",
+            kAudioAggregateDeviceUIDKey: "\(AppInfo.bundleIdentifier).aggregate.\(UUID().uuidString)",
             kAudioAggregateDeviceMainSubDeviceKey: outputUID,
             kAudioAggregateDeviceIsPrivateKey: true,
             kAudioAggregateDeviceIsStackedKey: false,

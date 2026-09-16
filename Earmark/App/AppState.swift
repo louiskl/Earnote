@@ -191,7 +191,7 @@ final class AppState: ObservableObject {
             defer { isStarting = false }
             if MicRecorder.permission != .authorized {
                 guard await MicRecorder.requestPermission() else {
-                    lastError = "Earmark hat keinen Zugriff auf das Mikrofon. Bitte in den Systemeinstellungen erlauben."
+                    lastError = "\(AppInfo.name) hat keinen Zugriff auf das Mikrofon. Bitte in den Systemeinstellungen erlauben."
                     SystemSettingsLink.microphone()
                     return
                 }
@@ -581,7 +581,7 @@ final class AppState: ObservableObject {
         Log.info("Pegel der Aufnahme: \(peak) dB")
         if peak < -50 {
             throw TranscriptionError.unavailable(
-                "Die Aufnahme ist stumm (Pegel \(Int(peak)) dB). Prüfe in den Systemeinstellungen, ob Earmark das Mikrofon verwenden darf und das richtige Eingabegerät ausgewählt ist.")
+                "Die Aufnahme ist stumm (Pegel \(Int(peak)) dB). Prüfe in den Systemeinstellungen, ob \(AppInfo.name) das Mikrofon verwenden darf und das richtige Eingabegerät ausgewählt ist.")
         }
 
         let language = rec.language

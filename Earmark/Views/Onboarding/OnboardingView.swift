@@ -9,8 +9,8 @@ struct OnboardingView: View {
 
         var title: String {
             switch self {
-            case .welcome: return "Willkommen bei Earmark"
-            case .categories: return "Wofür nutzt du Earmark?"
+            case .welcome: return "Willkommen bei \(AppInfo.name)"
+            case .categories: return "Wofür nutzt du \(AppInfo.name)?"
             case .permissions: return "Kurz ein paar Freigaben"
             case .ai: return "Wer schreibt deine Notizen?"
             case .transcription: return "Spracherkennung"
@@ -23,11 +23,11 @@ struct OnboardingView: View {
             switch self {
             case .welcome: return "Deine Meetings, Calls und Vorlesungen – automatisch als gute Notizen. Privat auf deinem Mac."
             case .categories: return "Wähle aus, was zu dir passt. Daraus werden deine Bereiche – du kannst sie jederzeit ändern."
-            case .permissions: return "Damit Earmark aufnehmen und dich benachrichtigen kann. Alles bleibt auf deinem Mac."
-            case .ai: return "Earmark bringt eine eigene KI mit, die komplett auf deinem Mac läuft. Einmal laden – danach privat, kostenlos und offline."
+            case .permissions: return "Damit \(AppInfo.name) aufnehmen und dich benachrichtigen kann. Alles bleibt auf deinem Mac."
+            case .ai: return "\(AppInfo.name) bringt eine eigene KI mit, die komplett auf deinem Mac läuft. Einmal laden – danach privat, kostenlos und offline."
             case .transcription: return "Die Spracherkennung läuft immer lokal. Die Voreinstellung passt für die meisten."
-            case .destinations: return "Earmark legt fertige Notizen automatisch dort ab, wo du arbeitest. Mehrfachauswahl möglich."
-            case .done: return "Earmark wartet ab jetzt oben in der Menüleiste auf dich."
+            case .destinations: return "\(AppInfo.name) legt fertige Notizen automatisch dort ab, wo du arbeitest. Mehrfachauswahl möglich."
+            case .done: return "\(AppInfo.name) wartet ab jetzt oben in der Menüleiste auf dich."
             }
         }
     }
@@ -120,7 +120,7 @@ struct OnboardingView: View {
     private var primaryTitle: String {
         switch step {
         case .welcome: return "Los geht’s"
-        case .done: return "Earmark öffnen"
+        case .done: return "\(AppInfo.name) öffnen"
         case .categories:
             let count = selectedTemplates.count + subjects.count - (selectedTemplates.contains("lecture") && !subjects.isEmpty ? 1 : 0)
             return count > 0 ? "Weiter mit \(count) \(count == 1 ? "Bereich" : "Bereichen")" : "Weiter"
@@ -185,7 +185,7 @@ struct OnboardingView: View {
                     .shadow(color: .black.opacity(0.15), radius: 10, y: 4)
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Nie wieder mitschreiben.").font(.system(size: 22, weight: .bold))
-                    Text("Earmark hört zu, schreibt mit und macht daraus Notizen mit Aufgaben – während du dich aufs Gespräch konzentrierst.")
+                    Text("\(AppInfo.name) hört zu, schreibt mit und macht daraus Notizen mit Aufgaben – während du dich aufs Gespräch konzentrierst.")
                         .font(Theme.Font.body).foregroundStyle(.secondary).fittingHeight()
                 }
             }
@@ -215,16 +215,16 @@ struct OnboardingView: View {
     private var done: some View {
         VStack(alignment: .leading, spacing: Theme.Space.l) {
             VStack(alignment: .leading, spacing: Theme.Space.s) {
-                startOption(isOn: $launchAtLogin, emoji: "🚀", title: "Earmark beim Start des Macs automatisch öffnen",
-                            detail: "Empfohlen – so verpasst du keinen Call, den Earmark erkennen soll.")
+                startOption(isOn: $launchAtLogin, emoji: "🚀", title: "\(AppInfo.name) beim Start des Macs automatisch öffnen",
+                            detail: "Empfohlen – so verpasst du keinen Call, den \(AppInfo.name) erkennen soll.")
                 startOption(isOn: $app.settings.openWindowAtLaunch, emoji: "🪟", title: "Fenster beim Start zeigen",
-                            detail: "Aus: Earmark startet unauffällig nur in der Menüleiste.")
+                            detail: "Aus: \(AppInfo.name) startet unauffällig nur in der Menüleiste.")
             }
 
             VStack(alignment: .leading, spacing: Theme.Space.m) {
                 Text("Gut zu wissen").font(Theme.Font.body.weight(.semibold))
                 tip("☝️", "Oben in der Menüleiste startest du eine Aufnahme mit einem Klick.")
-                tip("📞", "Sobald ein Call beginnt, fragt Earmark automatisch nach.")
+                tip("📞", "Sobald ein Call beginnt, fragt \(AppInfo.name) automatisch nach.")
                 tip("⌨️", "⇧⌘R startet oder stoppt eine Aufnahme, ⇧⌘P pausiert.")
                 tip("🤝", "Bitte hole vor jeder Aufnahme das Einverständnis aller Beteiligten ein.")
             }

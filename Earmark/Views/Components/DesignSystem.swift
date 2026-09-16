@@ -207,7 +207,7 @@ struct StatusPill: View {
 // MARK: - Arc-Look
 
 extension Theme {
-    /// Grundfarbe, wenn kein Bereich ausgewählt ist: das warme Earmark-Koralle.
+    /// Grundfarbe, wenn kein Bereich ausgewählt ist: das warme Koralle der App.
     static let brand = accent
     /// Zweitfarbe für Verläufe: ein weiches Lila, das zur Koralle passt.
     static let brandSecondary = Color(hex: "#8B5CF6")!

@@ -56,7 +56,7 @@ struct CLIClient: LLMClient {
             }
             return r.stdout
         case .codex:
-            let outFile = FileManager.default.temporaryDirectory.appendingPathComponent("earmark-codex-\(UUID().uuidString).txt")
+            let outFile = FileManager.default.temporaryDirectory.appendingPathComponent("\(AppInfo.name.lowercased())-codex-\(UUID().uuidString).txt")
             defer { try? FileManager.default.removeItem(at: outFile) }
             let cmd = "\(q(bin)) exec --skip-git-repo-check --output-last-message \(q(outFile.path))\(modelArg) -"
             let r = try runShell(cmd, stdin: fullPrompt, timeout: 1800, cancel: cancel)

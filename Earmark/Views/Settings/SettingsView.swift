@@ -28,7 +28,7 @@ struct GeneralSettings: View {
     var body: some View {
         Form {
             Section("Start") {
-                Toggle("Earmark beim Start des Macs automatisch öffnen", isOn: $launchAtLogin)
+                Toggle("\(AppInfo.name) beim Start des Macs automatisch öffnen", isOn: $launchAtLogin)
                     .onChange(of: launchAtLogin) { _, v in LoginItem.set(v) }
                 Toggle("Fenster beim Start zeigen (sonst nur in der Menüleiste)", isOn: $app.settings.openWindowAtLaunch)
             }
@@ -69,7 +69,7 @@ struct AboutView: View {
     var body: some View {
         VStack(spacing: 14) {
             Image(nsImage: NSApp.applicationIconImage).resizable().frame(width: 96, height: 96)
-            Text("Earmark").font(Theme.Font.title)
+            Text(AppInfo.name).font(Theme.Font.title)
             Text("Version \(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "–")")
                 .foregroundStyle(.secondary)
             Text("Kostenlose, quelloffene KI-Notizen für Meetings, Calls und Vorlesungen.\nLokal transkribiert. Deine Daten, deine Wahl.")
@@ -86,7 +86,3 @@ struct AboutView: View {
     }
 }
 
-enum AppInfo {
-    /// Nach dem Hochladen auf GitHub hier die eigene Repository-Adresse eintragen.
-    static let repository = URL(string: "https://github.com/YOUR-USERNAME/earmark")!
-}

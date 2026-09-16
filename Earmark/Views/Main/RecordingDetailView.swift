@@ -166,7 +166,7 @@ struct RecordingDetailView: View {
     private func busyText(_ status: RecordingStatus) -> String {
         switch status {
         case .queued: return "Wartet auf die Verarbeitung"
-        case .transcribing: return "Earmark hört sich die Aufnahme an …"
+        case .transcribing: return "\(AppInfo.name) hört sich die Aufnahme an …"
         case .summarizing: return "Notizen werden geschrieben …"
         case .exporting: return "Wird abgelegt …"
         default: return status.label
@@ -306,7 +306,7 @@ struct RecordingDetailView: View {
                     .font(Theme.Font.caption).foregroundStyle(.tertiary).padding(.top, Theme.Space.m)
             }
         } else {
-            placeholder("👂", "Das Transkript ist noch nicht fertig", "Earmark hört sich die Aufnahme gerade an.")
+            placeholder("👂", "Das Transkript ist noch nicht fertig", "\(AppInfo.name) hört sich die Aufnahme gerade an.")
         }
     }
 

@@ -8,7 +8,7 @@ struct EarmarkApp: App {
     @StateObject private var app = AppState.shared
 
     var body: some Scene {
-        Window("Earmark", id: "main") {
+        Window(AppInfo.name, id: "main") {
             MainView()
                 .environmentObject(app)
         }
@@ -54,8 +54,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
     func applicationDidFinishLaunching(_ notification: Notification) {
         UNUserNotificationCenter.current().delegate = self
         let state = AppState.shared
-        Log.info("Earmark gestartet")
-        // Wer das Fenster beim Start nicht will, hat Earmark nur in der Menüleiste.
+        Log.info("\(AppInfo.name) gestartet")
+        // Wer das Fenster beim Start nicht will, ist die App nur in der Menüleiste.
         // Beim allerersten Start bleibt es offen, damit der Einrichtungsassistent erscheint.
         if !state.settings.openWindowAtLaunch && state.settings.onboardingCompleted {
             DispatchQueue.main.async {

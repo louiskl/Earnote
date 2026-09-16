@@ -6,7 +6,7 @@ import Tokenizers
 
 // MARK: - Verwaltung
 
-/// Earmarks eigenes Sprachmodell: läuft komplett auf dem Mac (Apple Silicon, MLX).
+/// Das eingebaute lokale Sprachmodell: läuft komplett auf dem Mac (Apple Silicon, MLX).
 /// Einmal laden, danach funktioniert es ohne Konto, ohne Kosten und ohne Internet –
 /// und kein Wort aus dem Meeting verlässt das Gerät.
 @MainActor
@@ -85,7 +85,7 @@ final class LocalModelManager: ObservableObject {
                 guard let repo = Repo.ID(rawValue: Self.standard.repository) else { return }
                 try FileManager.default.createDirectory(at: Self.folder, withIntermediateDirectories: true)
                 if !Self.filesComplete {
-                    // Kein zusätzlicher Cache: die Dateien liegen genau einmal im Earmark-Ordner
+                    // Kein zusätzlicher Cache: die Dateien liegen genau einmal im App-Ordner
                     let client = HubClient(cache: nil)
                     do {
                         _ = try await client.downloadSnapshot(
@@ -162,7 +162,7 @@ struct LocalLLMClient: LLMClient {
         if !LocalModelManager.installed {
             await LocalModelManager.shared.waitForDownload()
             guard LocalModelManager.installed else {
-                throw LLMError(message: "Das Earmark-Modell ist noch nicht geladen. "
+                throw LLMError(message: "Das lokale Modell ist noch nicht geladen. "
                     + "Öffne die Einstellungen unter „KI“ und klicke auf „Laden“.")
             }
         }

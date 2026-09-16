@@ -45,7 +45,7 @@ struct MenuBarView: View {
 
             Button { open(nil) } label: {
                 HStack {
-                    Text("Earmark öffnen").font(Theme.Font.small.weight(.semibold))
+                    Text("\(AppInfo.name) öffnen").font(Theme.Font.small.weight(.semibold))
                     Spacer()
                     Image(systemName: "arrow.up.forward").font(.system(size: 10, weight: .bold))
                 }
@@ -64,7 +64,7 @@ struct MenuBarView: View {
 
     private var header: some View {
         HStack(spacing: Theme.Space.s) {
-            Text("earmark")
+            Text(AppInfo.name.lowercased())
                 .font(.system(size: 15, weight: .bold, design: .rounded))
             if let call = app.detector.activeCallApp, !app.isRecording {
                 Label(call, systemImage: "phone.fill")
@@ -80,7 +80,7 @@ struct MenuBarView: View {
                 .help("Einstellungen")
             Button { NSApp.terminate(nil) } label: { Image(systemName: "power") }
                 .buttonStyle(RoundIconButtonStyle(size: 24, fill: .clear, foreground: .secondary))
-                .help("Earmark beenden")
+                .help("\(AppInfo.name) beenden")
         }
     }
 

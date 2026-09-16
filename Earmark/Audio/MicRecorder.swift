@@ -44,7 +44,7 @@ final class MicRecorder {
     func start(writingTo url: URL) throws {
         let format = engine.inputNode.outputFormat(forBus: 0)
         guard format.sampleRate > 0, format.channelCount > 0 else {
-            throw NSError(domain: "Earmark", code: 1,
+            throw NSError(domain: AppInfo.name, code: 1,
                           userInfo: [NSLocalizedDescriptionKey: "Kein Mikrofon gefunden oder kein Zugriff erlaubt."])
         }
         file = try AVAudioFile(forWriting: url, settings: format.settings,

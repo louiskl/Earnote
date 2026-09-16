@@ -88,7 +88,7 @@ struct CallPromptView: View {
                 .frame(width: 40, height: 40)
                 VStack(alignment: .leading, spacing: 2) {
                     Text("\(appName) erkannt").font(Theme.Font.body.weight(.semibold))
-                    Text("Soll Earmark mitschreiben?").font(Theme.Font.small).foregroundStyle(.secondary)
+                    Text("Soll \(AppInfo.name) mitschreiben?").font(Theme.Font.small).foregroundStyle(.secondary)
                 }
                 Spacer()
                 Button(action: onDismiss) {

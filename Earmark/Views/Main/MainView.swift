@@ -18,7 +18,7 @@ struct MainView: View {
     @State private var editingCategory: RecordingCategory?
     @State private var addingCategory = false
 
-    /// Farbe des Fensterhintergrunds: die des gewählten Bereichs, sonst Earmark-Koralle
+    /// Farbe des Fensterhintergrunds: die des gewählten Bereichs, sonst die Koralle der App
     private var tint: Color {
         if case .category(let id) = sidebar, let c = app.category(id) { return c.color }
         return Theme.brand
@@ -142,8 +142,8 @@ struct MainView: View {
 }
 
 extension Notification.Name {
-    static let showOnboarding = Notification.Name("earmark.showOnboarding")
-    static let toggleSidebar = Notification.Name("earmark.toggleSidebar")
+    static let showOnboarding = Notification.Name("\(AppInfo.bundleIdentifier).showOnboarding")
+    static let toggleSidebar = Notification.Name("\(AppInfo.bundleIdentifier).toggleSidebar")
 }
 
 // MARK: - Seitenleiste
@@ -500,8 +500,8 @@ struct EmptyDetailView: View {
                 Text(app.recordings.isEmpty ? "Bereit, wenn du es bist" : "Wähle eine Aufnahme")
                     .font(Theme.Font.title)
                 Text(app.recordings.isEmpty
-                     ? "Starte eine Aufnahme, sobald dein Meeting, Call oder deine Vorlesung beginnt.\nEarmark schreibt mit und macht daraus Notizen."
-                     : "Oder starte eine neue – Earmark schreibt mit.")
+                     ? "Starte eine Aufnahme, sobald dein Meeting, Call oder deine Vorlesung beginnt.\n\(AppInfo.name) schreibt mit und macht daraus Notizen."
+                     : "Oder starte eine neue – \(AppInfo.name) schreibt mit.")
                     .font(Theme.Font.body)
                     .multilineTextAlignment(.center)
                     .foregroundStyle(.secondary)

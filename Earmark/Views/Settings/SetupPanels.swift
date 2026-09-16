@@ -13,7 +13,7 @@ struct PermissionsPanel: View {
     var body: some View {
         VStack(spacing: 10) {
             PermissionRow(icon: "mic.fill", title: "Mikrofon",
-                          detail: "Damit Earmark deine Stimme aufnehmen kann.",
+                          detail: "Damit \(AppInfo.name) deine Stimme aufnehmen kann.",
                           granted: mic) {
                 Task {
                     if MicRecorder.permission == .denied { SystemSettingsLink.microphone() }
@@ -81,7 +81,7 @@ struct TranscriptionPanel: View {
             }
 
             Toggle("Sprecher unterscheiden („Ich“ / „Andere“)", isOn: $app.settings.speakerLabels)
-            Text("Earmark erkennt anhand von Mikrofon und Systemton, wer gerade spricht.")
+            Text("\(AppInfo.name) erkennt anhand von Mikrofon und Systemton, wer gerade spricht.")
                 .font(.caption).foregroundStyle(.secondary)
         }
         .onAppear {
@@ -186,7 +186,7 @@ struct AIPanel: View {
 
                 if provider.sendsDataOffDevice {
                     Label("Das Transkript wird zur Zusammenfassung an \(provider.label) gesendet. "
-                          + "Für vertrauliche Gespräche ist die Earmark-KI die sicherere Wahl.",
+                          + "Für vertrauliche Gespräche ist die lokale KI die sicherere Wahl.",
                           systemImage: "exclamationmark.shield")
                         .font(Theme.Font.caption)
                         .foregroundStyle(.orange)
@@ -358,7 +358,7 @@ struct AIPanel: View {
     }
 }
 
-/// Empfehlung für alle: Earmarks eigenes Modell, mit Erklärung, warum lokal gut ist.
+/// Empfehlung für alle: das eingebaute lokale Modell, mit Erklärung, warum lokal gut ist.
 struct LocalModelCard: View {
     @ObservedObject var model = LocalModelManager.shared
     let selected: Bool
@@ -376,7 +376,7 @@ struct LocalModelCard: View {
                                              startPoint: .topLeading, endPoint: .bottomTrailing)))
                 VStack(alignment: .leading, spacing: 3) {
                     HStack(spacing: Theme.Space.s) {
-                        Text("Earmark-KI").font(Theme.Font.heading)
+                        Text("Lokale KI").font(Theme.Font.heading)
                         Text("Empfohlen")
                             .font(Theme.Font.caption.weight(.semibold))
                             .padding(.horizontal, Theme.Space.s).padding(.vertical, 2)
@@ -562,7 +562,7 @@ struct DestinationsPanel: View {
             }
         case AppleNotesDestination.id:
             TextField("Ordner in Apple Notizen", text: $app.settings.destinations.appleNotesFolder).textFieldStyle(.roundedBorder)
-            Text("Beim ersten Export fragt macOS, ob Earmark Notizen steuern darf – bitte erlauben.")
+            Text("Beim ersten Export fragt macOS, ob \(AppInfo.name) Notizen steuern darf – bitte erlauben.")
                 .font(.caption).foregroundStyle(.secondary)
         case BearDestination.id:
             TextField("Tags (durch Komma getrennt)", text: $app.settings.destinations.bearTags).textFieldStyle(.roundedBorder)
@@ -595,7 +595,7 @@ struct NotionSetupView: View {
         VStack(alignment: .leading, spacing: 10) {
             if !app.settings.destinations.notionDatabaseID.isEmpty {
                 HStack {
-                    Label("Verbunden mit der Datenbank „Earmark“", systemImage: "checkmark.circle.fill").foregroundStyle(.green)
+                    Label("Verbunden mit der Datenbank „\(AppInfo.name)“", systemImage: "checkmark.circle.fill").foregroundStyle(.green)
                     Spacer()
                     if let url = URL(string: app.settings.destinations.notionDatabaseURL), !app.settings.destinations.notionDatabaseURL.isEmpty {
                         Button("In Notion öffnen") { NSWorkspace.shared.open(url) }
@@ -608,10 +608,10 @@ struct NotionSetupView: View {
                 .font(.caption)
             } else {
                 VStack(alignment: .leading, spacing: 6) {
-                    step(1, "Öffne notion.so/profile/integrations und erstelle eine neue interne Integration (z. B. „Earmark“).",
+                    step(1, "Öffne notion.so/profile/integrations und erstelle eine neue interne Integration (z. B. „\(AppInfo.name)“).",
                          link: "https://www.notion.so/profile/integrations")
                     step(2, "Kopiere das „Internal Integration Secret“ und füge es unten ein.")
-                    step(3, "Öffne in Notion die Seite, unter der Earmark die Datenbank anlegen soll: „•••“ › „Verbindungen“ › deine Integration hinzufügen.")
+                    step(3, "Öffne in Notion die Seite, unter der \(AppInfo.name) die Datenbank anlegen soll: „•••“ › „Verbindungen“ › deine Integration hinzufügen.")
                     step(4, "Kopiere den Link dieser Seite („Link kopieren“) und füge ihn unten ein.")
                 }
                 SecureField("Integration Secret (ntn_…)", text: $token).textFieldStyle(.roundedBorder)

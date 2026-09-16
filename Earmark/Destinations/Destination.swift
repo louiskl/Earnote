@@ -92,7 +92,7 @@ enum MarkdownDocument {
             if let c = p.category { out += "category: \"\(c.name)\"\n" }
             if let app = p.recording.sourceApp { out += "source: \"\(app)\"\n" }
             out += "duration_minutes: \(Int(p.recording.duration / 60))\n"
-            out += "tags: [earmark\(p.category.map { ", \(tag($0.name))" } ?? "")]\n"
+            out += "tags: [\(AppInfo.name.lowercased())\(p.category.map { ", \(tag($0.name))" } ?? "")]\n"
             out += "---\n\n"
         }
         out += "# \(p.title)\n\n"
@@ -166,7 +166,7 @@ struct MarkdownDestination: Destination {
     static let id = "markdown"
 
     static var defaultFolder: URL {
-        FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("Earmark")
+        FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent(AppInfo.name)
     }
 
     func export(_ p: ExportPayload) async throws -> String? {
@@ -206,7 +206,7 @@ struct AppleNotesDestination: Destination {
         if let s = p.summary { md += s.markdown + "\n\n" }
         if p.includeTranscript { md += "## Transkript\n\n" + p.transcript }
         let html = MarkdownDocument.html(md)
-        let folder = p.settings.appleNotesFolder.isEmpty ? "Earmark" : p.settings.appleNotesFolder
+        let folder = p.settings.appleNotesFolder.isEmpty ? AppInfo.name : p.settings.appleNotesFolder
 
         func q(_ s: String) -> String {
             "\"" + s.replacingOccurrences(of: "\\", with: "\\\\").replacingOccurrences(of: "\"", with: "\\\"") + "\""
@@ -243,7 +243,7 @@ struct BearDestination: Destination {
         let body = MarkdownDocument.build(payload, frontmatter: false)
             .components(separatedBy: "\n").dropFirst().joined(separator: "\n")   // Titel übergibt Bear separat
         var tags = p.settings.bearTags.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }
-        if let c = p.category { tags.append("earmark/\(MarkdownDocument.tag(c.name))") }
+        if let c = p.category { tags.append("\(AppInfo.name.lowercased())/\(MarkdownDocument.tag(c.name))") }
         var comps = URLComponents(string: "bear://x-callback-url/create")!
         comps.queryItems = [
             URLQueryItem(name: "title", value: p.title),
