@@ -1,4 +1,4 @@
-# Earnote (Repo/Target heißt noch „Earmark“)
+# Earnote
 
 Native macOS-App (später iPad/iPhone): nimmt Vorlesungen, Meetings und Calls auf, transkribiert lokal mit WhisperKit und schreibt Notizen mit einem eingebauten MLX-Modell. Zielgruppe: Studierende ohne Technik-Kenntnisse. Kostenlos, Open Source (MIT), privat.
 
@@ -10,4 +10,4 @@ Bei nicht-trivialen Features zuerst den Architekturvorschlag aus Abschnitt 20 li
 ## Arbeitsweise
 - Oberflächentexte auf Deutsch, einfach und für Einsteiger verständlich.
 - Neue/entfernte Swift-Dateien: `python3 scripts/generate_xcodeproj.py` ausführen.
-- Build: `xcodebuild -project Earmark.xcodeproj -scheme Earmark -configuration Debug build`
+- Build: `xcodebuild -project Earnote.xcodeproj -scheme Earnote -configuration Debug build`

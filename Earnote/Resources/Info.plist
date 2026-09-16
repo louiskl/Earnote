@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>de</string>
 	<key>CFBundleDisplayName</key>
-	<string>Earmark</string>
+	<string>Earnote</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIconFile</key>
@@ -29,15 +29,15 @@
 	<key>NSHumanReadableCopyright</key>
 	<string>Open Source · MIT License</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>Earmark nimmt deine Stimme in Meetings, Calls und Vorlesungen auf, um sie lokal zu transkribieren.</string>
+	<string>Earnote nimmt deine Stimme in Meetings, Calls und Vorlesungen auf, um sie lokal zu transkribieren.</string>
 	<key>NSAudioCaptureUsageDescription</key>
-	<string>Earmark nimmt den Ton anderer Apps (z. B. Zoom oder Teams) auf, damit auch die anderen Teilnehmenden transkribiert werden.</string>
+	<string>Earnote nimmt den Ton anderer Apps (z. B. Zoom oder Teams) auf, damit auch die anderen Teilnehmenden transkribiert werden.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
-	<string>Earmark nutzt die Apple-Spracherkennung, um Aufnahmen auf deinem Mac zu transkribieren.</string>
+	<string>Earnote nutzt die Apple-Spracherkennung, um Aufnahmen auf deinem Mac zu transkribieren.</string>
 	<key>NSAppleEventsUsageDescription</key>
-	<string>Earmark legt deine Notizen auf Wunsch in Apple Notizen ab.</string>
+	<string>Earnote legt deine Notizen auf Wunsch in Apple Notizen ab.</string>
 	<key>NSDocumentsFolderUsageDescription</key>
-	<string>Earmark speichert Notizen auf Wunsch als Markdown-Dateien in deinem Dokumente-Ordner.</string>
+	<string>Earnote speichert Notizen auf Wunsch als Markdown-Dateien in deinem Dokumente-Ordner.</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
 	<key>NSAppTransportSecurity</key>

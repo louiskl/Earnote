@@ -1,5 +1,5 @@
 #!/bin/bash
-# Baut Earmark.app (Release, Universal) und packt sie in dist/Earmark.dmg.
+# Baut Earnote.app (Release, Universal) und packt sie in dist/Earnote.dmg.
 #
 #   ./scripts/build_release.sh
 #
@@ -8,10 +8,10 @@
 #
 # Mit Apple Developer Program (Developer-ID-Zertifikat) entfällt diese Warnung:
 #   DEVELOPER_ID="Developer ID Application: Name (TEAMID)" \
-#   NOTARY_PROFILE="earmark-notary" \
+#   NOTARY_PROFILE="earnote-notary" \
 #   ./scripts/build_release.sh
 # Das Notary-Profil einmalig anlegen mit:
-#   xcrun notarytool store-credentials earmark-notary --apple-id … --team-id TEAMID
+#   xcrun notarytool store-credentials earnote-notary --apple-id … --team-id TEAMID
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -19,8 +19,8 @@ cd "$ROOT"
 
 BUILD="$ROOT/build"
 DIST="$ROOT/dist"
-APP="$BUILD/Build/Products/Release/Earmark.app"
-DMG="$DIST/Earmark.dmg"
+APP="$BUILD/Build/Products/Release/Earnote.app"
+DMG="$DIST/Earnote.dmg"
 
 SIGN_ARGS=(CODE_SIGN_IDENTITY="-" CODE_SIGN_STYLE=Manual DEVELOPMENT_TEAM="" CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO)
 if [[ -n "${DEVELOPER_ID:-}" ]]; then
@@ -32,10 +32,10 @@ else
     echo "▸ Kein DEVELOPER_ID gesetzt – signiere ad-hoc"
 fi
 
-echo "▸ Baue Earmark (Release) …"
-xcodebuild -project Earmark.xcodeproj -scheme Earmark -configuration Release \
+echo "▸ Baue Earnote (Release) …"
+xcodebuild -project Earnote.xcodeproj -scheme Earnote -configuration Release \
     -derivedDataPath "$BUILD" -destination 'generic/platform=macOS' \
-    "${SIGN_ARGS[@]}" clean build | grep -E "error:|warning: .*Earmark/|BUILD" || true
+    "${SIGN_ARGS[@]}" clean build | grep -E "error:|warning: .*Earnote/|BUILD" || true
 [[ -d "$APP" ]] || { echo "✗ Build fehlgeschlagen"; exit 1; }
 
 codesign --verify --strict "$APP"
@@ -45,7 +45,7 @@ rm -rf "$DIST"
 mkdir -p "$DIST/dmg"
 cp -R "$APP" "$DIST/dmg/"
 ln -s /Applications "$DIST/dmg/Applications"
-hdiutil create -volname Earmark -srcfolder "$DIST/dmg" -ov -format UDZO "$DMG" >/dev/null
+hdiutil create -volname Earnote -srcfolder "$DIST/dmg" -ov -format UDZO "$DMG" >/dev/null
 rm -rf "$DIST/dmg"
 
 if [[ -n "${DEVELOPER_ID:-}" ]]; then
@@ -58,4 +58,4 @@ if [[ -n "${DEVELOPER_ID:-}" ]]; then
 fi
 
 VERSION="$(defaults read "$APP/Contents/Info" CFBundleShortVersionString)"
-echo "✓ Fertig: $DMG  (Earmark $VERSION, $(du -h "$DMG" | cut -f1))"
+echo "✓ Fertig: $DMG  (Earnote $VERSION, $(du -h "$DMG" | cut -f1))"

@@ -34,7 +34,7 @@ struct MainView: View {
             let sidebarVisible = showSidebar && geo.size.width >= 700
             HStack(spacing: 0) {
                 if sidebarVisible {
-                    EarmarkSidebar(selection: $sidebar, search: $search, showSidebar: $showSidebar,
+                    EarnoteSidebar(selection: $sidebar, search: $search, showSidebar: $showSidebar,
                                    editingCategory: $editingCategory, addingCategory: $addingCategory)
                         .frame(width: 236)
                         .transition(.move(edge: .leading).combined(with: .opacity))
@@ -148,7 +148,7 @@ extension Notification.Name {
 
 // MARK: - Seitenleiste
 
-struct EarmarkSidebar: View {
+struct EarnoteSidebar: View {
     @EnvironmentObject var app: AppState
     @Binding var selection: SidebarItem
     @Binding var search: String

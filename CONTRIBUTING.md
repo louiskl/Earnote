@@ -1,11 +1,11 @@
-# Contributing to Earmark
+# Contributing to Earnote
 
 Thanks for helping! A few notes:
 
 ## Project layout
 
 ```
-Earmark/
+Earnote/
   App/            App entry, central AppState (recording + processing pipeline)
   Audio/          Mic recording, Core Audio system tap, mixing/resampling
   Transcription/  WhisperKit and Apple SpeechAnalyzer engines
@@ -13,7 +13,7 @@ Earmark/
   Destinations/   Notion, Obsidian, Apple Notes, Markdown, Bear, Craft
   Services/       Call detection, storage, keychain, notifications
   Views/          SwiftUI (main window, onboarding, settings, menu bar, pop-up)
-scripts/generate_xcodeproj.py   regenerates Earmark.xcodeproj
+scripts/generate_xcodeproj.py   regenerates Earnote.xcodeproj
 ```
 
 ## Adding things

@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""Erzeugt Earmark.xcodeproj (deterministisch) aus den Dateien im Ordner Earmark/.
+"""Erzeugt Earnote.xcodeproj (deterministisch) aus den Dateien im Ordner Earnote/.
 Aufruf: python3 scripts/generate_xcodeproj.py"""
 import hashlib, os
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-SRC = os.path.join(ROOT, "Earmark")
-PROJ = os.path.join(ROOT, "Earmark.xcodeproj")
+SRC = os.path.join(ROOT, "Earnote")
+PROJ = os.path.join(ROOT, "Earnote.xcodeproj")
 
 def uid(*parts):
     return hashlib.md5("/".join(parts).encode()).hexdigest()[:24].upper()
@@ -51,12 +51,12 @@ def group_key(rel):
 
 for rel, g in groups.items():
     children = [group_key(d) for d in sorted(g["dirs"])] + [file_refs[os.path.normpath(os.path.join(rel, f))] for f in g["files"]]
-    name = "Earmark" if rel == "." else os.path.basename(rel)
+    name = "Earnote" if rel == "." else os.path.basename(rel)
     add(group_key(rel), "{isa = PBXGroup; children = (" + "".join(f"{c}, " for c in children) +
         f'); path = "{name}"; sourceTree = "<group>"; }};')
 
 PRODUCT = uid("product")
-add(PRODUCT, '{isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Earmark.app; sourceTree = BUILT_PRODUCTS_DIR; };')
+add(PRODUCT, '{isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Earnote.app; sourceTree = BUILT_PRODUCTS_DIR; };')
 PRODUCTS_GROUP = uid("productsgroup")
 add(PRODUCTS_GROUP, f'{{isa = PBXGroup; children = ({PRODUCT}, ); name = Products; sourceTree = "<group>"; }};')
 MAIN_GROUP = uid("maingroup")
@@ -110,7 +110,7 @@ def settings_block(d):
 common_target = {
     "ASSETCATALOG_COMPILER_APPICON_NAME": "AppIcon",
     "ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME": "AccentColor",
-    "CODE_SIGN_ENTITLEMENTS": "Earmark/Resources/Earmark.entitlements",
+    "CODE_SIGN_ENTITLEMENTS": "Earnote/Resources/Earnote.entitlements",
     "CODE_SIGN_IDENTITY": "-",
     "CODE_SIGN_STYLE": "Automatic",
     "COMBINE_HIDPI_IMAGES": "YES",
@@ -118,11 +118,11 @@ common_target = {
     "DEVELOPMENT_TEAM": "",
     "ENABLE_HARDENED_RUNTIME": "YES",
     "GENERATE_INFOPLIST_FILE": "NO",
-    "INFOPLIST_FILE": "Earmark/Resources/Info.plist",
+    "INFOPLIST_FILE": "Earnote/Resources/Info.plist",
     "LD_RUNPATH_SEARCH_PATHS": "$(inherited) @executable_path/../Frameworks",
     "MACOSX_DEPLOYMENT_TARGET": "14.4",
     "MARKETING_VERSION": "0.1.0",
-    "PRODUCT_BUNDLE_IDENTIFIER": "app.earmark.Earmark",
+    "PRODUCT_BUNDLE_IDENTIFIER": "app.earnote.Earnote",
     "PRODUCT_NAME": "$(TARGET_NAME)",
     "SWIFT_EMIT_LOC_STRINGS": "YES",
     "SWIFT_VERSION": "5.0",
@@ -157,8 +157,8 @@ add(PLIST, f"{{isa = XCConfigurationList; buildConfigurations = ({PCFG_D}, {PCFG
 
 TARGET = uid("target")
 add(TARGET, f"{{isa = PBXNativeTarget; buildConfigurationList = {TLIST}; buildPhases = ({SOURCES}, {FRAMEWORKS}, {RESOURCES}, ); "
-            f"buildRules = (); dependencies = (); name = Earmark; packageProductDependencies = (" + "".join(f"{p}, " for p in PKG_PRODUCTS) + f"); "
-            f"productName = Earmark; productReference = {PRODUCT}; productType = \"com.apple.product-type.application\"; }};")
+            f"buildRules = (); dependencies = (); name = Earnote; packageProductDependencies = (" + "".join(f"{p}, " for p in PKG_PRODUCTS) + f"); "
+            f"productName = Earnote; productReference = {PRODUCT}; productType = \"com.apple.product-type.application\"; }};")
 PROJECT = uid("project")
 add(PROJECT, f"{{isa = PBXProject; attributes = {{BuildIndependentTargetsInParallel = 1; LastSwiftUpdateCheck = 1600; LastUpgradeCheck = 1600; "
              f"TargetAttributes = {{{TARGET} = {{CreatedOnToolsVersion = 16.0; }}; }}; }}; buildConfigurationList = {PLIST}; "
@@ -178,8 +178,8 @@ with open(os.path.join(PROJ, "project.xcworkspace", "contents.xcworkspacedata"),
 # Schema, damit "Run" sofort funktioniert
 sd = os.path.join(PROJ, "xcshareddata", "xcschemes")
 os.makedirs(sd, exist_ok=True)
-ref = f'<BuildableReference BuildableIdentifier = "primary" BlueprintIdentifier = "{TARGET}" BuildableName = "Earmark.app" BlueprintName = "Earmark" ReferencedContainer = "container:Earmark.xcodeproj"></BuildableReference>'
-with open(os.path.join(sd, "Earmark.xcscheme"), "w") as f:
+ref = f'<BuildableReference BuildableIdentifier = "primary" BlueprintIdentifier = "{TARGET}" BuildableName = "Earnote.app" BlueprintName = "Earnote" ReferencedContainer = "container:Earnote.xcodeproj"></BuildableReference>'
+with open(os.path.join(sd, "Earnote.xcscheme"), "w") as f:
     f.write(f'''<?xml version="1.0" encoding="UTF-8"?>
 <Scheme LastUpgradeVersion = "1600" version = "1.7">
    <BuildAction parallelizeBuildables = "YES" buildImplicitDependencies = "YES">

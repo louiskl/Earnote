@@ -3,7 +3,7 @@ import UniformTypeIdentifiers
 import UserNotifications
 
 @main
-struct EarmarkApp: App {
+struct EarnoteApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var delegate
     @StateObject private var app = AppState.shared
 
