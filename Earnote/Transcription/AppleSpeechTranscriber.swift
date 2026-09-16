@@ -7,6 +7,8 @@ import Speech
 /// Apples eingebaute Spracherkennung (SpeechAnalyzer, macOS 26+). Kein Modell-Download nötig.
 @available(macOS 26.0, *)
 struct AppleSpeechTranscriber: Transcriber {
+    var engineName: String { "Apple" }
+
     static func supports(language: String) async -> Bool {
         let id = language == "auto" ? Locale.current.identifier : language
         return await SpeechTranscriber.supportedLocale(equivalentTo: Locale(identifier: id)) != nil

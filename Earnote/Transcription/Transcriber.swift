@@ -1,6 +1,7 @@
 import Foundation
 
 protocol Transcriber {
+    var engineName: String { get }
     func transcribe(audio url: URL, language: String,
                     progress: @escaping (Double) -> Void) async throws -> [TranscriptSegment]
 }
@@ -28,10 +29,10 @@ enum TranscriberFactory {
             #endif
             throw TranscriptionError.unavailable("Die Apple-Spracherkennung benötigt macOS 26. Bitte Whisper auswählen.")
         case .whisperKit:
-            guard let folder = WhisperModelManager.shared.installedFolder(for: settings.whisperModel) else {
+            guard let selected = WhisperModelManager.shared.installedFolder(for: settings.whisperModel) else {
                 throw TranscriptionError.modelMissing
             }
-            return WhisperTranscriber(modelFolder: folder)
+            return WhisperTranscriber(modelFolder: selected.folder, modelName: selected.model)
         }
     }
 

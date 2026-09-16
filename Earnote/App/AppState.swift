@@ -599,8 +599,7 @@ final class AppState: ObservableObject {
                 segments[i].speaker = envelope.speaker(from: segments[i].start, to: segments[i].end)
             }
         }
-        let engine = settings.transcriptionEngine == .apple ? "Apple" : "Whisper \(settings.whisperModel)"
-        return Transcript(segments: segments, engine: engine)
+        return Transcript(segments: segments, engine: transcriber.engineName)
     }
 
     // MARK: Verwaltung
@@ -622,8 +621,13 @@ final class AppState: ObservableObject {
     func setCategory(_ id: UUID, _ categoryID: UUID?) { update(id) { $0.categoryID = categoryID } }
 
     func deleteAudio(_ id: UUID) {
-        for url in [Storage.micURL(id), Storage.systemURL(id), Storage.mixURL(id)] {
-            try? FileManager.default.removeItem(at: url)
+        var urls = [Storage.micURL(id), Storage.systemURL(id), Storage.mixURL(id)]
+        if let imported = recording(id)?.importedFileName {
+            urls.append(Storage.folder(for: id).appendingPathComponent(imported))
+        }
+        for url in urls where FileManager.default.fileExists(atPath: url.path) {
+            do { try FileManager.default.removeItem(at: url) }
+            catch { Log.error("Audiodatei nicht gelöscht (\(url.lastPathComponent)): \(error.localizedDescription)") }
         }
     }
 
@@ -641,9 +645,11 @@ final class AppState: ObservableObject {
     func transcript(_ id: UUID) -> Transcript? { Storage.load(Transcript.self, from: Storage.transcriptURL(id)) }
     func summary(_ id: UUID) -> Summary? { Storage.load(Summary.self, from: Storage.summaryURL(id).appendingPathExtension("json")) }
     func hasAudio(_ id: UUID) -> Bool {
-        FileManager.default.fileExists(atPath: Storage.micURL(id).path)
+        if let imported = recording(id)?.importedFileName {
+            return FileManager.default.fileExists(atPath: Storage.folder(for: id).appendingPathComponent(imported).path)
+        }
+        return FileManager.default.fileExists(atPath: Storage.micURL(id).path)
             || FileManager.default.fileExists(atPath: Storage.mixURL(id).path)
-            || recording(id)?.importedFileName != nil
     }
 
     func revealInFinder(_ id: UUID) {
