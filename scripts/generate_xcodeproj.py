@@ -159,12 +159,37 @@ TARGET = uid("target")
 add(TARGET, f"{{isa = PBXNativeTarget; buildConfigurationList = {TLIST}; buildPhases = ({SOURCES}, {FRAMEWORKS}, {RESOURCES}, ); "
             f"buildRules = (); dependencies = (); name = Earnote; packageProductDependencies = (" + "".join(f"{p}, " for p in PKG_PRODUCTS) + f"); "
             f"productName = Earnote; productReference = {PRODUCT}; productType = \"com.apple.product-type.application\"; }};")
+# Kleines, app-gehostetes Regressionstest-Target; die App-Buildsettings bleiben unverändert.
+TEST_TARGET, TEST_PRODUCT = uid("test-target"), uid("test-product")
+TEST_FILE, TEST_BUILD, TEST_SOURCES = uid("test-file"), uid("test-build"), uid("test-sources")
+TEST_GROUP, TEST_CONFIGS = uid("test-group"), uid("test-configs")
+TEST_DEPENDENCY, TEST_PROXY = uid("test-dependency"), uid("test-proxy")
 PROJECT = uid("project")
+add(TEST_FILE, '{isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Phase0Tests.swift; sourceTree = "<group>"; };')
+add(TEST_GROUP, f'{{isa = PBXGroup; children = ({TEST_FILE}, ); path = Tests; sourceTree = "<group>"; }};')
+add(TEST_BUILD, f'{{isa = PBXBuildFile; fileRef = {TEST_FILE}; }};')
+add(TEST_SOURCES, f'{{isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = ({TEST_BUILD}, ); runOnlyForDeploymentPostprocessing = 0; }};')
+add(TEST_PRODUCT, '{isa = PBXFileReference; explicitFileType = wrapper.cfbundle; path = EarnoteTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };')
+add(PRODUCTS_GROUP, f'{{isa = PBXGroup; children = ({PRODUCT}, {TEST_PRODUCT}, ); name = Products; sourceTree = "<group>"; }};')
+add(MAIN_GROUP, f'{{isa = PBXGroup; children = ({group_key(".")}, {TEST_GROUP}, {PRODUCTS_GROUP}, ); sourceTree = "<group>"; }};')
+test_settings = {
+    "PRODUCT_BUNDLE_IDENTIFIER": "app.earnote.tests", "PRODUCT_NAME": "$(TARGET_NAME)",
+    "GENERATE_INFOPLIST_FILE": "YES", "SWIFT_VERSION": "5.0", "CODE_SIGN_IDENTITY": "-",
+    "CODE_SIGN_STYLE": "Manual", "TEST_HOST": "$(BUILT_PRODUCTS_DIR)/Earnote.app/Contents/MacOS/Earnote",
+    "BUNDLE_LOADER": "$(TEST_HOST)", "LD_RUNPATH_SEARCH_PATHS": "$(inherited) @loader_path/../Frameworks @executable_path/../Frameworks",
+}
+for name in ("Debug", "Release"):
+    add(uid("test-config", name), "{isa = XCBuildConfiguration; buildSettings = " + settings_block(test_settings) + f"; name = {name}; }};")
+add(TEST_CONFIGS, f'{{isa = XCConfigurationList; buildConfigurations = ({uid("test-config", "Debug")}, {uid("test-config", "Release")}, ); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; }};')
+add(TEST_PROXY, f'{{isa = PBXContainerItemProxy; containerPortal = {PROJECT}; proxyType = 1; remoteGlobalIDString = {TARGET}; remoteInfo = Earnote; }};')
+add(TEST_DEPENDENCY, f'{{isa = PBXTargetDependency; target = {TARGET}; targetProxy = {TEST_PROXY}; }};')
+add(TEST_TARGET, f'{{isa = PBXNativeTarget; buildConfigurationList = {TEST_CONFIGS}; buildPhases = ({TEST_SOURCES}, ); buildRules = (); dependencies = ({TEST_DEPENDENCY}, ); name = EarnoteTests; productName = EarnoteTests; productReference = {TEST_PRODUCT}; productType = "com.apple.product-type.bundle.unit-test"; }};')
+
 add(PROJECT, f"{{isa = PBXProject; attributes = {{BuildIndependentTargetsInParallel = 1; LastSwiftUpdateCheck = 1600; LastUpgradeCheck = 1600; "
              f"TargetAttributes = {{{TARGET} = {{CreatedOnToolsVersion = 16.0; }}; }}; }}; buildConfigurationList = {PLIST}; "
              f"compatibilityVersion = \"Xcode 14.0\"; developmentRegion = de; hasScannedForEncodings = 0; knownRegions = (de, en, Base, ); "
              f"mainGroup = {MAIN_GROUP}; packageReferences = (" + "".join(f"{r}, " for r in PKG_REFS) + f"); productRefGroup = {PRODUCTS_GROUP}; projectDirPath = \"\"; "
-             f"projectRoot = \"\"; targets = ({TARGET}, ); }};")
+             f"projectRoot = \"\"; targets = ({TARGET}, {TEST_TARGET}, ); }};")
 
 os.makedirs(os.path.join(PROJ, "project.xcworkspace"), exist_ok=True)
 with open(os.path.join(PROJ, "project.pbxproj"), "w") as f:
@@ -190,6 +215,7 @@ with open(os.path.join(sd, "Earnote.xcscheme"), "w") as f:
       </BuildActionEntries>
    </BuildAction>
    <TestAction buildConfiguration = "Debug" selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB" selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB" shouldUseLaunchSchemeArgsEnv = "YES">
+      <Testables><TestableReference skipped = "NO"><BuildableReference BuildableIdentifier = "primary" BlueprintIdentifier = "{TEST_TARGET}" BuildableName = "EarnoteTests.xctest" BlueprintName = "EarnoteTests" ReferencedContainer = "container:Earnote.xcodeproj"></BuildableReference></TestableReference></Testables>
    </TestAction>
    <LaunchAction buildConfiguration = "Debug" selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB" selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB" launchStyle = "0" useCustomWorkingDirectory = "NO" ignoresPersistentStateOnLaunch = "NO" debugDocumentVersioning = "YES" debugServiceExtension = "internal" allowLocationSimulation = "YES">
       <BuildableProductRunnable runnableDebuggingMode = "0">
