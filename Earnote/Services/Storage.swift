@@ -4,10 +4,21 @@ import Foundation
 enum Storage {
     static let root: URL = {
         let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-        let url = base.appendingPathComponent(AppInfo.supportFolderName, isDirectory: true)
+        let url = supportRoot(in: base, defaults: .standard)
         try? FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
         return url
     }()
+
+    /// Nach einem fehlgeschlagenen Umzug weiter die alten Daten verwenden. Sonst würde der
+    /// App-Start einen leeren Zielordner anlegen und den erneuten Umzug beim nächsten Start blockieren.
+    static func supportRoot(in base: URL, defaults: UserDefaults) -> URL {
+        let new = base.appendingPathComponent(AppInfo.supportFolderName, isDirectory: true)
+        let old = base.appendingPathComponent(AppInfo.legacySupportFolderName, isDirectory: true)
+        if defaults.integer(forKey: "legacyMigrationVersion") < 1,
+           !FileManager.default.fileExists(atPath: new.path),
+           FileManager.default.fileExists(atPath: old.path) { return old }
+        return new
+    }
 
     static var recordingsDir: URL { dir("Recordings") }
     static var modelsDir: URL { dir("Models") }

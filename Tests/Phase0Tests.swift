@@ -115,11 +115,13 @@ final class Phase0Tests: XCTestCase {
             run(root, defaults, old: ["whisper.installed": ["base": old.path + "/model"]], logs: &logs)
             XCTAssertEqual(defaults.integer(forKey: "legacyMigrationVersion"), 0)
             XCTAssertFalse(FileManager.default.fileExists(atPath: new.path))
+            XCTAssertEqual(Storage.supportRoot(in: root, defaults: defaults).path, old.path)
             XCTAssertEqual(defaults.dictionary(forKey: "whisper.installed")?["base"] as? String, old.path + "/model")
             try FileManager.default.setAttributes([.posixPermissions: 0o700], ofItemAtPath: root.path)
             run(root, defaults, logs: &logs)
             XCTAssertEqual(defaults.integer(forKey: "legacyMigrationVersion"), 1)
             XCTAssertEqual(defaults.dictionary(forKey: "whisper.installed")?["base"] as? String, new.path + "/model")
+            XCTAssertEqual(Storage.supportRoot(in: root, defaults: defaults).path, new.path)
         }
     }
 
