@@ -1,9 +1,9 @@
 import Foundation
 
-enum TranscriptionEngineKind: String, Codable, CaseIterable, Identifiable {
+public enum TranscriptionEngineKind: String, Codable, CaseIterable, Identifiable, Sendable {
     case apple, whisperKit
-    var id: String { rawValue }
-    var label: String {
+    public var id: String { rawValue }
+    public var label: String {
         switch self {
         case .apple: return "Apple Spracherkennung (macOS 26+)"
         case .whisperKit: return "Whisper (lokal, WhisperKit)"
@@ -11,11 +11,11 @@ enum TranscriptionEngineKind: String, Codable, CaseIterable, Identifiable {
     }
 }
 
-enum AIProviderKind: String, Codable, CaseIterable, Identifiable {
+public enum AIProviderKind: String, Codable, CaseIterable, Identifiable, Sendable {
     case localModel, appleIntelligence, ollama, lmStudio, anthropic, openAI, gemini, mistral, openAICompatible, claudeCode, codex, none
-    var id: String { rawValue }
+    public var id: String { rawValue }
 
-    var label: String {
+    public var label: String {
         switch self {
         case .localModel: return "Lokale KI"
         case .appleIntelligence: return "Apple Intelligence"
@@ -32,7 +32,7 @@ enum AIProviderKind: String, Codable, CaseIterable, Identifiable {
         }
     }
 
-    var subtitle: String {
+    public var subtitle: String {
         switch self {
         case .localModel: return "Läuft komplett auf deinem Mac. Kostenlos, ohne Konto, auch offline – und nichts aus deinen Meetings verlässt das Gerät."
         case .appleIntelligence: return "Kostenlos, lokal auf deinem Mac. Ab macOS 26 mit Apple Intelligence. Einfachere Notizen als die lokale KI."
@@ -49,7 +49,7 @@ enum AIProviderKind: String, Codable, CaseIterable, Identifiable {
         }
     }
 
-    var symbol: String {
+    public var symbol: String {
         switch self {
         case .localModel: return "lock.shield.fill"
         case .appleIntelligence: return "apple.logo"
@@ -63,16 +63,16 @@ enum AIProviderKind: String, Codable, CaseIterable, Identifiable {
         }
     }
 
-    var needsAPIKey: Bool { [AIProviderKind.anthropic, .openAI, .gemini, .mistral, .openAICompatible].contains(self) }
-    var isLocal: Bool { [AIProviderKind.localModel, .appleIntelligence, .ollama, .lmStudio].contains(self) }
+    public var needsAPIKey: Bool { [AIProviderKind.anthropic, .openAI, .gemini, .mistral, .openAICompatible].contains(self) }
+    public var isLocal: Bool { [AIProviderKind.localModel, .appleIntelligence, .ollama, .lmStudio].contains(self) }
 
     /// Sendet das Transkript an einen fremden Server (wichtig für den Datenschutz-Hinweis)
-    var sendsDataOffDevice: Bool { !isLocal && self != .none }
+    public var sendsDataOffDevice: Bool { !isLocal && self != .none }
 
     /// Standard für neue Installationen: das eigene lokale Modell, wo es läuft.
-    static var recommended: AIProviderKind { LocalModelManager.isSupported ? .localModel : .appleIntelligence }
+    public static var recommended: AIProviderKind { DeviceCapabilities.supportsLocalModel ? .localModel : .appleIntelligence }
 
-    var defaultModel: String {
+    public var defaultModel: String {
         switch self {
         case .anthropic: return "claude-sonnet-4-5"
         case .openAI: return "gpt-4.1-mini"
@@ -83,7 +83,7 @@ enum AIProviderKind: String, Codable, CaseIterable, Identifiable {
         }
     }
 
-    var defaultBaseURL: String {
+    public var defaultBaseURL: String {
         switch self {
         case .ollama: return "http://localhost:11434"
         case .lmStudio: return "http://localhost:1234/v1"
@@ -94,11 +94,11 @@ enum AIProviderKind: String, Codable, CaseIterable, Identifiable {
 
     /// Wie viele Zeichen Transkript das Modell pro Anfrage verarbeiten soll.
     /// Längere Transkripte werden in Abschnitten zusammengefasst.
-    var chunkCharacters: Int {
+    public var chunkCharacters: Int {
         switch self {
         case .appleIntelligence: return 5_000   // Kontext ~4k Token: Anweisungen + Material + Antwort müssen hineinpassen
         // Großes Kontextfenster: eine Stunde Meeting passt am Stück. Mit wenig Arbeitsspeicher kleiner schneiden.
-        case .localModel: return LocalModelManager.memoryGB >= 15 ? 60_000 : 20_000
+        case .localModel: return DeviceCapabilities.memoryGB >= 15 ? 60_000 : 20_000
         case .ollama, .lmStudio: return 24_000
         case .openAICompatible: return 60_000
         default: return 400_000
@@ -106,58 +106,62 @@ enum AIProviderKind: String, Codable, CaseIterable, Identifiable {
     }
 }
 
-struct AIConfig: Codable, Hashable {
-    var provider: AIProviderKind = .recommended
-    var model: String = ""
-    var baseURL: String = ""
-    var summaryLanguage: String = "Deutsch"
+public struct AIConfig: Codable, Hashable, Sendable {
+    public var provider: AIProviderKind = .recommended
+    public var model: String = ""
+    public var baseURL: String = ""
+    public var summaryLanguage: String = "Deutsch"
 
-    var effectiveModel: String { model.isEmpty ? provider.defaultModel : model }
-    var effectiveBaseURL: String { baseURL.isEmpty ? provider.defaultBaseURL : baseURL }
+    public init() {}
+
+    public var effectiveModel: String { model.isEmpty ? provider.defaultModel : model }
+    public var effectiveBaseURL: String { baseURL.isEmpty ? provider.defaultBaseURL : baseURL }
 }
 
-struct DestinationSettings: Codable, Hashable {
-    var enabled: Set<String> = [MarkdownDestination.id]
-    var includeTranscript: Bool = true
+public struct DestinationSettings: Codable, Hashable, Sendable {
+    public var enabled: Set<String> = [MarkdownDestination.id]
+    public var includeTranscript: Bool = true
 
     // Notion
-    var notionDatabaseID: String = ""
-    var notionDatabaseURL: String = ""
+    public var notionDatabaseID: String = ""
+    public var notionDatabaseURL: String = ""
     // Obsidian
-    var obsidianVaultPath: String = ""
-    var obsidianFolder: String = AppInfo.name
+    public var obsidianVaultPath: String = ""
+    public var obsidianFolder: String = AppInfo.name
     // Markdown-Ordner
-    var markdownFolderPath: String = ""
+    public var markdownFolderPath: String = ""
     // Apple Notes
-    var appleNotesFolder: String = AppInfo.name
+    public var appleNotesFolder: String = AppInfo.name
     // Bear
-    var bearTags: String = AppInfo.name.lowercased()
+    public var bearTags: String = AppInfo.name.lowercased()
     // Craft
-    var craftSpaceID: String = ""
+    public var craftSpaceID: String = ""
+
+    public init() {}
 }
 
-struct AppSettings: Codable, Hashable {
-    var onboardingCompleted = false
-    var transcriptionEngine: TranscriptionEngineKind = .whisperKit
-    var whisperModel: String = ""
-    var language: String = "de"
-    var speakerLabels = true
-    var ai = AIConfig()
-    var destinations = DestinationSettings()
-    var meetingDetection = true
-    var autoStopWhenCallEnds = true
-    var recordSystemAudio = true
-    var keepAudioFiles = true
-    var showConsentReminder = true
-    var defaultCategoryID: UUID?
+public struct AppSettings: Codable, Hashable, Sendable {
+    public var onboardingCompleted = false
+    public var transcriptionEngine: TranscriptionEngineKind = .whisperKit
+    public var whisperModel: String = ""
+    public var language: String = "de"
+    public var speakerLabels = true
+    public var ai = AIConfig()
+    public var destinations = DestinationSettings()
+    public var meetingDetection = true
+    public var autoStopWhenCallEnds = true
+    public var recordSystemAudio = true
+    public var keepAudioFiles = true
+    public var showConsentReminder = true
+    public var defaultCategoryID: UUID?
     /// Hauptfenster beim Start der App öffnen (sonst nur in der Menüleiste)
-    var openWindowAtLaunch = true
+    public var openWindowAtLaunch = true
 
-    init() {}
+    public init() {}
 
     /// Liest jedes Feld einzeln mit Standardwert. So bleiben gespeicherte Einstellungen erhalten,
     /// wenn neue Felder hinzukommen – sonst würde ein Update alles auf Werkseinstellung zurücksetzen.
-    init(from decoder: Decoder) throws {
+    public init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
         let d = AppSettings()
         onboardingCompleted = try c.decodeIfPresent(Bool.self, forKey: .onboardingCompleted) ?? d.onboardingCompleted
@@ -176,7 +180,7 @@ struct AppSettings: Codable, Hashable {
         openWindowAtLaunch = try c.decodeIfPresent(Bool.self, forKey: .openWindowAtLaunch) ?? d.openWindowAtLaunch
     }
 
-    static let languages: [(code: String, name: String)] = [
+    public static let languages: [(code: String, name: String)] = [
         ("de", "Deutsch"), ("en", "Englisch"), ("fr", "Französisch"), ("es", "Spanisch"),
         ("it", "Italienisch"), ("nl", "Niederländisch"), ("pl", "Polnisch"), ("tr", "Türkisch"), ("auto", "Automatisch erkennen"),
     ]

@@ -2,30 +2,30 @@ import Foundation
 
 /// Vorlagen, aus denen man sich beim Einrichten seine Bereiche zusammenklickt.
 /// Jede bringt passende Hinweise für die KI mit – man muss nichts selbst formulieren.
-struct CategoryTemplate: Identifiable, Hashable {
-    enum Group: String, CaseIterable, Identifiable {
+public struct CategoryTemplate: Identifiable, Hashable, Sendable {
+    public enum Group: String, CaseIterable, Identifiable, Sendable {
         case work = "Arbeit"
         case study = "Studium & Schule"
         case personal = "Privat"
-        var id: String { rawValue }
+        public var id: String { rawValue }
     }
 
-    let id: String
-    let group: Group
-    let emoji: String
-    let name: String
-    let detail: String
-    let colorHex: String
-    let instructions: String
+    public let id: String
+    public let group: Group
+    public let emoji: String
+    public let name: String
+    public let detail: String
+    public let colorHex: String
+    public let instructions: String
 
-    func makeCategory() -> RecordingCategory {
+    public func makeCategory() -> RecordingCategory {
         RecordingCategory(name: name, emoji: emoji, symbol: "star.fill", colorHex: colorHex, instructions: instructions)
     }
 
     /// Die Vorlage „Vorlesung“ bietet an, direkt Fächer bzw. Module anzulegen.
-    var supportsSubjects: Bool { id == "lecture" }
+    public var supportsSubjects: Bool { id == "lecture" }
 
-    static let all: [CategoryTemplate] = [
+    public static let all: [CategoryTemplate] = [
         CategoryTemplate(id: "meeting", group: .work, emoji: "💼", name: "Meeting",
                          detail: "Teammeetings, Jour fixe, Abstimmungen", colorHex: "#4F7CFF",
                          instructions: RecordingCategory.defaults[0].instructions),
@@ -67,14 +67,14 @@ struct CategoryTemplate: Identifiable, Hashable {
     ]
 
     /// Vorausgewählt für Neue: deckt die häufigsten Fälle ab, ohne zu überladen.
-    static let suggested: Set<String> = ["meeting", "memo"]
+    public static let suggested: Set<String> = ["meeting", "memo"]
 
     /// Emojis und Farben, die Fächer nacheinander bekommen – so sind sie in der Seitenleiste sofort unterscheidbar.
-    static let subjectEmojis = ["📐", "📊", "🧬", "⚖️", "💻", "🌍", "📖", "🧮", "🧪", "🎨", "🏛️", "🔬"]
-    static let subjectColors = ["#8B5CF6", "#4F7CFF", "#10B981", "#F59E0B", "#EC4899", "#06B6D4", "#FF5A4E", "#64748B"]
+    public static let subjectEmojis = ["📐", "📊", "🧬", "⚖️", "💻", "🌍", "📖", "🧮", "🧪", "🎨", "🏛️", "🔬"]
+    public static let subjectColors = ["#8B5CF6", "#4F7CFF", "#10B981", "#F59E0B", "#EC4899", "#06B6D4", "#FF5A4E", "#64748B"]
 
     /// Legt für jedes Fach einen eigenen Bereich mit den Hinweisen der Vorlesungs-Vorlage an.
-    static func subjectCategories(_ names: [String]) -> [RecordingCategory] {
+    public static func subjectCategories(_ names: [String]) -> [RecordingCategory] {
         let lecture = all.first { $0.id == "lecture" }!
         return names.enumerated().map { i, name in
             RecordingCategory(name: name, emoji: subjectEmojis[i % subjectEmojis.count], symbol: "graduationcap.fill",
