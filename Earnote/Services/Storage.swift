@@ -1,10 +1,10 @@
 import Foundation
 
-/// Dateiablage: ~/Library/Application Support/Earmark
+/// Dateiablage: ~/Library/Application Support/<AppInfo.supportFolderName>
 enum Storage {
     static let root: URL = {
         let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-        let url = base.appendingPathComponent("Earmark", isDirectory: true)
+        let url = base.appendingPathComponent(AppInfo.supportFolderName, isDirectory: true)
         try? FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
         return url
     }()
@@ -62,8 +62,8 @@ enum Storage {
 }
 
 enum Log {
-    static let url = Storage.root.appendingPathComponent("earmark.log")
-    private static let queue = DispatchQueue(label: "earmark.log")
+    static let url = Storage.root.appendingPathComponent(AppInfo.logFileName)
+    private static let queue = DispatchQueue(label: "\(AppInfo.bundleIdentifier).log")
     private static let formatter: DateFormatter = {
         let f = DateFormatter(); f.dateFormat = "yyyy-MM-dd HH:mm:ss"; return f
     }()

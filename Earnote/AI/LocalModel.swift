@@ -51,9 +51,14 @@ final class LocalModelManager: ObservableObject {
     }
 
     /// Wird erst nach vollständigem Download geschrieben – ein abgebrochener Download gilt nicht als installiert.
-    nonisolated private static var completeMarker: URL { folder.appendingPathComponent(".earmark-complete") }
+    nonisolated private static var completeMarker: URL { folder.appendingPathComponent(".complete") }
+    /// Name der Markierung vor der Umbenennung der App (wird bei der Datenübernahme umbenannt)
+    nonisolated private static var legacyCompleteMarker: URL { folder.appendingPathComponent(".earmark-complete") }
 
-    nonisolated static var installed: Bool { FileManager.default.fileExists(atPath: completeMarker.path) }
+    nonisolated static var installed: Bool {
+        FileManager.default.fileExists(atPath: completeMarker.path)
+            || FileManager.default.fileExists(atPath: legacyCompleteMarker.path)
+    }
 
     /// Liegen alle Dateien vollständig im Ordner? Prüft Konfiguration, Tokenizer und jede Gewichtsdatei,
     /// die im Index aufgeführt ist.

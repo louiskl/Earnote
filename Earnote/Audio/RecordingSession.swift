@@ -6,6 +6,7 @@ final class RecordingSession {
     private let mic = MicRecorder()
     private var tap: SystemAudioTap?
     private(set) var systemAudioActive = false
+    private(set) var systemAudioError: String?
 
     init(recordingID: UUID) { self.recordingID = recordingID }
 
@@ -45,6 +46,7 @@ final class RecordingSession {
             systemAudioActive = true
         } catch {
             // Aufnahme läuft trotzdem weiter – nur ohne Systemton
+            systemAudioError = error.localizedDescription
             Log.error("Systemaudio nicht verfügbar: \(error.localizedDescription)")
         }
     }

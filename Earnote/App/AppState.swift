@@ -217,6 +217,9 @@ final class AppState: ObservableObject {
             insert(rec)
             self.session = session
             activeRecordingID = rec.id
+            if let error = session.systemAudioError {
+                lastError = "Die Aufnahme läuft nur mit Mikrofon. Systemton konnte nicht gestartet werden: \(error) Prüfe die Systemaudio-Berechtigung für \(AppInfo.name) in den Systemeinstellungen."
+            }
             recordingStartedByCall = byCall
             isPaused = false
             pausedAt = nil

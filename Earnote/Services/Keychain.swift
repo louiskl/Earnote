@@ -3,7 +3,7 @@ import Security
 
 /// Speichert API-Schlüssel sicher im macOS-Schlüsselbund.
 enum Keychain {
-    private static let service = "app.earmark.secrets"
+    private static let service = AppInfo.keychainService
 
     static func set(_ value: String?, for key: String) {
         let base: [String: Any] = [

@@ -5,7 +5,14 @@ import UserNotifications
 @main
 struct EarnoteApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var delegate
-    @StateObject private var app = AppState.shared
+    @StateObject private var app: AppState
+
+    init() {
+        // Muss vor allem anderen laufen: AppState, Storage und Log würden sonst schon im neuen,
+        // leeren Datenordner lesen oder ihn anlegen, bevor die alten Daten übernommen sind.
+        LegacyMigration.runIfNeeded()
+        _app = StateObject(wrappedValue: AppState.shared)
+    }
 
     var body: some Scene {
         Window(AppInfo.name, id: "main") {
