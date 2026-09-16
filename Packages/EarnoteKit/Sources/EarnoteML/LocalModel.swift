@@ -1,3 +1,4 @@
+import EarnoteCore
 import Foundation
 import HuggingFace
 import MLXLLM
@@ -10,43 +11,37 @@ import Tokenizers
 /// Einmal laden, danach funktioniert es ohne Konto, ohne Kosten und ohne Internet –
 /// und kein Wort aus dem Meeting verlässt das Gerät.
 @MainActor
-final class LocalModelManager: ObservableObject {
-    static let shared = LocalModelManager()
+public final class LocalModelManager: ObservableObject {
+    public static let shared = LocalModelManager()
 
-    struct ModelInfo {
-        let repository: String
-        let name: String
-        let sizeText: String
+    public struct ModelInfo: Sendable {
+        public let repository: String
+        public let name: String
+        public let sizeText: String
     }
 
     /// Qwen3 4B (Instruct 2507, 4 Bit): gutes Deutsch, hält sich an Vorgaben, verarbeitet lange Transkripte am Stück.
-    static let standard = ModelInfo(repository: "mlx-community/Qwen3-4B-Instruct-2507-4bit",
+    public static let standard = ModelInfo(repository: "mlx-community/Qwen3-4B-Instruct-2507-4bit",
                                     name: "Qwen3 4B", sizeText: "2,3 GB")
 
-    @Published private(set) var isInstalled = LocalModelManager.installed
-    @Published private(set) var isDownloading = false
-    @Published private(set) var progress: Double = 0
-    @Published var lastError: String?
+    @Published public private(set) var isInstalled = LocalModelManager.installed
+    @Published public private(set) var isDownloading = false
+    @Published public private(set) var progress: Double = 0
+    @Published public var lastError: String?
 
     private var downloadTask: Task<Void, Never>?
 
     // MARK: Voraussetzungen
 
-    nonisolated static var memoryGB: Double { Double(ProcessInfo.processInfo.physicalMemory) / 1_073_741_824 }
+    nonisolated public static var memoryGB: Double { DeviceCapabilities.memoryGB }
 
     /// Apple Silicon mit mindestens 8 GB Arbeitsspeicher
-    nonisolated static var isSupported: Bool { unsupportedReason == nil }
+    nonisolated public static var isSupported: Bool { DeviceCapabilities.supportsLocalModel }
 
-    nonisolated static var unsupportedReason: String? {
-        #if arch(arm64)
-        return memoryGB >= 7.5 ? nil : "Dieser Mac hat zu wenig Arbeitsspeicher für das lokale Modell (mindestens 8 GB)."
-        #else
-        return "Das lokale Modell benötigt einen Mac mit Apple-Chip (M1 oder neuer)."
-        #endif
-    }
+    nonisolated public static var unsupportedReason: String? { DeviceCapabilities.localModelUnsupportedReason }
 
-    nonisolated static var folder: URL {
-        Storage.modelsDir.appendingPathComponent("llm", isDirectory: true)
+    nonisolated public static var folder: URL {
+        Storage.standard.modelsDir.appendingPathComponent("llm", isDirectory: true)
             .appendingPathComponent(standard.repository.replacingOccurrences(of: "/", with: "--"), isDirectory: true)
     }
 
@@ -55,14 +50,14 @@ final class LocalModelManager: ObservableObject {
     /// Name der Markierung vor der Umbenennung der App (wird bei der Datenübernahme umbenannt)
     nonisolated private static var legacyCompleteMarker: URL { folder.appendingPathComponent(".earmark-complete") }
 
-    nonisolated static var installed: Bool {
+    nonisolated public static var installed: Bool {
         FileManager.default.fileExists(atPath: completeMarker.path)
             || FileManager.default.fileExists(atPath: legacyCompleteMarker.path)
     }
 
     /// Liegen alle Dateien vollständig im Ordner? Prüft Konfiguration, Tokenizer und jede Gewichtsdatei,
     /// die im Index aufgeführt ist.
-    nonisolated static var filesComplete: Bool {
+    nonisolated public static var filesComplete: Bool {
         let fm = FileManager.default
         for name in ["config.json", "tokenizer.json", "tokenizer_config.json"]
         where !fm.fileExists(atPath: folder.appendingPathComponent(name).path) {
@@ -79,7 +74,7 @@ final class LocalModelManager: ObservableObject {
 
     // MARK: Download
 
-    func download() {
+    public func download() {
         guard !isDownloading, !isInstalled, Self.isSupported else { return }
         isDownloading = true
         progress = 0
@@ -119,11 +114,11 @@ final class LocalModelManager: ObservableObject {
         }
     }
 
-    func cancelDownload() {
+    public func cancelDownload() {
         downloadTask?.cancel()
     }
 
-    func delete() {
+    public func delete() {
         cancelDownload()
         Task { await LocalLLMCache.shared.release() }
         try? FileManager.default.removeItem(at: Self.folder)
@@ -132,7 +127,7 @@ final class LocalModelManager: ObservableObject {
     }
 
     /// Wartet auf einen laufenden Download (z. B. wenn eine Aufnahme fertig ist, während das Modell noch lädt).
-    func waitForDownload() async {
+    public func waitForDownload() async {
         while isDownloading {
             try? await Task.sleep(nanoseconds: 1_000_000_000)
         }
@@ -142,11 +137,11 @@ final class LocalModelManager: ObservableObject {
 // MARK: - Modell im Speicher
 
 /// Hält das geladene Modell, solange Aufnahmen verarbeitet werden, und gibt den Speicher danach frei.
-actor LocalLLMCache {
-    static let shared = LocalLLMCache()
+public actor LocalLLMCache {
+    public static let shared = LocalLLMCache()
     private var container: ModelContainer?
 
-    func container() async throws -> ModelContainer {
+    public func container() async throws -> ModelContainer {
         if let container { return container }
         let loaded = try await LLMModelFactory.shared.loadContainer(from: LocalModelManager.folder,
                                                                      using: TransformersTokenizerLoader())
@@ -154,15 +149,17 @@ actor LocalLLMCache {
         return loaded
     }
 
-    func release() {
+    public func release() {
         container = nil
     }
 }
 
 // MARK: - Client
 
-struct LocalLLMClient: LLMClient {
-    func complete(system: String, prompt: String) async throws -> String {
+public struct LocalLLMClient: LLMClient {
+    public init() {}
+
+    public func complete(system: String, prompt: String) async throws -> String {
         if let reason = LocalModelManager.unsupportedReason { throw LLMError(message: reason) }
         if !LocalModelManager.installed {
             await LocalModelManager.shared.waitForDownload()
