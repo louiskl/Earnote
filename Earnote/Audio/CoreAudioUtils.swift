@@ -1,3 +1,4 @@
+import EarnoteCore
 import AVFoundation
 import CoreAudio
 

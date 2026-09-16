@@ -1,3 +1,4 @@
+import EarnoteCore
 import SwiftUI
 
 // MARK: - Vorlagen auswählen
@@ -164,24 +165,6 @@ struct WrapLayout: Layout {
             x += size.width + spacing
             rowHeight = max(rowHeight, size.height)
         }
-    }
-}
-
-extension AppState {
-    /// Übernimmt ausgewählte Vorlagen und Fächer als Bereiche. Bereiche mit gleichem Namen bleiben erhalten,
-    /// damit bestehende Aufnahmen ihre Zuordnung nicht verlieren.
-    @discardableResult
-    func addCategories(templates: Set<String>, subjects: [String]) -> [RecordingCategory] {
-        let existing = Set(categories.map(\.name))
-        var added: [RecordingCategory] = []
-        for template in CategoryTemplate.all where templates.contains(template.id) && !existing.contains(template.name) {
-            // Wer Fächer einträgt, braucht keinen zusätzlichen allgemeinen Bereich „Vorlesung“
-            if template.supportsSubjects && !subjects.isEmpty { continue }
-            added.append(template.makeCategory())
-        }
-        added += CategoryTemplate.subjectCategories(subjects.filter { !existing.contains($0) })
-        categories.append(contentsOf: added)
-        return added
     }
 }
 

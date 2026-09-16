@@ -1,3 +1,4 @@
+import EarnoteCore
 import AVFoundation
 
 /// Mischt Mikrofon und Systemton während der Aufnahme in Echtzeit zusammen – für die Live-Mitschrift.

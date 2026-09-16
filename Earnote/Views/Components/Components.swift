@@ -1,3 +1,4 @@
+import EarnoteCore
 import SwiftUI
 
 /// Hauptaktion: gefüllt, mit feinem Verlauf und Lichtkante. Beim Drücken federt sie kurz ein.
@@ -96,6 +97,7 @@ struct CategoryChip: View {
 
 /// Status einer Aufnahme als kleine Plakette.
 struct StatusBadge: View {
+    @EnvironmentObject var app: AppState
     let recording: Recording
 
     var body: some View {
@@ -105,8 +107,8 @@ struct StatusBadge: View {
         case .failed:
             StatusPill(text: "Problem", color: .orange)
         case .recording:
-            StatusPill(text: AppState.shared.isPaused ? "Pausiert" : "Aufnahme läuft",
-                       color: Theme.accent, animated: !AppState.shared.isPaused)
+            StatusPill(text: app.isPaused ? "Pausiert" : "Aufnahme läuft",
+                       color: Theme.accent, animated: !app.isPaused)
         default:
             StatusPill(text: recording.progress > 0
                        ? "\(recording.status.label) · \(Int(recording.progress * 100)) %"

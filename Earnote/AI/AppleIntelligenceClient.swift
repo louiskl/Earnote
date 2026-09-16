@@ -1,4 +1,5 @@
 #if canImport(FoundationModels)
+import EarnoteCore
 import Foundation
 import FoundationModels
 

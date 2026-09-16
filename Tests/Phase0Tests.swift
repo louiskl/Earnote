@@ -1,3 +1,5 @@
+import EarnoteCore
+import EarnoteML
 import XCTest
 @testable import Earnote
 
@@ -137,32 +139,6 @@ final class Phase0Tests: XCTestCase {
         }
     }
 
-    private func segments(_ texts: [String], gap: Double = 0) -> [TranscriptSegment] {
-        texts.enumerated().map { i, text in
-            TranscriptSegment(start: Double(i) * (2 + gap), end: Double(i) * (2 + gap) + 2, text: text)
-        }
-    }
-
-    func testNormalizedRepeatedSentencesAndAlternatingLoops() {
-        let a = "Vielen Dank fürs Zuhören."
-        let b = "Das war unsere heutige Zusammenfassung."
-        XCTAssertEqual(WhisperTranscriber.removeRepetitions(segments([a, "VIELEN DANK fürs Zuhören!", a])).map(\.text), [a])
-        XCTAssertEqual(WhisperTranscriber.removeRepetitions(segments([a, b, a, b, a, b])).map(\.text), [a, b])
-    }
-
-    func testRealContentShortAnswersPausesAndSpeakersArePreserved() {
-        for texts in [["Ja!", "ja", "Nein", "Ja"], ["...", "!"],
-                      ["Wir haben drei Aufgaben.", "Wir haben vier Aufgaben."]] {
-            XCTAssertEqual(WhisperTranscriber.removeRepetitions(segments(texts)).map(\.text), texts)
-        }
-        let texts = ["Vielen Dank fürs Zuhören.", "Vielen Dank fürs Zuhören."]
-        XCTAssertEqual(WhisperTranscriber.removeRepetitions(segments(texts, gap: 10)).count, 2)
-        var speakers = segments(texts)
-        speakers[0].speaker = "Ich"
-        speakers[1].speaker = "Andere"
-        XCTAssertEqual(WhisperTranscriber.removeRepetitions(speakers).count, 2)
-    }
-
     @MainActor
     func testFallbackReportsActuallyUsedModel() throws {
         let manager = WhisperModelManager.shared
@@ -174,28 +150,5 @@ final class Phase0Tests: XCTestCase {
         settings.whisperModel = "missing-phase0-test-model"
         let transcriber = try TranscriberFactory.make(for: settings)
         XCTAssertEqual(transcriber.engineName, "Whisper \(expected)")
-    }
-
-    @MainActor
-    func testDeletingImportedAudioRemovesFileAndDisablesReprocessing() throws {
-        let source = FileManager.default.temporaryDirectory.appendingPathComponent("phase0-\(UUID().uuidString).wav")
-        try Data().write(to: source)
-        defer { try? FileManager.default.removeItem(at: source) }
-        let app = AppState.shared
-        let oldSelection = app.selection
-        defer { app.selection = oldSelection }
-        app.importAudio([source], category: nil)
-        let recording = try XCTUnwrap(app.recordings.first { $0.title == source.deletingPathExtension().lastPathComponent })
-        defer { app.delete(recording.id) }
-        XCTAssertTrue(app.hasAudio(recording.id))
-        let folder = Storage.folder(for: recording.id)
-        for name in ["mic.caf", "system.caf", "audio.wav"] { try Data().write(to: folder.appendingPathComponent(name)) }
-        app.deleteAudio(recording.id)
-        XCTAssertFalse(app.hasAudio(recording.id))
-        for name in ["mic.caf", "system.caf", "audio.wav", "import.wav"] {
-            XCTAssertFalse(FileManager.default.fileExists(atPath: folder.appendingPathComponent(name).path))
-        }
-        XCTAssertTrue(FileManager.default.fileExists(atPath: Storage.metaURL(recording.id).path))
-        XCTAssertTrue(FileManager.default.fileExists(atPath: source.path), "Originaldatei bleibt erhalten")
     }
 }

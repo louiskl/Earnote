@@ -62,27 +62,20 @@ add(PRODUCTS_GROUP, f'{{isa = PBXGroup; children = ({PRODUCT}, ); name = Product
 MAIN_GROUP = uid("maingroup")
 add(MAIN_GROUP, f'{{isa = PBXGroup; children = ({group_key(".")}, {PRODUCTS_GROUP}, ); sourceTree = "<group>"; }};')
 
-# Swift Packages: (Name, Repository, Mindestversion, Produkte)
-# WhisperKit: lokale Transkription. mlx-swift-lm + HuggingFace + Transformers: lokales Sprachmodell für die Notizen.
-PACKAGES = [
-    ("whisperkit", "https://github.com/argmaxinc/WhisperKit", "1.1.0", ["WhisperKit"]),
-    ("mlx-swift-lm", "https://github.com/ml-explore/mlx-swift-lm", "3.31.4", ["MLXLLM", "MLXLMCommon"]),
-    ("swift-huggingface", "https://github.com/huggingface/swift-huggingface", "0.9.0", ["HuggingFace"]),
-    ("swift-transformers", "https://github.com/huggingface/swift-transformers", "1.3.0", ["Tokenizers"]),
-]
-PKG_REFS, PKG_PRODUCTS, PKG_BUILDS = [], [], []
-for name, url, version, products in PACKAGES:
-    ref = uid("pkg", name)
-    add(ref, f'{{isa = XCRemoteSwiftPackageReference; repositoryURL = "{url}"; '
-             f'requirement = {{kind = upToNextMajorVersion; minimumVersion = {version}; }}; }};')
-    PKG_REFS.append(ref)
-    for product in products:
-        prod = uid("pkgproduct", name, product)
-        add(prod, f'{{isa = XCSwiftPackageProductDependency; package = {ref}; productName = {product}; }};')
-        build = uid("pkgbuild", name, product)
-        add(build, f'{{isa = PBXBuildFile; productRef = {prod}; }};')
-        PKG_PRODUCTS.append(prod)
-        PKG_BUILDS.append(build)
+# Swift Package: lokal unter Packages/EarnoteKit. Die Drittanbieter-Pakete (WhisperKit, MLX, HuggingFace,
+# Transformers) sind dort in Package.swift eingetragen.
+LOCAL_PACKAGE = uid("localpkg", "EarnoteKit")
+add(LOCAL_PACKAGE, '{isa = XCLocalSwiftPackageReference; relativePath = "Packages/EarnoteKit"; };')
+PKG_REFS, PKG_PRODUCTS, PKG_BUILDS = [LOCAL_PACKAGE], [], []
+for product in ["EarnoteCore", "EarnoteML"]:
+    prod = uid("pkgproduct", "EarnoteKit", product)
+    add(prod, f'{{isa = XCSwiftPackageProductDependency; productName = {product}; }};')
+    build = uid("pkgbuild", "EarnoteKit", product)
+    add(build, f'{{isa = PBXBuildFile; productRef = {prod}; }};')
+    PKG_PRODUCTS.append(prod)
+    PKG_BUILDS.append(build)
+PACKAGE_GROUP = uid("group", "Packages")
+add(PACKAGE_GROUP, '{isa = PBXFileReference; lastKnownFileType = wrapper; path = "Packages/EarnoteKit"; sourceTree = "<group>"; };')
 
 build_files = []
 for f in swift_files:
@@ -171,7 +164,7 @@ add(TEST_BUILD, f'{{isa = PBXBuildFile; fileRef = {TEST_FILE}; }};')
 add(TEST_SOURCES, f'{{isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = ({TEST_BUILD}, ); runOnlyForDeploymentPostprocessing = 0; }};')
 add(TEST_PRODUCT, '{isa = PBXFileReference; explicitFileType = wrapper.cfbundle; path = EarnoteTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };')
 add(PRODUCTS_GROUP, f'{{isa = PBXGroup; children = ({PRODUCT}, {TEST_PRODUCT}, ); name = Products; sourceTree = "<group>"; }};')
-add(MAIN_GROUP, f'{{isa = PBXGroup; children = ({group_key(".")}, {TEST_GROUP}, {PRODUCTS_GROUP}, ); sourceTree = "<group>"; }};')
+add(MAIN_GROUP, f'{{isa = PBXGroup; children = ({group_key(".")}, {PACKAGE_GROUP}, {TEST_GROUP}, {PRODUCTS_GROUP}, ); sourceTree = "<group>"; }};')
 test_settings = {
     "PRODUCT_BUNDLE_IDENTIFIER": "app.earnote.tests", "PRODUCT_NAME": "$(TARGET_NAME)",
     "GENERATE_INFOPLIST_FILE": "YES", "SWIFT_VERSION": "5.0", "CODE_SIGN_IDENTITY": "-",

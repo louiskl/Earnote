@@ -1,3 +1,4 @@
+import EarnoteCore
 import Foundation
 
 /// Nutzt installierte Kommandozeilen-Tools (Claude Code, Codex) – damit läuft die

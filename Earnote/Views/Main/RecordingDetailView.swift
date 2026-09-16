@@ -1,3 +1,4 @@
+import EarnoteCore
 import SwiftUI
 
 struct RecordingDetailView: View {
@@ -482,7 +483,7 @@ struct TranscriptTurn: Identifiable {
 /// Dunkle Bühne während der Aufnahme: große Uhr, leuchtende Wellenform und die Live-Mitschrift im Mittelpunkt.
 struct LiveRecordingView: View {
     @EnvironmentObject var app: AppState
-    @ObservedObject var meter = AppState.shared.meter
+    @EnvironmentObject var meter: LiveMeter
     var compact = false
     @State private var glow = false
 
@@ -581,7 +582,7 @@ struct LiveRecordingView: View {
 struct LiveTranscriptView: View {
     enum Style { case stage, compact, menu }
 
-    @ObservedObject var live = AppState.shared.live
+    @EnvironmentObject var live: LiveTranscript
     var style: Style = .compact
 
     var body: some View {

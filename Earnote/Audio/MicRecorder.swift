@@ -1,3 +1,4 @@
+import EarnoteCore
 import AVFoundation
 
 /// Nimmt das Standard-Mikrofon auf. Wechselt das Eingabegerät während der Aufnahme

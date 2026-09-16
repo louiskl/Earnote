@@ -1,3 +1,4 @@
+import EarnoteCore
 import SwiftUI
 
 struct OnboardingView: View {

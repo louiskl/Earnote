@@ -1,3 +1,5 @@
+import EarnoteCore
+import EarnoteML
 import AVFoundation
 import SwiftUI
 import UserNotifications
@@ -348,8 +350,8 @@ struct AIPanel: View {
         defer { testing = false }
         if provider.needsAPIKey { Keychain.setAPIKey(apiKey, for: provider) }
         do {
-            if let models = try? await LLMFactory.listModels(app.settings.ai), !models.isEmpty { availableModels = models }
-            guard let client = try LLMFactory.make(app.settings.ai) else { testState = "Keine KI ausgewählt"; return }
+            if let models = try? await app.llm.listModels(app.settings.ai), !models.isEmpty { availableModels = models }
+            guard let client = try app.llm.make(app.settings.ai) else { testState = "Keine KI ausgewählt"; return }
             let answer = try await client.complete(system: "Antworte sehr kurz.", prompt: "Sag auf Deutsch Hallo und nenne dein Modell.")
             testState = "✓ " + answer.prefix(120)
         } catch {

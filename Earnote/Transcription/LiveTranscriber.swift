@@ -1,4 +1,5 @@
 #if canImport(FoundationModels)
+import EarnoteCore
 import AVFoundation
 import Foundation
 import Speech

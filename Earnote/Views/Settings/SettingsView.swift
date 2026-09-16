@@ -1,3 +1,4 @@
+import EarnoteCore
 import SwiftUI
 
 struct SettingsView: View {
@@ -50,7 +51,7 @@ struct GeneralSettings: View {
                 Text("Behaltene Audiodateien ermöglichen eine spätere Neu-Transkription. 1 Stunde ≈ 250–600 MB.")
                     .font(.caption).foregroundStyle(.secondary)
                 HStack {
-                    Button("Datenordner öffnen") { NSWorkspace.shared.open(Storage.root) }
+                    Button("Datenordner öffnen") { NSWorkspace.shared.open(Storage.standard.root) }
                     Button("Protokoll öffnen") { NSWorkspace.shared.open(Log.url) }
                 }
             }

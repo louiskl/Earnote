@@ -1,4 +1,5 @@
 import AppKit
+import EarnoteCore
 import SwiftUI
 
 private final class KeyablePanel: NSPanel {
@@ -12,15 +13,15 @@ final class FloatingPanels {
     private var callPanel: NSPanel?
     private var hideTask: Task<Void, Never>?
 
-    func showCallPrompt(app appName: String) {
+    func showCallPrompt(app appName: String, state: AppState) {
         hideCallPrompt(animated: false)
         let view = CallPromptView(appName: appName) { [weak self] category in
-            AppState.shared.startRecording(category: category, sourceApp: appName, byCall: true)
+            state.startRecording(category: category, sourceApp: appName, byCall: true)
             self?.hideCallPrompt()
         } onDismiss: { [weak self] in
             self?.hideCallPrompt()
         }
-        .environmentObject(AppState.shared)
+        .environmentObject(state)
 
         let hosting = NSHostingView(rootView: view)
         let size = hosting.fittingSize

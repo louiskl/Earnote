@@ -1,3 +1,4 @@
+import EarnoteCore
 import Combine
 import SwiftUI
 import UniformTypeIdentifiers
@@ -225,7 +226,7 @@ struct EarnoteSidebar: View {
             }
 
             HStack(spacing: Theme.Space.xs) {
-                Button { ImportHelper.pickAndImport() } label: { Image(systemName: "tray.and.arrow.down") }
+                Button { ImportHelper.pickAndImport(into: app) } label: { Image(systemName: "tray.and.arrow.down") }
                     .buttonStyle(RoundIconButtonStyle(size: 30, fill: .white.opacity(0.35)))
                     .help("Audiodatei importieren (⌘I)")
                 SettingsLink { Image(systemName: "gearshape") }
@@ -365,7 +366,7 @@ struct RecordPill: View {
 /// Dunkle Mini-Karte in der Seitenleiste, solange aufgenommen wird
 struct SidebarRecordingCard: View {
     @EnvironmentObject var app: AppState
-    @ObservedObject var meter = AppState.shared.meter
+    @EnvironmentObject var meter: LiveMeter
 
     var body: some View {
         VStack(alignment: .leading, spacing: Theme.Space.s + 2) {
@@ -716,7 +717,7 @@ struct RecordingCardRow: View {
 /// Oben in der Liste, solange aufgenommen wird – ein Klick öffnet die Live-Ansicht.
 struct LiveListBanner: View {
     @EnvironmentObject var app: AppState
-    @ObservedObject var meter = AppState.shared.meter
+    @EnvironmentObject var meter: LiveMeter
     let recording: Recording
 
     var body: some View {

@@ -1,3 +1,4 @@
+import EarnoteCore
 import AppKit
 import ServiceManagement
 import UserNotifications

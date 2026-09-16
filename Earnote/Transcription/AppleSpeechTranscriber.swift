@@ -1,6 +1,7 @@
 #if canImport(FoundationModels)
 import AVFoundation
 import CoreMedia
+import EarnoteCore
 import Foundation
 import Speech
 
@@ -15,7 +16,7 @@ struct AppleSpeechTranscriber: Transcriber {
     }
 
     func transcribe(audio url: URL, language: String,
-                    progress: @escaping (Double) -> Void) async throws -> [TranscriptSegment] {
+                    progress: @escaping @Sendable (Double) -> Void) async throws -> [TranscriptSegment] {
         let id = language == "auto" ? Locale.current.identifier : language
         guard let locale = await SpeechTranscriber.supportedLocale(equivalentTo: Locale(identifier: id)) else {
             throw TranscriptionError.unsupportedLanguage(id)

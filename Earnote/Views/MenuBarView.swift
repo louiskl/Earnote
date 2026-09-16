@@ -1,8 +1,9 @@
+import EarnoteCore
 import SwiftUI
 
 struct MenuBarLabel: View {
-    @ObservedObject var app = AppState.shared
-    @ObservedObject var meter = AppState.shared.meter
+    @EnvironmentObject var app: AppState
+    @EnvironmentObject var meter: LiveMeter
 
     var body: some View {
         if app.isRecording {
@@ -205,7 +206,7 @@ private struct MenuRecentRow: View {
 /// Dunkle Aufnahme-Bühne im Kleinen
 private struct MenuRecordingStage: View {
     @EnvironmentObject var app: AppState
-    @ObservedObject var meter = AppState.shared.meter
+    @EnvironmentObject var meter: LiveMeter
 
     var body: some View {
         let category = app.category(app.activeRecording?.categoryID)

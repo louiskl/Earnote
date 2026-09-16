@@ -1,3 +1,4 @@
+import EarnoteCore
 import SwiftUI
 import UniformTypeIdentifiers
 import UserNotifications
@@ -6,18 +7,24 @@ import UserNotifications
 struct EarnoteApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var delegate
     @StateObject private var app: AppState
+    private let environment: AppEnvironment
 
     init() {
-        // Muss vor allem anderen laufen: AppState, Storage und Log würden sonst schon im neuen,
+        // Muss vor allem anderen laufen: Stores, Storage und Log würden sonst schon im neuen,
         // leeren Datenordner lesen oder ihn anlegen, bevor die alten Daten übernommen sind.
         LegacyMigration.runIfNeeded()
-        _app = StateObject(wrappedValue: AppState.shared)
+        let environment = AppEnvironment()
+        self.environment = environment
+        _app = StateObject(wrappedValue: environment.appState)
+        delegate.app = environment.appState
     }
 
     var body: some Scene {
         Window(AppInfo.name, id: "main") {
             MainView()
                 .environmentObject(app)
+                .environmentObject(app.meter)
+                .environmentObject(app.live)
         }
         .windowStyle(.hiddenTitleBar)
         .windowResizability(.contentMinSize)
@@ -37,7 +44,7 @@ struct EarnoteApp: App {
                 Button(app.isPaused ? "Aufnahme fortsetzen" : "Aufnahme pausieren") { app.togglePause() }
                     .keyboardShortcut("p", modifiers: [.command, .shift])
                     .disabled(!app.isRecording)
-                Button("Audiodatei importieren …") { ImportHelper.pickAndImport() }
+                Button("Audiodatei importieren …") { ImportHelper.pickAndImport(into: app) }
                     .keyboardShortcut("i", modifiers: [.command])
             }
         }
@@ -45,22 +52,31 @@ struct EarnoteApp: App {
         Settings {
             SettingsView()
                 .environmentObject(app)
+                .environmentObject(app.meter)
+                .environmentObject(app.live)
         }
 
         MenuBarExtra {
             MenuBarView()
                 .environmentObject(app)
+                .environmentObject(app.meter)
+                .environmentObject(app.live)
         } label: {
             MenuBarLabel()
+                .environmentObject(app)
+                .environmentObject(app.meter)
         }
         .menuBarExtraStyle(.window)
     }
 }
 
 final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDelegate {
+    /// Wird in `EarnoteApp.init` gesetzt
+    var app: AppState?
+
     func applicationDidFinishLaunching(_ notification: Notification) {
         UNUserNotificationCenter.current().delegate = self
-        let state = AppState.shared
+        guard let state = app else { return }
         Log.info("\(AppInfo.name) gestartet")
         // Wer das Fenster beim Start nicht will, ist die App nur in der Menüleiste.
         // Beim allerersten Start bleibt es offen, damit der Einrichtungsassistent erscheint.
@@ -79,8 +95,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { false }
 
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
-        let state = AppState.shared
-        if state.isRecording {
+        if let state = app, state.isRecording {
             let alert = NSAlert()
             alert.messageText = "Aufnahme läuft noch"
             alert.informativeText = "Soll die Aufnahme gespeichert werden? Sie wird beim nächsten Start verarbeitet."
@@ -100,11 +115,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
 
 @MainActor
 enum ImportHelper {
-    static func pickAndImport() {
+    static func pickAndImport(into app: AppState) {
         let panel = NSOpenPanel()
         panel.allowedContentTypes = [.audio, .mpeg4Movie, .quickTimeMovie]
         panel.allowsMultipleSelection = true
         panel.message = "Audiodateien zum Transkribieren auswählen"
-        if panel.runModal() == .OK { AppState.shared.importAudio(panel.urls, category: nil) }
+        if panel.runModal() == .OK { app.importAudio(panel.urls, category: nil) }
     }
 }
