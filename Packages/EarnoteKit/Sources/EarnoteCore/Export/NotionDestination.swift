@@ -1,10 +1,12 @@
 import Foundation
 
 /// Notion über die offizielle API (interne Integration).
-struct NotionDestination: Destination {
-    static let id = "notion"
+public struct NotionDestination: Destination {
+    public static let id = "notion"
     private static let api = "https://api.notion.com/v1"
     private static let version = "2022-06-28"
+
+    public init() {}
 
     private static func call(_ method: String, _ path: String, _ body: [String: Any]? = nil) async throws -> [String: Any] {
         guard let token = Keychain.notionToken, !token.isEmpty else { throw DestinationNotConfigured(hint: "Notion ist noch nicht verbunden. In den Einstellungen unter „Ziele“ verbinden.") }
@@ -20,7 +22,7 @@ struct NotionDestination: Destination {
 
     // MARK: Einrichtung
 
-    static func extractID(from link: String) -> String? {
+    public static func extractID(from link: String) -> String? {
         let hex = link.replacingOccurrences(of: "-", with: "")
         guard let regex = try? NSRegularExpression(pattern: "[0-9a-fA-F]{32}") else { return nil }
         let matches = regex.matches(in: hex, range: NSRange(hex.startIndex..., in: hex))
@@ -28,13 +30,13 @@ struct NotionDestination: Destination {
         return String(hex[r]).lowercased()
     }
 
-    static func testToken() async throws -> String {
+    public static func testToken() async throws -> String {
         let me = try await call("GET", "/users/me")
         return (me["bot"] as? [String: Any]).flatMap { ($0["workspace_name"] as? String) } ?? (me["name"] as? String ?? "Notion")
     }
 
     /// Legt unter der angegebenen Seite eine Datenbank mit dem App-Namen an.
-    static func createDatabase(parentLink: String, categories: [RecordingCategory]) async throws -> (id: String, url: String) {
+    public static func createDatabase(parentLink: String, categories: [RecordingCategory]) async throws -> (id: String, url: String) {
         guard let parent = extractID(from: parentLink) else {
             throw LLMError(message: "Im Link wurde keine Notion-Seiten-ID gefunden.")
         }
@@ -60,7 +62,7 @@ struct NotionDestination: Destination {
 
     // MARK: Export
 
-    func export(_ p: ExportPayload) async throws -> String? {
+    public func export(_ p: ExportPayload) async throws -> String? {
         guard !p.settings.notionDatabaseID.isEmpty else { throw LLMError(message: "Notion-Datenbank ist nicht eingerichtet") }
 
         var blocks: [[String: Any]] = [[
@@ -121,14 +123,14 @@ struct NotionDestination: Destination {
 
     // MARK: Markdown → Notion-Blöcke
 
-    static func block(_ type: String, _ richText: [[String: Any]], extra: [String: Any] = [:]) -> [String: Any] {
+    public static func block(_ type: String, _ richText: [[String: Any]], extra: [String: Any] = [:]) -> [String: Any] {
         var content: [String: Any] = ["rich_text": richText]
         extra.forEach { content[$0.key] = $0.value }
         return ["object": "block", "type": type, type: content]
     }
 
     /// Text mit **fett** in Notion-Rich-Text umwandeln (max. 2000 Zeichen je Element).
-    static func richText(_ text: String, bold: Bool = false) -> [[String: Any]] {
+    public static func richText(_ text: String, bold: Bool = false) -> [[String: Any]] {
         var out: [[String: Any]] = []
         let parts = text.components(separatedBy: "**")
         for (i, part) in parts.enumerated() where !part.isEmpty {
@@ -143,7 +145,7 @@ struct NotionDestination: Destination {
         return Array(out.prefix(100))
     }
 
-    static func blocks(fromMarkdown md: String) -> [[String: Any]] {
+    public static func blocks(fromMarkdown md: String) -> [[String: Any]] {
         var blocks: [[String: Any]] = []
         for raw in md.components(separatedBy: "\n") {
             let indent = raw.prefix { $0 == " " }.count
