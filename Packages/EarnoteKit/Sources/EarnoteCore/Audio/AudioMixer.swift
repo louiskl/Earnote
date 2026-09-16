@@ -1,15 +1,15 @@
 import AVFoundation
 
 /// Liest eine Audiodatei stückweise und liefert 16 kHz Mono (Float32).
-final class ResamplingReader {
-    static let outputFormat = AVAudioFormat(commonFormat: .pcmFormatFloat32, sampleRate: 16_000, channels: 1, interleaved: false)!
+public final class ResamplingReader {
+    public static let outputFormat = AVAudioFormat(commonFormat: .pcmFormatFloat32, sampleRate: 16_000, channels: 1, interleaved: false)!
 
     private let file: AVAudioFile
     private let converter: AVAudioConverter
     private var endOfFile = false
-    let duration: Double
+    public let duration: Double
 
-    init(url: URL) throws {
+    public init(url: URL) throws {
         file = try AVAudioFile(forReading: url)
         guard let converter = AVAudioConverter(from: file.processingFormat, to: Self.outputFormat) else {
             throw NSError(domain: AppInfo.name, code: 2, userInfo: [NSLocalizedDescriptionKey: "Audioformat wird nicht unterstützt"])
@@ -20,7 +20,7 @@ final class ResamplingReader {
     }
 
     /// Liefert bis zu `frames` Samples, oder nil am Dateiende.
-    func read(frames: AVAudioFrameCount) -> AVAudioPCMBuffer? {
+    public func read(frames: AVAudioFrameCount) -> AVAudioPCMBuffer? {
         guard let out = AVAudioPCMBuffer(pcmFormat: Self.outputFormat, frameCapacity: frames) else { return nil }
         var error: NSError?
         let status = converter.convert(to: out, error: &error) { [weak self] packetCount, inputStatus in
@@ -45,20 +45,20 @@ final class ResamplingReader {
 }
 
 /// Lautstärkeverlauf (RMS) in festen Zeitfenstern – für die Sprecher-Zuordnung.
-struct EnergyEnvelope: Codable {
-    static let window: Double = 0.25
+public struct EnergyEnvelope: Codable, Sendable {
+    public static let window: Double = 0.25
     /// Ab wie viel Übersprechen von Lautsprechern statt Kopfhörern ausgegangen wird
-    static let speakerThreshold: Float = 0.15
+    public static let speakerThreshold: Float = 0.15
     /// Wie viel lauter als das erwartete Übersprechen das Mikrofon sein muss, damit es als eigene Stimme zählt
-    static let ownVoiceFactor: Float = 2.5
-    static let silence: Float = 0.002
+    public static let ownVoiceFactor: Float = 2.5
+    public static let silence: Float = 0.002
 
-    var mic: [Float]
-    var system: [Float]
+    public var mic: [Float]
+    public var system: [Float]
     /// Wie stark das Mikrofon den Systemton mithört: 0 mit Kopfhörern, deutlich über 1 bei lauten Lautsprechern.
-    var bleed: Float = 0
+    public var bleed: Float = 0
 
-    init(mic: [Float], system: [Float]) {
+    public init(mic: [Float], system: [Float]) {
         self.mic = mic
         self.system = system
         self.bleed = Self.estimateBleed(mic: mic, system: system)
@@ -74,12 +74,12 @@ struct EnergyEnvelope: Codable {
     }
 
     /// Lauter Systemton lässt das Mikrofon mithören. Nur was deutlich darüber liegt, ist die eigene Stimme.
-    func isOwnVoice(mic m: Float, system s: Float) -> Bool {
+    public func isOwnVoice(mic m: Float, system s: Float) -> Bool {
         m > max(Self.silence * 2, bleed * s * Self.ownVoiceFactor)
     }
 
     /// "Ich", wenn im Zeitraum die eigene Stimme zu hören ist, sonst "Andere".
-    func speaker(from start: Double, to end: Double) -> String? {
+    public func speaker(from start: Double, to end: Double) -> String? {
         guard !system.isEmpty else { return nil }
         let a = max(0, Int(start / Self.window))
         let b = max(a + 1, Int((end / Self.window).rounded(.up)))
@@ -94,15 +94,15 @@ struct EnergyEnvelope: Codable {
     }
 }
 
-enum AudioMixer {
+public enum AudioMixer {
     private static let sampleRate = 16_000
     private static var windowFrames: AVAudioFrameCount { AVAudioFrameCount(EnergyEnvelope.window * Double(sampleRate)) }
 
     /// Mischt Mikrofon und Systemton zu einer 16-kHz-Mono-WAV und liefert den Lautstärkeverlauf.
     /// Erst wird gemessen, dann gemischt: Nur so ist vorher bekannt, wie stark das Mikrofon
     /// die Lautsprecher mithört – und dieser Anteil kann beim Mischen leise gedreht werden.
-    static func mix(mic: URL, system: URL?, output: URL,
-                    progress: @escaping (Double) -> Void) throws -> EnergyEnvelope {
+    public static func mix(mic: URL, system: URL?, output: URL,
+                           progress: @escaping (Double) -> Void) throws -> EnergyEnvelope {
         let envelope = try measure(mic: mic, system: system) { progress($0 * 0.4) }
         try write(mic: mic, system: system, output: output, envelope: envelope) { progress(0.4 + $0 * 0.6) }
         return envelope
@@ -205,7 +205,7 @@ enum AudioMixer {
     }
 
     /// Maximaler Pegel in dBFS (zur Erkennung stummer Aufnahmen).
-    static func peakDecibels(of url: URL) -> Float {
+    public static func peakDecibels(of url: URL) -> Float {
         guard let reader = try? ResamplingReader(url: url) else { return -.infinity }
         var peak: Float = 0
         while let buf = reader.read(frames: 64_000), let p = buf.floatChannelData?[0] {

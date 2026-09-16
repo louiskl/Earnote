@@ -2,15 +2,15 @@ import AVFoundation
 
 /// Wandelt Audiopuffer fortlaufend in ein Zielformat um (andere Abtastrate oder Kanalzahl).
 /// Der Wandler behält seinen Zustand, damit bei Abtastratenwechseln nichts knackst.
-final class FormatConverter {
+public final class FormatConverter {
     private let target: AVAudioFormat
     private var converter: AVAudioConverter?
     private var source: AVAudioFormat?
 
-    init(target: AVAudioFormat) { self.target = target }
+    public init(target: AVAudioFormat) { self.target = target }
 
     /// Gibt den Puffer im Zielformat zurück – oder den unveränderten Puffer, wenn er schon passt.
-    func convert(_ buffer: AVAudioPCMBuffer) -> AVAudioPCMBuffer? {
+    public func convert(_ buffer: AVAudioPCMBuffer) -> AVAudioPCMBuffer? {
         guard buffer.frameLength > 0 else { return nil }
         if buffer.format == target { return buffer }
         if source != buffer.format {
