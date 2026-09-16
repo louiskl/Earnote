@@ -15,6 +15,10 @@ jobs:
       - name: Xcode-Version anzeigen
         run: xcodebuild -version
 
+      - name: Kern-Tests (EarnoteCore, ohne WhisperKit/MLX zu bauen)
+        working-directory: Packages/EarnoteKit
+        run: swift test --test-product EarnoteKitPackageTests
+
       - name: Metal-Toolchain laden (für das lokale Sprachmodell / MLX)
         run: xcodebuild -downloadComponent MetalToolchain
 

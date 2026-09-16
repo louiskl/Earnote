@@ -7,7 +7,24 @@ Lies vor jeder Änderung an der Oberfläche **[docs/DESIGN_GUIDELINES.md](docs/D
 native macOS-Strukturen (NavigationSplitView, Toolbar, Inspector, Commands, Settings-Scene, searchable) statt eigener Karten, Verläufe und nachgebauter Komponenten.
 Bei nicht-trivialen Features zuerst den Architekturvorschlag aus Abschnitt 20 liefern, danach implementieren, danach den Review aus Abschnitt 28 durchgehen.
 
+## Struktur (Details: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md))
+- `Packages/EarnoteKit/Sources/EarnoteCore` – Modelle, KI-Clients, Summarizer, Export, Speicher, Pipeline, Warteschlange
+- `Packages/EarnoteKit/Sources/EarnoteML` – WhisperKit und lokales MLX-Modell
+- `Earnote/` – Mac-App: Stores (`LibraryStore`, `RecordingController`), `AppEnvironment`, Audioaufnahme, Views
+- `AppState` ist nur eine Übergangs-Fassade für die alten Views – keine neue Logik dort einbauen
+
+## Abhängigkeitsregeln
+- `EarnoteCore`: nur Foundation, AVFoundation, Security, OSLog, Observation. Kein AppKit/UIKit/SwiftUI, keine Drittanbieter-Pakete.
+- `EarnoteML`: `EarnoteCore` + WhisperKit/MLX, kein SwiftUI.
+- Plattform-Code (AppleScript, `NSWorkspace`, Core Audio, Apple Intelligence, CLI) bleibt im App-Target und wird über Protokolle eingehängt (`LLMClientProvider`, `TranscriberProvider`, `DestinationProvider`).
+- Neue Stores/Services bekommen ihre Abhängigkeiten übergeben (siehe `AppEnvironment`), keine neuen `.shared`-Singletons.
+
 ## Arbeitsweise
 - Oberflächentexte auf Deutsch, einfach und für Einsteiger verständlich.
-- Neue/entfernte Swift-Dateien: `python3 scripts/generate_xcodeproj.py` ausführen.
+- Neue/entfernte Swift-Dateien im App-Ordner `Earnote/`: `python3 scripts/generate_xcodeproj.py` ausführen (Package-Dateien brauchen das nicht).
 - Build: `xcodebuild -project Earnote.xcodeproj -scheme Earnote -configuration Debug build`
+- Kern-Tests (schnell, ohne WhisperKit/MLX): `cd Packages/EarnoteKit && swift test --test-product EarnoteKitPackageTests`
+  (ein einfaches `swift test` baut zusätzlich WhisperKit und MLX und dauert viele Minuten)
+- App-Tests (Datenübernahme, Whisper-Auswahl): `xcodebuild test -project Earnote.xcodeproj -scheme Earnote -destination 'platform=macOS'`
+- iOS-Beweis für den Kern: `cd Packages/EarnoteKit && xcodebuild build -scheme EarnoteCore -destination 'generic/platform=iOS'`
+- Release: `./scripts/build_release.sh` → `dist/Earnote.dmg`
