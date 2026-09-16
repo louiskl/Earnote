@@ -1,13 +1,20 @@
 import Foundation
 
-struct Summary: Codable {
-    var title: String
-    var markdown: String        // ohne Titelzeile
-    var taskCount: Int
-    var provider: String
+public struct Summary: Codable, Sendable {
+    public var title: String
+    public var markdown: String        // ohne Titelzeile
+    public var taskCount: Int
+    public var provider: String
+
+    public init(title: String, markdown: String, taskCount: Int, provider: String) {
+        self.title = title
+        self.markdown = markdown
+        self.taskCount = taskCount
+        self.provider = provider
+    }
 
     /// Der erste richtige Absatz (ohne Überschriften und Listen) – als Vorschau in der Aufnahmeliste.
-    var preview: String? {
+    public var preview: String? {
         let paragraph = markdown.components(separatedBy: "\n")
             .map { $0.trimmingCharacters(in: .whitespaces) }
             .first { !$0.isEmpty && !$0.hasPrefix("#") && !$0.hasPrefix("- ") && !$0.hasPrefix("* ") }
@@ -16,7 +23,7 @@ struct Summary: Codable {
         return String(plain.prefix(220))
     }
 
-    static func parse(_ raw: String, provider: String, fallbackTitle: String) -> Summary {
+    public static func parse(_ raw: String, provider: String, fallbackTitle: String) -> Summary {
         var text = raw.trimmingCharacters(in: .whitespacesAndNewlines)
         // Manche Modelle packen alles in einen ```markdown-Block
         if text.hasPrefix("```") {
@@ -36,20 +43,39 @@ struct Summary: Codable {
 }
 
 /// Notizen als feste Felder – für Modelle, die strukturiert antworten können (Apple Intelligence).
-struct NotesDraft {
-    struct Topic { var heading: String; var points: [String] }
+public struct NotesDraft: Sendable {
+    public struct Topic: Sendable {
+        public var heading: String
+        public var points: [String]
+
+        public init(heading: String, points: [String]) {
+            self.heading = heading
+            self.points = points
+        }
+    }
     /// Art der Aufnahme, wie das Modell sie erkannt hat (z. B. "Video oder Vortrag")
-    var kind: String = ""
-    var title: String
-    var summary: String
-    var topics: [Topic]
-    var decisions: [String]
-    var tasks: [String]
-    var openQuestions: [String]
+    public var kind: String = ""
+    public var title: String
+    public var summary: String
+    public var topics: [Topic]
+    public var decisions: [String]
+    public var tasks: [String]
+    public var openQuestions: [String]
 
-    static let passiveKind = "Video oder Vortrag"
+    public init(kind: String = "", title: String, summary: String, topics: [Topic], decisions: [String],
+                tasks: [String], openQuestions: [String]) {
+        self.kind = kind
+        self.title = title
+        self.summary = summary
+        self.topics = topics
+        self.decisions = decisions
+        self.tasks = tasks
+        self.openQuestions = openQuestions
+    }
 
-    func summary(provider: String, fallbackTitle: String, showTopics: Bool) -> Summary {
+    public static let passiveKind = "Video oder Vortrag"
+
+    public func summary(provider: String, fallbackTitle: String, showTopics: Bool) -> Summary {
         var md = [summary.trimmingCharacters(in: .whitespacesAndNewlines)]
         // Kleine Modelle wiederholen Aussagen gern in mehreren Abschnitten – jede nur einmal zeigen.
         var seen = Set<String>()
@@ -94,21 +120,21 @@ struct NotesDraft {
     }
 }
 
-protocol StructuredNotesClient: LLMClient {
+public protocol StructuredNotesClient: LLMClient {
     func completeNotes(system: String, prompt: String) async throws -> NotesDraft
 }
 
 /// Fortschritt, der nur vorwärts läuft – auch über Verdichtungsrunden und Neuversuche hinweg.
-final class MonotonicProgress: @unchecked Sendable {
-    private let report: (Double) -> Void
+public final class MonotonicProgress: @unchecked Sendable {
+    private let report: @Sendable (Double) -> Void
     private let lock = NSLock()
     private var value = 0.0
 
-    init(_ report: @escaping (Double) -> Void) { self.report = report }
+    public init(_ report: @escaping @Sendable (Double) -> Void) { self.report = report }
 
-    var current: Double { lock.lock(); defer { lock.unlock() }; return value }
+    public var current: Double { lock.lock(); defer { lock.unlock() }; return value }
 
-    func set(_ newValue: Double) {
+    public func set(_ newValue: Double) {
         lock.lock()
         guard newValue > value else { lock.unlock(); return }
         value = min(1, newValue)
@@ -119,7 +145,7 @@ final class MonotonicProgress: @unchecked Sendable {
 
     /// Lässt den Balken während eines Schritts ohne Zwischenstand weiterlaufen: anfangs zügig, dann immer
     /// langsamer, ohne das Ziel zu erreichen. Läuft, bis der zurückgegebene Task abgebrochen wird.
-    func creep(to target: Double, typicalSeconds: Double) -> Task<Void, Never> {
+    public func creep(to target: Double, typicalSeconds: Double) -> Task<Void, Never> {
         let start = current
         return Task.detached { [self] in
             var elapsed = 0.0
@@ -133,29 +159,48 @@ final class MonotonicProgress: @unchecked Sendable {
 }
 
 /// Anfrage passte nicht ins Kontextfenster des Modells – mit kleineren Abschnitten erneut versuchen.
-struct ContextWindowExceeded: LocalizedError {
-    var errorDescription: String? { "Die Aufnahme ist für das gewählte KI-Modell zu lang." }
+public struct ContextWindowExceeded: LocalizedError, Sendable {
+    public var errorDescription: String? { "Die Aufnahme ist für das gewählte KI-Modell zu lang." }
+
+    public init() {}
 }
 
-struct SummaryContext {
-    var category: RecordingCategory?
-    var titleHint: String
-    var sourceApp: String?
-    var date: Date
-    var duration: TimeInterval
-    var hasSpeakers: Bool
-    var language: String
+public struct SummaryContext: Sendable {
+    public var category: RecordingCategory?
+    public var titleHint: String
+    public var sourceApp: String?
+    public var date: Date
+    public var duration: TimeInterval
+    public var hasSpeakers: Bool
+    public var language: String
+
+    public init(category: RecordingCategory?, titleHint: String, sourceApp: String?, date: Date,
+                duration: TimeInterval, hasSpeakers: Bool, language: String) {
+        self.category = category
+        self.titleHint = titleHint
+        self.sourceApp = sourceApp
+        self.date = date
+        self.duration = duration
+        self.hasSpeakers = hasSpeakers
+        self.language = language
+    }
 }
 
 /// Erstellt aus dem Transkript eine strukturierte Zusammenfassung.
 /// Sehr lange Transkripte werden abschnittsweise verdichtet (Map-Reduce).
-struct Summarizer {
-    let client: LLMClient
-    let chunkCharacters: Int
-    let providerName: String
+public struct Summarizer: Sendable {
+    public let client: any LLMClient
+    public let chunkCharacters: Int
+    public let providerName: String
 
-    func summarize(transcript: String, context: SummaryContext,
-                   progress: @escaping (Double) -> Void) async throws -> Summary {
+    public init(client: any LLMClient, chunkCharacters: Int, providerName: String) {
+        self.client = client
+        self.chunkCharacters = chunkCharacters
+        self.providerName = providerName
+    }
+
+    public func summarize(transcript: String, context: SummaryContext,
+                          progress: @escaping @Sendable (Double) -> Void) async throws -> Summary {
         let tracker = MonotonicProgress(progress)
         var material = transcript
         var isNotes = false
@@ -370,7 +415,7 @@ struct Summarizer {
 
     /// Wie ausführlich die Notizen werden sollen – gemessen am gesprochenen Text, nicht an der Aufnahmedauer
     /// (eine lange Aufnahme mit viel Stille ergibt trotzdem nur eine kurze Notiz).
-    static func lengthGuidance(words: Int) -> String {
+    public static func lengthGuidance(words: Int) -> String {
         switch words {
         case ..<150:
             return "Sehr kurz (ca. \(words) gesprochene Wörter). Nur Titel, eine Kurzfassung in ein bis drei Sätzen und, "
@@ -389,13 +434,13 @@ struct Summarizer {
     }
 
     /// Wörter im Transkript ohne Zeitmarken und Sprecherangaben.
-    static func spokenWordCount(_ transcript: String) -> Int {
+    public static func spokenWordCount(_ transcript: String) -> Int {
         transcript.split(whereSeparator: \.isWhitespace).filter { word in
             !(word.hasPrefix("[") && word.hasSuffix("]")) && word != "Ich:" && word != "Andere:"
         }.count
     }
 
-    static func split(_ text: String, max: Int) -> [String] {
+    public static func split(_ text: String, max: Int) -> [String] {
         var chunks: [String] = []
         var current = ""
         for line in text.components(separatedBy: "\n") {

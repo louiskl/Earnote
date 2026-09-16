@@ -1,88 +1,27 @@
 import Foundation
 
-protocol LLMClient {
+public protocol LLMClient: Sendable {
     func complete(system: String, prompt: String) async throws -> String
 }
 
-struct LLMError: LocalizedError {
-    let message: String
-    var errorDescription: String? { message }
-}
+public struct LLMError: LocalizedError, Sendable {
+    public let message: String
+    public var errorDescription: String? { message }
 
-enum LLMFactory {
-    static func make(_ config: AIConfig) throws -> LLMClient? {
-        let key = Keychain.apiKey(for: config.provider) ?? ""
-        switch config.provider {
-        case .none:
-            return nil
-        case .localModel:
-            if let reason = LocalModelManager.unsupportedReason { throw LLMError(message: reason) }
-            return LocalLLMClient()
-        case .appleIntelligence:
-            #if canImport(FoundationModels)
-            if #available(macOS 26.0, *) { return AppleIntelligenceClient() }
-            #endif
-            throw LLMError(message: "Apple Intelligence benötigt macOS 26 oder neuer.")
-        case .ollama:
-            return OllamaClient(baseURL: config.effectiveBaseURL, model: config.effectiveModel)
-        case .anthropic:
-            guard !key.isEmpty else { throw LLMError(message: "Kein API-Schlüssel für Claude hinterlegt.") }
-            return AnthropicClient(apiKey: key, model: config.effectiveModel)
-        case .openAI:
-            guard !key.isEmpty else { throw LLMError(message: "Kein API-Schlüssel für OpenAI hinterlegt.") }
-            return OpenAICompatibleClient(baseURL: "https://api.openai.com/v1", apiKey: key, model: config.effectiveModel)
-        case .gemini:
-            guard !key.isEmpty else { throw LLMError(message: "Kein API-Schlüssel für Gemini hinterlegt.") }
-            return OpenAICompatibleClient(baseURL: "https://generativelanguage.googleapis.com/v1beta/openai",
-                                          apiKey: key, model: config.effectiveModel)
-        case .mistral:
-            guard !key.isEmpty else { throw LLMError(message: "Kein API-Schlüssel für Mistral hinterlegt.") }
-            return OpenAICompatibleClient(baseURL: "https://api.mistral.ai/v1", apiKey: key, model: config.effectiveModel)
-        case .lmStudio, .openAICompatible:
-            return OpenAICompatibleClient(baseURL: config.effectiveBaseURL, apiKey: key, model: config.effectiveModel)
-        case .claudeCode:
-            return CLIClient(tool: .claude, model: config.model)
-        case .codex:
-            return CLIClient(tool: .codex, model: config.model)
-        }
-    }
-
-    /// Verfügbare Modelle beim Anbieter abfragen (für die Auswahlliste).
-    static func listModels(_ config: AIConfig) async throws -> [String] {
-        let key = Keychain.apiKey(for: config.provider) ?? ""
-        switch config.provider {
-        case .ollama:
-            return try await OllamaClient(baseURL: config.effectiveBaseURL, model: "").listModels()
-        case .anthropic:
-            return try await AnthropicClient(apiKey: key, model: "").listModels()
-        case .openAI:
-            return try await OpenAICompatibleClient(baseURL: "https://api.openai.com/v1", apiKey: key, model: "").listModels()
-                .filter { $0.hasPrefix("gpt") || $0.hasPrefix("o") }
-        case .gemini:
-            return try await OpenAICompatibleClient(baseURL: "https://generativelanguage.googleapis.com/v1beta/openai", apiKey: key, model: "")
-                .listModels().map { $0.replacingOccurrences(of: "models/", with: "") }
-                .filter { $0.hasPrefix("gemini") }
-        case .mistral:
-            return try await OpenAICompatibleClient(baseURL: "https://api.mistral.ai/v1", apiKey: key, model: "").listModels()
-        case .lmStudio, .openAICompatible:
-            return try await OpenAICompatibleClient(baseURL: config.effectiveBaseURL, apiKey: key, model: "").listModels()
-        default:
-            return []
-        }
-    }
+    public init(message: String) { self.message = message }
 }
 
 // MARK: - HTTP
 
-enum HTTP {
-    static let session: URLSession = {
+public enum HTTP {
+    public static let session: URLSession = {
         let c = URLSessionConfiguration.default
         c.timeoutIntervalForRequest = 600
         c.timeoutIntervalForResource = 3600
         return URLSession(configuration: c)
     }()
 
-    static func json(_ url: String, method: String = "POST", headers: [String: String] = [:],
+    public static func json(_ url: String, method: String = "POST", headers: [String: String] = [:],
                      body: [String: Any]? = nil) async throws -> [String: Any] {
         guard let u = URL(string: url) else { throw LLMError(message: "Ungültige Adresse: \(url)") }
         var req = URLRequest(url: u)
@@ -125,12 +64,18 @@ enum HTTP {
 
 // MARK: - Anbieter
 
-struct AnthropicClient: LLMClient {
-    let apiKey: String
-    let model: String
+public struct AnthropicClient: LLMClient {
+    public let apiKey: String
+    public let model: String
+
+    public init(apiKey: String, model: String) {
+        self.apiKey = apiKey
+        self.model = model
+    }
+
     private var headers: [String: String] { ["x-api-key": apiKey, "anthropic-version": "2023-06-01"] }
 
-    func complete(system: String, prompt: String) async throws -> String {
+    public func complete(system: String, prompt: String) async throws -> String {
         let res = try await HTTP.json("https://api.anthropic.com/v1/messages", headers: headers, body: [
             "model": model, "max_tokens": 8_000, "system": system,
             "messages": [["role": "user", "content": prompt]],
@@ -141,20 +86,26 @@ struct AnthropicClient: LLMClient {
         return text
     }
 
-    func listModels() async throws -> [String] {
+    public func listModels() async throws -> [String] {
         let res = try await HTTP.json("https://api.anthropic.com/v1/models?limit=100", method: "GET", headers: headers)
         return (res["data"] as? [[String: Any]] ?? []).compactMap { $0["id"] as? String }
     }
 }
 
-struct OpenAICompatibleClient: LLMClient {
-    let baseURL: String
-    let apiKey: String
-    let model: String
+public struct OpenAICompatibleClient: LLMClient {
+    public let baseURL: String
+    public let apiKey: String
+    public let model: String
+
+    public init(baseURL: String, apiKey: String, model: String) {
+        self.baseURL = baseURL
+        self.apiKey = apiKey
+        self.model = model
+    }
     private var base: String { baseURL.hasSuffix("/") ? String(baseURL.dropLast()) : baseURL }
     private var headers: [String: String] { apiKey.isEmpty ? [:] : ["Authorization": "Bearer \(apiKey)"] }
 
-    func complete(system: String, prompt: String) async throws -> String {
+    public func complete(system: String, prompt: String) async throws -> String {
         var body: [String: Any] = [
             "messages": [["role": "system", "content": system], ["role": "user", "content": prompt]],
         ]
@@ -166,18 +117,23 @@ struct OpenAICompatibleClient: LLMClient {
         return text.removingThinkBlocks
     }
 
-    func listModels() async throws -> [String] {
+    public func listModels() async throws -> [String] {
         let res = try await HTTP.json("\(base)/models", method: "GET", headers: headers)
         return (res["data"] as? [[String: Any]] ?? []).compactMap { $0["id"] as? String }.sorted()
     }
 }
 
-struct OllamaClient: LLMClient {
-    let baseURL: String
-    let model: String
+public struct OllamaClient: LLMClient {
+    public let baseURL: String
+    public let model: String
+
+    public init(baseURL: String, model: String) {
+        self.baseURL = baseURL
+        self.model = model
+    }
     private var base: String { baseURL.hasSuffix("/") ? String(baseURL.dropLast()) : baseURL }
 
-    func complete(system: String, prompt: String) async throws -> String {
+    public func complete(system: String, prompt: String) async throws -> String {
         let res = try await HTTP.json("\(base)/api/chat", body: [
             "model": model, "stream": false,
             "options": ["num_ctx": 16_384, "temperature": 0.2],
@@ -188,14 +144,14 @@ struct OllamaClient: LLMClient {
         return text.removingThinkBlocks
     }
 
-    func listModels() async throws -> [String] {
+    public func listModels() async throws -> [String] {
         let res = try await HTTP.json("\(base)/api/tags", method: "GET")
         return (res["models"] as? [[String: Any]] ?? []).compactMap { $0["name"] as? String }
     }
 }
 
 extension String {
-    var removingThinkBlocks: String {
+    public var removingThinkBlocks: String {
         replacingOccurrences(of: #"(?s)<think>.*?</think>"#, with: "", options: .regularExpression)
             .trimmingCharacters(in: .whitespacesAndNewlines)
     }

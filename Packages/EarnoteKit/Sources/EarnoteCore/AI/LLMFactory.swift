@@ -1,0 +1,76 @@
+import Foundation
+
+/// Liefert Clients für Anbieter, die Plattform- oder ML-Code brauchen (lokales Modell, Apple Intelligence,
+/// Kommandozeilen-Tools). Die App implementiert das Protokoll; Core kennt nur die Netzwerk-Anbieter.
+public protocol LLMClientProvider: Sendable {
+    /// Client für den gewählten Anbieter – oder nil, wenn dieser Anbieter hier nicht zuständig ist.
+    func makeClient(for config: AIConfig) throws -> (any LLMClient)?
+}
+
+/// Erzeugt den Client für den eingestellten KI-Anbieter.
+public struct LLMFactory: Sendable {
+    public var platform: (any LLMClientProvider)?
+    public var apiKey: @Sendable (AIProviderKind) -> String?
+
+    public init(platform: (any LLMClientProvider)? = nil,
+                apiKey: @escaping @Sendable (AIProviderKind) -> String? = { Keychain.apiKey(for: $0) }) {
+        self.platform = platform
+        self.apiKey = apiKey
+    }
+
+    public func make(_ config: AIConfig) throws -> (any LLMClient)? {
+        switch config.provider {
+        case .none:
+            return nil
+        case .localModel, .appleIntelligence, .claudeCode, .codex:
+            if let client = try platform?.makeClient(for: config) { return client }
+            throw LLMError(message: "„\(config.provider.label)“ ist auf diesem Gerät nicht verfügbar.")
+        case .ollama:
+            return OllamaClient(baseURL: config.effectiveBaseURL, model: config.effectiveModel)
+        case .anthropic:
+            let key = apiKey(config.provider) ?? ""
+            guard !key.isEmpty else { throw LLMError(message: "Kein API-Schlüssel für Claude hinterlegt.") }
+            return AnthropicClient(apiKey: key, model: config.effectiveModel)
+        case .openAI:
+            let key = apiKey(config.provider) ?? ""
+            guard !key.isEmpty else { throw LLMError(message: "Kein API-Schlüssel für OpenAI hinterlegt.") }
+            return OpenAICompatibleClient(baseURL: "https://api.openai.com/v1", apiKey: key, model: config.effectiveModel)
+        case .gemini:
+            let key = apiKey(config.provider) ?? ""
+            guard !key.isEmpty else { throw LLMError(message: "Kein API-Schlüssel für Gemini hinterlegt.") }
+            return OpenAICompatibleClient(baseURL: "https://generativelanguage.googleapis.com/v1beta/openai",
+                                          apiKey: key, model: config.effectiveModel)
+        case .mistral:
+            let key = apiKey(config.provider) ?? ""
+            guard !key.isEmpty else { throw LLMError(message: "Kein API-Schlüssel für Mistral hinterlegt.") }
+            return OpenAICompatibleClient(baseURL: "https://api.mistral.ai/v1", apiKey: key, model: config.effectiveModel)
+        case .lmStudio, .openAICompatible:
+            return OpenAICompatibleClient(baseURL: config.effectiveBaseURL, apiKey: apiKey(config.provider) ?? "",
+                                          model: config.effectiveModel)
+        }
+    }
+
+    /// Verfügbare Modelle beim Anbieter abfragen (für die Auswahlliste).
+    public func listModels(_ config: AIConfig) async throws -> [String] {
+        let key = apiKey(config.provider) ?? ""
+        switch config.provider {
+        case .ollama:
+            return try await OllamaClient(baseURL: config.effectiveBaseURL, model: "").listModels()
+        case .anthropic:
+            return try await AnthropicClient(apiKey: key, model: "").listModels()
+        case .openAI:
+            return try await OpenAICompatibleClient(baseURL: "https://api.openai.com/v1", apiKey: key, model: "").listModels()
+                .filter { $0.hasPrefix("gpt") || $0.hasPrefix("o") }
+        case .gemini:
+            return try await OpenAICompatibleClient(baseURL: "https://generativelanguage.googleapis.com/v1beta/openai", apiKey: key, model: "")
+                .listModels().map { $0.replacingOccurrences(of: "models/", with: "") }
+                .filter { $0.hasPrefix("gemini") }
+        case .mistral:
+            return try await OpenAICompatibleClient(baseURL: "https://api.mistral.ai/v1", apiKey: key, model: "").listModels()
+        case .lmStudio, .openAICompatible:
+            return try await OpenAICompatibleClient(baseURL: config.effectiveBaseURL, apiKey: key, model: "").listModels()
+        default:
+            return []
+        }
+    }
+}
