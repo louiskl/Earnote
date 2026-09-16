@@ -2,10 +2,10 @@ import Foundation
 import Security
 
 /// Speichert API-Schlüssel sicher im macOS-Schlüsselbund.
-enum Keychain {
+public enum Keychain {
     private static let service = AppInfo.keychainService
 
-    static func set(_ value: String?, for key: String) {
+    public static func set(_ value: String?, for key: String) {
         let base: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: service,
@@ -19,7 +19,7 @@ enum Keychain {
         SecItemAdd(add as CFDictionary, nil)
     }
 
-    static func get(_ key: String) -> String? {
+    public static func get(_ key: String) -> String? {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: service,
@@ -33,10 +33,10 @@ enum Keychain {
         return String(data: data, encoding: .utf8)
     }
 
-    static func apiKey(for provider: AIProviderKind) -> String? { get("ai.\(provider.rawValue)") }
-    static func setAPIKey(_ key: String?, for provider: AIProviderKind) { set(key, for: "ai.\(provider.rawValue)") }
+    public static func apiKey(for provider: AIProviderKind) -> String? { get("ai.\(provider.rawValue)") }
+    public static func setAPIKey(_ key: String?, for provider: AIProviderKind) { set(key, for: "ai.\(provider.rawValue)") }
 
-    static var notionToken: String? {
+    public static var notionToken: String? {
         get { get("notion.token") }
         set { set(newValue, for: "notion.token") }
     }
