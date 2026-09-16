@@ -18,10 +18,14 @@ enum Storage {
         return url
     }
 
+    /// Ordner einer Aufnahme. Wird erst beim Schreiben angelegt (`createFolder`/`save`), damit nach dem
+    /// Löschen nicht durch bloßes Nachsehen wieder ein leerer Ordner entsteht.
     static func folder(for id: UUID) -> URL {
-        let url = recordingsDir.appendingPathComponent(id.uuidString, isDirectory: true)
-        try? FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
-        return url
+        recordingsDir.appendingPathComponent(id.uuidString, isDirectory: true)
+    }
+
+    static func createFolder(for id: UUID) {
+        try? FileManager.default.createDirectory(at: folder(for: id), withIntermediateDirectories: true)
     }
 
     static func micURL(_ id: UUID) -> URL { folder(for: id).appendingPathComponent("mic.caf") }
@@ -44,7 +48,10 @@ enum Storage {
     }()
 
     static func save<T: Encodable>(_ value: T, to url: URL) {
-        do { try encoder.encode(value).write(to: url, options: .atomic) }
+        do {
+            try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
+            try encoder.encode(value).write(to: url, options: .atomic)
+        }
         catch { Log.error("Speichern fehlgeschlagen: \(url.lastPathComponent): \(error)") }
     }
 

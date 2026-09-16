@@ -34,34 +34,53 @@ struct CLIClient: LLMClient {
         let q = { (s: String) in "'" + s.replacingOccurrences(of: "'", with: "'\\''") + "'" }
         let modelArg = model.isEmpty ? "" : " --model \(q(model))"
 
-        return try await Task.detached(priority: .userInitiated) {
-            switch tool {
-            case .claude:
-                let cmd = "\(q(bin)) -p --output-format text --disallowedTools Bash Edit Write WebFetch WebSearch\(modelArg)"
-                let r = try runShell(cmd, stdin: fullPrompt, timeout: 1800)
-                guard r.status == 0, !r.stdout.isEmpty else {
-                    throw LLMError(message: "Claude Code: \(r.stderr.isEmpty ? r.stdout : r.stderr)".prefix(500).description)
-                }
-                return r.stdout
-            case .codex:
-                let outFile = FileManager.default.temporaryDirectory.appendingPathComponent("earmark-codex-\(UUID().uuidString).txt")
-                defer { try? FileManager.default.removeItem(at: outFile) }
-                let cmd = "\(q(bin)) exec --skip-git-repo-check --output-last-message \(q(outFile.path))\(modelArg) -"
-                let r = try runShell(cmd, stdin: fullPrompt, timeout: 1800)
-                let text = (try? String(contentsOf: outFile, encoding: .utf8)) ?? ""
-                guard r.status == 0, !text.isEmpty else {
-                    throw LLMError(message: "Codex: \(r.stderr.suffix(500))")
-                }
-                return text
-            }
-        }.value
+        let cancel = CancelFlag()
+        return try await withTaskCancellationHandler {
+            try await Task.detached(priority: .userInitiated) {
+                try Self.run(tool: tool, bin: bin, modelArg: modelArg, prompt: fullPrompt, cancel: cancel)
+            }.value
+        } onCancel: {
+            cancel.set()
+        }
     }
+
+    private static func run(tool: Tool, bin: String, modelArg: String, prompt fullPrompt: String,
+                            cancel: CancelFlag) throws -> String {
+        let q = { (s: String) in "'" + s.replacingOccurrences(of: "'", with: "'\\''") + "'" }
+        switch tool {
+        case .claude:
+            let cmd = "\(q(bin)) -p --output-format text --disallowedTools Bash Edit Write WebFetch WebSearch\(modelArg)"
+            let r = try runShell(cmd, stdin: fullPrompt, timeout: 1800, cancel: cancel)
+            guard r.status == 0, !r.stdout.isEmpty else {
+                throw LLMError(message: "Claude Code: \(r.stderr.isEmpty ? r.stdout : r.stderr)".prefix(500).description)
+            }
+            return r.stdout
+        case .codex:
+            let outFile = FileManager.default.temporaryDirectory.appendingPathComponent("earmark-codex-\(UUID().uuidString).txt")
+            defer { try? FileManager.default.removeItem(at: outFile) }
+            let cmd = "\(q(bin)) exec --skip-git-repo-check --output-last-message \(q(outFile.path))\(modelArg) -"
+            let r = try runShell(cmd, stdin: fullPrompt, timeout: 1800, cancel: cancel)
+            let text = (try? String(contentsOf: outFile, encoding: .utf8)) ?? ""
+            guard r.status == 0, !text.isEmpty else {
+                throw LLMError(message: "Codex: \(r.stderr.suffix(500))")
+            }
+            return text
+        }
+    }
+}
+
+/// Signal zum Abbrechen eines laufenden Befehls (aus einem anderen Thread gesetzt).
+final class CancelFlag: @unchecked Sendable {
+    private let lock = NSLock()
+    private var value = false
+    var isSet: Bool { lock.lock(); defer { lock.unlock() }; return value }
+    func set() { lock.lock(); value = true; lock.unlock() }
 }
 
 struct ShellResult { var status: Int32; var stdout: String; var stderr: String }
 
 /// Führt einen Befehl in einer Login-Shell aus (damit PATH wie im Terminal gesetzt ist).
-func runShell(_ command: String, stdin: String?, timeout: TimeInterval) throws -> ShellResult {
+func runShell(_ command: String, stdin: String?, timeout: TimeInterval, cancel: CancelFlag? = nil) throws -> ShellResult {
     let p = Process()
     p.executableURL = URL(fileURLWithPath: "/bin/zsh")
     p.arguments = ["-lc", command]
@@ -87,7 +106,11 @@ func runShell(_ command: String, stdin: String?, timeout: TimeInterval) throws -
         try? inPipe.fileHandleForWriting.close()
     }
     let deadline = Date().addingTimeInterval(timeout)
-    while p.isRunning && Date() < deadline { Thread.sleep(forTimeInterval: 0.2) }
+    while p.isRunning && Date() < deadline && cancel?.isSet != true { Thread.sleep(forTimeInterval: 0.2) }
+    if p.isRunning, cancel?.isSet == true {
+        p.terminate()
+        throw CancellationError()
+    }
     if p.isRunning {
         p.terminate()
         throw LLMError(message: "Zeitüberschreitung beim Ausführen von: \(command.prefix(60))")

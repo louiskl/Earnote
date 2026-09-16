@@ -48,7 +48,7 @@ struct AppleSpeechTranscriber: Transcriber {
         if let last = try await analyzer.analyzeSequence(from: file) {
             try await analyzer.finalizeAndFinish(through: last)
         } else {
-            await analyzer.cancelAndFinish()
+            await analyzer.cancelAndFinishNow()
         }
         return try await collector.value
     }

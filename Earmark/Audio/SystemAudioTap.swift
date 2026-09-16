@@ -12,9 +12,22 @@ final class SystemAudioTap {
     private let queue = DispatchQueue(label: "app.earmark.systemtap", qos: .userInitiated)
     private let lock = NSLock()
     private var _level: Float = 0
+    private var _paused = false
     private(set) var framesWritten: Int64 = 0
 
     var level: Float { lock.lock(); defer { lock.unlock() }; return _level }
+
+    /// Wird zusätzlich mit jedem Systemton-Puffer aufgerufen (Live-Mitschrift).
+    var onAudio: ((AVAudioPCMBuffer) -> Void)?
+
+    var isPaused: Bool { lock.lock(); defer { lock.unlock() }; return _paused }
+
+    /// Hält auch die Systemton-Aufnahme an, damit die Aufnahmeanzeige von macOS erlischt.
+    func setPaused(_ paused: Bool) {
+        lock.lock(); _paused = paused; if paused { _level = 0 }; lock.unlock()
+        guard aggregateID != .unknown, let procID else { return }
+        if paused { AudioDeviceStop(aggregateID, procID) } else { AudioDeviceStart(aggregateID, procID) }
+    }
 
     func start(writingTo url: URL?) throws {
         let description = CATapDescription(stereoGlobalTapButExcludeProcesses: [])
@@ -61,15 +74,16 @@ final class SystemAudioTap {
         framesWritten = 0
 
         status = AudioDeviceCreateIOProcIDWithBlock(&procID, aggregateID, queue) { [weak self] _, inInputData, _, _, _ in
-            guard let self,
+            guard let self, !self.isPaused,
                   let buffer = AVAudioPCMBuffer(pcmFormat: format, bufferListNoCopy: inInputData, deallocator: nil)
             else { return }
             if let file = self.file {
                 do { try file.write(from: buffer); self.framesWritten += Int64(buffer.frameLength) }
                 catch { Log.error("Systemaudio schreiben: \(error)") }
             }
+            self.onAudio?(buffer)
             let level = buffer.rms
-            self.lock.lock(); self._level = level; self.lock.unlock()
+            self.lock.lock(); if !self._paused { self._level = level }; self.lock.unlock()
         }
         guard status == noErr else { stop(); throw CoreAudioError(what: "Audio-Callback konnte nicht erstellt werden", status: status) }
 

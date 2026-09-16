@@ -74,7 +74,7 @@ struct TranscriptionPanel: View {
 
             if app.settings.transcriptionEngine == .whisperKit {
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Whisper-Modell").font(.system(size: 13, weight: .semibold))
+                    Text("Whisper-Modell").font(Theme.Font.body.weight(.semibold))
                     ForEach(WhisperModelManager.curated) { m in modelRow(m) }
                     if let err = models.lastError { Text(err).font(.caption).foregroundStyle(.orange) }
                 }
@@ -99,15 +99,15 @@ struct TranscriptionPanel: View {
             HStack(spacing: 12) {
                 Image(systemName: selected ? "largecircle.fill.circle" : "circle")
                     .foregroundStyle(selected ? Theme.accent : .secondary)
-                    .font(.system(size: 16))
+                    .font(Theme.Font.heading)
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(kind.label).font(.system(size: 13, weight: .semibold))
-                    Text(detail).font(.system(size: 12)).foregroundStyle(.secondary).fixedSize()
+                    Text(kind.label).font(Theme.Font.body.weight(.semibold))
+                    Text(detail).font(Theme.Font.small).foregroundStyle(.secondary).fittingHeight()
                 }
                 Spacer()
             }
             .card(padding: 12)
-            .overlay(RoundedRectangle(cornerRadius: Theme.corner).strokeBorder(selected ? Theme.accent : .clear, lineWidth: 1.5))
+            .overlay(RoundedRectangle(cornerRadius: Theme.Radius.large, style: .continuous).strokeBorder(selected ? Theme.accent : .clear, lineWidth: 1.5))
             .opacity(enabled ? 1 : 0.5)
         }
         .buttonStyle(.plain)
@@ -124,8 +124,8 @@ struct TranscriptionPanel: View {
             }
             .buttonStyle(.plain)
             VStack(alignment: .leading, spacing: 1) {
-                Text(m.title).font(.system(size: 13, weight: .medium))
-                Text(m.detail).font(.system(size: 11)).foregroundStyle(.secondary)
+                Text(m.title).font(Theme.Font.body.weight(.medium))
+                Text(m.detail).font(Theme.Font.caption).foregroundStyle(.secondary)
             }
             Spacer()
             if models.downloading == m.id {
@@ -157,16 +157,41 @@ struct AIPanel: View {
     @State private var testing = false
     @State private var availableModels: [String] = []
 
+    @State private var showOthers = false
+
     private var provider: AIProviderKind { app.settings.ai.provider }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            LazyVGrid(columns: [GridItem(.adaptive(minimum: 190), spacing: 8)], spacing: 8) {
-                ForEach(AIProviderKind.allCases) { p in providerTile(p) }
+        VStack(alignment: .leading, spacing: Theme.Space.l) {
+            LocalModelCard(selected: provider == .localModel) {
+                app.settings.ai.provider = .localModel
             }
 
+            DisclosureGroup(isExpanded: $showOthers) {
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: 260), spacing: 8)], spacing: 8) {
+                    ForEach(AIProviderKind.allCases.filter { $0 != .localModel }) { p in providerTile(p) }
+                }
+                .padding(.top, Theme.Space.s)
+            } label: {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Andere KI-Anbieter").font(Theme.Font.body.weight(.semibold))
+                    Text("Apple Intelligence, Claude, ChatGPT, Gemini, eigene Server … für Fortgeschrittene")
+                        .font(Theme.Font.caption).foregroundStyle(.secondary)
+                }
+            }
+
+            if provider != .localModel {
             VStack(alignment: .leading, spacing: 10) {
-                Text(provider.subtitle).font(.system(size: 12)).foregroundStyle(.secondary)
+                Text(provider.subtitle).font(Theme.Font.small).foregroundStyle(.secondary)
+
+                if provider.sendsDataOffDevice {
+                    Label("Das Transkript wird zur Zusammenfassung an \(provider.label) gesendet. "
+                          + "Für vertrauliche Gespräche ist die Earmark-KI die sicherere Wahl.",
+                          systemImage: "exclamationmark.shield")
+                        .font(Theme.Font.caption)
+                        .foregroundStyle(.orange)
+                        .fittingHeight()
+                }
 
                 if provider == .appleIntelligence { appleHint }
                 if provider == .ollama { linkHint("Ollama herunterladen", "https://ollama.com/download",
@@ -226,8 +251,18 @@ struct AIPanel: View {
                 }
             }
             .card()
+            }
+
+            if provider == .localModel {
+                Picker("Sprache der Notizen", selection: $app.settings.ai.summaryLanguage) {
+                    ForEach(["Deutsch", "Englisch", "Französisch", "Spanisch", "Italienisch", "Sprache der Aufnahme"], id: \.self) { Text($0) }
+                }
+            }
         }
-        .onAppear { apiKey = Keychain.apiKey(for: provider) ?? "" }
+        .onAppear {
+            apiKey = Keychain.apiKey(for: provider) ?? ""
+            showOthers = provider != .localModel
+        }
         .onChange(of: app.settings.ai.provider) { _, p in
             apiKey = Keychain.apiKey(for: p) ?? ""
             app.settings.ai.model = ""
@@ -251,21 +286,26 @@ struct AIPanel: View {
     private func providerTile(_ p: AIProviderKind) -> some View {
         let selected = provider == p
         return Button { app.settings.ai.provider = p } label: {
-            HStack(spacing: 10) {
-                Image(systemName: p.symbol).font(.system(size: 15, weight: .semibold))
+            HStack(spacing: Theme.Space.m) {
+                Image(systemName: p.symbol)
+                    .font(.system(size: 14, weight: .semibold))
                     .foregroundStyle(selected ? .white : Theme.accent)
-                    .frame(width: 30, height: 30)
-                    .background(RoundedRectangle(cornerRadius: 8).fill(selected ? Theme.accent : Theme.accentSoft))
+                    .frame(width: 32, height: 32)
+                    .background(RoundedRectangle(cornerRadius: 9, style: .continuous)
+                        .fill(selected ? AnyShapeStyle(Theme.accent) : AnyShapeStyle(Theme.accentSoft)))
                 VStack(alignment: .leading, spacing: 1) {
-                    Text(p.label).font(.system(size: 12, weight: .semibold)).lineLimit(1)
-                    Text(p.isLocal ? "Lokal · kostenlos" : p.needsAPIKey ? "API-Schlüssel" : p == AIProviderKind.none ? "Aus" : "Abo")
-                        .font(.system(size: 10)).foregroundStyle(.secondary)
+                    Text(p.label).font(Theme.Font.small.weight(.semibold)).lineLimit(1).minimumScaleFactor(0.85)
+                    Text(p.isLocal ? "Lokal · kostenlos" : p.needsAPIKey ? "Cloud · API-Schlüssel" : p == AIProviderKind.none ? "Aus" : "Cloud · Abo")
+                        .font(Theme.Font.caption).foregroundStyle(.secondary)
                 }
                 Spacer(minLength: 0)
             }
-            .padding(8)
-            .background(RoundedRectangle(cornerRadius: 10).fill(Color(nsColor: .controlBackgroundColor)))
-            .overlay(RoundedRectangle(cornerRadius: 10).strokeBorder(selected ? Theme.accent : Color.primary.opacity(0.08), lineWidth: selected ? 1.5 : 1))
+            .padding(Theme.Space.s + 2)
+            .background(RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .fill(selected ? Theme.accent.opacity(0.07) : Color.primary.opacity(0.03)))
+            .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .strokeBorder(selected ? Theme.accent.opacity(0.6) : Color.primary.opacity(0.06), lineWidth: selected ? 1.5 : 1))
+            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
     }
@@ -318,6 +358,121 @@ struct AIPanel: View {
     }
 }
 
+/// Empfehlung für alle: Earmarks eigenes Modell, mit Erklärung, warum lokal gut ist.
+struct LocalModelCard: View {
+    @ObservedObject var model = LocalModelManager.shared
+    let selected: Bool
+    let onSelect: () -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: Theme.Space.m) {
+            HStack(alignment: .top, spacing: Theme.Space.m) {
+                Image(systemName: "lock.shield.fill")
+                    .font(.system(size: 20, weight: .medium))
+                    .foregroundStyle(.white)
+                    .frame(width: 42, height: 42)
+                    .background(RoundedRectangle(cornerRadius: Theme.Radius.medium, style: .continuous)
+                        .fill(LinearGradient(colors: [Theme.accent, Theme.accent.opacity(0.75)],
+                                             startPoint: .topLeading, endPoint: .bottomTrailing)))
+                VStack(alignment: .leading, spacing: 3) {
+                    HStack(spacing: Theme.Space.s) {
+                        Text("Earmark-KI").font(Theme.Font.heading)
+                        Text("Empfohlen")
+                            .font(Theme.Font.caption.weight(.semibold))
+                            .padding(.horizontal, Theme.Space.s).padding(.vertical, 2)
+                            .background(Capsule().fill(Theme.accentSoft))
+                            .foregroundStyle(Theme.accent)
+                    }
+                    Text("Schreibt deine Notizen direkt auf deinem Mac – ganz ohne Cloud.")
+                        .font(Theme.Font.body).foregroundStyle(.secondary)
+                }
+                Spacer(minLength: 0)
+                if selected {
+                    Image(systemName: "checkmark.circle.fill").font(.system(size: 18)).foregroundStyle(Theme.accent)
+                }
+            }
+
+            VStack(alignment: .leading, spacing: Theme.Space.s) {
+                benefit("hand.raised.fill", "Vertraulich",
+                        "Kein Wort aus deinen Meetings verlässt den Mac. Ideal für Kundengespräche, Personalthemen, Gesundheit oder Interna.")
+                benefit("eurosign.circle.fill", "Kostenlos", "Kein Abo, kein Konto, keine API-Schlüssel.")
+                benefit("wifi.slash", "Funktioniert offline", "Auch im Zug oder Flugzeug – nach dem einmaligen Download.")
+                benefit("sparkles", "Gute Notizen", "Deutlich genauer als Apple Intelligence und schafft auch lange Aufnahmen am Stück.")
+            }
+            .padding(.leading, 54)
+
+            Divider().padding(.leading, 54)
+
+            HStack(spacing: Theme.Space.m) {
+                status
+                Spacer()
+                actions
+            }
+            .padding(.leading, 54)
+        }
+        .card(padding: Theme.Space.l, elevated: selected)
+        .overlay(
+            RoundedRectangle(cornerRadius: Theme.Radius.large, style: .continuous)
+                .strokeBorder(selected ? Theme.accent.opacity(0.7) : .clear, lineWidth: 1.5)
+        )
+        .contentShape(Rectangle())
+        .onTapGesture { if LocalModelManager.isSupported { onSelect() } }
+        .animation(.spring(response: 0.35, dampingFraction: 0.8), value: selected)
+        .animation(.easeOut(duration: 0.2), value: model.isDownloading)
+    }
+
+    private func benefit(_ icon: String, _ title: String, _ detail: String) -> some View {
+        HStack(alignment: .firstTextBaseline, spacing: Theme.Space.s) {
+            Image(systemName: icon).font(.system(size: 11)).foregroundStyle(Theme.accent).frame(width: 16)
+            (Text(title + ": ").font(Theme.Font.small.weight(.semibold)) + Text(detail).font(Theme.Font.small))
+                .foregroundStyle(.primary)
+                .fittingHeight()
+        }
+    }
+
+    @ViewBuilder private var status: some View {
+        if let reason = LocalModelManager.unsupportedReason {
+            Label(reason, systemImage: "exclamationmark.triangle").font(Theme.Font.caption).foregroundStyle(.orange)
+        } else if model.isInstalled {
+            Label("Bereit – \(LocalModelManager.standard.name) ist geladen", systemImage: "checkmark.circle.fill")
+                .font(Theme.Font.caption).foregroundStyle(.green)
+        } else if model.isDownloading {
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Wird geladen … \(Int(model.progress * 100)) %")
+                    .font(Theme.Font.caption).foregroundStyle(.secondary)
+                    .contentTransition(.numericText())
+                ProgressLine(progress: model.progress).frame(maxWidth: 260)
+            }
+        } else if let error = model.lastError {
+            Label(error, systemImage: "exclamationmark.triangle").font(Theme.Font.caption).foregroundStyle(.orange)
+        } else {
+            Text("Einmaliger Download: \(LocalModelManager.standard.sizeText). Läuft auf Macs mit Apple-Chip.")
+                .font(Theme.Font.caption).foregroundStyle(.secondary)
+        }
+    }
+
+    @ViewBuilder private var actions: some View {
+        if LocalModelManager.isSupported {
+            if model.isInstalled {
+                Menu {
+                    Button("Modell löschen (\(LocalModelManager.standard.sizeText) freigeben)", role: .destructive) { model.delete() }
+                } label: { Image(systemName: "ellipsis.circle") }
+                .menuStyle(.borderlessButton).fixedSize()
+            } else if model.isDownloading {
+                Button("Abbrechen") { model.cancelDownload() }.buttonStyle(SecondaryButtonStyle())
+            } else {
+                Button {
+                    onSelect()
+                    model.download()
+                } label: {
+                    Label("Laden", systemImage: "arrow.down.circle.fill")
+                }
+                .buttonStyle(PrimaryButtonStyle())
+            }
+        }
+    }
+}
+
 // MARK: - Ziele
 
 struct DestinationsPanel: View {
@@ -348,16 +503,16 @@ struct DestinationsPanel: View {
         let problem = Destinations.setupProblem(d.id, app.settings.destinations)
         return VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 12) {
-                Image(systemName: d.symbol).font(.system(size: 16, weight: .semibold))
+                Image(systemName: d.symbol).font(Theme.Font.heading)
                     .foregroundStyle(Theme.accent)
                     .frame(width: 34, height: 34)
                     .background(RoundedRectangle(cornerRadius: 9).fill(Theme.accentSoft))
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(d.name).font(.system(size: 13, weight: .semibold))
+                    Text(d.name).font(Theme.Font.body.weight(.semibold))
                     if enabled, let problem {
-                        Label(problem, systemImage: "exclamationmark.circle").font(.system(size: 11)).foregroundStyle(.orange)
+                        Label(problem, systemImage: "exclamationmark.circle").font(Theme.Font.caption).foregroundStyle(.orange)
                     } else {
-                        Text(d.detail).font(.system(size: 11)).foregroundStyle(.secondary).fixedSize()
+                        Text(d.detail).font(Theme.Font.caption).foregroundStyle(.secondary).fittingHeight()
                     }
                 }
                 Spacer()
@@ -467,7 +622,7 @@ struct NotionSetupView: View {
                     }
                     .buttonStyle(PrimaryButtonStyle())
                     .disabled(token.isEmpty || pageLink.isEmpty || busy)
-                    if let status { Text(status).font(.caption).foregroundStyle(.secondary).fixedSize() }
+                    if let status { Text(status).font(.caption).foregroundStyle(.secondary).fittingHeight() }
                 }
             }
         }
@@ -475,10 +630,10 @@ struct NotionSetupView: View {
 
     private func step(_ n: Int, _ text: String, link: String? = nil) -> some View {
         HStack(alignment: .firstTextBaseline, spacing: 8) {
-            Text("\(n)").font(.system(size: 10, weight: .bold)).foregroundStyle(.white)
+            Text("\(n)").font(Theme.Font.caption.weight(.semibold)).foregroundStyle(.white)
                 .frame(width: 16, height: 16).background(Circle().fill(Theme.accent))
             VStack(alignment: .leading, spacing: 2) {
-                Text(text).font(.system(size: 12)).fixedSize()
+                Text(text).font(Theme.Font.small).fittingHeight()
                 if let link, let url = URL(string: link) { Link("Öffnen ↗", destination: url).font(.caption) }
             }
         }
@@ -506,131 +661,44 @@ struct NotionSetupView: View {
 struct CategoriesPanel: View {
     @EnvironmentObject var app: AppState
     @State private var editing: RecordingCategory?
+    @State private var adding = false
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: Theme.Space.s) {
+            Text("Bereiche ordnen deine Aufnahmen – z. B. pro Projekt, Kunde oder Studienfach. Jeder Bereich kann eigene Hinweise für die KI haben.")
+                .font(Theme.Font.small).foregroundStyle(.secondary)
+                .padding(.bottom, Theme.Space.s)
             ForEach(app.categories) { c in
-                HStack(spacing: 12) {
-                    CategoryIcon(category: c, size: 30)
-                    VStack(alignment: .leading, spacing: 1) {
+                HStack(spacing: Theme.Space.m) {
+                    c.badge(size: 36)
+                    VStack(alignment: .leading, spacing: 2) {
                         HStack(spacing: 6) {
-                            Text(c.name).font(.system(size: 13, weight: .semibold))
+                            Text(c.name).font(Theme.Font.body.weight(.semibold))
                             if app.settings.defaultCategoryID == c.id {
-                                Text("Standard").font(.system(size: 9, weight: .bold))
-                                    .padding(.horizontal, 5).padding(.vertical, 1)
-                                    .background(Capsule().fill(Theme.accentSoft)).foregroundStyle(Theme.accent)
+                                Text("Standard").font(Theme.Font.caption.weight(.semibold))
+                                    .padding(.horizontal, 6).padding(.vertical, 1)
+                                    .background(Capsule().fill(c.color.opacity(0.14))).foregroundStyle(c.color)
                             }
                         }
-                        Text(c.instructions.replacingOccurrences(of: "\n", with: " "))
-                            .font(.system(size: 11)).foregroundStyle(.secondary).lineLimit(1)
+                        Text(c.instructions.isEmpty ? "Allgemeine Notizen" : c.instructions.replacingOccurrences(of: "\n", with: " "))
+                            .font(Theme.Font.caption).foregroundStyle(.secondary).lineLimit(1)
                     }
                     Spacer()
                     Button("Bearbeiten") { editing = c }.buttonStyle(SecondaryButtonStyle())
                 }
-                .card(padding: 10)
+                .padding(Theme.Space.m)
+                .background(RoundedRectangle(cornerRadius: 14, style: .continuous).fill(Color.primary.opacity(0.035)))
             }
-            .onMove { app.categories.move(fromOffsets: $0, toOffset: $1) }
-
-            Button {
-                editing = RecordingCategory(name: "", symbol: "star.fill", colorHex: RecordingCategory.colorChoices.randomElement()!,
-                                            instructions: "Abschnitte: Kurzfassung, Themen, Aufgaben, Nächste Schritte.")
-            } label: {
-                Label("Neue Kategorie", systemImage: "plus")
-            }
-            .buttonStyle(SecondaryButtonStyle())
+            Button { adding = true } label: { Label("Bereich hinzufügen", systemImage: "plus") }
+                .buttonStyle(SecondaryButtonStyle())
+                .padding(.top, Theme.Space.s)
         }
-        .sheet(item: $editing) { cat in
-            CategoryEditor(category: cat) { edited in
-                if let i = app.categories.firstIndex(where: { $0.id == edited.id }) { app.categories[i] = edited }
-                else { app.categories.append(edited) }
-                editing = nil
-            } onDelete: {
-                app.categories.removeAll { $0.id == cat.id }
-                editing = nil
-            } onCancel: {
-                editing = nil
-            }
-            .environmentObject(app)
+        .sheet(item: $editing) { c in
+            CategoryEditorSheet(category: c) { editing = nil }.environmentObject(app)
+        }
+        .sheet(isPresented: $adding) {
+            AddCategorySheet { _ in adding = false }.environmentObject(app)
         }
     }
 }
 
-struct CategoryEditor: View {
-    @EnvironmentObject var app: AppState
-    @State var category: RecordingCategory
-    var onSave: (RecordingCategory) -> Void
-    var onDelete: () -> Void
-    var onCancel: () -> Void
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            HStack(spacing: 14) {
-                CategoryIcon(category: category, size: 48)
-                TextField("Name der Kategorie", text: $category.name)
-                    .textFieldStyle(.plain).font(.system(size: 20, weight: .bold))
-            }
-            VStack(alignment: .leading, spacing: 6) {
-                Text("Symbol").font(.caption.bold()).foregroundStyle(.secondary)
-                LazyVGrid(columns: Array(repeating: GridItem(.fixed(30)), count: 10), spacing: 6) {
-                    ForEach(RecordingCategory.symbolChoices, id: \.self) { s in
-                        Button { category.symbol = s } label: {
-                            Image(systemName: s).frame(width: 28, height: 28)
-                                .background(RoundedRectangle(cornerRadius: 7).fill(category.symbol == s ? category.color.opacity(0.25) : Color.primary.opacity(0.05)))
-                        }
-                        .buttonStyle(.plain)
-                    }
-                }
-            }
-            VStack(alignment: .leading, spacing: 6) {
-                Text("Farbe").font(.caption.bold()).foregroundStyle(.secondary)
-                HStack {
-                    ForEach(RecordingCategory.colorChoices, id: \.self) { hex in
-                        Button { category.colorHex = hex } label: {
-                            Circle().fill(Color(hex: hex) ?? .gray).frame(width: 22, height: 22)
-                                .overlay(Circle().strokeBorder(.white, lineWidth: category.colorHex == hex ? 3 : 0))
-                                .shadow(radius: category.colorHex == hex ? 2 : 0)
-                        }
-                        .buttonStyle(.plain)
-                    }
-                }
-            }
-            VStack(alignment: .leading, spacing: 6) {
-                Text("Anweisungen für die Zusammenfassung").font(.caption.bold()).foregroundStyle(.secondary)
-                TextEditor(text: $category.instructions)
-                    .font(.system(size: 12))
-                    .frame(height: 120)
-                    .padding(4)
-                    .background(RoundedRectangle(cornerRadius: 8).fill(Color(nsColor: .textBackgroundColor)))
-                Text("Beschreibe, worauf die KI achten soll und welche Abschnitte die Notizen haben sollen.")
-                    .font(.caption).foregroundStyle(.secondary)
-            }
-            VStack(alignment: .leading, spacing: 6) {
-                Text("Ziele für diese Kategorie").font(.caption.bold()).foregroundStyle(.secondary)
-                Text("Nichts ausgewählt = alle aktivierten Ziele.").font(.caption).foregroundStyle(.secondary)
-                HStack {
-                    ForEach(Destinations.all.filter { app.settings.destinations.enabled.contains($0.id) }) { d in
-                        Toggle(d.name, isOn: Binding(
-                            get: { category.destinationIDs.contains(d.id) },
-                            set: { if $0 { category.destinationIDs.insert(d.id) } else { category.destinationIDs.remove(d.id) } }))
-                        .toggleStyle(.checkbox)
-                    }
-                }
-            }
-            Toggle("Als Standard-Kategorie verwenden", isOn: Binding(
-                get: { app.settings.defaultCategoryID == category.id },
-                set: { app.settings.defaultCategoryID = $0 ? category.id : nil }))
-            HStack {
-                if app.categories.contains(where: { $0.id == category.id }) && app.categories.count > 1 {
-                    Button("Löschen", role: .destructive, action: onDelete)
-                }
-                Spacer()
-                Button("Abbrechen", action: onCancel)
-                Button("Sichern") { onSave(category) }
-                    .buttonStyle(PrimaryButtonStyle())
-                    .disabled(category.name.trimmingCharacters(in: .whitespaces).isEmpty)
-            }
-        }
-        .padding(24)
-        .frame(width: 520)
-    }
-}

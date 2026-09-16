@@ -12,7 +12,30 @@ final class RecordingSession {
     var micLevel: Float { mic.level }
     var systemLevel: Float { tap?.level ?? 0 }
 
+    var isPaused: Bool { mic.isPaused }
+    private var liveMixer: LiveAudioMixer?
+
+    /// Hängt die Live-Mitschrift ein: Mikrofon und Systemton werden in Echtzeit gemischt weitergereicht.
+    func startLiveAudio(format: AVAudioFormat, onMixed: @escaping (AVAudioPCMBuffer) -> Void) {
+        let mixer = LiveAudioMixer(format: format)
+        mixer.onMixed = onMixed
+        liveMixer = mixer
+        mic.onAudio = { [weak mixer] in mixer?.addMic($0) }
+        tap?.onAudio = { [weak mixer] in mixer?.addSystem($0) }
+    }
+
+    /// Beide Quellen werden gemeinsam pausiert, damit sie beim Mischen synchron bleiben.
+    func setPaused(_ paused: Bool) throws {
+        if paused {
+            mic.pause()
+        } else {
+            try mic.resume()
+        }
+        tap?.setPaused(paused)
+    }
+
     func start(includeSystemAudio: Bool) throws {
+        Storage.createFolder(for: recordingID)
         try mic.start(writingTo: Storage.micURL(recordingID))
         guard includeSystemAudio else { return }
         let tap = SystemAudioTap()
@@ -27,6 +50,9 @@ final class RecordingSession {
     }
 
     func stop() {
+        mic.onAudio = nil
+        tap?.onAudio = nil
+        liveMixer = nil
         mic.stop()
         tap?.stop()
         tap = nil

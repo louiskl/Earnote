@@ -15,19 +15,11 @@ jobs:
       - name: Xcode-Version anzeigen
         run: xcodebuild -version
 
-      - name: App bauen
-        run: |
-          xcodebuild -project Earmark.xcodeproj -scheme Earmark -configuration Release \
-            -derivedDataPath build -destination 'generic/platform=macOS' \
-            CODE_SIGN_IDENTITY="-" CODE_SIGNING_REQUIRED=NO \
-            build
+      - name: Metal-Toolchain laden (für das lokale Sprachmodell / MLX)
+        run: xcodebuild -downloadComponent MetalToolchain
 
-      - name: DMG erstellen
-        run: |
-          mkdir -p dist/dmg
-          cp -R build/Build/Products/Release/Earmark.app dist/dmg/
-          ln -s /Applications dist/dmg/Applications
-          hdiutil create -volname Earmark -srcfolder dist/dmg -ov -format UDZO dist/Earmark.dmg
+      - name: App bauen und DMG erstellen
+        run: ./scripts/build_release.sh
 
       - uses: actions/upload-artifact@v4
         with:

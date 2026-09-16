@@ -90,9 +90,34 @@ final class WhisperModelManager: ObservableObject {
 
     func delete(_ model: String) {
         guard let url = installed[model] else { return }
+        Task { await WhisperKitCache.shared.release() }
         try? FileManager.default.removeItem(at: url)
         installed[model] = nil
         UserDefaults.standard.set(installed.mapValues(\.path), forKey: installedKey)
+    }
+}
+
+/// Hält das geladene Whisper-Modell zwischen den Aufnahmen einer Warteschlange im Speicher.
+/// Das Laden dauert – beim allerersten Mal mehrere Minuten, weil macOS das Modell für den Chip optimiert.
+actor WhisperKitCache {
+    static let shared = WhisperKitCache()
+    private var folder: URL?
+    private var kit: WhisperKit?
+
+    func kit(for folder: URL) async throws -> WhisperKit {
+        if let kit, self.folder == folder { return kit }
+        kit = nil
+        let config = WhisperKitConfig(modelFolder: folder.path, verbose: false, prewarm: false, load: true, download: false)
+        let loaded = try await WhisperKit(config)
+        kit = loaded
+        self.folder = folder
+        return loaded
+    }
+
+    /// Speicher freigeben, wenn nichts mehr zu tun ist.
+    func release() {
+        kit = nil
+        folder = nil
     }
 }
 
@@ -105,8 +130,7 @@ struct WhisperTranscriber: Transcriber {
 
     func transcribe(audio url: URL, language: String,
                     progress: @escaping (Double) -> Void) async throws -> [TranscriptSegment] {
-        let config = WhisperKitConfig(modelFolder: modelFolder.path, verbose: false, prewarm: false, load: true, download: false)
-        let kit = try await WhisperKit(config)
+        let kit = try await WhisperKitCache.shared.kit(for: modelFolder)
 
         var options = DecodingOptions()
         options.task = .transcribe

@@ -24,6 +24,8 @@ struct ExportResult: Codable, Hashable {
     var message: String
     var url: String?
     var date: Date = Date()
+    /// Ziel war nicht eingerichtet und wurde übersprungen (optional, damit ältere Dateien lesbar bleiben)
+    var skipped: Bool?
 }
 
 /// Metadaten einer Aufnahme. Liegt als meta.json im Ordner der Aufnahme.
@@ -42,9 +44,25 @@ struct Recording: Identifiable, Codable, Hashable {
     var language: String = "de"
     var importedFileName: String?
     var summaryTitle: String?
+    /// Erster Satz der Notizen – für die Vorschau in der Liste
+    var summaryPreview: String?
     var taskCount: Int = 0
+    /// Summe der Pausen während der Aufnahme (optional, damit ältere meta.json-Dateien lesbar bleiben)
+    var pausedDuration: TimeInterval?
 
-    var duration: TimeInterval { (endedAt ?? Date()).timeIntervalSince(startedAt) }
+    /// Automatisch vergebener Name wie „Meeting – 15. Sept., 19:58“ (nicht vom Nutzer umbenannt)
+    var hasAutoTitle: Bool {
+        title.range(of: #" – \d{1,2}\. \S+, \d{2}:\d{2}$"#, options: .regularExpression) != nil
+    }
+
+    /// Was als Überschrift angezeigt wird: der Titel der Notizen, außer der Nutzer hat selbst benannt.
+    var displayTitle: String {
+        if let summaryTitle, hasAutoTitle { return summaryTitle }
+        return title
+    }
+
+    /// Aufgenommene Zeit ohne Pausen
+    var duration: TimeInterval { max(0, (endedAt ?? Date()).timeIntervalSince(startedAt) - (pausedDuration ?? 0)) }
 }
 
 struct TranscriptSegment: Codable, Hashable, Identifiable {

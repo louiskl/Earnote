@@ -12,13 +12,24 @@ struct EarmarkApp: App {
             MainView()
                 .environmentObject(app)
         }
-        .defaultSize(width: 1120, height: 720)
+        .windowStyle(.hiddenTitleBar)
+        .windowResizability(.contentMinSize)
+        .defaultSize(width: 1180, height: 760)
         .commands {
+            CommandGroup(after: .sidebar) {
+                Button("Seitenleiste ein-/ausblenden") {
+                    NotificationCenter.default.post(name: .toggleSidebar, object: nil)
+                }
+                .keyboardShortcut("s", modifiers: [.command, .control])
+            }
             CommandGroup(replacing: .newItem) {
                 Button(app.isRecording ? "Aufnahme stoppen" : "Neue Aufnahme") {
                     if app.isRecording { app.stopRecording() } else { app.startRecording(category: nil) }
                 }
                 .keyboardShortcut("r", modifiers: [.command, .shift])
+                Button(app.isPaused ? "Aufnahme fortsetzen" : "Aufnahme pausieren") { app.togglePause() }
+                    .keyboardShortcut("p", modifiers: [.command, .shift])
+                    .disabled(!app.isRecording)
                 Button("Audiodatei importieren …") { ImportHelper.pickAndImport() }
                     .keyboardShortcut("i", modifiers: [.command])
             }
@@ -42,8 +53,20 @@ struct EarmarkApp: App {
 final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         UNUserNotificationCenter.current().delegate = self
-        _ = AppState.shared
+        let state = AppState.shared
         Log.info("Earmark gestartet")
+        // Wer das Fenster beim Start nicht will, hat Earmark nur in der Menüleiste.
+        // Beim allerersten Start bleibt es offen, damit der Einrichtungsassistent erscheint.
+        if !state.settings.openWindowAtLaunch && state.settings.onboardingCompleted {
+            DispatchQueue.main.async {
+                NSApp.windows.filter { $0.identifier?.rawValue.contains("main") == true }.forEach { $0.close() }
+            }
+        }
+    }
+
+    /// Klick aufs Dock-Symbol ohne offenes Fenster: Hauptfenster wieder zeigen
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        !flag
     }
 
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { false }

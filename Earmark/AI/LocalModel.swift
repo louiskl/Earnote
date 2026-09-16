@@ -1,0 +1,216 @@
+import Foundation
+import HuggingFace
+import MLXLLM
+import MLXLMCommon
+import Tokenizers
+
+// MARK: - Verwaltung
+
+/// Earmarks eigenes Sprachmodell: läuft komplett auf dem Mac (Apple Silicon, MLX).
+/// Einmal laden, danach funktioniert es ohne Konto, ohne Kosten und ohne Internet –
+/// und kein Wort aus dem Meeting verlässt das Gerät.
+@MainActor
+final class LocalModelManager: ObservableObject {
+    static let shared = LocalModelManager()
+
+    struct ModelInfo {
+        let repository: String
+        let name: String
+        let sizeText: String
+    }
+
+    /// Qwen3 4B (Instruct 2507, 4 Bit): gutes Deutsch, hält sich an Vorgaben, verarbeitet lange Transkripte am Stück.
+    static let standard = ModelInfo(repository: "mlx-community/Qwen3-4B-Instruct-2507-4bit",
+                                    name: "Qwen3 4B", sizeText: "2,3 GB")
+
+    @Published private(set) var isInstalled = LocalModelManager.installed
+    @Published private(set) var isDownloading = false
+    @Published private(set) var progress: Double = 0
+    @Published var lastError: String?
+
+    private var downloadTask: Task<Void, Never>?
+
+    // MARK: Voraussetzungen
+
+    nonisolated static var memoryGB: Double { Double(ProcessInfo.processInfo.physicalMemory) / 1_073_741_824 }
+
+    /// Apple Silicon mit mindestens 8 GB Arbeitsspeicher
+    nonisolated static var isSupported: Bool { unsupportedReason == nil }
+
+    nonisolated static var unsupportedReason: String? {
+        #if arch(arm64)
+        return memoryGB >= 7.5 ? nil : "Dieser Mac hat zu wenig Arbeitsspeicher für das lokale Modell (mindestens 8 GB)."
+        #else
+        return "Das lokale Modell benötigt einen Mac mit Apple-Chip (M1 oder neuer)."
+        #endif
+    }
+
+    nonisolated static var folder: URL {
+        Storage.modelsDir.appendingPathComponent("llm", isDirectory: true)
+            .appendingPathComponent(standard.repository.replacingOccurrences(of: "/", with: "--"), isDirectory: true)
+    }
+
+    /// Wird erst nach vollständigem Download geschrieben – ein abgebrochener Download gilt nicht als installiert.
+    nonisolated private static var completeMarker: URL { folder.appendingPathComponent(".earmark-complete") }
+
+    nonisolated static var installed: Bool { FileManager.default.fileExists(atPath: completeMarker.path) }
+
+    /// Liegen alle Dateien vollständig im Ordner? Prüft Konfiguration, Tokenizer und jede Gewichtsdatei,
+    /// die im Index aufgeführt ist.
+    nonisolated static var filesComplete: Bool {
+        let fm = FileManager.default
+        for name in ["config.json", "tokenizer.json", "tokenizer_config.json"]
+        where !fm.fileExists(atPath: folder.appendingPathComponent(name).path) {
+            return false
+        }
+        let index = folder.appendingPathComponent("model.safetensors.index.json")
+        if let data = try? Data(contentsOf: index),
+           let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+           let map = json["weight_map"] as? [String: String] {
+            return Set(map.values).allSatisfy { fm.fileExists(atPath: folder.appendingPathComponent($0).path) }
+        }
+        return fm.fileExists(atPath: folder.appendingPathComponent("model.safetensors").path)
+    }
+
+    // MARK: Download
+
+    func download() {
+        guard !isDownloading, !isInstalled, Self.isSupported else { return }
+        isDownloading = true
+        progress = 0
+        lastError = nil
+        downloadTask = Task {
+            defer { isDownloading = false; downloadTask = nil }
+            do {
+                guard let repo = Repo.ID(rawValue: Self.standard.repository) else { return }
+                try FileManager.default.createDirectory(at: Self.folder, withIntermediateDirectories: true)
+                if !Self.filesComplete {
+                    // Kein zusätzlicher Cache: die Dateien liegen genau einmal im Earmark-Ordner
+                    let client = HubClient(cache: nil)
+                    do {
+                        _ = try await client.downloadSnapshot(
+                            of: repo, to: Self.folder,
+                            matching: ["*.json", "*.safetensors", "*.jinja", "*.txt"],
+                            progressHandler: { [weak self] p in self?.progress = p.fractionCompleted })
+                    } catch HubCacheError.snapshotRequiresCacheOrDestination(_) where Self.filesComplete {
+                        // swift-huggingface 0.10 meldet ohne Cache ganz am Ende diesen Fehler, obwohl alle
+                        // Dateien fertig im Zielordner liegen. Maßgeblich ist, was tatsächlich angekommen ist.
+                    }
+                }
+                try Task.checkCancellation()
+                guard Self.filesComplete else {
+                    throw LLMError(message: "Das Modell wurde nicht vollständig geladen. Bitte erneut versuchen.")
+                }
+                try Data().write(to: Self.completeMarker)
+                isInstalled = true
+                progress = 1
+                Log.info("Lokales Modell geladen: \(Self.standard.repository)")
+            } catch is CancellationError {
+                Log.info("Download des lokalen Modells abgebrochen")
+            } catch {
+                lastError = "Download fehlgeschlagen: \(error.localizedDescription)"
+                Log.error("Lokales Modell: \(error.localizedDescription)")
+            }
+        }
+    }
+
+    func cancelDownload() {
+        downloadTask?.cancel()
+    }
+
+    func delete() {
+        cancelDownload()
+        Task { await LocalLLMCache.shared.release() }
+        try? FileManager.default.removeItem(at: Self.folder)
+        isInstalled = false
+        progress = 0
+    }
+
+    /// Wartet auf einen laufenden Download (z. B. wenn eine Aufnahme fertig ist, während das Modell noch lädt).
+    func waitForDownload() async {
+        while isDownloading {
+            try? await Task.sleep(nanoseconds: 1_000_000_000)
+        }
+    }
+}
+
+// MARK: - Modell im Speicher
+
+/// Hält das geladene Modell, solange Aufnahmen verarbeitet werden, und gibt den Speicher danach frei.
+actor LocalLLMCache {
+    static let shared = LocalLLMCache()
+    private var container: ModelContainer?
+
+    func container() async throws -> ModelContainer {
+        if let container { return container }
+        let loaded = try await LLMModelFactory.shared.loadContainer(from: LocalModelManager.folder,
+                                                                     using: TransformersTokenizerLoader())
+        container = loaded
+        return loaded
+    }
+
+    func release() {
+        container = nil
+    }
+}
+
+// MARK: - Client
+
+struct LocalLLMClient: LLMClient {
+    func complete(system: String, prompt: String) async throws -> String {
+        if let reason = LocalModelManager.unsupportedReason { throw LLMError(message: reason) }
+        if !LocalModelManager.installed {
+            await LocalModelManager.shared.waitForDownload()
+            guard LocalModelManager.installed else {
+                throw LLMError(message: "Das Earmark-Modell ist noch nicht geladen. "
+                    + "Öffne die Einstellungen unter „KI“ und klicke auf „Laden“.")
+            }
+        }
+        let container = try await LocalLLMCache.shared.container()
+        let session = ChatSession(container, instructions: system,
+                                  generateParameters: GenerateParameters(maxTokens: 4_000, temperature: 0.3, topP: 0.9))
+        let answer = try await session.respond(to: prompt)
+        return answer.removingThinkBlocks
+    }
+}
+
+// MARK: - Tokenizer-Anbindung
+//
+// mlx-swift-lm kennt Tokenizer nur über ein Protokoll. Diese kleine Brücke verbindet es mit swift-transformers –
+// genau das, was sonst die MLXHuggingFace-Makros erzeugen würden (die man in Xcode erst freischalten müsste).
+
+struct TransformersTokenizerLoader: MLXLMCommon.TokenizerLoader {
+    func load(from directory: URL) async throws -> any MLXLMCommon.Tokenizer {
+        TokenizerBridge(try await AutoTokenizer.from(modelFolder: directory))
+    }
+}
+
+private struct TokenizerBridge: MLXLMCommon.Tokenizer {
+    let upstream: any Tokenizers.Tokenizer
+
+    init(_ upstream: any Tokenizers.Tokenizer) { self.upstream = upstream }
+
+    func encode(text: String, addSpecialTokens: Bool) -> [Int] {
+        upstream.encode(text: text, addSpecialTokens: addSpecialTokens)
+    }
+
+    func decode(tokenIds: [Int], skipSpecialTokens: Bool) -> String {
+        upstream.decode(tokens: tokenIds, skipSpecialTokens: skipSpecialTokens)
+    }
+
+    func convertTokenToId(_ token: String) -> Int? { upstream.convertTokenToId(token) }
+    func convertIdToToken(_ id: Int) -> String? { upstream.convertIdToToken(id) }
+
+    var bosToken: String? { upstream.bosToken }
+    var eosToken: String? { upstream.eosToken }
+    var unknownToken: String? { upstream.unknownToken }
+
+    func applyChatTemplate(messages: [[String: any Sendable]], tools: [[String: any Sendable]]?,
+                           additionalContext: [String: any Sendable]?) throws -> [Int] {
+        do {
+            return try upstream.applyChatTemplate(messages: messages, tools: tools, additionalContext: additionalContext)
+        } catch Tokenizers.TokenizerError.missingChatTemplate {
+            throw MLXLMCommon.TokenizerError.missingChatTemplate
+        }
+    }
+}

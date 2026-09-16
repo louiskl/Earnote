@@ -12,11 +12,12 @@ enum TranscriptionEngineKind: String, Codable, CaseIterable, Identifiable {
 }
 
 enum AIProviderKind: String, Codable, CaseIterable, Identifiable {
-    case appleIntelligence, ollama, lmStudio, anthropic, openAI, gemini, mistral, openAICompatible, claudeCode, codex, none
+    case localModel, appleIntelligence, ollama, lmStudio, anthropic, openAI, gemini, mistral, openAICompatible, claudeCode, codex, none
     var id: String { rawValue }
 
     var label: String {
         switch self {
+        case .localModel: return "Earmark-KI"
         case .appleIntelligence: return "Apple Intelligence"
         case .ollama: return "Ollama"
         case .lmStudio: return "LM Studio"
@@ -33,7 +34,8 @@ enum AIProviderKind: String, Codable, CaseIterable, Identifiable {
 
     var subtitle: String {
         switch self {
-        case .appleIntelligence: return "Kostenlos, lokal auf deinem Mac. Ab macOS 26 mit Apple Intelligence."
+        case .localModel: return "Läuft komplett auf deinem Mac. Kostenlos, ohne Konto, auch offline – und nichts aus deinen Meetings verlässt das Gerät."
+        case .appleIntelligence: return "Kostenlos, lokal auf deinem Mac. Ab macOS 26 mit Apple Intelligence. Einfachere Notizen als die Earmark-KI."
         case .ollama: return "Kostenlos & lokal. Benötigt die Ollama-App."
         case .lmStudio: return "Kostenlos & lokal. Benötigt LM Studio mit aktiviertem Server."
         case .anthropic: return "Sehr gute Qualität. Benötigt einen API-Schlüssel (nutzungsbasiert)."
@@ -49,6 +51,7 @@ enum AIProviderKind: String, Codable, CaseIterable, Identifiable {
 
     var symbol: String {
         switch self {
+        case .localModel: return "lock.shield.fill"
         case .appleIntelligence: return "apple.logo"
         case .ollama, .lmStudio: return "desktopcomputer"
         case .anthropic, .claudeCode: return "sparkle"
@@ -61,7 +64,13 @@ enum AIProviderKind: String, Codable, CaseIterable, Identifiable {
     }
 
     var needsAPIKey: Bool { [AIProviderKind.anthropic, .openAI, .gemini, .mistral, .openAICompatible].contains(self) }
-    var isLocal: Bool { [AIProviderKind.appleIntelligence, .ollama, .lmStudio].contains(self) }
+    var isLocal: Bool { [AIProviderKind.localModel, .appleIntelligence, .ollama, .lmStudio].contains(self) }
+
+    /// Sendet das Transkript an einen fremden Server (wichtig für den Datenschutz-Hinweis)
+    var sendsDataOffDevice: Bool { !isLocal && self != .none }
+
+    /// Standard für neue Installationen: das eigene lokale Modell, wo es läuft.
+    static var recommended: AIProviderKind { LocalModelManager.isSupported ? .localModel : .appleIntelligence }
 
     var defaultModel: String {
         switch self {
@@ -70,7 +79,7 @@ enum AIProviderKind: String, Codable, CaseIterable, Identifiable {
         case .gemini: return "gemini-2.5-flash"
         case .mistral: return "mistral-medium-latest"
         case .ollama: return "qwen3:8b"
-        case .lmStudio, .openAICompatible, .appleIntelligence, .claudeCode, .codex, .none: return ""
+        case .localModel, .lmStudio, .openAICompatible, .appleIntelligence, .claudeCode, .codex, .none: return ""
         }
     }
 
@@ -87,7 +96,9 @@ enum AIProviderKind: String, Codable, CaseIterable, Identifiable {
     /// Längere Transkripte werden in Abschnitten zusammengefasst.
     var chunkCharacters: Int {
         switch self {
-        case .appleIntelligence: return 7_000
+        case .appleIntelligence: return 5_000   // Kontext ~4k Token: Anweisungen + Material + Antwort müssen hineinpassen
+        // Großes Kontextfenster: eine Stunde Meeting passt am Stück. Mit wenig Arbeitsspeicher kleiner schneiden.
+        case .localModel: return LocalModelManager.memoryGB >= 15 ? 60_000 : 20_000
         case .ollama, .lmStudio: return 24_000
         case .openAICompatible: return 60_000
         default: return 400_000
@@ -96,7 +107,7 @@ enum AIProviderKind: String, Codable, CaseIterable, Identifiable {
 }
 
 struct AIConfig: Codable, Hashable {
-    var provider: AIProviderKind = .appleIntelligence
+    var provider: AIProviderKind = .recommended
     var model: String = ""
     var baseURL: String = ""
     var summaryLanguage: String = "Deutsch"
@@ -139,6 +150,31 @@ struct AppSettings: Codable, Hashable {
     var keepAudioFiles = true
     var showConsentReminder = true
     var defaultCategoryID: UUID?
+    /// Hauptfenster beim Start der App öffnen (sonst nur in der Menüleiste)
+    var openWindowAtLaunch = true
+
+    init() {}
+
+    /// Liest jedes Feld einzeln mit Standardwert. So bleiben gespeicherte Einstellungen erhalten,
+    /// wenn neue Felder hinzukommen – sonst würde ein Update alles auf Werkseinstellung zurücksetzen.
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        let d = AppSettings()
+        onboardingCompleted = try c.decodeIfPresent(Bool.self, forKey: .onboardingCompleted) ?? d.onboardingCompleted
+        transcriptionEngine = (try? c.decodeIfPresent(TranscriptionEngineKind.self, forKey: .transcriptionEngine)) ?? d.transcriptionEngine
+        whisperModel = try c.decodeIfPresent(String.self, forKey: .whisperModel) ?? d.whisperModel
+        language = try c.decodeIfPresent(String.self, forKey: .language) ?? d.language
+        speakerLabels = try c.decodeIfPresent(Bool.self, forKey: .speakerLabels) ?? d.speakerLabels
+        ai = (try? c.decodeIfPresent(AIConfig.self, forKey: .ai)) ?? d.ai
+        destinations = (try? c.decodeIfPresent(DestinationSettings.self, forKey: .destinations)) ?? d.destinations
+        meetingDetection = try c.decodeIfPresent(Bool.self, forKey: .meetingDetection) ?? d.meetingDetection
+        autoStopWhenCallEnds = try c.decodeIfPresent(Bool.self, forKey: .autoStopWhenCallEnds) ?? d.autoStopWhenCallEnds
+        recordSystemAudio = try c.decodeIfPresent(Bool.self, forKey: .recordSystemAudio) ?? d.recordSystemAudio
+        keepAudioFiles = try c.decodeIfPresent(Bool.self, forKey: .keepAudioFiles) ?? d.keepAudioFiles
+        showConsentReminder = try c.decodeIfPresent(Bool.self, forKey: .showConsentReminder) ?? d.showConsentReminder
+        defaultCategoryID = try c.decodeIfPresent(UUID.self, forKey: .defaultCategoryID)
+        openWindowAtLaunch = try c.decodeIfPresent(Bool.self, forKey: .openWindowAtLaunch) ?? d.openWindowAtLaunch
+    }
 
     static let languages: [(code: String, name: String)] = [
         ("de", "Deutsch"), ("en", "Englisch"), ("fr", "Französisch"), ("es", "Spanisch"),

@@ -7,7 +7,7 @@ struct NotionDestination: Destination {
     private static let version = "2022-06-28"
 
     private static func call(_ method: String, _ path: String, _ body: [String: Any]? = nil) async throws -> [String: Any] {
-        guard let token = Keychain.notionToken, !token.isEmpty else { throw LLMError(message: "Kein Notion-Schlüssel hinterlegt") }
+        guard let token = Keychain.notionToken, !token.isEmpty else { throw DestinationNotConfigured(hint: "Notion ist noch nicht verbunden. In den Einstellungen unter „Ziele“ verbinden.") }
         do {
             return try await HTTP.json(api + path, method: method,
                                        headers: ["Authorization": "Bearer \(token)", "Notion-Version": version], body: body)

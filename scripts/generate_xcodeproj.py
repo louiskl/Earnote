@@ -62,14 +62,27 @@ add(PRODUCTS_GROUP, f'{{isa = PBXGroup; children = ({PRODUCT}, ); name = Product
 MAIN_GROUP = uid("maingroup")
 add(MAIN_GROUP, f'{{isa = PBXGroup; children = ({group_key(".")}, {PRODUCTS_GROUP}, ); sourceTree = "<group>"; }};')
 
-# Swift Package WhisperKit
-PKG = uid("pkg", "whisperkit")
-add(PKG, '{isa = XCRemoteSwiftPackageReference; repositoryURL = "https://github.com/argmaxinc/WhisperKit"; '
-         'requirement = {kind = upToNextMinorVersion; minimumVersion = 0.13.0; }; };')
-PKG_PRODUCT = uid("pkgproduct", "whisperkit")
-add(PKG_PRODUCT, f'{{isa = XCSwiftPackageProductDependency; package = {PKG}; productName = WhisperKit; }};')
-PKG_BUILD = uid("pkgbuild", "whisperkit")
-add(PKG_BUILD, f'{{isa = PBXBuildFile; productRef = {PKG_PRODUCT}; }};')
+# Swift Packages: (Name, Repository, Mindestversion, Produkte)
+# WhisperKit: lokale Transkription. mlx-swift-lm + HuggingFace + Transformers: lokales Sprachmodell für die Notizen.
+PACKAGES = [
+    ("whisperkit", "https://github.com/argmaxinc/WhisperKit", "1.1.0", ["WhisperKit"]),
+    ("mlx-swift-lm", "https://github.com/ml-explore/mlx-swift-lm", "3.31.4", ["MLXLLM", "MLXLMCommon"]),
+    ("swift-huggingface", "https://github.com/huggingface/swift-huggingface", "0.9.0", ["HuggingFace"]),
+    ("swift-transformers", "https://github.com/huggingface/swift-transformers", "1.3.0", ["Tokenizers"]),
+]
+PKG_REFS, PKG_PRODUCTS, PKG_BUILDS = [], [], []
+for name, url, version, products in PACKAGES:
+    ref = uid("pkg", name)
+    add(ref, f'{{isa = XCRemoteSwiftPackageReference; repositoryURL = "{url}"; '
+             f'requirement = {{kind = upToNextMajorVersion; minimumVersion = {version}; }}; }};')
+    PKG_REFS.append(ref)
+    for product in products:
+        prod = uid("pkgproduct", name, product)
+        add(prod, f'{{isa = XCSwiftPackageProductDependency; package = {ref}; productName = {product}; }};')
+        build = uid("pkgbuild", name, product)
+        add(build, f'{{isa = PBXBuildFile; productRef = {prod}; }};')
+        PKG_PRODUCTS.append(prod)
+        PKG_BUILDS.append(build)
 
 build_files = []
 for f in swift_files:
@@ -85,7 +98,7 @@ add(SOURCES, "{isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files =
 RESOURCES = uid("phase", "resources")
 add(RESOURCES, f"{{isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = ({ASSETS_BUILD}, ); runOnlyForDeploymentPostprocessing = 0; }};")
 FRAMEWORKS = uid("phase", "frameworks")
-add(FRAMEWORKS, f"{{isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = ({PKG_BUILD}, ); runOnlyForDeploymentPostprocessing = 0; }};")
+add(FRAMEWORKS, f"{{isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (" + "".join(f"{b}, " for b in PKG_BUILDS) + f"); runOnlyForDeploymentPostprocessing = 0; }};")
 
 def settings_block(d):
     out = []
@@ -144,13 +157,13 @@ add(PLIST, f"{{isa = XCConfigurationList; buildConfigurations = ({PCFG_D}, {PCFG
 
 TARGET = uid("target")
 add(TARGET, f"{{isa = PBXNativeTarget; buildConfigurationList = {TLIST}; buildPhases = ({SOURCES}, {FRAMEWORKS}, {RESOURCES}, ); "
-            f"buildRules = (); dependencies = (); name = Earmark; packageProductDependencies = ({PKG_PRODUCT}, ); "
+            f"buildRules = (); dependencies = (); name = Earmark; packageProductDependencies = (" + "".join(f"{p}, " for p in PKG_PRODUCTS) + f"); "
             f"productName = Earmark; productReference = {PRODUCT}; productType = \"com.apple.product-type.application\"; }};")
 PROJECT = uid("project")
 add(PROJECT, f"{{isa = PBXProject; attributes = {{BuildIndependentTargetsInParallel = 1; LastSwiftUpdateCheck = 1600; LastUpgradeCheck = 1600; "
              f"TargetAttributes = {{{TARGET} = {{CreatedOnToolsVersion = 16.0; }}; }}; }}; buildConfigurationList = {PLIST}; "
              f"compatibilityVersion = \"Xcode 14.0\"; developmentRegion = de; hasScannedForEncodings = 0; knownRegions = (de, en, Base, ); "
-             f"mainGroup = {MAIN_GROUP}; packageReferences = ({PKG}, ); productRefGroup = {PRODUCTS_GROUP}; projectDirPath = \"\"; "
+             f"mainGroup = {MAIN_GROUP}; packageReferences = (" + "".join(f"{r}, " for r in PKG_REFS) + f"); productRefGroup = {PRODUCTS_GROUP}; projectDirPath = \"\"; "
              f"projectRoot = \"\"; targets = ({TARGET}, ); }};")
 
 os.makedirs(os.path.join(PROJ, "project.xcworkspace"), exist_ok=True)

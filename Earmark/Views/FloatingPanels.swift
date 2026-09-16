@@ -83,16 +83,16 @@ struct CallPromptView: View {
             HStack(spacing: 12) {
                 ZStack {
                     RoundedRectangle(cornerRadius: 11, style: .continuous).fill(Theme.accent)
-                    Image(systemName: "waveform").font(.system(size: 18, weight: .bold)).foregroundStyle(.white)
+                    Image(systemName: "waveform").font(Theme.Font.heading).foregroundStyle(.white)
                 }
                 .frame(width: 40, height: 40)
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("\(appName) erkannt").font(.system(size: 14, weight: .semibold))
-                    Text("Soll Earmark mitschreiben?").font(.system(size: 12)).foregroundStyle(.secondary)
+                    Text("\(appName) erkannt").font(Theme.Font.body.weight(.semibold))
+                    Text("Soll Earmark mitschreiben?").font(Theme.Font.small).foregroundStyle(.secondary)
                 }
                 Spacer()
                 Button(action: onDismiss) {
-                    Image(systemName: "xmark").font(.system(size: 10, weight: .bold))
+                    Image(systemName: "xmark").font(Theme.Font.caption.weight(.semibold))
                         .frame(width: 20, height: 20)
                         .background(Circle().fill(Color.primary.opacity(0.08)))
                 }
@@ -120,7 +120,7 @@ struct CallPromptView: View {
 
             if app.settings.showConsentReminder {
                 Label("Denk daran, alle Teilnehmenden um Erlaubnis zu fragen.", systemImage: "hand.raised")
-                    .font(.system(size: 10)).foregroundStyle(.secondary)
+                    .font(Theme.Font.caption).foregroundStyle(.secondary)
             }
         }
         .padding(16)

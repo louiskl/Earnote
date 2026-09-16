@@ -12,6 +12,13 @@ struct ExportPayload {
     var includeTranscript: Bool { settings.includeTranscript && !transcript.isEmpty }
 }
 
+/// Das Ziel ist noch nicht fertig eingerichtet. Das ist kein Fehler der Aufnahme –
+/// die Notizen sind fertig, nur dieses eine Ziel wird übersprungen.
+struct DestinationNotConfigured: LocalizedError {
+    let hint: String
+    var errorDescription: String? { hint }
+}
+
 protocol Destination {
     /// Gibt optional einen Link zum erstellten Eintrag zurück.
     func export(_ payload: ExportPayload) async throws -> String?
@@ -176,7 +183,7 @@ struct ObsidianDestination: Destination {
     static let id = "obsidian"
 
     func export(_ p: ExportPayload) async throws -> String? {
-        guard !p.settings.obsidianVaultPath.isEmpty else { throw LLMError(message: "Kein Obsidian-Vault ausgewählt") }
+        guard !p.settings.obsidianVaultPath.isEmpty else { throw DestinationNotConfigured(hint: "Noch kein Obsidian-Vault ausgewählt.") }
         var folder = URL(fileURLWithPath: p.settings.obsidianVaultPath)
         if !p.settings.obsidianFolder.isEmpty { folder.appendPathComponent(p.settings.obsidianFolder) }
         if let c = p.category { folder.appendPathComponent(c.name) }
@@ -256,7 +263,7 @@ struct CraftDestination: Destination {
     static let id = "craft"
 
     func export(_ p: ExportPayload) async throws -> String? {
-        guard !p.settings.craftSpaceID.isEmpty else { throw LLMError(message: "Craft-Space-ID fehlt") }
+        guard !p.settings.craftSpaceID.isEmpty else { throw DestinationNotConfigured(hint: "Noch keine Craft-Space-ID eingetragen.") }
         var payload = p
         if p.transcript.count > 150_000 { payload.settings.includeTranscript = false }
         let body = MarkdownDocument.build(payload, frontmatter: false)

@@ -15,6 +15,9 @@ enum LLMFactory {
         switch config.provider {
         case .none:
             return nil
+        case .localModel:
+            if let reason = LocalModelManager.unsupportedReason { throw LLMError(message: reason) }
+            return LocalLLMClient()
         case .appleIntelligence:
             #if canImport(FoundationModels)
             if #available(macOS 26.0, *) { return AppleIntelligenceClient() }
