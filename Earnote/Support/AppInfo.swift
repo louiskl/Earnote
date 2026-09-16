@@ -11,8 +11,9 @@ enum AppInfo {
     static let keychainService = "app.earnote.secrets"
     static let logFileName = "earnote.log"
 
-    /// Nach dem Hochladen auf GitHub hier die eigene Repository-Adresse eintragen.
-    static let repository = URL(string: "https://github.com/YOUR-USERNAME/earnote")!
+    /// Öffentliche Repository-Adresse. Bleibt `nil`, bis das Repository veröffentlicht ist –
+    /// solange zeigt die Oberfläche keine Links dorthin.
+    static let repository: URL? = nil
 
     // MARK: Frühere Werte (bis Version 0.1.1 hieß die App „Earmark“) – nur für die Datenübernahme
 

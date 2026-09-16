@@ -74,10 +74,12 @@ struct AboutView: View {
                 .foregroundStyle(.secondary)
             Text("Kostenlose, quelloffene KI-Notizen für Meetings, Calls und Vorlesungen.\nLokal transkribiert. Deine Daten, deine Wahl.")
                 .multilineTextAlignment(.center)
-            HStack {
-                Link("GitHub", destination: AppInfo.repository)
-                Text("·")
-                Link("Fehler melden", destination: AppInfo.repository.appendingPathComponent("issues"))
+            if let repository = AppInfo.repository {
+                HStack {
+                    Link("GitHub", destination: repository)
+                    Text("·")
+                    Link("Fehler melden", destination: repository.appendingPathComponent("issues"))
+                }
             }
             Text("MIT-Lizenz").font(.caption).foregroundStyle(.tertiary)
         }
