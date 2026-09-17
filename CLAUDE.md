@@ -25,6 +25,13 @@ Bei nicht-trivialen Features zuerst den Architekturvorschlag aus Abschnitt 20 li
 - CloudKit-Regeln für jedes `@Model`: Attribute optional oder mit Standardwert · kein `.unique`/`#Unique` · Beziehungen optional mit expliziter Inverse, keine `.deny`-Regel · Enums als String-Rohwert · große Daten `.externalStorage` · eigene `id: UUID`.
 - Schema-Änderungen nur über eine neue `EarnoteSchemaV…` mit Stufe im `EarnoteMigrationPlan`.
 
+## Sicherheit bei Tests mit echten Daten
+Anlass: In Phase 1b liefen Tests vor dem Backup auf echten Daten, und ein Testimport landete im echten Notion und in Apple Notizen.
+- **Backup ist immer der erste Schritt** (`~/Library/Application Support/Earnote` und `defaults export app.earnote.Earnote` mit Zeitstempel auf den Schreibtisch), bevor App, Test-Host oder Build mit Nutzerdaten starten.
+- **Tests und manuelle Prüfungen schreiben nie in externe Dienste** (Notion, Apple Notizen, Bear, Craft, Obsidian-Vault des Nutzers, kostenpflichtige Cloud-KI). Manuelle Tests nutzen einen eigenen Testbereich mit Export nur in einen temporären Markdown-Ordner; danach Testbereich, Aufnahmen und Dateien entfernen.
+- Wird trotzdem etwas extern angelegt: im Bericht mit genauem Namen melden.
+- Die laufende App des Nutzers nur beenden, wenn sie gerade nicht aufnimmt oder verarbeitet.
+
 ## Arbeitsweise
 - Oberflächentexte auf Deutsch, einfach und für Einsteiger verständlich.
 - Neue/entfernte Swift-Dateien im App-Ordner `Earnote/`: `python3 scripts/generate_xcodeproj.py` ausführen (Package-Dateien brauchen das nicht).
