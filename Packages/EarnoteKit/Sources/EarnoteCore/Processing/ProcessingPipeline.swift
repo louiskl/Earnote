@@ -21,16 +21,18 @@ public struct ProcessingEvents: Sendable {
 /// Verarbeitet eine Aufnahme: Audio mischen, Stille prüfen, transkribieren, Sprecher zuordnen,
 /// zusammenfassen, exportieren, aufräumen. Hält keinen eigenen Zustand und ist an keinen Actor gebunden.
 public struct ProcessingPipeline: Sendable {
-    public let repository: any RecordingRepository
+    public let library: any LibraryRepository
+    public let audio: any AudioStore
     public let transcribers: any TranscriberProvider
     public let llm: LLMFactory
     public let destinations: any DestinationProvider
     /// Mitteilung an die Nutzerin / den Nutzer (Titel, Text)
     public let notify: @Sendable (String, String) -> Void
 
-    public init(repository: any RecordingRepository, transcribers: any TranscriberProvider, llm: LLMFactory,
+    public init(library: any LibraryRepository, audio: any AudioStore, transcribers: any TranscriberProvider, llm: LLMFactory,
                 destinations: any DestinationProvider, notify: @escaping @Sendable (String, String) -> Void) {
-        self.repository = repository
+        self.library = library
+        self.audio = audio
         self.transcribers = transcribers
         self.llm = llm
         self.destinations = destinations
@@ -44,7 +46,7 @@ public struct ProcessingPipeline: Sendable {
         var step = "Transkription"
         do {
             // 1) Transkript (falls noch nicht vorhanden)
-            var transcript = repository.transcript(for: id)
+            var transcript = try await library.transcript(for: id)
             // Ein durchgehender Balken für die ganze Verarbeitung statt einem neuen pro Schritt:
             // Transkription bis 60 %, Zusammenfassung bis 95 %, der Rest ist der Export.
             let summarySpan = (transcript == nil ? 0.6 : 0.0)...0.95
@@ -53,7 +55,7 @@ public struct ProcessingPipeline: Sendable {
                 // Nach jedem längeren Schritt prüfen, ob die Aufnahme inzwischen gelöscht oder neu gestartet wurde,
                 // damit kein veralteter Stand gespeichert wird.
                 try Task.checkCancellation()
-                repository.saveTranscript(fresh, for: id)
+                try await library.saveTranscript(fresh, for: id)
                 transcript = fresh
             }
             guard let transcript else { return }
@@ -61,7 +63,7 @@ public struct ProcessingPipeline: Sendable {
 
             // 2) Zusammenfassung
             step = "Zusammenfassung"
-            var summary = repository.summary(for: id)
+            var summary = try await library.note(for: id)
             if summary == nil, let client = try llm.make(settings.ai) {
                 await setStep(id, .summarizing, summarySpan.lowerBound, events)
                 let summarizer = Summarizer(client: client, chunkCharacters: settings.ai.provider.chunkCharacters,
@@ -75,7 +77,7 @@ public struct ProcessingPipeline: Sendable {
                     events.progress(id, Self.map(p, to: summarySpan))
                 }
                 try Task.checkCancellation()
-                repository.saveSummary(s, for: id)
+                try await library.saveNote(s, for: id)
                 summary = s
             }
             if let summary {
@@ -118,7 +120,7 @@ public struct ProcessingPipeline: Sendable {
             }
 
             // 4) Aufräumen
-            if !settings.keepAudioFiles, let latest = await events.recording(id) { repository.deleteAudio(for: latest) }
+            if !settings.keepAudioFiles, let latest = await events.recording(id) { audio.deleteAudio(for: latest) }
             let failed = failures
             await events.update(id) {
                 $0.status = failed.isEmpty ? .done : .failed
@@ -149,11 +151,11 @@ public struct ProcessingPipeline: Sendable {
         let source: URL
         var envelope: EnergyEnvelope?
         if let imported = rec.importedFileName {
-            source = repository.importedAudioURL(for: id, fileName: imported)
+            source = audio.importedAudioURL(for: id, fileName: imported)
         } else {
-            let mic = repository.micURL(for: id)
-            let system: URL? = rec.hasSystemAudio ? repository.systemURL(for: id) : nil
-            let out = repository.mixURL(for: id)
+            let mic = audio.micURL(for: id)
+            let system: URL? = rec.hasSystemAudio ? audio.systemURL(for: id) : nil
+            let out = audio.mixURL(for: id)
             envelope = try await Task.detached(priority: .userInitiated) {
                 try AudioMixer.mix(mic: mic, system: system, output: out) { p in
                     events.progress(id, Self.map(p * 0.1, to: span))

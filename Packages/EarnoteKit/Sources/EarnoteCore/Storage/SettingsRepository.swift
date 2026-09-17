@@ -1,16 +1,14 @@
 import Foundation
 
-/// Speicher für Einstellungen und Kategorien.
+/// Speicher für die Einstellungen. Sie gelten pro Gerät und werden nicht synchronisiert.
+/// (Bereiche liegen seit Version 0.3 in der Bibliothek.)
 public protocol SettingsRepository: Sendable {
     /// nil, wenn noch nichts gespeichert ist
     func loadSettings() -> AppSettings?
     func saveSettings(_ settings: AppSettings)
-    /// nil, wenn noch nichts gespeichert ist
-    func loadCategories() -> [RecordingCategory]?
-    func saveCategories(_ categories: [RecordingCategory])
 }
 
-/// Einstellungen in UserDefaults unter den Schlüsseln „settings“ und „categories“ (JSON).
+/// Einstellungen in UserDefaults unter dem Schlüssel „settings“ (JSON).
 public struct UserDefaultsSettingsRepository: SettingsRepository, @unchecked Sendable {
     private let defaults: UserDefaults
 
@@ -24,13 +22,5 @@ public struct UserDefaultsSettingsRepository: SettingsRepository, @unchecked Sen
 
     public func saveSettings(_ settings: AppSettings) {
         if let data = try? JSONEncoder().encode(settings) { defaults.set(data, forKey: "settings") }
-    }
-
-    public func loadCategories() -> [RecordingCategory]? {
-        defaults.data(forKey: "categories").flatMap { try? JSONDecoder().decode([RecordingCategory].self, from: $0) }
-    }
-
-    public func saveCategories(_ categories: [RecordingCategory]) {
-        if let data = try? JSONEncoder().encode(categories) { defaults.set(data, forKey: "categories") }
     }
 }

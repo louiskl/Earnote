@@ -9,8 +9,12 @@ public protocol RecordingLibrary: AnyObject {
     var settings: AppSettings { get }
     func recording(_ id: UUID) -> Recording?
     func category(_ id: UUID?) -> RecordingCategory?
-    /// Ändert die Aufnahme und speichert sie
+    /// Ändert die Aufnahme und speichert sie (im Hintergrund)
     func update(_ id: UUID, _ change: (inout Recording) -> Void)
+    /// Wie `update`, wartet aber, bis gespeichert ist
+    func updateAndSave(_ id: UUID, _ change: (inout Recording) -> Void) async
+    /// Wartet, bis alle angestoßenen Speichervorgänge erledigt sind
+    func waitForPendingWrites() async
     /// Ändert den Fortschritt nur im Speicher (wird oft aufgerufen)
     func setProgressInMemory(_ id: UUID, _ progress: Double)
 }
@@ -86,12 +90,12 @@ public final class ProcessingQueue {
 
     /// Länge der Mikrofonaufnahme in Sekunden (ohne Pausen).
     private func recordedDuration(_ id: UUID) -> TimeInterval? {
-        guard let file = try? AVAudioFile(forReading: pipeline.repository.micURL(for: id)),
+        guard let file = try? AVAudioFile(forReading: pipeline.audio.micURL(for: id)),
               file.processingFormat.sampleRate > 0 else { return nil }
         return Double(file.length) / file.processingFormat.sampleRate
     }
 
-    /// Fortschritt nur im Speicher ändern – landet beim nächsten Statuswechsel mit auf der Platte.
+    /// Fortschritt nur im Speicher ändern – er wird nicht gespeichert.
     /// Läuft nur vorwärts, damit verspätet eintreffende Meldungen den Balken nicht zurückwerfen
     /// (zurückgesetzt wird er beim Einreihen).
     public func setProgress(_ id: UUID, _ progress: Double) {
@@ -120,7 +124,9 @@ public final class ProcessingQueue {
     }
 
     private func process(_ id: UUID) async {
-        guard let library, let rec = library.recording(id) else { return }
+        // Zuerst speichern, was vorher angestoßen wurde (z. B. neu angelegte Aufnahme, gelöschte Notiz)
+        await library?.waitForPendingWrites()
+        guard !Task.isCancelled, let library, let rec = library.recording(id) else { return }
         let settings = library.settings
         let category = library.category(rec.categoryID)
         await pipeline.process(rec, settings: settings, category: category, events: events)
@@ -134,7 +140,7 @@ public final class ProcessingQueue {
     }
 
     private func currentRecording(_ id: UUID) -> Recording? { library?.recording(id) }
-    private func apply(_ id: UUID, _ change: @Sendable (inout Recording) -> Void) { library?.update(id, change) }
+    private func apply(_ id: UUID, _ change: @Sendable (inout Recording) -> Void) async { await library?.updateAndSave(id, change) }
 
     private func didDrain() {
         if let activity { ProcessInfo.processInfo.endActivity(activity) }
