@@ -61,9 +61,24 @@ struct MicrophoneSettings: View {
                         .accessibilityLabel("Pegel des Mikrofons")
                         .accessibilityValue("\(Int(monitor.level * 100)) Prozent")
                 }
-                Text(monitor.failed ? "Dieses Mikrofon reagiert gerade nicht. Steck es kurz ab und wieder an oder wähle ein anderes."
-                                    : "Sprich kurz, um das Mikrofon zu testen.")
-                    .font(.caption).foregroundStyle(monitor.failed ? .orange : .secondary)
+                if monitor.needsPermission {
+                    HStack {
+                        Text("\(AppInfo.name) darf das Mikrofon noch nicht verwenden.")
+                            .font(.caption).foregroundStyle(.orange)
+                        Button("Erlauben …") {
+                            Task {
+                                if MicRecorder.permission == .denied { SystemSettingsLink.microphone() }
+                                _ = await MicRecorder.requestPermission()
+                                restartMonitor()
+                            }
+                        }
+                        .controlSize(.small)
+                    }
+                } else {
+                    Text(monitor.failed ? "Dieses Mikrofon reagiert gerade nicht. Steck es kurz ab und wieder an oder wähle ein anderes."
+                                        : "Sprich kurz, um das Mikrofon zu testen.")
+                        .font(.caption).foregroundStyle(monitor.failed ? .orange : .secondary)
+                }
             }
         }
         .onAppear(perform: restartMonitor)

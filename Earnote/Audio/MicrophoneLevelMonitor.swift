@@ -12,6 +12,8 @@ final class MicrophoneLevelMonitor {
     /// Das Gerät hat nicht reagiert
     private(set) var failed = false
     private(set) var isRunning = false
+    /// Earnote darf das Mikrofon (noch) nicht verwenden
+    private(set) var needsPermission = false
 
     @ObservationIgnored private var engine: AVAudioEngine?
     @ObservationIgnored private var timer: Timer?
@@ -26,6 +28,12 @@ final class MicrophoneLevelMonitor {
 
     func start(device: AudioInputDeviceInfo?) {
         stop()
+        // Ohne Erlaubnis liefert macOS nur Stille – dann lieber gar nicht erst starten und es sagen
+        needsPermission = MicRecorder.permission != .authorized
+        if needsPermission {
+            Log.info("Mikrofontest: keine Erlaubnis für das Mikrofon (Status \(MicRecorder.permission.rawValue))")
+            return
+        }
         guard let device, let id = AudioInputDevices.deviceID(forUID: device.uid) else { failed = device != nil; return }
         let engine = AVAudioEngine()
         var deviceID = id
@@ -53,8 +61,10 @@ final class MicrophoneLevelMonitor {
         timer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] _ in
             Task { @MainActor in
                 guard let self else { return }
-                // Etwas verstärkt, damit normales Sprechen gut sichtbar ist
-                self.level = min(1, self.box.get() * 6)
+                // Dezibel-Skala: −50 dB (Stille) bis 0 dB. So ist normales Sprechen deutlich sichtbar.
+                let rms = self.box.get()
+                let db = rms > 0 ? 20 * log10(rms) : -100
+                self.level = min(1, max(0, (db + 50) / 50))
             }
         }
     }
