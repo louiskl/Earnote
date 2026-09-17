@@ -40,6 +40,18 @@ extension AudioObjectID {
         return ref.takeRetainedValue() as String
     }
 
+    /// Liest eine Eigenschaft, die ein Objekt liefert (z. B. die Beschreibung eines Process-Taps)
+    func readObject(_ selector: AudioObjectPropertySelector) -> AnyObject? {
+        var addr = address(selector)
+        var ref: Unmanaged<AnyObject>?
+        var size = UInt32(MemoryLayout<Unmanaged<AnyObject>?>.size)
+        let status = withUnsafeMutablePointer(to: &ref) { ptr in
+            AudioObjectGetPropertyData(self, &addr, 0, nil, &size, ptr)
+        }
+        guard status == noErr, let ref else { return nil }
+        return ref.takeRetainedValue()
+    }
+
     func readIDs(_ selector: AudioObjectPropertySelector,
                  scope: AudioObjectPropertyScope = kAudioObjectPropertyScopeGlobal) -> [AudioObjectID] {
         var addr = address(selector, scope)

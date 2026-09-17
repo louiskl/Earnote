@@ -6,6 +6,9 @@ import CoreAudio
 /// Nutzt Core Audio Process Taps (macOS 14.2+). Beim ersten Start fragt macOS nach der
 /// Berechtigung "Systemaudio aufnehmen".
 final class SystemAudioTap {
+    /// Name des Process-Taps – daran erkennt der Start der App Überbleibsel früherer Sitzungen
+    static let tapName = "\(AppInfo.name) Systemaudio"
+
     private var tapID: AudioObjectID = .unknown
     private var aggregateID: AudioObjectID = .unknown
     private var procID: AudioDeviceIOProcID?
@@ -34,6 +37,7 @@ final class SystemAudioTap {
         let description = CATapDescription(stereoGlobalTapButExcludeProcesses: [])
         description.uuid = UUID()
         description.isPrivate = true
+        description.name = Self.tapName
 
         var newTap: AudioObjectID = .unknown
         var status = AudioHardwareCreateProcessTap(description, &newTap)
@@ -93,7 +97,9 @@ final class SystemAudioTap {
         Log.info("Systemaudio-Aufnahme gestartet (\(format.sampleRate) Hz, \(format.channelCount) Kanäle)")
     }
 
+    /// Reihenfolge: Callback anhalten und entfernen, dann Aggregat-Gerät, dann Process-Tap, zuletzt die Datei schließen.
     func stop() {
+        onAudio = nil
         if aggregateID != .unknown {
             AudioDeviceStop(aggregateID, procID)
             if let procID { AudioDeviceDestroyIOProcID(aggregateID, procID) }
@@ -104,9 +110,15 @@ final class SystemAudioTap {
         aggregateID = .unknown
         tapID = .unknown
         queue.sync { file = nil }
+        lock.lock(); _level = 0; lock.unlock()
     }
 
-    deinit { stop() }
+    deinit {
+        stop()
+        #if DEBUG
+        Log.info("Freigegeben: SystemAudioTap")
+        #endif
+    }
 
     /// Startet kurz einen Tap, damit macOS die Berechtigungsabfrage anzeigt.
     static func requestPermission() async {
