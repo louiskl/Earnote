@@ -40,6 +40,7 @@ struct GeneralSettings: View {
             }
             Section("Aufnahme") {
                 Toggle("Systemton mit aufnehmen (Teilnehmer in Calls)", isOn: $app.settings.recordSystemAudio)
+                MicrophoneSettings()
                 Toggle("Hinweis zum Einverständnis anzeigen", isOn: $app.settings.showConsentReminder)
                 Picker("Standard-Bereich", selection: $app.settings.defaultCategoryID) {
                     Text("Erster Bereich").tag(UUID?.none)

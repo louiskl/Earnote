@@ -41,6 +41,7 @@ struct MenuBarView: View {
                     .transition(.scale(scale: 0.97).combined(with: .opacity))
             }
 
+            MicrophoneMenu()
             processing
             recent
 
