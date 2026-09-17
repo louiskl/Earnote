@@ -1,6 +1,6 @@
 # Earnote – Roadmap
 
-> Stand: 17.09.2026 · gepflegt vom Architekten · Versionen sind Arbeitsstände, öffentlich wird erst 1.0.
+> Stand: 17.09.2026 (nachmittags) · gepflegt vom Architekten · Versionen sind Arbeitsstände, öffentlich wird erst 1.0.
 > Leitlinien: [DESIGN_GUIDELINES.md](DESIGN_GUIDELINES.md) · Aufbau: [ARCHITECTURE.md](ARCHITECTURE.md)
 
 **Ziel von 1.0:** Eine ausgereifte, native Mac-App, mit der Studierende ohne Technik-Kenntnisse und ohne KI-Abo Vorlesungen, Meetings und Calls mitschreiben lassen – kostenlos, privat, lokal.
@@ -11,9 +11,10 @@
 |---|---|---|---|
 | 0 | Fundament: Code gesichert, Umbenennung Earmark → Earnote, Datenübernahme | 0.2.0 | ✅ fertig |
 | 1a | Kern herauslösen: `EarnoteKit` (Core + ML), `AppState` zerlegt, schnelle Tests, iOS-Build-Beweis | 0.3.0 | ✅ fertig |
-| 1b | Datenmodell: SwiftData, iCloud-tauglich, macOS 15, Speicher aufgeteilt | 0.4.0 | ✅ abgenommen, Merge ausstehend |
-| **1c** | **Aufnahme robust + Mikrofon auswählen** | 0.5.0 | ▶ **als Nächstes** |
-| 2 | Neues natives Mac-Hauptfenster | 0.6.0 | geplant |
+| 1b | Datenmodell: SwiftData, iCloud-tauglich, macOS 15, Speicher aufgeteilt | 0.4.0 | ✅ fertig |
+| 1c | Aufnahme robust + Mikrofon auswählen | 0.5.0 | ✅ fertig |
+| **2a** | **Neues natives Hauptfenster** (Seitenleiste, Liste, Notiz, Inspector, Toolbar, Befehle, Suche, Teilen) | 0.6.0 | ▶ **als Nächstes** |
+| 2b | Einstellungen, Einrichtungsassistent (mit Whisper-Vorbereitung), Menüleiste, Call-Pop-up nativ; altes Design-System entfernt | 0.6.x | geplant |
 | 3 | Funktionen für 1.0: Bearbeiten, Korrigieren & Wörterbuch, PDF & Teilen, Suche, Transkript-Qualität | 0.7–0.8 | geplant |
 | 4 | Qualität & Modelle: Benchmark, automatische Modellwahl, Härtetests | 0.9 | geplant |
 | 5 | Launch-Vorbereitung: Signierung, Updates, Beta mit Kommilitonen, Website | 1.0 RC | geplant |
@@ -42,16 +43,16 @@
 
 ---
 
-## ▶ Phase 1c – Aufnahme robust + Mikrofon auswählen (0.5.0)
+## ✅ Phase 1c – Aufnahme robust + Mikrofon auswählen (0.5.0)
 Anlass: Das USB-Mikrofon der Webcam hing, jede Aufnahme brach mit „avfaudio-Fehler 35“ ab.
-- [ ] Mikrofon in den Einstellungen und im Menüleisten-Menü auswählen („Systemstandard“ oder ein bestimmtes Gerät)
-- [ ] Gewähltes Gerät fehlt oder reagiert nicht → automatisch auf ein funktionierendes Mikrofon ausweichen und das verständlich sagen
-- [ ] Ein Wiederholungsversuch beim Start, sauberes Aufräumen auch beim Stopp aus der Pause
-- [ ] Aufnahme während eines laufenden Teams-/Zoom-Calls zuverlässig
-- [ ] Verständliche Fehlermeldungen ohne Fehlernummern; Diagnose im Log
-- [ ] Sicherheitsregeln für Tests mit echten Daten in `CLAUDE.md`
+- [x] Mikrofon in den Einstellungen und im Menüleisten-Menü auswählen („Systemstandard“ oder ein bestimmtes Gerät)
+- [x] Gewähltes Gerät fehlt oder reagiert nicht → automatisch auf ein funktionierendes Mikrofon ausweichen und das verständlich sagen
+- [x] Ein Wiederholungsversuch beim Start, sauberes Aufräumen auch beim Stopp aus der Pause
+- [ ] Aufnahme während eines laufenden Teams-/Zoom-Calls zuverlässig (vom Nutzer noch zu testen)
+- [x] Verständliche Fehlermeldungen ohne Fehlernummern; Diagnose im Log
+- [x] Sicherheitsregeln für Tests mit echten Daten in `CLAUDE.md`
 
-## Phase 2 – Natives Mac-Hauptfenster (0.6.0)
+## Phase 2a/2b – Natives Mac-Hauptfenster (0.6)
 Vorher: Architekturvorschlag nach Guidelines Abschnitt 20, vom Nutzer abgesegnet.
 - [ ] Stabiles Gerüst: `NavigationSplitView` (Seitenleiste → Aufnahmeliste → Notiz) + **Inspector**
 - [ ] Seitenleiste als echte Source List: Bibliothek (Alle, Offene Aufgaben, Probleme, Ohne Bereich) und Bereiche
@@ -155,7 +156,8 @@ Vorher: Architekturvorschlag nach Guidelines Abschnitt 20, vom Nutzer abgesegnet
 
 | Frage | Empfehlung | Fällig bis |
 |---|---|---|
-| Launch-Termin | Beta im November, öffentlicher Launch vor der Klausurenphase (Anfang Januar) statt Mitte November | vor Phase 5 |
+| Launch-Termin | **Fast-Track:** Beta mit Kommilitonen Anfang Oktober, Launch zum Vorlesungsbeginn Ende Oktober – nur wenn die Beta keine groben Fehler zeigt; sonst Anfang Januar vor der Klausurenphase | nach Phase 3 |
+| Apple-Entwicklerkonto | ✅ **verlängert am 17.09.** – noch: Zertifikat + Notarisierung einrichten; ohne Developer-ID fragt macOS nach jedem Update erneut nach der Mikrofon-Erlaubnis, und die „Dennoch öffnen“-Hürde bleibt | sofort |
 | Sprache der Oberfläche beim Launch | nur Deutsch, Texte aber schon im String Catalog | Phase 2 |
 | Lokales Standardmodell | nach Benchmark mit echten Vorlesungen | Phase 4 |
 | Ältere iPads unterstützen | nein zum Start | Phase 6 |
