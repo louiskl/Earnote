@@ -8,16 +8,22 @@ native macOS-Strukturen (NavigationSplitView, Toolbar, Inspector, Commands, Sett
 Bei nicht-trivialen Features zuerst den Architekturvorschlag aus Abschnitt 20 liefern, danach implementieren, danach den Review aus Abschnitt 28 durchgehen.
 
 ## Struktur (Details: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md))
-- `Packages/EarnoteKit/Sources/EarnoteCore` – Modelle, KI-Clients, Summarizer, Export, Speicher, Pipeline, Warteschlange
+- `Packages/EarnoteKit/Sources/EarnoteCore` – Modelle, Datenmodell der Bibliothek (`Library/`), KI-Clients, Summarizer, Export, Speicher, Pipeline, Warteschlange
 - `Packages/EarnoteKit/Sources/EarnoteML` – WhisperKit und lokales MLX-Modell
 - `Earnote/` – Mac-App: Stores (`LibraryStore`, `RecordingController`), `AppEnvironment`, Audioaufnahme, Views
 - `AppState` ist nur eine Übergangs-Fassade für die alten Views – keine neue Logik dort einbauen
 
 ## Abhängigkeitsregeln
-- `EarnoteCore`: nur Foundation, AVFoundation, Security, OSLog, Observation. Kein AppKit/UIKit/SwiftUI, keine Drittanbieter-Pakete.
+- `EarnoteCore`: nur Foundation, AVFoundation, Security, OSLog, Observation, SwiftData. Kein AppKit/UIKit/SwiftUI, keine Drittanbieter-Pakete.
+- Keine `@Model`-Objekte über Actor-Grenzen geben: das `LibraryRepository` liefert nur Snapshots (`Recording`, `Summary` …) und IDs.
 - `EarnoteML`: `EarnoteCore` + WhisperKit/MLX, kein SwiftUI.
 - Plattform-Code (AppleScript, `NSWorkspace`, Core Audio, Apple Intelligence, CLI) bleibt im App-Target und wird über Protokolle eingehängt (`LLMClientProvider`, `TranscriberProvider`, `DestinationProvider`).
 - Neue Stores/Services bekommen ihre Abhängigkeiten übergeben (siehe `AppEnvironment`), keine neuen `.shared`-Singletons.
+
+## Datenmodell (SwiftData, später iCloud)
+- Bibliothek (Aufnahmen, Transkripte, Notizen, Bereiche, Exporte, Wörterbuch) in SwiftData; Audio und Einstellungen bleiben lokal.
+- CloudKit-Regeln für jedes `@Model`: Attribute optional oder mit Standardwert · kein `.unique`/`#Unique` · Beziehungen optional mit expliziter Inverse, keine `.deny`-Regel · Enums als String-Rohwert · große Daten `.externalStorage` · eigene `id: UUID`.
+- Schema-Änderungen nur über eine neue `EarnoteSchemaV…` mit Stufe im `EarnoteMigrationPlan`.
 
 ## Arbeitsweise
 - Oberflächentexte auf Deutsch, einfach und für Einsteiger verständlich.
