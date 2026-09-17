@@ -1,23 +1,22 @@
 import AVFoundation
 import AudioToolbox
 import EarnoteCore
-import Observation
+import Combine
 
 /// Pegel eines Mikrofons zum Ausprobieren in den Einstellungen. Nimmt nichts auf und läuft nur,
 /// solange jemand hinschaut (und keine Aufnahme läuft).
 @MainActor
-@Observable
-final class MicrophoneLevelMonitor {
-    private(set) var level: Float = 0
+final class MicrophoneLevelMonitor: ObservableObject {
+    @Published private(set) var level: Float = 0
     /// Das Gerät hat nicht reagiert
-    private(set) var failed = false
-    private(set) var isRunning = false
+    @Published private(set) var failed = false
+    @Published private(set) var isRunning = false
     /// Earnote darf das Mikrofon (noch) nicht verwenden
-    private(set) var needsPermission = false
+    @Published private(set) var needsPermission = false
 
-    @ObservationIgnored private var engine: AVAudioEngine?
-    @ObservationIgnored private var timer: Timer?
-    @ObservationIgnored private let box = LevelBox()
+    private var engine: AVAudioEngine?
+    private var timer: Timer?
+    private let box = LevelBox()
 
     private final class LevelBox: @unchecked Sendable {
         private let lock = NSLock()

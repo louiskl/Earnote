@@ -36,7 +36,7 @@ struct MicrophonePicker: View {
 /// Der Pegeltest läuft nur, solange die Einstellungen sichtbar sind und keine Aufnahme läuft.
 struct MicrophoneSettings: View {
     @EnvironmentObject var app: AppState
-    @State private var monitor = MicrophoneLevelMonitor()
+    @StateObject private var monitor = MicrophoneLevelMonitor()
 
     /// Das Gerät, das eine Aufnahme jetzt benutzen würde
     private var testedDevice: AudioInputDeviceInfo? {
@@ -51,7 +51,11 @@ struct MicrophoneSettings: View {
 
     var body: some View {
         Group {
+            // Der Test hängt an der Picker-Zeile: Sie ist immer sichtbar, solange die Einstellungen offen sind
             MicrophonePicker()
+                .onAppear(perform: restartMonitor)
+                .onDisappear { monitor.stop() }
+                .onChange(of: monitorKey) { _, _ in restartMonitor() }
             if app.isRecording {
                 Text("Während einer Aufnahme lässt sich das Mikrofon nicht wechseln.")
                     .font(.caption).foregroundStyle(.secondary)
@@ -81,9 +85,6 @@ struct MicrophoneSettings: View {
                 }
             }
         }
-        .onAppear(perform: restartMonitor)
-        .onDisappear { monitor.stop() }
-        .onChange(of: monitorKey) { _, _ in restartMonitor() }
     }
 
     private func restartMonitor() {
