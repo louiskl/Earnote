@@ -251,6 +251,28 @@ public actor SwiftDataLibraryRepository: LibraryRepository {
         try modelContext.save()
     }
 
+    // MARK: Suche
+
+    /// Sucht in der Datenbank (SQLite), statt Transkripte in den Speicher zu laden.
+    public func searchRecordingIDs(matching query: String) throws -> Set<UUID> {
+        var ids = Set<UUID>()
+        for variant in SearchText.variants(query) {
+            let titles = FetchDescriptor<LibraryRecording>(predicate: #Predicate { $0.title.localizedStandardContains(variant) })
+            ids.formUnion(try modelContext.fetch(titles).map(\.id))
+
+            var notes = FetchDescriptor<LibraryNote>(predicate: #Predicate {
+                $0.markdown.localizedStandardContains(variant) || $0.title.localizedStandardContains(variant)
+            })
+            notes.relationshipKeyPathsForPrefetching = [\.recording]
+            ids.formUnion(try modelContext.fetch(notes).compactMap { $0.recording?.id })
+
+            var transcripts = FetchDescriptor<LibraryTranscript>(predicate: #Predicate { $0.plainText.localizedStandardContains(variant) })
+            transcripts.relationshipKeyPathsForPrefetching = [\.recording]
+            ids.formUnion(try modelContext.fetch(transcripts).compactMap { $0.recording?.id })
+        }
+        return ids
+    }
+
     // MARK: Übernahme
 
     public func importItems(_ items: [LibraryImportItem]) throws -> Int {

@@ -62,6 +62,11 @@ public protocol LibraryRepository: Sendable {
     func updateGlossaryTerm(_ term: GlossaryTerm) async throws
     func deleteGlossaryTerm(_ id: UUID) async throws
 
+    // MARK: Suche
+    /// Aufnahmen, deren Titel, Notiz oder Transkript den Suchbegriff enthält
+    /// (Groß-/Kleinschreibung, Akzente und Umlaut-Umschreibungen egal; siehe `SearchText`)
+    func searchRecordingIDs(matching query: String) async throws -> Set<UUID>
+
     // MARK: Übernahme
     /// Speichert mehrere Aufnahmen in einem Schritt; bereits vorhandene IDs werden übersprungen.
     /// Liefert die Anzahl der neu angelegten Aufnahmen.
