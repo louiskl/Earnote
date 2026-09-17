@@ -43,7 +43,7 @@ AI meeting notes are great, but usually tied to one app and a monthly subscripti
 
 ### Requirements
 
-- macOS 14.4 or later on Apple Silicon (Intel works but is slow and can't run the local AI)
+- macOS 15 or later on Apple Silicon (Intel works but is slow and can't run the local AI)
 - About 2.3 GB of free space for the local AI model, 8 GB RAM or more
 - macOS 26 or later for Apple Speech and Apple Intelligence
 

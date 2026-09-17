@@ -113,7 +113,7 @@ common_target = {
     "GENERATE_INFOPLIST_FILE": "NO",
     "INFOPLIST_FILE": "Earnote/Resources/Info.plist",
     "LD_RUNPATH_SEARCH_PATHS": "$(inherited) @executable_path/../Frameworks",
-    "MACOSX_DEPLOYMENT_TARGET": "14.4",
+    "MACOSX_DEPLOYMENT_TARGET": "15.0",
     "MARKETING_VERSION": "0.2.0",
     "PRODUCT_BUNDLE_IDENTIFIER": "app.earnote.Earnote",
     "PRODUCT_NAME": "$(TARGET_NAME)",
@@ -132,7 +132,7 @@ base = {
     "ENABLE_STRICT_OBJC_MSGSEND": "YES",
     "ENABLE_USER_SCRIPT_SANDBOXING": "YES",
     "GCC_C_LANGUAGE_STANDARD": "gnu17",
-    "MACOSX_DEPLOYMENT_TARGET": "14.4",
+    "MACOSX_DEPLOYMENT_TARGET": "15.0",
     "SDKROOT": "macosx",
 }
 debug = dict(base, **{"DEBUG_INFORMATION_FORMAT": "dwarf", "ENABLE_TESTABILITY": "YES", "GCC_OPTIMIZATION_LEVEL": "0",

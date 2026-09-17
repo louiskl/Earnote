@@ -26,6 +26,6 @@ After you add or remove files, run `python3 scripts/generate_xcodeproj.py`.
 
 ## Style
 
-- SwiftUI and Swift 5 language mode, macOS 14.4 deployment target
+- SwiftUI and Swift 5 language mode, macOS 15 deployment target
 - Gate macOS 26 APIs with `#if canImport(FoundationModels)` plus `if #available(macOS 26.0, *)`
 - UI text is currently German. Localization PRs are very welcome.
