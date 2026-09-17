@@ -65,8 +65,8 @@ final class AppState: ObservableObject {
 
     func recording(_ id: UUID) -> Recording? { library.recording(id) }
     func category(_ id: UUID?) -> RecordingCategory? { library.category(id) }
-    func transcript(_ id: UUID) -> Transcript? { library.transcript(id) }
-    func summary(_ id: UUID) -> Summary? { library.summary(id) }
+    func transcript(_ id: UUID) async -> Transcript? { await library.transcript(id) }
+    func summary(_ id: UUID) async -> Summary? { await library.summary(id) }
     func hasAudio(_ id: UUID) -> Bool { library.hasAudio(id) }
 
     // MARK: Aufnahme

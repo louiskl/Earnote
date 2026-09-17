@@ -4,15 +4,15 @@ import EarnoteCore
 /// Eine laufende Aufnahme: Mikrofon + (optional) Systemton in getrennten Dateien.
 final class RecordingSession {
     let recordingID: UUID
-    private let repository: any RecordingRepository
+    private let audio: any AudioStore
     private let mic = MicRecorder()
     private var tap: SystemAudioTap?
     private(set) var systemAudioActive = false
     private(set) var systemAudioError: String?
 
-    init(recordingID: UUID, repository: any RecordingRepository) {
+    init(recordingID: UUID, audio: any AudioStore) {
         self.recordingID = recordingID
-        self.repository = repository
+        self.audio = audio
     }
 
     var micLevel: Float { mic.level }
@@ -41,12 +41,12 @@ final class RecordingSession {
     }
 
     func start(includeSystemAudio: Bool) throws {
-        repository.createFolder(for: recordingID)
-        try mic.start(writingTo: repository.micURL(for: recordingID))
+        audio.createFolder(for: recordingID)
+        try mic.start(writingTo: audio.micURL(for: recordingID))
         guard includeSystemAudio else { return }
         let tap = SystemAudioTap()
         do {
-            try tap.start(writingTo: repository.systemURL(for: recordingID))
+            try tap.start(writingTo: audio.systemURL(for: recordingID))
             self.tap = tap
             systemAudioActive = true
         } catch {

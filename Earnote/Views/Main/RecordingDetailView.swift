@@ -46,8 +46,11 @@ struct RecordingDetailView: View {
 
     private func reload(_ rec: Recording) {
         title = rec.displayTitle
-        summary = app.summary(recordingID)
-        transcript = app.transcript(recordingID)
+        let id = recordingID
+        Task {
+            summary = await app.summary(id)
+            transcript = await app.transcript(id)
+        }
     }
 
     private func copy() {
@@ -220,7 +223,8 @@ struct RecordingDetailView: View {
         let kind = section.title.lowercased()
         let update: (String) -> Void = { body in
             app.updateSummaryText(recordingID, markdown: doc.replacing(section.id, with: body))
-            summary = app.summary(recordingID)
+            let id = recordingID
+            Task { summary = await app.summary(id) }
         }
         if kind.hasPrefix("aufgaben") {
             let open = section.body.components(separatedBy: "\n").filter { $0.trimmingCharacters(in: .whitespaces).hasPrefix("- [ ]") }.count

@@ -13,11 +13,14 @@ struct EarnoteApp: App {
         // Muss vor allem anderen laufen: Stores, Storage und Log würden sonst schon im neuen,
         // leeren Datenordner lesen oder ihn anlegen, bevor die alten Daten übernommen sind.
         LegacyMigration.runIfNeeded()
-        let environment = AppEnvironment()
+        let environment = Self.isTestHost ? AppEnvironment.forTestHost() : AppEnvironment()
         self.environment = environment
         _app = StateObject(wrappedValue: environment.appState)
         delegate.app = environment.appState
     }
+
+    /// Die App-Tests starten die App als Host. Sie darf dabei nie die echte Bibliothek öffnen oder übernehmen.
+    private static var isTestHost: Bool { ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil }
 
     var body: some Scene {
         Window(AppInfo.name, id: "main") {

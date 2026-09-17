@@ -96,14 +96,15 @@ final class RecordingController {
             let name = title.isEmpty ? "\(cat?.name ?? "Aufnahme") – \(df.string(from: Date()))" : title
             var rec = Recording(title: name, categoryID: cat?.id, sourceApp: sourceApp)
             rec.language = settings.language
+            rec.isTitleCustom = !Recording.looksAutomatic(name)
 
-            let session = RecordingSession(recordingID: rec.id, repository: library.repository)
+            let session = RecordingSession(recordingID: rec.id, audio: library.audio)
             do {
                 try session.start(includeSystemAudio: settings.recordSystemAudio)
             } catch {
                 lastError = "Aufnahme konnte nicht starten: \(error.localizedDescription)"
                 Log.error(lastError!)
-                library.repository.delete(rec.id)
+                library.audio.deleteFolder(for: rec.id)
                 return
             }
             rec.hasSystemAudio = session.systemAudioActive
