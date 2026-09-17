@@ -36,6 +36,8 @@ final class LiveTranscript: ObservableObject {
 final class RecordingController {
     private(set) var activeRecordingID: UUID?
     private(set) var isPaused = false
+    /// Mikrofon, über das die laufende Aufnahme gerade aufnimmt
+    private(set) var microphoneName: String?
     var lastError: String?
 
     @ObservationIgnored let meter = LiveMeter()
@@ -121,7 +123,9 @@ final class RecordingController {
                 library.audio.deleteFolder(for: rec.id)
                 return
             }
-            session.onMicrophoneEvent = { [weak self] event in
+            microphoneName = session.microphone?.name
+            session.onMicrophoneEvent = { [weak self, weak session] event in
+                self?.microphoneName = session?.microphone?.name
                 self?.lastError = event.message
                 self?.notify("Mikrofon", event.message)
             }
@@ -255,6 +259,7 @@ final class RecordingController {
         session?.stop()
         session = nil
         activeRecordingID = nil
+        microphoneName = nil
         recordingStartedByCall = false
         isPaused = false
         pausedAt = nil

@@ -1,0 +1,117 @@
+import EarnoteCore
+import SwiftUI
+
+/// Menübefehle und Tastenkürzel. Befehle zur Auswahl wirken auf das Hauptfenster im Vordergrund
+/// und sind ohne passende Auswahl deaktiviert.
+struct EarnoteCommands: Commands {
+    let library: LibraryStore
+    let recorder: RecordingController
+    let audioInputs: AudioInputDevices
+
+    @FocusedValue(\.mainWindow) private var window
+
+    var body: some Commands {
+        CommandGroup(after: .newItem) {
+            Button("Audiodatei importieren …") {
+                let urls = AudioImportPanel.pick()
+                library.importAudio(urls, category: window?.selectedCategoryID.flatMap(library.category))
+            }
+            .keyboardShortcut("o")
+            Button("Neuer Bereich") { window?.newCategory() }
+                .keyboardShortcut("n", modifiers: [.command, .shift])
+                .disabled(window == nil)
+        }
+
+        CommandMenu("Aufnahme") {
+            Button(recorder.isRecording ? "Aufnahme stoppen" : "Aufnahme starten") {
+                if recorder.isRecording {
+                    recorder.stopRecording()
+                } else {
+                    recorder.startRecording(category: window?.selectedCategoryID.flatMap(library.category))
+                }
+            }
+            .keyboardShortcut("r", modifiers: [.command, .shift])
+            Button(recorder.isPaused ? "Fortsetzen" : "Pause") { recorder.togglePause() }
+                .keyboardShortcut("p", modifiers: [.command, .shift])
+                .disabled(!recorder.isRecording)
+            Button("Aufnahme verwerfen …") { window?.requestDiscardRecording() }
+                .disabled(!recorder.isRecording || window == nil)
+            Divider()
+            MicrophoneCommandPicker(library: library, audioInputs: audioInputs, isRecording: recorder.isRecording)
+        }
+
+        CommandMenu("Notiz") {
+            let id = window?.selectedRecordingID
+            let recording = id.flatMap(library.recording)
+            let busy = recording?.status.isBusy == true || recording?.status == .recording
+            Button("Neu zusammenfassen") { if let id { library.reprocess(id, retranscribe: false) } }
+                .disabled(recording == nil || busy)
+            Button("Neu transkribieren") { if let id { library.reprocess(id, retranscribe: true) } }
+                .disabled(recording == nil || busy || !(id.map(library.hasAudio) ?? false))
+            Button("Erneut exportieren") { if let id { library.reexport(id) } }
+                .disabled(recording == nil || busy)
+            Divider()
+            Button("Teilen …") {
+                guard let id, let recording else { return }
+                Task {
+                    if let note = await library.summary(id) {
+                        SharePicker.show(NoteMarkdown.shareText(title: recording.displayTitle, markdown: note.markdown))
+                    }
+                }
+            }
+            .disabled(recording?.summaryTitle == nil)
+            Button("Im Finder zeigen") { if let id { library.revealInFinder(id) } }
+                .disabled(recording == nil)
+        }
+
+        CommandGroup(after: .pasteboard) {
+            Divider()
+            Button("Löschen …") { window?.requestDelete() }
+                .keyboardShortcut(.delete, modifiers: .command)
+                .disabled(window?.selectedRecordingID == nil || window?.isEditingText == true
+                          || window?.selectedRecordingID == recorder.activeRecordingID)
+        }
+
+        CommandGroup(after: .textEditing) {
+            Button("Suchen") { window?.focusSearch() }
+                .keyboardShortcut("f")
+                .disabled(window == nil)
+        }
+
+        CommandGroup(before: .sidebar) {
+            Button("Notiz") { window?.detailMode.wrappedValue = .note }
+                .keyboardShortcut("1")
+                .disabled(window?.selectedRecordingID == nil)
+            Button("Transkript") { window?.detailMode.wrappedValue = .transcript }
+                .keyboardShortcut("2")
+                .disabled(window?.selectedRecordingID == nil)
+            Button((window?.inspectorShown.wrappedValue ?? false) ? "Inspector ausblenden" : "Inspector einblenden") {
+                window?.inspectorShown.wrappedValue.toggle()
+            }
+            .keyboardShortcut("i", modifiers: [.command, .option])
+            .disabled(window == nil)
+            Divider()
+        }
+    }
+}
+
+/// Mikrofon ▸ im Menü „Aufnahme“ (mit Häkchen)
+private struct MicrophoneCommandPicker: View {
+    let library: LibraryStore
+    let audioInputs: AudioInputDevices
+    let isRecording: Bool
+
+    var body: some View {
+        Picker("Mikrofon", selection: Binding(get: { library.settings.microphoneDeviceUID }, set: { uid in
+            library.settings.microphoneDeviceUID = uid
+            library.settings.microphoneDeviceName = uid.flatMap { audioInputs.device($0)?.name }
+        })) {
+            Text("Systemstandard (\(audioInputs.defaultDevice?.name ?? "keins"))").tag(String?.none)
+            ForEach(audioInputs.sorted) { Text($0.name).tag(Optional($0.uid)) }
+            if let uid = library.settings.microphoneDeviceUID, audioInputs.device(uid) == nil {
+                Text("\(library.settings.microphoneDeviceName ?? "Gewähltes Mikrofon") (nicht verbunden)").tag(Optional(uid))
+            }
+        }
+        .disabled(isRecording)
+    }
+}

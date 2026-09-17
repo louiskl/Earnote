@@ -25,6 +25,8 @@ public protocol RecordingLibrary: AnyObject {
 public final class ProcessingQueue {
     /// Aufnahme, die gerade verarbeitet wird
     public private(set) var processingID: UUID?
+    /// Fortschritt je Aufnahme (0…1), nur im Speicher; für Liste, Detail und Inspector
+    public private(set) var progress: [UUID: Double] = [:]
 
     @ObservationIgnored public weak var library: (any RecordingLibrary)?
     @ObservationIgnored private let pipeline: ProcessingPipeline
@@ -50,6 +52,7 @@ public final class ProcessingQueue {
         queue.removeAll { $0 == id }
         queue.insert(id, at: next ? 0 : queue.endIndex)
         library.update(id) { $0.status = .queued; $0.errorMessage = nil; $0.progress = 0 }
+        progress[id] = 0
         processNext()
     }
 
@@ -57,6 +60,7 @@ public final class ProcessingQueue {
     /// sonst wartet die restliche Warteschlange, bis die gelöschte Aufnahme fertig (oder gescheitert) ist.
     public func remove(_ id: UUID) {
         queue.removeAll { $0 == id }
+        progress[id] = nil
         if processingID == id { task?.cancel() }
     }
 
@@ -101,6 +105,7 @@ public final class ProcessingQueue {
     public func setProgress(_ id: UUID, _ progress: Double) {
         guard let library, let current = library.recording(id), progress > current.progress else { return }
         library.setProgressInMemory(id, progress)
+        self.progress[id] = progress
     }
 
     private func processNext() {

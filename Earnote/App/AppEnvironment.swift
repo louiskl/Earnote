@@ -6,13 +6,15 @@ import SwiftData
 /// Erzeugt beim Start einmal alle Speicher, Dienste und Stores und verdrahtet sie miteinander.
 @MainActor
 final class AppEnvironment {
+    /// Gemeinsamer Speicher: Das Hauptfenster liest per `@Query`, geschrieben wird über `LibraryRepository`
+    let container: ModelContainer
     let libraryRepository: any LibraryRepository
     let audio: any AudioStore
     let llm: LLMFactory
     let queue: ProcessingQueue
     let library: LibraryStore
     let recorder: RecordingController
-    /// Übergang bis Phase 2: die bisherige Schnittstelle der Views
+    /// Übergang bis Phase 2b: Schnittstelle der noch alten Views (Einstellungen, Einrichtung, Menüleiste, Call-Pop-up)
     let appState: AppState
 
     private let storage: Storage
@@ -62,6 +64,7 @@ final class AppEnvironment {
         }
         recorder.hideCallPrompt = { FloatingPanels.shared.hideCallPrompt() }
 
+        self.container = container
         self.libraryRepository = libraryRepository
         self.audio = audio
         self.storage = storage
@@ -84,6 +87,19 @@ final class AppEnvironment {
         Log.url = root.appendingPathComponent(AppInfo.logFileName)
         return AppEnvironment(storage: Storage(root: root), defaults: UserDefaults(suiteName: suite) ?? .standard)
     }
+
+    #if DEBUG
+    /// Nur Debug-Build: `EARNOTE_SANDBOX=<Ordner>` startet mit eigenem Datenordner und eigener Einstellungs-Domäne
+    /// („app.earnote.sandbox“). So berühren Tests und Screenshots weder Aufnahmen noch Einstellungen des Nutzers.
+    static func sandboxIfRequested() -> AppEnvironment? {
+        guard let path = ProcessInfo.processInfo.environment["EARNOTE_SANDBOX"], !path.isEmpty else { return nil }
+        let root = URL(fileURLWithPath: path, isDirectory: true)
+        try? FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+        Log.url = root.appendingPathComponent(AppInfo.logFileName)
+        Log.info("Sandbox-Modus: \(root.path)")
+        return AppEnvironment(storage: Storage(root: root), defaults: UserDefaults(suiteName: "app.earnote.sandbox") ?? .standard)
+    }
+    #endif
 
     /// Alte Dateien einmalig übernehmen (im Hintergrund), dann die Bibliothek laden und unterbrochene Arbeit fortsetzen.
     private func start() async {

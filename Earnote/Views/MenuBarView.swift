@@ -170,8 +170,7 @@ struct MenuBarView: View {
 
     private func open(_ id: UUID?) {
         if let id { app.selection = id }
-        openWindow(id: "main")
-        NSApp.activate(ignoringOtherApps: true)
+        MainWindowOpener.showOrOpen(openWindow)
     }
 }
 

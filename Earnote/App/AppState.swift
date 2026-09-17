@@ -3,9 +3,10 @@ import EarnoteCore
 import Observation
 import SwiftUI
 
-/// Übergang bis Phase 2, dann entfernen.
-/// Dünne Fassade über LibraryStore und RecordingController, damit die bestehenden Views
-/// (`@EnvironmentObject var app: AppState`) unverändert weiterlaufen. Enthält keine eigene Logik.
+/// Übergang bis Phase 2b, dann entfernen.
+/// Dünne Fassade über LibraryStore und RecordingController für die noch alten Views (Einstellungen,
+/// Einrichtungsassistent, Bereichs-Editor, Menüleiste, Call-Pop-up). Das Hauptfenster nutzt sie nicht mehr.
+/// Enthält keine eigene Logik.
 @MainActor
 final class AppState: ObservableObject {
     let library: LibraryStore

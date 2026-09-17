@@ -159,14 +159,64 @@ final class LibraryStore: RecordingLibrary {
         write("Aufnahme anlegen") { try await library.insertRecording(r) }
     }
 
-    func rename(_ id: UUID, to title: String) { update(id) { $0.title = title; $0.isTitleCustom = true } }
+    /// Schaltet eine Aufgabe in der Notiz um und speichert sofort (KI-Original bleibt erhalten).
+    func toggleTask(_ id: UUID, in markdown: String, line: Int) {
+        guard let updated = NoteMarkdown.togglingTask(in: markdown, line: line) else { return }
+        updateSummaryText(id, markdown: updated)
+    }
+
+    /// IDs der Aufnahmen, die zum Suchbegriff passen (Titel, Notiz, Transkript), gesucht im Hintergrund
+    func search(_ query: String) async -> Set<UUID> {
+        await waitForPendingWrites()
+        do { return try await library.searchRecordingIDs(matching: query) } catch {
+            Log.error("Suche: \(error.localizedDescription)")
+            return []
+        }
+    }
+
+    // MARK: Bereiche
+
+    /// Legt einen neuen Bereich am Ende an und gibt ihn zurück (Name kann danach direkt umbenannt werden)
+    @discardableResult
+    func addCategory(named name: String = "Neuer Bereich") -> RecordingCategory {
+        let category = RecordingCategory(name: name, emoji: "🗂️", symbol: "folder.fill",
+                                         colorHex: RecordingCategory.colorChoices[categories.count % RecordingCategory.colorChoices.count],
+                                         instructions: "")
+        categories.append(category)
+        return category
+    }
+
+    func renameCategory(_ id: UUID, to name: String) {
+        let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty, let i = categories.firstIndex(where: { $0.id == id }) else { return }
+        categories[i].name = trimmed
+    }
+
+    /// Aufnahmen des Bereichs bleiben erhalten und verlieren nur die Zuordnung.
+    func deleteCategory(_ id: UUID) {
+        categories.removeAll { $0.id == id }
+        if settings.defaultCategoryID == id { settings.defaultCategoryID = nil }
+    }
+
+    /// Neue Reihenfolge der Bereiche (IDs in Anzeige-Reihenfolge)
+    func setCategoryOrder(_ ids: [UUID]) {
+        let byID = Dictionary(categories.map { ($0.id, $0) }, uniquingKeysWith: { a, _ in a })
+        let ordered = ids.compactMap { byID[$0] }
+        let rest = categories.filter { !ids.contains($0.id) }
+        categories = ordered + rest
+    }
+
+    func rename(_ id: UUID, to title: String) {
+        let trimmed = title.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+        update(id) { $0.title = trimmed; $0.isTitleCustom = true }
+    }
 
     func setCategory(_ id: UUID, _ categoryID: UUID?) { update(id) { $0.categoryID = categoryID } }
 
     /// Übernimmt eine im Fenster geänderte Notiz (z. B. abgehakte Aufgabe). Das KI-Original bleibt erhalten.
     func updateSummaryText(_ id: UUID, markdown: String) {
-        let taskCount = markdown.components(separatedBy: "\n")
-            .filter { $0.trimmingCharacters(in: .whitespaces).hasPrefix("- [ ]") }.count
+        let taskCount = NoteMarkdown.openTaskCount(markdown)
         let library = self.library
         write("Notiz ändern") { try await library.updateNoteText(markdown, taskCount: taskCount, for: id) }
         if let i = recordings.firstIndex(where: { $0.id == id }) { recordings[i].taskCount = taskCount }

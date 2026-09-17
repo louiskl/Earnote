@@ -13,7 +13,15 @@ struct EarnoteApp: App {
         // Muss vor allem anderen laufen: Stores, Storage und Log würden sonst schon im neuen,
         // leeren Datenordner lesen oder ihn anlegen, bevor die alten Daten übernommen sind.
         LegacyMigration.runIfNeeded()
-        let environment = Self.isTestHost ? AppEnvironment.forTestHost() : AppEnvironment()
+        var environment: AppEnvironment
+        if Self.isTestHost {
+            environment = AppEnvironment.forTestHost()
+        } else {
+            environment = AppEnvironment()
+        }
+        #if DEBUG
+        if !Self.isTestHost, let sandbox = AppEnvironment.sandboxIfRequested() { environment = sandbox }
+        #endif
         self.environment = environment
         _app = StateObject(wrappedValue: environment.appState)
         delegate.app = environment.appState
@@ -23,33 +31,25 @@ struct EarnoteApp: App {
     private static var isTestHost: Bool { ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil }
 
     var body: some Scene {
-        Window(AppInfo.name, id: "main") {
-            MainView()
+        WindowGroup(id: "main") {
+            MainWindow()
+                .environment(environment.library)
+                .environment(environment.recorder)
+                .environment(environment.queue)
+                .environment(environment.recorder.audioInputs)
+                // Nur für die noch alten Sheets (Bereichs-Editor, Einrichtungsassistent) bis Phase 2b
                 .environmentObject(app)
                 .environmentObject(app.meter)
                 .environmentObject(app.live)
+                .modelContainer(environment.container)
         }
-        .windowStyle(.hiddenTitleBar)
+        .windowToolbarStyle(.unified)
         .windowResizability(.contentMinSize)
-        .defaultSize(width: 1180, height: 760)
+        .defaultSize(width: 1280, height: 780)
         .commands {
-            CommandGroup(after: .sidebar) {
-                Button("Seitenleiste ein-/ausblenden") {
-                    NotificationCenter.default.post(name: .toggleSidebar, object: nil)
-                }
-                .keyboardShortcut("s", modifiers: [.command, .control])
-            }
-            CommandGroup(replacing: .newItem) {
-                Button(app.isRecording ? "Aufnahme stoppen" : "Neue Aufnahme") {
-                    if app.isRecording { app.stopRecording() } else { app.startRecording(category: nil) }
-                }
-                .keyboardShortcut("r", modifiers: [.command, .shift])
-                Button(app.isPaused ? "Aufnahme fortsetzen" : "Aufnahme pausieren") { app.togglePause() }
-                    .keyboardShortcut("p", modifiers: [.command, .shift])
-                    .disabled(!app.isRecording)
-                Button("Audiodatei importieren …") { ImportHelper.pickAndImport(into: app) }
-                    .keyboardShortcut("i", modifiers: [.command])
-            }
+            SidebarCommands()
+            EarnoteCommands(library: environment.library, recorder: environment.recorder,
+                            audioInputs: environment.recorder.audioInputs)
         }
 
         Settings {
@@ -113,16 +113,5 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification,
                                 withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
         completionHandler([.banner, .sound])
-    }
-}
-
-@MainActor
-enum ImportHelper {
-    static func pickAndImport(into app: AppState) {
-        let panel = NSOpenPanel()
-        panel.allowedContentTypes = [.audio, .mpeg4Movie, .quickTimeMovie]
-        panel.allowsMultipleSelection = true
-        panel.message = "Audiodateien zum Transkribieren auswählen"
-        if panel.runModal() == .OK { app.importAudio(panel.urls, category: nil) }
     }
 }

@@ -1,0 +1,79 @@
+import AppKit
+import EarnoteCore
+import SwiftUI
+
+/// Notiz oder Transkript im Detailbereich
+enum DetailMode: String {
+    case note, transcript
+}
+
+/// Darstellung einer gespeicherten Aufnahme – dieselben Regeln wie beim Snapshot `Recording`.
+extension LibraryRecording {
+    /// Titel der Notiz, außer die Aufnahme wurde vom Nutzer benannt
+    var displayTitle: String {
+        if !isTitleCustom, let noteTitle = note?.title, !noteTitle.isEmpty { return noteTitle }
+        return title
+    }
+
+    /// Aufgenommene Zeit ohne Pausen
+    var duration: TimeInterval { max(0, (endedAt ?? Date()).timeIntervalSince(startedAt) - pausedDuration) }
+
+    var isBusy: Bool { status.isBusy }
+}
+
+extension LibraryCategory {
+    var displayEmoji: String { snapshot().displayEmoji }
+}
+
+enum MainWindowFormat {
+    static func time(_ date: Date) -> String { date.formatted(date: .omitted, time: .shortened) }
+
+    static func dateAndTime(_ date: Date) -> String { date.formatted(date: .abbreviated, time: .shortened) }
+
+    /// Name einer Sprache aus den Einstellungen („de“ → „Deutsch“)
+    static func language(_ code: String) -> String {
+        AppSettings.languages.first { $0.code == code }?.name ?? code
+    }
+
+    /// Pegel (Effektivwert) auf 0…1 in Dezibel: −50 dB leer, 0 dB voll
+    static func level(_ rms: Float) -> Double {
+        guard rms > 0 else { return 0 }
+        return min(1, max(0, (Double(20 * log10(rms)) + 50) / 50))
+    }
+}
+
+/// Öffnet das Hauptfenster – oder holt ein offenes nach vorn, statt ein weiteres anzulegen.
+@MainActor
+enum MainWindowOpener {
+    static func showOrOpen(_ openWindow: OpenWindowAction) {
+        if let window = NSApp.windows.first(where: { $0.identifier?.rawValue.hasPrefix("main") == true && $0.isVisible }) {
+            window.makeKeyAndOrderFront(nil)
+        } else {
+            openWindow(id: "main")
+        }
+        NSApp.activate(ignoringOtherApps: true)
+    }
+}
+
+/// Teilen-Menü von macOS für einen Text, angebunden an das aktive Fenster (für den Menübefehl „Teilen …“).
+@MainActor
+enum SharePicker {
+    static func show(_ text: String) {
+        guard let view = NSApp.keyWindow?.contentView else { return }
+        let picker = NSSharingServicePicker(items: [text])
+        let anchor = NSRect(x: view.bounds.maxX - 60, y: view.bounds.maxY - 8, width: 1, height: 1)
+        picker.show(relativeTo: anchor, of: view, preferredEdge: .minY)
+    }
+}
+
+/// Auswahl von Audiodateien für den Import
+@MainActor
+enum AudioImportPanel {
+    static func pick() -> [URL] {
+        let panel = NSOpenPanel()
+        panel.allowedContentTypes = [.audio, .mpeg4Movie, .quickTimeMovie]
+        panel.allowsMultipleSelection = true
+        panel.message = "Audiodateien zum Transkribieren auswählen"
+        return panel.runModal() == .OK ? panel.urls : []
+    }
+}
