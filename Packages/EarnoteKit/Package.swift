@@ -2,12 +2,12 @@
 import PackageDescription
 
 // Abhängigkeitsregeln (siehe docs/ARCHITECTURE.md):
-// - EarnoteCore: nur Apple-Frameworks ohne Oberfläche (Foundation, AVFoundation, Security, OSLog, Observation).
+// - EarnoteCore: nur Apple-Frameworks ohne Oberfläche (Foundation, AVFoundation, Security, OSLog, Observation, SwiftData).
 //   Kein AppKit/UIKit/SwiftUI, keine Drittanbieter-Pakete – läuft auf Mac und iPad.
 // - EarnoteML: EarnoteCore + WhisperKit/MLX (lokale Transkription und lokales Sprachmodell).
 let package = Package(
     name: "EarnoteKit",
-    platforms: [.macOS("14.4"), .iOS("26.0")],
+    platforms: [.macOS(.v15), .iOS("26.0")],
     products: [
         .library(name: "EarnoteCore", targets: ["EarnoteCore"]),
         .library(name: "EarnoteML", targets: ["EarnoteML"]),
@@ -30,7 +30,7 @@ let package = Package(
                 .product(name: "HuggingFace", package: "swift-huggingface"),
                 .product(name: "Tokenizers", package: "swift-transformers"),
             ]),
-        .testTarget(name: "EarnoteCoreTests", dependencies: ["EarnoteCore"]),
+        .testTarget(name: "EarnoteCoreTests", dependencies: ["EarnoteCore"], resources: [.copy("Fixtures")]),
     ],
     // Swift-6-Sprachmodus folgt später; neuer Code ist trotzdem Sendable-sauber geschrieben.
     swiftLanguageModes: [.v5]

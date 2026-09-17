@@ -39,7 +39,13 @@ public struct ExportResult: Codable, Hashable, Sendable {
     }
 }
 
-/// Metadaten einer Aufnahme. Liegt als meta.json im Ordner der Aufnahme.
+/// Woher eine Aufnahme stammt
+public enum RecordingOrigin: String, Codable, Sendable {
+    case microphone, importedFile, companionDevice
+}
+
+/// Stand einer Aufnahme als Wert (Snapshot). Gespeichert wird sie in der Bibliothek (`LibraryRecording`);
+/// ältere Versionen legten sie als meta.json im Ordner der Aufnahme ab.
 public struct Recording: Identifiable, Codable, Hashable, Sendable {
     public var id: UUID = UUID()
     public var title: String
@@ -60,6 +66,8 @@ public struct Recording: Identifiable, Codable, Hashable, Sendable {
     public var taskCount: Int = 0
     /// Summe der Pausen während der Aufnahme (optional, damit ältere meta.json-Dateien lesbar bleiben)
     public var pausedDuration: TimeInterval?
+    /// Vom Nutzer benannt (nil bei älteren meta.json-Dateien: dann entscheidet das Namensmuster)
+    public var isTitleCustom: Bool?
 
     public init(id: UUID = UUID(), title: String, categoryID: UUID? = nil, sourceApp: String? = nil,
                 startedAt: Date = Date(), endedAt: Date? = nil, status: RecordingStatus = .recording) {
@@ -74,8 +82,16 @@ public struct Recording: Identifiable, Codable, Hashable, Sendable {
 
     /// Automatisch vergebener Name wie „Meeting – 15. Sept., 19:58“ (nicht vom Nutzer umbenannt)
     public var hasAutoTitle: Bool {
+        if let isTitleCustom { return !isTitleCustom }
+        return Self.looksAutomatic(title)
+    }
+
+    /// Entspricht der Name dem Muster der automatisch vergebenen Namen?
+    public static func looksAutomatic(_ title: String) -> Bool {
         title.range(of: #" – \d{1,2}\. \S+, \d{2}:\d{2}$"#, options: .regularExpression) != nil
     }
+
+    public var origin: RecordingOrigin { importedFileName == nil ? .microphone : .importedFile }
 
     /// Was als Überschrift angezeigt wird: der Titel der Notizen, außer der Nutzer hat selbst benannt.
     public var displayTitle: String {
