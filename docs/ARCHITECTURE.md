@@ -88,6 +88,21 @@ unterbrochene Aufnahmen wieder eingereiht, der Fortschritt verworfen. Gespeicher
 übersprungen. Das Flag `libraryImportVersion` wird erst nach einem fehlerfreien Lauf gesetzt. Die alten Dateien werden nie
 verändert oder gelöscht (Rückfallmöglichkeit). Ohne gespeicherte Bereiche werden die Standardbereiche angelegt.
 
+## Mikrofon und Aufnahme (Phase 1c)
+
+| Typ | Ort | Aufgabe |
+|---|---|---|
+| `AudioInputDeviceInfo`, `MicrophonePlan`, `MicrophoneEvent` | EarnoteCore (`Audio/MicrophoneSelection.swift`) | Plattformneutrale Geräteinfo, Ausweich-Reihenfolge (gewähltes Gerät → Systemstandard → eingebautes → andere echte Mikrofone, Bluetooth zuletzt, nie virtuelle) und verständliche Texte ohne Fehlernummern. Mit Tests. |
+| `AudioInputDevices` | App (`Audio/`) | Core Audio: Eingabegeräte, Systemstandard, Änderungen beobachten (`@Observable`); räumt beim Start öffentliche Überbleibsel früherer Sitzungen auf |
+| `MicRecorder` | App | Nimmt ein bestimmtes Gerät auf (`kAudioOutputUnitProperty_CurrentDevice`), jede (Neu-)Start mit frischer `AVAudioEngine`; wechselt bei Geräteverlust oder Konfigurationsänderung in derselben Datei auf ein Ersatzgerät |
+| `RecordingSession` | App | Startet nach `MicrophonePlan` (erstes Gerät mit zweitem Versuch nach 400 ms, dann Ausweichgeräte), protokolliert jeden Versuch, räumt in fester Reihenfolge auf |
+| `MicrophoneLevelMonitor` | App | Pegeltest in den Einstellungen; läuft nur, solange sie offen sind und keine Aufnahme läuft |
+
+Die Auswahl liegt pro Gerät in `AppSettings.microphoneDeviceUID` (nil = Systemstandard) und `microphoneDeviceName`
+(für die Anzeige „(nicht verbunden)“). Hinweise erscheinen über den bestehenden Hinweis-Dialog (`lastError`), bei
+Wechseln während der Aufnahme zusätzlich als Mitteilung. Technische Details (Domäne, Code, Gerät, Format, Versuche)
+stehen nur im Protokoll.
+
 ## Tests
 
 - `EarnoteCoreTests`: `cd Packages/EarnoteKit && swift test --test-product EarnoteKitPackageTests` – schnell, mit Fakes und temporären Ordnern, ohne WhisperKit/MLX.
