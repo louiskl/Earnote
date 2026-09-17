@@ -1,0 +1,13 @@
+{
+  "categoryID": "DEADBEEF-0000-4000-8000-00000000DEAD",
+  "endedAt": "2026-09-05T09:01:00Z",
+  "exports": [],
+  "hasSystemAudio": false,
+  "id": "C0000000-0000-4000-8000-00000000000C",
+  "language": "de",
+  "progress": 0.3,
+  "startedAt": "2026-09-05T09:00:00Z",
+  "status": "transcribing",
+  "taskCount": 0,
+  "title": "Gedanken zum Projekt"
+}

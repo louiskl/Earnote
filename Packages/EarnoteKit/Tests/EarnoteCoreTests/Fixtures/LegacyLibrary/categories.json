@@ -1,0 +1,33 @@
+[
+  {
+    "id": "C1C1C1C1-0000-4000-8000-000000000001",
+    "name": "Meeting",
+    "emoji": "💼",
+    "symbol": "person.3.fill",
+    "colorHex": "#4F7CFF",
+    "instructions": "Achte auf Entscheidungen.",
+    "destinationIDs": []
+  },
+  {
+    "id": "C2C2C2C2-0000-4000-8000-000000000002",
+    "name": "Vorlesung",
+    "emoji": "🎓",
+    "symbol": "graduationcap.fill",
+    "colorHex": "#9B5CFF",
+    "instructions": "Zum Lernen.",
+    "destinationIDs": [
+      "markdown"
+    ]
+  },
+  {
+    "id": "C3C3C3C3-0000-4000-8000-000000000003",
+    "name": "Mathe",
+    "symbol": "star.fill",
+    "colorHex": "#10B981",
+    "instructions": "",
+    "destinationIDs": [
+      "markdown",
+      "notion"
+    ]
+  }
+]

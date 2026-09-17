@@ -1,0 +1,34 @@
+{
+  "categoryID": "C1C1C1C1-0000-4000-8000-000000000001",
+  "endedAt": "2026-09-03T08:30:00Z",
+  "exports": [
+    {
+      "date": "2026-09-03T08:31:00Z",
+      "destinationID": "markdown",
+      "destinationName": "Markdown-Ordner",
+      "message": "Exportiert",
+      "success": true,
+      "url": "file:///tmp/a.md"
+    },
+    {
+      "date": "2026-09-03T08:31:01Z",
+      "destinationID": "notion",
+      "destinationName": "Notion",
+      "message": "Noch nicht verbunden.",
+      "skipped": true,
+      "success": false
+    }
+  ],
+  "hasSystemAudio": true,
+  "id": "A0000000-0000-4000-8000-00000000000A",
+  "language": "de",
+  "pausedDuration": 12,
+  "progress": 1,
+  "sourceApp": "Zoom",
+  "startedAt": "2026-09-03T08:00:00Z",
+  "status": "done",
+  "summaryPreview": "Budget besprochen.",
+  "summaryTitle": "Budgetplanung",
+  "taskCount": 1,
+  "title": "Meeting – 3. Sept., 10:00"
+}

@@ -95,28 +95,30 @@ struct FakeDestinations: DestinationProvider {
 
 // MARK: - Umgebung
 
-/// Temporärer Datenordner mit Repository; wird nach dem Test gelöscht.
+/// Temporärer Datenordner mit Audio-Ablage und In-Memory-Bibliothek; wird nach dem Test gelöscht.
 final class TestFolder {
     let root: URL
-    let repository: FileRecordingRepository
+    let audio: FileAudioStore
+    let library: SwiftDataLibraryRepository
 
     init() throws {
         root = FileManager.default.temporaryDirectory.appendingPathComponent("EarnoteCoreTests-\(UUID().uuidString)")
         try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
-        repository = FileRecordingRepository(storage: Storage(root: root))
+        audio = FileAudioStore(storage: Storage(root: root))
+        library = SwiftDataLibraryRepository(modelContainer: try LibraryContainer.makeInMemory())
         Log.url = root.appendingPathComponent("test.log")
     }
 
     deinit { try? FileManager.default.removeItem(at: root) }
 
     /// Legt eine importierte Aufnahme mit echter Audiodatei an (laut oder stumm).
-    func importedRecording(silent: Bool = false, title: String = "Import") throws -> Recording {
+    func importedRecording(silent: Bool = false, title: String = "Import") async throws -> Recording {
         let source = root.appendingPathComponent("\(UUID().uuidString).wav")
         try Self.writeAudio(to: source, amplitude: silent ? 0 : 0.5)
         var rec = Recording(title: title, status: .queued)
-        rec.importedFileName = try repository.importAudio(from: source, for: rec.id)
+        rec.importedFileName = try audio.importAudio(from: source, for: rec.id)
         rec.endedAt = rec.startedAt.addingTimeInterval(1)
-        repository.insert(rec)
+        try await library.insertRecording(rec)
         return rec
     }
 
@@ -138,11 +140,11 @@ final class TestFolder {
 final class RecordingState: @unchecked Sendable {
     let current: Locked<Recording?>
     let statuses = Locked<[RecordingStatus]>([])
-    private let repository: FileRecordingRepository
+    private let library: SwiftDataLibraryRepository
 
-    init(_ recording: Recording, repository: FileRecordingRepository) {
+    init(_ recording: Recording, library: SwiftDataLibraryRepository) {
         current = Locked(recording)
-        self.repository = repository
+        self.library = library
     }
 
     var recording: Recording { current.get()! }
@@ -150,7 +152,7 @@ final class RecordingState: @unchecked Sendable {
     var events: ProcessingEvents {
         ProcessingEvents(
             recording: { [self] _ in current.get() },
-            update: { [self] _, change in
+            update: { [self] id, change in
                 let updated: Recording? = current.mutate { value in
                     guard var r = value else { return nil }
                     change(&r)
@@ -159,7 +161,7 @@ final class RecordingState: @unchecked Sendable {
                 }
                 if let updated {
                     statuses.mutate { if $0.last != updated.status { $0.append(updated.status) } }
-                    repository.update(updated)
+                    try? await library.updateRecording(id) { $0 = updated }
                 }
             },
             progress: { _, _ in })
@@ -171,12 +173,15 @@ final class RecordingState: @unchecked Sendable {
 final class TestLibrary: RecordingLibrary {
     var recordings: [Recording]
     var settings: AppSettings
-    let repository: FileRecordingRepository
+    let library: SwiftDataLibraryRepository
+    let audio: FileAudioStore
+    private var writes: [Task<Void, Never>] = []
 
-    init(repository: FileRecordingRepository, settings: AppSettings) {
-        self.repository = repository
+    init(folder: TestFolder, settings: AppSettings) async throws {
+        library = folder.library
+        audio = folder.audio
         self.settings = settings
-        recordings = repository.loadRecordings().sorted { $0.startedAt > $1.startedAt }
+        recordings = try await folder.library.recordings()
     }
 
     func recording(_ id: UUID) -> Recording? { recordings.first { $0.id == id } }
@@ -185,7 +190,17 @@ final class TestLibrary: RecordingLibrary {
     func update(_ id: UUID, _ change: (inout Recording) -> Void) {
         guard let i = recordings.firstIndex(where: { $0.id == id }) else { return }
         change(&recordings[i])
-        repository.update(recordings[i])
+        let updated = recordings[i], library = library, previous = writes.last
+        writes.append(Task { await previous?.value; try? await library.updateRecording(id) { $0 = updated } })
+    }
+
+    func updateAndSave(_ id: UUID, _ change: (inout Recording) -> Void) async {
+        update(id, change)
+        await waitForPendingWrites()
+    }
+
+    func waitForPendingWrites() async {
+        for task in writes { await task.value }
     }
 
     func setProgressInMemory(_ id: UUID, _ progress: Double) {
@@ -193,10 +208,11 @@ final class TestLibrary: RecordingLibrary {
         recordings[i].progress = progress
     }
 
-    func delete(_ id: UUID, queue: ProcessingQueue) {
+    func delete(_ id: UUID, queue: ProcessingQueue) async {
         queue.remove(id)
-        repository.delete(id)
+        audio.deleteFolder(for: id)
         recordings.removeAll { $0.id == id }
+        try? await library.deleteRecording(id)
     }
 }
 

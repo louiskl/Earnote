@@ -106,46 +106,28 @@ final class TranscriptCleanupTests: XCTestCase {
     }
 }
 
-final class FileRecordingRepositoryTests: XCTestCase {
+final class AudioStoreTests: XCTestCase {
     func testDeletingImportedAudioRemovesFileAndDisablesReprocessing() throws {
         let folder = try TestFolder()
-        let repository = folder.repository
+        let audio = folder.audio
         let source = folder.root.appendingPathComponent("vortrag.wav")
         try Data().write(to: source)
         var rec = Recording(title: "vortrag")
-        rec.importedFileName = try repository.importAudio(from: source, for: rec.id)
-        repository.insert(rec)
+        rec.importedFileName = try audio.importAudio(from: source, for: rec.id)
         XCTAssertEqual(rec.importedFileName, "import.wav")
-        XCTAssertTrue(repository.hasAudio(rec))
+        XCTAssertTrue(audio.hasAudio(rec))
 
-        let dir = repository.folderURL(for: rec.id)
-        for name in ["mic.caf", "system.caf", "audio.wav"] { try Data().write(to: dir.appendingPathComponent(name)) }
-        repository.deleteAudio(for: rec)
-        XCTAssertFalse(repository.hasAudio(rec))
+        let dir = audio.folderURL(for: rec.id)
+        for name in ["mic.caf", "system.caf", "audio.wav", "notizen.txt"] { try Data().write(to: dir.appendingPathComponent(name)) }
+        audio.deleteAudio(for: rec)
+        XCTAssertFalse(audio.hasAudio(rec))
         for name in ["mic.caf", "system.caf", "audio.wav", "import.wav"] {
             XCTAssertFalse(FileManager.default.fileExists(atPath: dir.appendingPathComponent(name).path))
         }
-        XCTAssertTrue(repository.exists(rec.id), "meta.json bleibt")
+        XCTAssertTrue(FileManager.default.fileExists(atPath: dir.appendingPathComponent("notizen.txt").path), "Nur Audio wird gelöscht")
         XCTAssertTrue(FileManager.default.fileExists(atPath: source.path), "Originaldatei bleibt erhalten")
-    }
 
-    func testFileFormatStaysCompatible() throws {
-        let folder = try TestFolder()
-        let repository = folder.repository
-        let rec = Recording(title: "Meeting – 1. Jan., 10:00")
-        repository.insert(rec)
-        repository.saveSummary(Summary(title: "Titel", markdown: "Text", taskCount: 0, provider: "P"), for: rec.id)
-        repository.saveTranscript(Transcript(segments: [], engine: "E"), for: rec.id)
-        let dir = repository.folderURL(for: rec.id)
-        for name in ["meta.json", "summary.md", "summary.md.json", "transcript.json"] {
-            XCTAssertTrue(FileManager.default.fileExists(atPath: dir.appendingPathComponent(name).path), name)
-        }
-        XCTAssertEqual(try String(contentsOf: dir.appendingPathComponent("summary.md"), encoding: .utf8), "# Titel\n\nText")
-        XCTAssertEqual(repository.loadRecordings().map(\.id), [rec.id])
-        repository.deleteSummary(for: rec.id)
-        XCTAssertNil(repository.summary(for: rec.id))
-        repository.delete(rec.id)
-        XCTAssertFalse(repository.exists(rec.id))
-        XCTAssertTrue(repository.loadRecordings().isEmpty)
+        audio.deleteFolder(for: rec.id)
+        XCTAssertFalse(FileManager.default.fileExists(atPath: dir.path))
     }
 }

@@ -1,0 +1,15 @@
+{
+  "categoryID": "C3C3C3C3-0000-4000-8000-000000000003",
+  "endedAt": "2026-09-04T10:45:00Z",
+  "errorMessage": "Zusammenfassung fehlgeschlagen: Zeitüberschreitung",
+  "exports": [],
+  "hasSystemAudio": false,
+  "id": "B0000000-0000-4000-8000-00000000000B",
+  "importedFileName": "import.m4a",
+  "language": "de",
+  "progress": 0.6,
+  "startedAt": "2026-09-04T10:00:00Z",
+  "status": "failed",
+  "taskCount": 0,
+  "title": "Vortrag Mathe"
+}
