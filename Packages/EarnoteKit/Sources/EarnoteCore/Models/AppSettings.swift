@@ -156,6 +156,10 @@ public struct AppSettings: Codable, Hashable, Sendable {
     public var defaultCategoryID: UUID?
     /// Hauptfenster beim Start der App öffnen (sonst nur in der Menüleiste)
     public var openWindowAtLaunch = true
+    /// Gewähltes Mikrofon (Core-Audio-UID); nil = Systemstandard. Gilt pro Gerät.
+    public var microphoneDeviceUID: String?
+    /// Name des gewählten Mikrofons – damit es auch angezeigt werden kann, wenn es gerade nicht verbunden ist
+    public var microphoneDeviceName: String?
 
     public init() {}
 
@@ -178,6 +182,8 @@ public struct AppSettings: Codable, Hashable, Sendable {
         showConsentReminder = try c.decodeIfPresent(Bool.self, forKey: .showConsentReminder) ?? d.showConsentReminder
         defaultCategoryID = try c.decodeIfPresent(UUID.self, forKey: .defaultCategoryID)
         openWindowAtLaunch = try c.decodeIfPresent(Bool.self, forKey: .openWindowAtLaunch) ?? d.openWindowAtLaunch
+        microphoneDeviceUID = try? c.decodeIfPresent(String.self, forKey: .microphoneDeviceUID)
+        microphoneDeviceName = try? c.decodeIfPresent(String.self, forKey: .microphoneDeviceName)
     }
 
     public static let languages: [(code: String, name: String)] = [
