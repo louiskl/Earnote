@@ -46,7 +46,9 @@ final class AppEnvironment {
                                    settingsRepository: UserDefaultsSettingsRepository(defaults: defaults), queue: queue)
         library.lastError = openError
         queue.library = library
-        let recorder = RecordingController(library: library, detector: MeetingDetector(), notify: { Notifier.send($0, $1) })
+        AudioInputDevices.removeLeftoversFromEarlierRuns()
+        let recorder = RecordingController(library: library, detector: MeetingDetector(), audioInputs: AudioInputDevices(),
+                                           notify: { Notifier.send($0, $1) })
         let appState = AppState(library: library, recorder: recorder, llm: llm)
 
         library.willDelete = { [weak recorder] id in recorder?.endIfActive(id) }

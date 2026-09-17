@@ -62,6 +62,7 @@ final class AppState: ObservableObject {
     var meter: LiveMeter { recorder.meter }
     var live: LiveTranscript { recorder.live }
     var detector: MeetingDetector { recorder.detector }
+    var audioInputs: AudioInputDevices { recorder.audioInputs }
 
     func recording(_ id: UUID) -> Recording? { library.recording(id) }
     func category(_ id: UUID?) -> RecordingCategory? { library.category(id) }

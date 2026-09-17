@@ -41,6 +41,7 @@ final class RecordingController {
     @ObservationIgnored let meter = LiveMeter()
     @ObservationIgnored let live = LiveTranscript()
     @ObservationIgnored let detector: MeetingDetector
+    @ObservationIgnored let audioInputs: AudioInputDevices
 
     /// Hinweis „Call erkannt“ zeigen bzw. ausblenden (schwebendes Fenster der App)
     @ObservationIgnored var showCallPrompt: (String) -> Void = { _ in }
@@ -56,13 +57,17 @@ final class RecordingController {
     @ObservationIgnored private var recordingActivity: NSObjectProtocol?
     @ObservationIgnored private var liveTranscriber: AnyObject?
     @ObservationIgnored private var recordingStartedByCall = false
+    /// Hinweis „gewähltes Mikrofon nicht verbunden“ nur einmal je Gerät und App-Start
+    @ObservationIgnored private var toldAboutMissingMicrophone: Set<String> = []
 
     var isRecording: Bool { activeRecordingID != nil }
     var activeRecording: Recording? { activeRecordingID.flatMap(library.recording) }
 
-    init(library: LibraryStore, detector: MeetingDetector, notify: @escaping (String, String) -> Void) {
+    init(library: LibraryStore, detector: MeetingDetector, audioInputs: AudioInputDevices,
+         notify: @escaping (String, String) -> Void) {
         self.library = library
         self.detector = detector
+        self.audioInputs = audioInputs
         self.notify = notify
         detector.onCallStarted = { [weak self] app in self?.callStarted(app) }
         detector.onCallEnded = { [weak self] app in self?.callEnded(app) }
@@ -83,7 +88,7 @@ final class RecordingController {
             defer { isStarting = false }
             if MicRecorder.permission != .authorized {
                 guard await MicRecorder.requestPermission() else {
-                    lastError = "\(AppInfo.name) hat keinen Zugriff auf das Mikrofon. Bitte in den Systemeinstellungen erlauben."
+                    lastError = MicrophoneEvent.permissionDenied.message
                     SystemSettingsLink.microphone()
                     return
                 }
@@ -98,19 +103,41 @@ final class RecordingController {
             rec.language = settings.language
             rec.isTitleCustom = !Recording.looksAutomatic(name)
 
+            audioInputs.refresh()
+            let plan = MicrophonePlan.start(devices: audioInputs.devices, preferredUID: settings.microphoneDeviceUID,
+                                            defaultUID: audioInputs.defaultUID)
             let session = RecordingSession(recordingID: rec.id, audio: library.audio)
+            let notice: MicrophoneEvent?
             do {
-                try session.start(includeSystemAudio: settings.recordSystemAudio)
+                notice = try await session.start(includeSystemAudio: settings.recordSystemAudio, plan: plan,
+                                                 preferredName: settings.microphoneDeviceName,
+                                                 preferredUID: settings.microphoneDeviceUID)
             } catch {
-                lastError = "Aufnahme konnte nicht starten: \(error.localizedDescription)"
-                Log.error(lastError!)
+                // Technische Details stehen bereits im Protokoll; hier nur ein verständlicher nächster Schritt
+                session.stop()
+                let event = (error as? RecordingSession.MicrophoneUnavailable)?.event ?? .allFailed
+                lastError = event.message
+                Log.error("Aufnahme konnte nicht starten: \(error)")
                 library.audio.deleteFolder(for: rec.id)
                 return
+            }
+            session.onMicrophoneEvent = { [weak self] event in
+                self?.lastError = event.message
+                self?.notify("Mikrofon", event.message)
             }
             rec.hasSystemAudio = session.systemAudioActive
             library.insert(rec)
             self.session = session
             activeRecordingID = rec.id
+            if let notice {
+                switch notice {
+                case .preferredMissing:
+                    let uid = settings.microphoneDeviceUID ?? ""
+                    if toldAboutMissingMicrophone.insert(uid).inserted { lastError = notice.message }
+                default:
+                    lastError = notice.message
+                }
+            }
             if let error = session.systemAudioError {
                 lastError = "Die Aufnahme läuft nur mit Mikrofon. Systemton konnte nicht gestartet werden: \(error) Prüfe die Systemaudio-Berechtigung für \(AppInfo.name) in den Systemeinstellungen."
             }
