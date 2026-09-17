@@ -105,10 +105,12 @@ struct MicrophoneMenu: View {
             }
         } label: {
             Label(currentName, systemImage: "mic")
+                .lineLimit(1)
+                .truncationMode(.middle)
         }
         .menuStyle(.button)
         .buttonStyle(.borderless)
-        .fixedSize()
+        .frame(maxWidth: .infinity, alignment: .leading)
         .help("Mikrofon wählen")
         .accessibilityLabel("Mikrofon: \(currentName)")
     }

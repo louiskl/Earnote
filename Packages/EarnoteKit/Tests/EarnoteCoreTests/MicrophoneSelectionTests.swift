@@ -21,6 +21,13 @@ final class MicrophoneSelectionTests: XCTestCase {
         for real in [usb, builtIn, headset, iPhone] { XCTAssertFalse(real.isVirtual, real.name) }
     }
 
+    func testSystemHelperAggregatesAreHidden() {
+        let helper = AudioInputDeviceInfo(uid: "CADefaultDeviceAggregate-57354-0", name: "CADefaultDeviceAggregate-57354-0", transport: .unknown)
+        XCTAssertTrue(helper.isSystemHelper)
+        XCTAssertFalse(MicrophonePlan.sortedForDisplay(all + [helper]).contains(helper))
+        XCTAssertFalse(MicrophonePlan.start(devices: all + [helper], preferredUID: nil, defaultUID: nil).candidates.contains(helper))
+    }
+
     func testDisplayOrderPutsRealDevicesFirst() {
         let names = MicrophonePlan.sortedForDisplay(all).map(\.name)
         XCTAssertEqual(names.first, "MacBook Air-Mikrofon")

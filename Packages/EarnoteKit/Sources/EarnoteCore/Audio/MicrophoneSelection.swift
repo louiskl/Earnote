@@ -24,6 +24,12 @@ public struct AudioInputDeviceInfo: Identifiable, Hashable, Sendable {
 
     public var isBuiltIn: Bool { transport == .builtIn }
 
+    /// Vorübergehende Hilfsgeräte, die macOS selbst anlegt (z. B. „CADefaultDeviceAggregate-<Prozess>“, wenn eine
+    /// Audio-Engine Ein- und Ausgabe über verschiedene Geräte verbindet). Sie sind kein Mikrofon und werden nicht angezeigt.
+    public var isSystemHelper: Bool {
+        name.hasPrefix("CADefaultDeviceAggregate") || uid.hasPrefix("CADefaultDeviceAggregate")
+    }
+
     /// Präfix der UIDs von Earnotes eigenen Aggregat-Geräten (Systemton-Aufnahme)
     public static let ownAggregatePrefix = "\(AppInfo.bundleIdentifier).aggregate"
 
@@ -34,7 +40,7 @@ public struct AudioInputDeviceInfo: Identifiable, Hashable, Sendable {
     /// Kein echtes Mikrofon: virtuelle Treiber, Aggregat-Geräte (auch Earnotes eigene).
     /// Bleiben wählbar, stehen aber hinten und werden nie automatisch als Ausweichgerät genommen.
     public var isVirtual: Bool {
-        if transport == .virtual || transport == .aggregate || uid.hasPrefix(Self.ownAggregatePrefix) { return true }
+        if transport == .virtual || transport == .aggregate || isSystemHelper || uid.hasPrefix(Self.ownAggregatePrefix) { return true }
         let haystack = (uid + " " + name).lowercased()
         return Self.virtualMarkers.contains { haystack.contains($0) }
     }
@@ -52,7 +58,7 @@ public enum MicrophonePlan {
 
     /// Geräte für die Auswahl: echte Mikrofone zuerst (eingebautes vorne), virtuelle Geräte ans Ende.
     public static func sortedForDisplay(_ devices: [AudioInputDeviceInfo]) -> [AudioInputDeviceInfo] {
-        devices.sorted { a, b in
+        devices.filter { !$0.isSystemHelper }.sorted { a, b in
             if a.isVirtual != b.isVirtual { return !a.isVirtual }
             if a.isBuiltIn != b.isBuiltIn { return a.isBuiltIn }
             return a.name.localizedStandardCompare(b.name) == .orderedAscending
@@ -71,7 +77,7 @@ public enum MicrophonePlan {
             }
         }
         return devices
-            .filter { !$0.isVirtual && !excluding.contains($0.uid) }
+            .filter { !$0.isVirtual && !$0.isSystemHelper && !excluding.contains($0.uid) }
             .sorted { rank($0) != rank($1) ? rank($0) < rank($1) : $0.name.localizedStandardCompare($1.name) == .orderedAscending }
     }
 
