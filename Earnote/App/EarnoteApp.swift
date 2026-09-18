@@ -10,18 +10,23 @@ struct EarnoteApp: App {
     private let environment: AppEnvironment
 
     init() {
-        // Muss vor allem anderen laufen: Stores, Storage und Log würden sonst schon im neuen,
-        // leeren Datenordner lesen oder ihn anlegen, bevor die alten Daten übernommen sind.
-        LegacyMigration.runIfNeeded()
-        var environment: AppEnvironment
-        if Self.isTestHost {
+        // Der Testbereich wird zuerst geprüft: sonst würde schon das Erzeugen der echten Umgebung
+        // die Bibliothek des Nutzers öffnen, obwohl der Test in seinem eigenen Ordner laufen soll.
+        var sandbox: AppEnvironment?
+        #if DEBUG
+        if !Self.isTestHost { sandbox = AppEnvironment.sandboxIfRequested() }
+        #endif
+        let environment: AppEnvironment
+        if let sandbox {
+            environment = sandbox
+        } else if Self.isTestHost {
             environment = AppEnvironment.forTestHost()
         } else {
+            // Muss vor allem anderen laufen: Stores, Storage und Log würden sonst schon im neuen,
+            // leeren Datenordner lesen oder ihn anlegen, bevor die alten Daten übernommen sind.
+            LegacyMigration.runIfNeeded()
             environment = AppEnvironment()
         }
-        #if DEBUG
-        if !Self.isTestHost, let sandbox = AppEnvironment.sandboxIfRequested() { environment = sandbox }
-        #endif
         self.environment = environment
         _app = StateObject(wrappedValue: environment.appState)
         delegate.app = environment.appState
