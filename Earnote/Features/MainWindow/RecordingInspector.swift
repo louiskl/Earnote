@@ -21,6 +21,7 @@ private struct InspectorContent: View {
     @Environment(LibraryStore.self) private var library
     @Environment(ProcessingQueue.self) private var queue
     @Environment(RecordingController.self) private var recorder
+    @Environment(\.colorScheme) private var colorScheme
     @Environment(\.openURL) private var openURL
     @Query private var matches: [LibraryRecording]
     @Query(sort: [SortDescriptor(\LibraryCategory.sortIndex), SortDescriptor(\LibraryCategory.createdAt)])
@@ -55,7 +56,15 @@ private struct InspectorContent: View {
             Picker("Bereich", selection: Binding(get: { recording.category?.id },
                                                  set: { library.setCategory(recording.id, $0) })) {
                 Text("Ohne Bereich").tag(UUID?.none)
-                ForEach(categories) { Text("\($0.displayEmoji) \($0.name)").tag(Optional($0.id)) }
+                ForEach(categories) { category in
+                    Label {
+                        Text(category.name)
+                    } icon: {
+                        CategoryBadge(emoji: category.emoji, symbol: category.symbol,
+                                     tint: category.tint(dark: colorScheme == .dark), size: 16)
+                    }
+                    .tag(Optional(category.id))
+                }
             }
             .disabled(recording.status == .recording)
             LabeledContent("Datum", value: MainWindowFormat.dateAndTime(recording.startedAt))

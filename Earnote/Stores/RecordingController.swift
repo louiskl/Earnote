@@ -38,6 +38,8 @@ final class RecordingController {
     private(set) var isPaused = false
     /// Mikrofon, über das die laufende Aufnahme gerade aufnimmt
     private(set) var microphoneName: String?
+    /// Läuft der Systemton mit? (für die Anzeige auf der Aufnahme-Bühne)
+    private(set) var isCapturingSystemAudio = false
     var lastError: String?
 
     @ObservationIgnored let meter = LiveMeter()
@@ -130,6 +132,7 @@ final class RecordingController {
                 self?.notify("Mikrofon", event.message)
             }
             rec.hasSystemAudio = session.systemAudioActive
+            isCapturingSystemAudio = session.systemAudioActive
             library.insert(rec)
             self.session = session
             activeRecordingID = rec.id
@@ -260,6 +263,7 @@ final class RecordingController {
         session = nil
         activeRecordingID = nil
         microphoneName = nil
+        isCapturingSystemAudio = false
         recordingStartedByCall = false
         isPaused = false
         pausedAt = nil

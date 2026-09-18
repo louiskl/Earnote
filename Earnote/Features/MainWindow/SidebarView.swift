@@ -95,6 +95,7 @@ private struct LibraryRow: View {
 }
 
 private struct CategoryRow: View {
+    @Environment(\.colorScheme) private var colorScheme
     let category: LibraryCategory
     let count: Int
     let isRenaming: Bool
@@ -116,7 +117,8 @@ private struct CategoryRow: View {
                 Text(category.name)
             }
         } icon: {
-            Text(category.displayEmoji)
+            CategoryBadge(emoji: category.emoji, symbol: category.symbol,
+                         tint: category.tint(dark: colorScheme == .dark))
         }
         .badge(isRenaming ? 0 : count)
         .accessibilityLabel("\(category.name), \(count) Aufnahmen")

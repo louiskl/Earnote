@@ -7,6 +7,8 @@ import SwiftUI
 struct MainWindow: View {
     @Environment(LibraryStore.self) private var library
     @Environment(RecordingController.self) private var recorder
+    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     @SceneStorage("sidebarFilter") private var filterRaw = LibraryFilter.all.rawValue
     @SceneStorage("selectedRecording") private var selectedRaw = ""
@@ -100,9 +102,24 @@ struct MainWindow: View {
             // Gelöschter Bereich war ausgewählt → zurück zu „Alle Aufnahmen“
             if let id = selectedCategoryID, !ids.contains(id) { filter.wrappedValue = .all }
         }
+        // Farbe kommt aus dem gewählten Bereich: Auswahl, Haken und Knöpfe übernehmen sie.
+        .tint(windowTint)
+        .environment(\.categoryTint, windowTint)
+        .animation(reduceMotion ? nil : .easeInOut(duration: 0.25), value: windowTint)
         .focusedSceneValue(\.mainWindow, context)
         // Mit Inspector brauchen vier Spalten mehr Platz; ohne ihn darf das Fenster kleiner werden.
         .frame(minWidth: inspectorShown ? 1100 : 840, minHeight: 560)
+    }
+
+    /// Bereich der Seitenleiste – oder der Bereich der gewählten Aufnahme
+    private var activeCategory: RecordingCategory? {
+        if let id = selectedCategoryID { return library.category(id) }
+        guard let recordingID = selection.wrappedValue else { return nil }
+        return library.category(library.recording(recordingID)?.categoryID)
+    }
+
+    private var windowTint: Color {
+        activeCategory?.tint(dark: colorScheme == .dark) ?? .accentColor
     }
 
     private var context: MainWindowContext {

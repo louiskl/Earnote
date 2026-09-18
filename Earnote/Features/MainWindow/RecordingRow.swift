@@ -4,8 +4,9 @@ import SwiftUI
 /// Eine Zeile der Aufnahmeliste: Titel, darunter Uhrzeit · Dauer · Bereich (oder Verarbeitungsschritt), optional Vorschau.
 struct RecordingRow: View {
     let recording: LibraryRecording
-    /// Nur in „Alle Aufnahmen“
+    /// Nur in „Alle Aufnahmen“: Name und Farbe des Bereichs
     let categoryName: String?
+    let categoryTint: Color?
     let progress: Double?
     let isLive: Bool
     let isRenaming: Bool
@@ -71,9 +72,15 @@ struct RecordingRow: View {
                     .accessibilityValue("\(Int((progress ?? 0) * 100)) Prozent")
             }
         } else {
-            Text(([MainWindowFormat.time(recording.startedAt), MainWindowFormat.duration(recording.duration)] + [categoryName].compactMap { $0 })
-                .joined(separator: " · "))
-                .lineLimit(1)
+            HStack(spacing: 5) {
+                Text([MainWindowFormat.time(recording.startedAt), MainWindowFormat.duration(recording.duration)]
+                    .joined(separator: " · "))
+                if let categoryName {
+                    if let categoryTint { CategoryDot(tint: categoryTint) }
+                    Text(categoryName)
+                }
+            }
+            .lineLimit(1)
         }
     }
 }
