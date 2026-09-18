@@ -83,6 +83,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         UNUserNotificationCenter.current().delegate = self
+        #if DEBUG
+        // Nur für Tests: hell oder dunkel prüfen, ohne die Systemeinstellung des Nutzers zu ändern
+        switch ProcessInfo.processInfo.environment["EARNOTE_APPEARANCE"] {
+        case "dark": NSApp.appearance = NSAppearance(named: .darkAqua)
+        case "light": NSApp.appearance = NSAppearance(named: .aqua)
+        default: break
+        }
+        #endif
         guard let state = app else { return }
         Log.info("\(AppInfo.name) gestartet")
         // Wer das Fenster beim Start nicht will, ist die App nur in der Menüleiste.
