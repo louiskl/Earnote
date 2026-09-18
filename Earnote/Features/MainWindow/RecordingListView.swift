@@ -133,7 +133,7 @@ struct RecordingActionItems: View {
         let recording = library.recording(recordingID)
         let busy = recording?.status.isBusy == true || recording?.status == .recording
         let hasNote = recording?.summaryTitle != nil
-        Button("Notiz bearbeiten", action: noteActions.edit)
+        Button("Notiz bearbeiten") { noteActions.edit(recordingID) }
             .disabled(!hasNote || busy)
         Button("Auf KI-Fassung zurücksetzen", action: noteActions.restoreGenerated)
             .disabled(recording?.isNoteEdited != true)
@@ -146,6 +146,11 @@ struct RecordingActionItems: View {
             .disabled(recording == nil || busy || !library.hasAudio(recordingID))
         Button("Erneut exportieren") { library.reexport(recordingID) }
             .disabled(recording == nil || busy)
+        Divider()
+        Button("Als PDF sichern …") { NoteDocument.savePDF(recordingID, library: library) }
+            .disabled(!hasNote)
+        Button("Drucken …") { NoteDocument.printNote(recordingID, library: library) }
+            .disabled(!hasNote)
         Button("Im Finder zeigen") { library.revealInFinder(recordingID) }
             .disabled(recording == nil)
     }

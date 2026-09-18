@@ -47,7 +47,7 @@ struct EarnoteCommands: Commands {
             let id = window?.selectedRecordingID
             let recording = id.flatMap(library.recording)
             let busy = recording?.status.isBusy == true || recording?.status == .recording
-            Button("Notiz bearbeiten") { window?.noteActions.edit() }
+            Button("Notiz bearbeiten") { if let id { window?.noteActions.edit(id) } }
                 .keyboardShortcut("e")
                 .disabled(recording?.summaryTitle == nil || busy)
             Button("Auf KI-Fassung zurücksetzen") { window?.noteActions.restoreGenerated() }
@@ -61,6 +61,12 @@ struct EarnoteCommands: Commands {
                 .disabled(recording == nil || busy || !(id.map(library.hasAudio) ?? false))
             Button("Erneut exportieren") { if let id { library.reexport(id) } }
                 .disabled(recording == nil || busy)
+            Divider()
+            Button("Als PDF sichern …") { if let id { NoteDocument.savePDF(id, library: library) } }
+                .disabled(recording?.summaryTitle == nil)
+            Button("Drucken …") { if let id { NoteDocument.printNote(id, library: library) } }
+                .keyboardShortcut("p")
+                .disabled(recording?.summaryTitle == nil)
             Divider()
             Button("Teilen …") {
                 guard let id, let recording else { return }

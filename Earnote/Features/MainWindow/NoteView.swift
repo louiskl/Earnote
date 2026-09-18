@@ -5,21 +5,35 @@ import SwiftUI
 struct NoteView: View {
     @Environment(LibraryStore.self) private var library
     let recording: LibraryRecording
-    @Binding var editing: Bool
+    /// Anfrage aus dem Menü: Ist sie diese Aufnahme, geht der Editor auf.
+    let editRequest: UUID?
+    /// Die Anfrage ist angekommen und darf zurückgesetzt werden
+    let onEditStarted: () -> Void
 
     /// Gerade abgehakter Stand, bis die Bibliothek ihn gespeichert zurückmeldet (verhindert Flackern)
     @State private var pendingMarkdown: String?
+    /// Der Editor gehört dieser Ansicht – Abbrechen und Sichern wirken damit sofort, egal was außen passiert.
+    @State private var editing = false
 
     var body: some View {
+        content
+            // Anfrage aus dem Menü entgegennehmen – auch wenn sie gestellt wurde, bevor diese Ansicht da war
+            .onChange(of: editRequest, initial: true) { _, request in
+                guard request == recording.id else { return }
+                editing = true
+                onEditStarted()
+            }
+    }
+
+    @ViewBuilder private var content: some View {
         if let note = recording.note {
             let markdown = pendingMarkdown ?? note.markdown
             if editing {
                 NoteEditor(markdown: markdown) { edited in
-                    if let edited, edited != markdown {
-                        pendingMarkdown = edited
-                        library.updateSummaryText(recording.id, markdown: edited)
-                    }
                     editing = false
+                    guard let edited, edited != markdown else { return }
+                    pendingMarkdown = edited
+                    library.updateSummaryText(recording.id, markdown: edited)
                 }
             } else {
             ScrollView {

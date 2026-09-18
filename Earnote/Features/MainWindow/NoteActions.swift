@@ -4,7 +4,8 @@ import SwiftUI
 /// Aktionen rund um die Notiz der gewählten Aufnahme. Das Fenster stellt sie bereit, damit Kontextmenü,
 /// „⋯“-Menü und das Menü „Notiz“ dieselben Blätter öffnen.
 struct NoteActions {
-    var edit: () -> Void = {}
+    /// Bearbeitet genau diese Aufnahme – auch wenn sie gerade nicht ausgewählt ist (Rechtsklick in der Liste)
+    var edit: (UUID) -> Void = { _ in }
     var summarizeAgain: () -> Void = {}
     var correctTerms: () -> Void = {}
     var restoreGenerated: () -> Void = {}

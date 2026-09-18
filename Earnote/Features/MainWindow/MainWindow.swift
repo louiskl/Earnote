@@ -22,7 +22,9 @@ struct MainWindow: View {
     @State private var pendingDeletion: UUID?
     @State private var confirmDiscard = false
     @State private var showOnboarding = false
-    @State private var editingNote = false
+    /// Anfrage „Notiz dieser Aufnahme bearbeiten“. Die Notizansicht nimmt sie entgegen und setzt sie zurück;
+    /// so bleibt der Bearbeiten-Zustand dort, wo der Editor steht, und nie bei einer anderen Aufnahme.
+    @State private var noteEditRequest: UUID?
     @State private var noteSheet: NoteSheet?
     @FocusState private var searchFocused: Bool
 
@@ -56,7 +58,8 @@ struct MainWindow: View {
                 .navigationSplitViewColumnWidth(min: 260, ideal: 330, max: 520)
         } detail: {
             RecordingDetailView(recordingID: selection.wrappedValue, mode: detailMode.wrappedValue,
-                                editingNote: $editingNote)
+                                editRequest: noteEditRequest,
+                                onEditStarted: { noteEditRequest = nil })
         }
         // Farbe kommt aus dem gewählten Bereich: Auswahl, Haken und Knöpfe übernehmen sie.
         .tint(windowTint)
@@ -122,9 +125,8 @@ struct MainWindow: View {
         }
         .environment(\.categoryTint, windowTint)
         .environment(\.noteActions, noteActions)
-        // Eine andere Aufnahme (oder das Transkript) beendet das Bearbeiten der Notiz
-        .onChange(of: selection.wrappedValue) { _, _ in editingNote = false }
-        .onChange(of: detailMode.wrappedValue) { _, mode in if mode != .note { editingNote = false } }
+        // Das Transkript zeigt keinen Editor; die Notiz einer anderen Aufnahme auch nicht (Vergleich über die ID)
+        .onChange(of: detailMode.wrappedValue) { _, mode in if mode != .note { noteEditRequest = nil } }
         .focusedSceneValue(\.mainWindow, context)
         // Mit Inspector brauchen vier Spalten mehr Platz; ohne ihn darf das Fenster kleiner werden.
         .frame(minWidth: inspectorShown ? 1100 : 840, minHeight: 560)
@@ -155,7 +157,11 @@ struct MainWindow: View {
     }
 
     private var noteActions: NoteActions {
-        NoteActions(edit: { detailMode.wrappedValue = .note; editingNote = true },
+        NoteActions(edit: { id in
+                        selection.wrappedValue = id
+                        detailMode.wrappedValue = .note
+                        noteEditRequest = id
+                    },
                     summarizeAgain: { noteSheet = .summarizeAgain },
                     correctTerms: { noteSheet = .correctTerms },
                     restoreGenerated: { if let id = selection.wrappedValue { library.restoreGeneratedNote(id) } })
@@ -171,9 +177,14 @@ struct MainWindow: View {
             try? await Task.sleep(nanoseconds: 1_500_000_000)
             if selection.wrappedValue == nil { selection.wrappedValue = library.recordings.first?.id }
             switch env["EARNOTE_NOTE_ACTION"] {
-            case "edit": noteActions.edit()
+            case "edit": if let id = library.recordings.first?.id { noteActions.edit(id) }
             case "summarize": noteActions.summarizeAgain()
             case "correct": noteActions.correctTerms()
+            case "pdf":
+                // Nur Debug: PDF erzeugen und den Pfad ins Protokoll schreiben
+                if let id = selection.wrappedValue, let url = await NoteDocument.temporaryPDF(id, library: library) {
+                    Log.info("Demo-PDF: \(url.path)")
+                }
             default: break
             }
         }

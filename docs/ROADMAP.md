@@ -79,7 +79,7 @@ Vorher: Architekturvorschlag nach Guidelines Abschnitt 20, vom Nutzer abgesegnet
 - [ ] Vom Nutzer zu prüfen: erster Durchlauf des Assistenten, Whisper-Vorbereitung auf dem eigenen Mac
 
 ## Phase 3 – Funktionen für 1.0 (0.7–0.8)
-**3a Notiz bearbeiten (0.7.2)**
+**3a Notiz bearbeiten (0.7.2, Fehler behoben in 0.7.3)**
 - [x] Notiz direkt bearbeiten (⌘E), Titel über die Liste ändern, „Auf KI-Fassung zurücksetzen“
 - [x] „Neu zusammenfassen …“ mit anderem Bereich, zusätzlicher Anweisung und wahlweise neuem Transkript
 
@@ -89,9 +89,10 @@ Vorher: Architekturvorschlag nach Guidelines Abschnitt 20, vom Nutzer abgesegnet
 - [x] Wörterbuch als Kontext für Whisper (Prompt) und für die KI – Fehler entstehen gar nicht erst
 - [ ] Vom Nutzer zu prüfen: Wirkt der Whisper-Prompt bei echten Vorlesungen? (Apple-Spracherkennung kennt keine Begriffsliste)
 
-**3c PDF & Teilen**
-- [ ] Sauberes PDF (Lernzettel-Layout), Drucken
-- [ ] Teilen über das macOS-Teilen-Menü (AirDrop, Nachrichten, Mail)
+**3c PDF & Teilen (0.7.3)**
+- [x] Sauberes PDF im Lernzettel-Layout („Als PDF sichern …“), mehrseitig
+- [x] Drucken (⌘P) über den Druckdialog von macOS
+- [x] Teilen über das macOS-Teilen-Menü (Notiz als Text in der Toolbar; PDF nach dem Sichern aus dem Finder)
 
 **3d Suche**
 - [ ] Volltextsuche in Transkripten mit Sprung zur Stelle
