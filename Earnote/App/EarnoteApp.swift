@@ -98,6 +98,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
         case "light": NSApp.appearance = NSAppearance(named: .aqua)
         default: break
         }
+        // Nur für Tests: den Call-Hinweis einmal zeigen, ohne dass ein echter Call laufen muss
+        if let demoCall = ProcessInfo.processInfo.environment["EARNOTE_DEMO_CALL"], let state = app {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                FloatingPanels.shared.showCallPrompt(app: demoCall, state: state)
+            }
+        }
         #endif
         guard let state = app else { return }
         Log.info("\(AppInfo.name) gestartet")

@@ -56,6 +56,9 @@ struct MainWindow: View {
         } detail: {
             RecordingDetailView(recordingID: selection.wrappedValue, mode: detailMode.wrappedValue)
         }
+        // Farbe kommt aus dem gewählten Bereich: Auswahl, Haken und Knöpfe übernehmen sie.
+        .tint(windowTint)
+        .animation(reduceMotion ? nil : .easeInOut(duration: 0.25), value: windowTint)
         .inspector(isPresented: $inspectorShown) {
             RecordingInspector(recordingID: selection.wrappedValue)
                 .inspectorColumnWidth(min: 250, ideal: 290, max: 380)
@@ -102,10 +105,7 @@ struct MainWindow: View {
             // Gelöschter Bereich war ausgewählt → zurück zu „Alle Aufnahmen“
             if let id = selectedCategoryID, !ids.contains(id) { filter.wrappedValue = .all }
         }
-        // Farbe kommt aus dem gewählten Bereich: Auswahl, Haken und Knöpfe übernehmen sie.
-        .tint(windowTint)
         .environment(\.categoryTint, windowTint)
-        .animation(reduceMotion ? nil : .easeInOut(duration: 0.25), value: windowTint)
         .focusedSceneValue(\.mainWindow, context)
         // Mit Inspector brauchen vier Spalten mehr Platz; ohne ihn darf das Fenster kleiner werden.
         .frame(minWidth: inspectorShown ? 1100 : 840, minHeight: 560)
