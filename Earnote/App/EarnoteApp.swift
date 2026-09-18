@@ -25,6 +25,8 @@ struct EarnoteApp: App {
         self.environment = environment
         _app = StateObject(wrappedValue: environment.appState)
         delegate.app = environment.appState
+        let library = environment.library
+        delegate.waitForPendingWrites = { await library.waitForPendingWrites() }
     }
 
     /// Die App-Tests starten die App als Host. Sie darf dabei nie die echte Bibliothek öffnen oder übernehmen.
@@ -76,6 +78,8 @@ struct EarnoteApp: App {
 final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDelegate {
     /// Wird in `EarnoteApp.init` gesetzt
     var app: AppState?
+    /// Wartet auf noch laufende Schreibvorgänge der Bibliothek (in `EarnoteApp.init` gesetzt)
+    var waitForPendingWrites: (@MainActor () async -> Void)?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         UNUserNotificationCenter.current().delegate = self
@@ -107,7 +111,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
             guard alert.runModal() == .alertFirstButtonReturn else { return .terminateCancel }
             state.stopRecording()
         }
-        return .terminateNow
+        // Eine gerade angelegte Notiz, ein neuer Bereich oder ein Umbenennen wird im Hintergrund
+        // gespeichert. Erst beenden, wenn das durch ist – sonst geht die letzte Änderung verloren.
+        guard let waitForPendingWrites else { return .terminateNow }
+        Task { @MainActor in
+            await waitForPendingWrites()
+            NSApp.reply(toApplicationShouldTerminate: true)
+        }
+        return .terminateLater
     }
 
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification,
