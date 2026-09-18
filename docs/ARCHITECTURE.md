@@ -28,15 +28,19 @@ Plattform- und ML-Code wird über Protokolle aus EarnoteCore eingehängt:
 | Audiodateien | lokale Dateien, nie synchronisiert | `AudioStore` |
 | Laufende Aufnahme, Pause, Pegel, Live-Mitschrift | Anwendungsdienst | `RecordingController` (`@MainActor @Observable`, App); Pegel und Live-Text in eigenen `ObservableObject`s, damit nur deren Anzeigen neu zeichnen |
 | Warteschlange, laufende Verarbeitung, Fortschritt | Anwendungsdienst, nur im Speicher | `ProcessingQueue` (`@MainActor @Observable`, Core); der Fortschritt existiert nur im Speicher und wird nie gespeichert |
-| Auswahl im Hauptfenster | Fensterzustand | vorerst `LibraryStore.selection`, zieht in Phase 2 in die Scene |
+| Auswahl, Bereichsfilter, Notiz/Transkript, Inspector | Fensterzustand | `@SceneStorage` im `MainWindow` – jedes Fenster hat seinen eigenen Stand (`LibraryStore.selection` wird nur noch von den alten Views benutzt) |
 | Download-Zustand der Modelle | Anwendungsdienst | `WhisperModelManager.shared`, `LocalModelManager.shared` (bestehende Singletons, vorerst belassen) |
 
 `AppEnvironment` erzeugt beim Start einmal Repositories, Provider, Pipeline, Warteschlange und Stores und verdrahtet sie
 (z. B. „Einstellung geändert → Call-Erkennung umschalten / Zusammenfassung mit neuem Anbieter neu starten“).
 Neue Typen bekommen ihre Abhängigkeiten übergeben und greifen nicht auf Singletons zu.
 
-`AppState` ist nur noch eine Fassade (unter 100 Zeilen) für die bestehenden Views mit `@EnvironmentObject var app: AppState`.
-Sie leitet weiter und gibt Änderungen der Stores als `objectWillChange` weiter. Sie wird in Phase 2 entfernt.
+`AppState` ist nur noch eine Fassade (unter 100 Zeilen) für die verbliebenen alten Views (Einstellungen, Menüleiste,
+Einrichtungsassistent, Bereichs-Editor) mit `@EnvironmentObject var app: AppState`. Sie leitet weiter und gibt Änderungen
+der Stores als `objectWillChange` weiter. Das neue Hauptfenster benutzt sie nicht; sie wird in Phase 2b entfernt.
+
+Beim Beenden wartet der `AppDelegate` über `LibraryStore.waitForPendingWrites()` auf noch laufende Schreibvorgänge
+(`applicationShouldTerminate` → `.terminateLater`), damit eine gerade angelegte oder umbenannte Sache nicht verloren geht.
 
 ## Datenfluss: Aufnahme → Pipeline → Export
 
@@ -103,13 +107,32 @@ Die Auswahl liegt pro Gerät in `AppSettings.microphoneDeviceUID` (nil = Systems
 Wechseln während der Aufnahme zusätzlich als Mitteilung. Technische Details (Domäne, Code, Gerät, Format, Versuche)
 stehen nur im Protokoll.
 
+## Hauptfenster (Phase 2a)
+
+Eine `WindowGroup(id: "main")` mit `MainWindow`; mehrere Fenster (⌘N) sind möglich und voneinander unabhängig.
+`Settings`-Scene und `MenuBarExtra` bleiben wie bisher.
+
+| Typ | Ort | Aufgabe |
+|---|---|---|
+| `MainWindow` | `Features/MainWindow/` | `NavigationSplitView` (Seitenleiste \| Liste \| Detail) plus `.inspector`, Suche, Dialoge, Fensterzustand (`@SceneStorage`), `focusedSceneValue` für die Menübefehle |
+| `SidebarView` | `Features/MainWindow/` | Quellenliste: Bibliothek (Alle, Offene Aufgaben, Ohne Bereich, Probleme) und Bereiche mit Zählern, Umbenennen an Ort und Stelle, Reihenfolge per Ziehen |
+| `RecordingListView`, `RecordingRow` | `Features/MainWindow/` | Nach Tagen gruppierte Liste (`@Query`), maximal drei Zeilen je Eintrag, laufende Aufnahme und Verarbeitungsfortschritt, Kontextmenü, Import per Ziehen |
+| `RecordingDetailView`, `NoteView`, `TranscriptView`, `LiveRecordingView` | `Features/MainWindow/` | Notiz (Aufgaben direkt abhaken), Transkript (nachgeladen), laufende Aufnahme mit Pegeln und Live-Mitschrift, Zustände für „wird verarbeitet“, „fehlgeschlagen“, „keine Notiz“ |
+| `RecordingInspector` | `Features/MainWindow/` | `Form` mit Info, Verarbeitung, Export, Audio |
+| `MainToolbar` | `Features/MainWindow/` | Aufnehmen (mit Bereichs- und Mikrofonwahl, während der Aufnahme Pause/Stopp), Notiz/Transkript, Teilen, weitere Aktionen, Inspector |
+| `MainWindowContext`, `EarnoteCommands` | `App/Commands/` | Menüs „Ablage“, „Aufnahme“, „Notiz“, „Bearbeiten“, „Darstellung“; die Befehle wirken über `@FocusedValue` auf das vorderste Fenster |
+
+Regeln: Views lesen die Bibliothek direkt über `@Query` auf dem gemeinsamen `ModelContainer`, geschrieben wird nur über
+`LibraryStore`. Der Fortschritt kommt aus `ProcessingQueue.progress`. `LibraryFilter`, Zähler, Tagesgruppen, Suche
+(`SearchText`) und die Notiz-Blöcke (`NoteMarkdown`) liegen mit Tests in EarnoteCore (`Library/`), nicht in den Views.
+
 ## Tests
 
 - `EarnoteCoreTests`: `cd Packages/EarnoteKit && swift test --test-product EarnoteKitPackageTests` – schnell, mit Fakes und temporären Ordnern, ohne WhisperKit/MLX.
-- App-Tests (`Tests/Phase0Tests.swift`): Datenübernahme aus „Earmark“ und Whisper-Modellauswahl.
+- App-Tests (`Tests/`): Datenübernahme aus „Earmark“ und Whisper-Modellauswahl (`Phase0Tests`), Formathilfen des Hauptfensters (`MainWindowTests`).
 
 ## Nächste Schritte
 
-- **Phase 2 – Oberfläche:** Views nach den Design-Guidelines neu bauen, Listen direkt mit `@Query` auf dem gemeinsamen
-  `ModelContainer`, Auswahl in den Fensterzustand verlegen, `AppState` entfernen.
+- **Phase 2b – restliche Oberfläche:** Einstellungen, Einrichtungsassistent, Menüleistenfenster und Call-Hinweis nach den
+  Design-Guidelines neu bauen, danach `AppState` und die Views unter `Views/Legacy/` entfernen.
 - **Später – iCloud:** mit Entwicklerkonto `cloudKitDatabase` einschalten; Audio bleibt lokal.
