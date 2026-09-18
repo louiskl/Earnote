@@ -171,13 +171,11 @@ public enum TimeFormat {
         return String(format: "%d:%02d", s / 60, s % 60)
     }
 
-    /// Für VoiceOver: „2 Minuten 14 Sekunden“
+    /// Für VoiceOver: „2 Minuten, 14 Sekunden“
     public static func spoken(_ seconds: TimeInterval) -> String {
-        let total = Int(seconds)
-        let minutes = total / 60
-        let rest = total % 60
-        let minuteText = minutes > 0 ? "\(minutes) \(minutes == 1 ? "Minute" : "Minuten")" : nil
-        let secondText = "\(rest) \(rest == 1 ? "Sekunde" : "Sekunden")"
-        return [minuteText, secondText].compactMap { $0 }.joined(separator: " ")
+        let formatter = DateComponentsFormatter()
+        formatter.unitsStyle = .full
+        formatter.allowedUnits = [.minute, .second]
+        return formatter.string(from: seconds) ?? duration(seconds)
     }
 }

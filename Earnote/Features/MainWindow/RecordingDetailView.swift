@@ -31,7 +31,7 @@ private struct RecordingDetailContent: View {
     var body: some View {
         if let recording = matches.first {
             if recorder.activeRecordingID == recording.id {
-                RecordingStageView(recording: recording)
+                RecordingStageView()
             } else {
                 switch mode {
                 case .note: NoteView(recording: recording)
@@ -46,7 +46,6 @@ private struct RecordingDetailContent: View {
 
 /// Kopf über Notiz und Transkript: Titel und eine sekundäre Zeile
 struct DetailHeader: View {
-    @Environment(\.colorScheme) private var colorScheme
     let recording: LibraryRecording
 
     var body: some View {
@@ -60,7 +59,7 @@ struct DetailHeader: View {
                       + (recording.status == .recording ? [] : [MainWindowFormat.duration(recording.duration)]))
                     .joined(separator: " · "))
                 if let category = recording.category {
-                    CategoryDot(tint: category.tint(dark: colorScheme == .dark))
+                    CategoryDot(tint: category.tint)
                     Text(category.name)
                 }
             }

@@ -21,7 +21,6 @@ private struct InspectorContent: View {
     @Environment(LibraryStore.self) private var library
     @Environment(ProcessingQueue.self) private var queue
     @Environment(RecordingController.self) private var recorder
-    @Environment(\.colorScheme) private var colorScheme
     @Environment(\.openURL) private var openURL
     @Query private var matches: [LibraryRecording]
     @Query(sort: [SortDescriptor(\LibraryCategory.sortIndex), SortDescriptor(\LibraryCategory.createdAt)])
@@ -61,7 +60,7 @@ private struct InspectorContent: View {
                         Text(category.name)
                     } icon: {
                         CategoryBadge(emoji: category.emoji, symbol: category.symbol,
-                                     tint: category.tint(dark: colorScheme == .dark), size: 16)
+                                     tint: category.tint, size: 16)
                     }
                     .tag(Optional(category.id))
                 }

@@ -5,27 +5,10 @@ import SwiftUI
 /// Live-Mitschrift und die zwei Knöpfe. Hintergrund bleibt der des Fensters, keine Karte, kein Verlauf.
 struct RecordingStageView: View {
     @Environment(RecordingController.self) private var recorder
-    let recording: LibraryRecording
-
-    var body: some View {
-        StageContent(meter: recorder.meter, live: recorder.live,
-                     isPaused: recorder.isPaused,
-                     microphoneName: recorder.microphoneName,
-                     systemAudio: recorder.isCapturingSystemAudio,
-                     onTogglePause: recorder.togglePause,
-                     onStop: recorder.stopRecording)
-    }
-}
-
-private struct StageContent: View {
-    @ObservedObject var meter: LiveMeter
-    @ObservedObject var live: LiveTranscript
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    let isPaused: Bool
-    let microphoneName: String?
-    let systemAudio: Bool
-    let onTogglePause: () -> Void
-    let onStop: () -> Void
+
+    private var isPaused: Bool { recorder.isPaused }
+    private var meter: LiveMeter { recorder.meter }
 
     var body: some View {
         VStack(spacing: 20) {
@@ -38,7 +21,7 @@ private struct StageContent: View {
             }
             .accessibilityElement(children: .ignore)
             .accessibilityLabel(spokenState)
-            transcript
+            LiveText(live: recorder.live, reduceMotion: reduceMotion)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             controls
             source
@@ -55,26 +38,11 @@ private struct StageContent: View {
          "Pegel \(LevelBuffer.loudness(Float(MainWindowFormat.level(meter.mic))))"].joined(separator: ", ")
     }
 
-    @ViewBuilder private var transcript: some View {
-        if let unavailable = live.unavailable {
-            Text(unavailable)
-                .font(.callout)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
-        } else if live.isEmpty {
-            Text("Sobald jemand spricht, erscheint hier die Mitschrift.")
-                .font(.callout)
-                .foregroundStyle(.secondary)
-        } else {
-            LiveText(settled: live.settled, volatile: live.volatile, reduceMotion: reduceMotion)
-        }
-    }
-
     private var controls: some View {
         HStack(spacing: 12) {
             Button(isPaused ? "Fortsetzen" : "Pause", systemImage: isPaused ? "play.fill" : "pause.fill",
-                   action: onTogglePause)
-            Button("Stopp", systemImage: "stop.fill", action: onStop)
+                   action: recorder.togglePause)
+            Button("Stopp", systemImage: "stop.fill", action: recorder.stopRecording)
                 .tint(.red)
         }
         .controlSize(.large)
@@ -82,7 +50,8 @@ private struct StageContent: View {
     }
 
     private var source: some View {
-        Text([microphoneName ?? "Mikrofon", systemAudio ? "mit Systemton" : nil].compactMap { $0 }
+        Text([recorder.microphoneName ?? "Mikrofon", recorder.isCapturingSystemAudio ? "mit Systemton" : nil]
+            .compactMap { $0 }
             .joined(separator: " · "))
             .font(.footnote)
             .foregroundStyle(.secondary)
@@ -185,17 +154,30 @@ private struct StageWaveform: View {
 /// Live-Mitschrift: der feststehende Teil in normaler Farbe, der vorläufige in Grau.
 /// Neuer Text blendet weich ein (außer bei „Bewegung reduzieren“).
 private struct LiveText: View {
-    let settled: String
-    let volatile: String
+    @ObservedObject var live: LiveTranscript
     let reduceMotion: Bool
 
-    /// Nur die letzten Zeilen zeigen; nach oben wird es ruhig ausgeblendet.
-    private var tail: String {
-        let text = settled.isEmpty ? "" : settled
-        return String(text.suffix(600))
-    }
+    private var settled: String { live.settled }
+    private var volatile: String { live.volatile }
+    /// Nur die letzten Zeilen zeigen
+    private var tail: String { String(settled.suffix(600)) }
 
     var body: some View {
+        if let unavailable = live.unavailable {
+            Text(unavailable)
+                .font(.callout)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+        } else if live.isEmpty {
+            Text("Sobald jemand spricht, erscheint hier die Mitschrift.")
+                .font(.callout)
+                .foregroundStyle(.secondary)
+        } else {
+            transcript
+        }
+    }
+
+    private var transcript: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 6) {
                 (Text(tail) + Text(tail.isEmpty || volatile.isEmpty ? "" : " ")
@@ -207,7 +189,6 @@ private struct LiveText: View {
                     .animation(reduceMotion ? nil : .easeOut(duration: 0.25), value: settled)
                     .animation(reduceMotion ? nil : .easeOut(duration: 0.25), value: volatile)
                     .textSelection(.enabled)
-                Color.clear.frame(height: 1).id("ende")
             }
         }
         .defaultScrollAnchor(.bottom)

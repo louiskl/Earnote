@@ -1,28 +1,29 @@
+import AppKit
 import EarnoteCore
 import SwiftUI
 
 extension RecordingCategory {
     var color: Color { Color(hex: colorHex) ?? .accentColor }
 
-    /// Farbe für Auswahl, Tint und Symbole – in Hell und Dunkel lesbar (siehe `CategoryColor`).
-    func tint(dark: Bool) -> Color {
+    /// Farbe für Auswahl, Tint und Symbole. Sie löst sich je nach Erscheinungsbild selbst auf,
+    /// deshalb muss keine Ansicht nach Hell oder Dunkel fragen (siehe `CategoryColor`).
+    var tint: Color {
         guard let rgb = ColorRGB(hex: colorHex) else { return .accentColor }
-        return Color(CategoryColor.readable(rgb, dark: dark))
+        return Color(nsColor: NSColor(name: nil) { appearance in
+            let readable = CategoryColor.readable(rgb, dark: appearance.bestMatch(from: [.aqua, .darkAqua]) == .darkAqua)
+            return NSColor(srgbRed: readable.red, green: readable.green, blue: readable.blue, alpha: 1)
+        })
     }
 }
 
 extension LibraryCategory {
-    func tint(dark: Bool) -> Color { snapshot().tint(dark: dark) }
+    var tint: Color { snapshot().tint }
 }
 
 extension Color {
-    init(_ rgb: ColorRGB) {
-        self.init(.sRGB, red: rgb.red, green: rgb.green, blue: rgb.blue)
-    }
-
     init?(hex: String) {
         guard let rgb = ColorRGB(hex: hex) else { return nil }
-        self.init(rgb)
+        self.init(.sRGB, red: rgb.red, green: rgb.green, blue: rgb.blue)
     }
 }
 
@@ -31,8 +32,6 @@ private struct CategoryTintKey: EnvironmentKey {
 }
 
 extension EnvironmentValues {
-    /// true, wenn die Oberfläche gerade dunkel dargestellt wird
-    var isDarkMode: Bool { colorScheme == .dark }
     /// Farbe des gewählten Bereichs – für Stellen, die `.tint` nicht selbst auswerten (z. B. `Canvas`)
     var categoryTint: Color {
         get { self[CategoryTintKey.self] }

@@ -22,10 +22,6 @@ public struct ColorRGB: Equatable, Sendable {
                   blue: Double(value & 0xFF) / 255)
     }
 
-    public var hex: String {
-        String(format: "#%02X%02X%02X", Int(round(red * 255)), Int(round(green * 255)), Int(round(blue * 255)))
-    }
-
     /// Wahrgenommene Helligkeit (0 = schwarz, 1 = weiß)
     public var luminance: Double { 0.2126 * red + 0.7152 * green + 0.0722 * blue }
 }
@@ -49,20 +45,13 @@ public enum CategoryColor {
         return blend(color, with: ColorRGB(red: 0, green: 0, blue: 0), target: range.upperBound)
     }
 
-    /// Farbe zum Aufhellen/Abdunkeln mischen, bis die Zielhelligkeit erreicht ist (höchstens 60 Schritte).
+    /// Zu Weiß oder Schwarz mischen, bis die Zielhelligkeit erreicht ist.
+    /// Die Helligkeit ist linear im Mischanteil, also lässt sich der Anteil direkt ausrechnen.
     private static func blend(_ color: ColorRGB, with other: ColorRGB, target: Double) -> ColorRGB {
-        var low = 0.0
-        var high = 1.0
-        var result = color
-        for _ in 0..<60 {
-            let amount = (low + high) / 2
-            result = ColorRGB(red: color.red + (other.red - color.red) * amount,
-                              green: color.green + (other.green - color.green) * amount,
-                              blue: color.blue + (other.blue - color.blue) * amount)
-            if abs(result.luminance - target) < 0.001 { return result }
-            if result.luminance < target { low = amount } else { high = amount }
-        }
-        return result
+        let amount = (target - color.luminance) / (other.luminance - color.luminance)
+        return ColorRGB(red: color.red + (other.red - color.red) * amount,
+                        green: color.green + (other.green - color.green) * amount,
+                        blue: color.blue + (other.blue - color.blue) * amount)
     }
 }
 
@@ -96,17 +85,7 @@ public struct LevelBuffer: Equatable, Sendable {
         values.append(Swift.min(1, Swift.max(0, value)))
     }
 
-    /// Alles auf Null – z. B. beim Start einer neuen Aufnahme.
-    public mutating func reset() {
-        values = Array(repeating: 0, count: capacity)
-    }
-
     /// Grobe Einschätzung für VoiceOver: „still“, „leise“, „mittel“, „laut“
-    public var loudnessDescription: String {
-        let recent = values.suffix(10)
-        return Self.loudness(recent.isEmpty ? 0 : recent.reduce(0, +) / Float(recent.count))
-    }
-
     public static func loudness(_ level: Float) -> String {
         switch level {
         case ..<0.05: return "still"

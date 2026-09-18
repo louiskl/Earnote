@@ -7,7 +7,6 @@ struct RecordingListView: View {
     @Environment(LibraryStore.self) private var library
     @Environment(RecordingController.self) private var recorder
     @Environment(ProcessingQueue.self) private var queue
-    @Environment(\.colorScheme) private var colorScheme
     @Query(sort: \LibraryRecording.startedAt, order: .reverse) private var recordings: [LibraryRecording]
     @Query(sort: [SortDescriptor(\LibraryCategory.sortIndex), SortDescriptor(\LibraryCategory.createdAt)])
     private var categories: [LibraryCategory]
@@ -60,7 +59,7 @@ struct RecordingListView: View {
     private func row(_ recording: LibraryRecording) -> some View {
         RecordingRow(recording: recording,
                      categoryName: filter == .all ? recording.category?.name : nil,
-                     categoryTint: filter == .all ? recording.category?.tint(dark: colorScheme == .dark) : nil,
+                     categoryTint: filter == .all ? recording.category?.tint : nil,
                      progress: queue.progress[recording.id],
                      isLive: recorder.activeRecordingID == recording.id,
                      isRenaming: renamingID == recording.id,

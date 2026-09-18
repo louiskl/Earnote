@@ -7,7 +7,6 @@ import SwiftUI
 struct MainWindow: View {
     @Environment(LibraryStore.self) private var library
     @Environment(RecordingController.self) private var recorder
-    @Environment(\.colorScheme) private var colorScheme
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     @SceneStorage("sidebarFilter") private var filterRaw = LibraryFilter.all.rawValue
@@ -58,7 +57,7 @@ struct MainWindow: View {
         }
         // Farbe kommt aus dem gewählten Bereich: Auswahl, Haken und Knöpfe übernehmen sie.
         .tint(windowTint)
-        .animation(reduceMotion ? nil : .easeInOut(duration: 0.25), value: windowTint)
+        .animation(reduceMotion ? nil : .easeInOut(duration: 0.25), value: activeCategory?.id)
         .inspector(isPresented: $inspectorShown) {
             RecordingInspector(recordingID: selection.wrappedValue)
                 .inspectorColumnWidth(min: 250, ideal: 290, max: 380)
@@ -119,7 +118,7 @@ struct MainWindow: View {
     }
 
     private var windowTint: Color {
-        activeCategory?.tint(dark: colorScheme == .dark) ?? .accentColor
+        activeCategory?.tint ?? .accentColor
     }
 
     private var context: MainWindowContext {

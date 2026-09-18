@@ -64,7 +64,8 @@ struct MenuBarView: View {
                 .font(.headline)
             Spacer()
             if let call = recorder.detector.activeCallApp, !recorder.isRecording {
-                Text(TextShortening.middleTruncated(call, max: 16))
+                Text(call)
+                    .truncationMode(.middle)
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -98,7 +99,8 @@ private struct LiveSummary: View {
                 .opacity(isPaused ? 0.4 : 1)
                 .accessibilityLabel("Pegel")
             if let categoryName {
-                Text(TextShortening.middleTruncated(categoryName, max: 30))
+                Text(categoryName)
+                    .truncationMode(.middle)
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }

@@ -2,11 +2,9 @@ import XCTest
 @testable import EarnoteCore
 
 final class CategoryColorTests: XCTestCase {
-    func testHexRoundTrip() {
-        let color = ColorRGB(hex: "#4F7CFF")
-        XCTAssertEqual(color?.hex, "#4F7CFF")
+    func testHexParsing() {
         XCTAssertNil(ColorRGB(hex: "#12345"))
-        XCTAssertNotNil(ColorRGB(hex: "4F7CFF"))
+        XCTAssertEqual(ColorRGB(hex: "4F7CFF"), ColorRGB(hex: "#4F7CFF"))
     }
 
     func testVeryDarkColorIsLightenedForDarkMode() throws {
@@ -57,19 +55,15 @@ final class LevelBufferTests: XCTestCase {
         XCTAssertEqual(buffer.values.count, 4)
     }
 
-    func testValuesAreClampedAndResetWorks() {
+    func testValuesAreClamped() {
         var buffer = LevelBuffer(capacity: 3)
         buffer.append(5)
         buffer.append(-2)
         XCTAssertEqual(buffer.values, [0, 1, 0])
-        buffer.reset()
-        XCTAssertEqual(buffer.values, [0, 0, 0])
     }
 
-    func testLoudnessDescription() {
-        var buffer = LevelBuffer(capacity: 10)
-        XCTAssertEqual(buffer.loudnessDescription, "still")
-        for _ in 0..<10 { buffer.append(0.8) }
-        XCTAssertEqual(buffer.loudnessDescription, "laut")
+    func testLoudness() {
+        XCTAssertEqual(LevelBuffer.loudness(0), "still")
+        XCTAssertEqual(LevelBuffer.loudness(0.8), "laut")
     }
 }
