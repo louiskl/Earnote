@@ -42,6 +42,10 @@ struct RecordingListView: View {
             }
         }
         .navigationTitle(title)
+        .onChange(of: visible.map(\.id), initial: true) { _, ids in
+            // Gewählte Aufnahme ist nicht mehr in der Liste (anderer Bereich, Suche) → Auswahl aufheben
+            if let selection, !ids.contains(selection) { self.selection = nil }
+        }
         .dropDestination(for: URL.self) { urls, _ in
             library.importAudio(urls, category: categoryID.flatMap(library.category))
             return !urls.isEmpty
