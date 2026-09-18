@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Erzeugt Earnote.xcodeproj (deterministisch) aus den Dateien im Ordner Earnote/.
 Aufruf: python3 scripts/generate_xcodeproj.py"""
-import hashlib, os
+import hashlib, os, pathlib
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC = os.path.join(ROOT, "Earnote")
@@ -102,7 +102,6 @@ def settings_block(d):
 
 common_target = {
     "ASSETCATALOG_COMPILER_APPICON_NAME": "AppIcon",
-    "ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME": "AccentColor",
     "CODE_SIGN_ENTITLEMENTS": "Earnote/Resources/Earnote.entitlements",
     "CODE_SIGN_IDENTITY": "-",
     "CODE_SIGN_STYLE": "Automatic",
@@ -154,14 +153,21 @@ add(TARGET, f"{{isa = PBXNativeTarget; buildConfigurationList = {TLIST}; buildPh
             f"productName = Earnote; productReference = {PRODUCT}; productType = \"com.apple.product-type.application\"; }};")
 # Kleines, app-gehostetes Regressionstest-Target; die App-Buildsettings bleiben unverändert.
 TEST_TARGET, TEST_PRODUCT = uid("test-target"), uid("test-product")
-TEST_FILE, TEST_BUILD, TEST_SOURCES = uid("test-file"), uid("test-build"), uid("test-sources")
+TEST_SOURCES = uid("test-sources")
 TEST_GROUP, TEST_CONFIGS = uid("test-group"), uid("test-configs")
 TEST_DEPENDENCY, TEST_PROXY = uid("test-dependency"), uid("test-proxy")
 PROJECT = uid("project")
-add(TEST_FILE, '{isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Phase0Tests.swift; sourceTree = "<group>"; };')
-add(TEST_GROUP, f'{{isa = PBXGroup; children = ({TEST_FILE}, ); path = Tests; sourceTree = "<group>"; }};')
-add(TEST_BUILD, f'{{isa = PBXBuildFile; fileRef = {TEST_FILE}; }};')
-add(TEST_SOURCES, f'{{isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = ({TEST_BUILD}, ); runOnlyForDeploymentPostprocessing = 0; }};')
+# Alle Testdateien im Ordner „Tests“
+test_files = sorted(f.name for f in pathlib.Path("Tests").glob("*.swift"))
+test_refs, test_builds = [], []
+for name in test_files:
+    ref, build = uid("test-file", name), uid("test-build", name)
+    add(ref, f'{{isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = {name}; sourceTree = "<group>"; }};')
+    add(build, f'{{isa = PBXBuildFile; fileRef = {ref}; }};')
+    test_refs.append(ref)
+    test_builds.append(build)
+add(TEST_GROUP, '{isa = PBXGroup; children = (' + "".join(f"{r}, " for r in test_refs) + '); path = Tests; sourceTree = "<group>"; };')
+add(TEST_SOURCES, '{isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (' + "".join(f"{b}, " for b in test_builds) + '); runOnlyForDeploymentPostprocessing = 0; };')
 add(TEST_PRODUCT, '{isa = PBXFileReference; explicitFileType = wrapper.cfbundle; path = EarnoteTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };')
 add(PRODUCTS_GROUP, f'{{isa = PBXGroup; children = ({PRODUCT}, {TEST_PRODUCT}, ); name = Products; sourceTree = "<group>"; }};')
 add(MAIN_GROUP, f'{{isa = PBXGroup; children = ({group_key(".")}, {PACKAGE_GROUP}, {TEST_GROUP}, {PRODUCTS_GROUP}, ); sourceTree = "<group>"; }};')
