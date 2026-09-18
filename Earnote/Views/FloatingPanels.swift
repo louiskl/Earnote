@@ -2,58 +2,67 @@ import AppKit
 import EarnoteCore
 import SwiftUI
 
-private final class KeyablePanel: NSPanel {
-    override var canBecomeKey: Bool { true }
-}
-
-/// Schwebende Hinweise (z. B. "Call erkannt") oben rechts – ähnlich wie bei Notion.
+/// Der Hinweis „Call erkannt“ als flache Pille oben auf dem Bildschirm, auf dem gerade gearbeitet wird.
+/// Er nimmt nie den Fokus, verschwindet nach 20 Sekunden von selbst und lässt sich mit Esc schließen.
 @MainActor
 final class FloatingPanels {
     static let shared = FloatingPanels()
     private var callPanel: NSPanel?
     private var hideTask: Task<Void, Never>?
 
+    /// So lange bleibt der Hinweis stehen, wenn niemand reagiert.
+    private static let visibleSeconds: UInt64 = 20
+
     func showCallPrompt(app appName: String, state: AppState) {
         hideCallPrompt(animated: false)
-        let view = CallPromptView(appName: appName) { [weak self] category in
-            state.startRecording(category: category, sourceApp: appName, byCall: true)
+        let view = CallPromptView(appName: appName) { [weak self] in
+            state.startRecording(category: state.category(state.settings.defaultCategoryID),
+                                 sourceApp: appName, byCall: true)
             self?.hideCallPrompt()
         } onDismiss: { [weak self] in
             self?.hideCallPrompt()
         }
-        .environmentObject(state)
 
         let hosting = NSHostingView(rootView: view)
+        hosting.sizingOptions = [.intrinsicContentSize]
         let size = hosting.fittingSize
-        let panel = KeyablePanel(contentRect: NSRect(origin: .zero, size: size),
-                                 styleMask: [.nonactivatingPanel, .borderless],
-                                 backing: .buffered, defer: false)
+        let panel = NSPanel(contentRect: NSRect(origin: .zero, size: size),
+                            styleMask: [.nonactivatingPanel, .borderless],
+                            backing: .buffered, defer: false)
         panel.isFloatingPanel = true
         panel.level = .statusBar
         panel.backgroundColor = .clear
         panel.isOpaque = false
         panel.hasShadow = true
         panel.hidesOnDeactivate = false
+        panel.isMovable = false
         panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .stationary]
         panel.contentView = hosting
+        panel.setFrame(NSRect(origin: origin(for: size), size: size), display: false)
 
-        let screen = NSScreen.main ?? NSScreen.screens.first
-        if let frame = screen?.visibleFrame {
-            panel.setFrameOrigin(NSPoint(x: frame.maxX - size.width - 16, y: frame.maxY - size.height - 12))
-        }
         panel.alphaValue = 0
         panel.orderFrontRegardless()
-        NSAnimationContext.runAnimationGroup { ctx in
-            ctx.duration = 0.25
+        let reduceMotion = NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
+        NSAnimationContext.runAnimationGroup { context in
+            context.duration = reduceMotion ? 0 : 0.2
             panel.animator().alphaValue = 1
         }
         callPanel = panel
-        NSSound(named: "Tink")?.play()
 
         hideTask = Task { [weak self] in
-            try? await Task.sleep(nanoseconds: 60_000_000_000)
+            try? await Task.sleep(for: .seconds(Self.visibleSeconds))
             if !Task.isCancelled { self?.hideCallPrompt() }
         }
+    }
+
+    /// Waagerecht mittig, im oberen Drittel des Bildschirms mit der Maus – unterhalb der Menüleiste.
+    private func origin(for size: CGSize) -> NSPoint {
+        let mouse = NSEvent.mouseLocation
+        let screen = NSScreen.screens.first { $0.frame.contains(mouse) } ?? NSScreen.main ?? NSScreen.screens[0]
+        let frame = screen.visibleFrame
+        let x = frame.midX - size.width / 2
+        let y = frame.maxY - frame.height / 3 - size.height / 2
+        return NSPoint(x: x.rounded(), y: min(y, frame.maxY - size.height - 8).rounded())
     }
 
     func hideCallPrompt(animated: Bool = true) {
@@ -61,80 +70,47 @@ final class FloatingPanels {
         hideTask = nil
         guard let panel = callPanel else { return }
         callPanel = nil
-        if animated {
-            NSAnimationContext.runAnimationGroup({ ctx in
-                ctx.duration = 0.2
-                panel.animator().alphaValue = 0
-            }, completionHandler: { panel.orderOut(nil) })
-        } else {
+        guard animated, !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion else {
             panel.orderOut(nil)
+            return
         }
+        NSAnimationContext.runAnimationGroup({ context in
+            context.duration = 0.2
+            panel.animator().alphaValue = 0
+        }, completionHandler: { panel.orderOut(nil) })
     }
 }
 
+/// Eine Zeile, eine Pille: Symbol · „… erkannt“ · Mitschreiben · Nicht jetzt.
 struct CallPromptView: View {
-    @EnvironmentObject var app: AppState
     let appName: String
-    var onRecord: (RecordingCategory?) -> Void
+    var onRecord: () -> Void
     var onDismiss: () -> Void
-    @State private var categoryID: UUID?
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack(spacing: 12) {
-                ZStack {
-                    RoundedRectangle(cornerRadius: 11, style: .continuous).fill(Theme.accent)
-                    Image(systemName: "waveform").font(Theme.Font.heading).foregroundStyle(.white)
-                }
-                .frame(width: 40, height: 40)
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("\(appName) erkannt").font(Theme.Font.body.weight(.semibold))
-                    Text("Soll \(AppInfo.name) mitschreiben?").font(Theme.Font.small).foregroundStyle(.secondary)
-                }
-                Spacer()
-                Button(action: onDismiss) {
-                    Image(systemName: "xmark").font(Theme.Font.caption.weight(.semibold))
-                        .frame(width: 20, height: 20)
-                        .background(Circle().fill(Color.primary.opacity(0.08)))
-                }
-                .buttonStyle(.plain)
-            }
-
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 6) {
-                    ForEach(app.categories) { c in
-                        Button { categoryID = c.id } label: { CategoryChip(category: c, selected: categoryID == c.id) }
-                            .buttonStyle(.plain)
-                    }
-                }
-            }
-
-            HStack(spacing: 8) {
-                Button("Nicht jetzt", action: onDismiss).buttonStyle(SecondaryButtonStyle())
-                Button {
-                    onRecord(app.category(categoryID))
-                } label: {
-                    Label("Aufnahme starten", systemImage: "record.circle").frame(maxWidth: .infinity)
-                }
-                .buttonStyle(PrimaryButtonStyle())
-            }
-
-            if app.settings.showConsentReminder {
-                Label("Denk daran, alle Teilnehmenden um Erlaubnis zu fragen.", systemImage: "hand.raised")
-                    .font(Theme.Font.caption).foregroundStyle(.secondary)
-            }
+        HStack(spacing: 10) {
+            Image(systemName: "phone.fill")
+                .foregroundStyle(.green)
+                .accessibilityHidden(true)
+            Text("\(TextShortening.middleTruncated(appName, max: 22))-Call erkannt")
+                .font(.headline)
+            Button("Mitschreiben", action: onRecord)
+                .buttonStyle(.borderedProminent)
+                .keyboardShortcut(.defaultAction)
+            Button("Nicht jetzt", action: onDismiss)
+                .buttonStyle(.borderless)
+                .foregroundStyle(.secondary)
         }
-        .padding(16)
-        .frame(width: 340)
-        .background(
-            RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .fill(.regularMaterial)
-        )
-        .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).strokeBorder(Color.primary.opacity(0.08)))
-        .onAppear {
-            categoryID = app.settings.defaultCategoryID
-                ?? app.categories.first(where: { $0.name == "Meeting" })?.id
-                ?? app.categories.first?.id
-        }
+        .lineLimit(1)
+        .fixedSize(horizontal: true, vertical: false)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 10)
+        .frame(minHeight: 44)
+        .frame(maxWidth: 520)
+        .background(.regularMaterial, in: Capsule())
+        .overlay(Capsule().strokeBorder(Color.primary.opacity(0.08)))
+        .onExitCommand(perform: onDismiss)
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel("\(appName)-Call erkannt")
     }
 }

@@ -68,6 +68,9 @@ struct EarnoteApp: App {
 
         MenuBarExtra {
             MenuBarView()
+                .environment(environment.library)
+                .environment(environment.recorder)
+                .environment(environment.recorder.audioInputs)
                 .environmentObject(app)
                 .environmentObject(app.meter)
                 .environmentObject(app.live)
