@@ -42,14 +42,18 @@ struct RecordingListView: View {
             }
         }
         .navigationTitle(title)
-        .onChange(of: visible.map(\.id), initial: true) { _, ids in
-            // Gewählte Aufnahme ist nicht mehr in der Liste (anderer Bereich, Suche) → Auswahl aufheben
-            if let selection, !ids.contains(selection) { self.selection = nil }
-        }
+        // Gewählte Aufnahme ist nicht (mehr) in der Liste – anderer Bereich, Suche, gelöscht
+        // oder ein gespeicherter Fensterzustand, der nicht zu dieser Bibliothek passt.
+        .onChange(of: visible.map(\.id), initial: true) { _, ids in pruneSelection(ids) }
+        .onChange(of: selection, initial: true) { _, _ in pruneSelection(visible.map(\.id)) }
         .dropDestination(for: URL.self) { urls, _ in
             library.importAudio(urls, category: categoryID.flatMap(library.category))
             return !urls.isEmpty
         }
+    }
+
+    private func pruneSelection(_ ids: [UUID]) {
+        if let selection, !ids.contains(selection) { self.selection = nil }
     }
 
     private func row(_ recording: LibraryRecording) -> some View {
