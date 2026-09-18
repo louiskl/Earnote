@@ -41,7 +41,12 @@ public protocol LibraryRepository: Sendable {
     func saveNote(_ note: Summary, for id: UUID) async throws
     /// Vom Nutzer geänderter Text: setzt `editedAt`, das KI-Original bleibt
     func updateNoteText(_ markdown: String, taskCount: Int, for id: UUID) async throws
+    /// Verwirft die Änderungen des Nutzers und stellt die Fassung der KI wieder her
+    @discardableResult
+    func restoreGeneratedNote(for id: UUID) async throws -> Summary?
     func deleteNote(for id: UUID) async throws
+    /// Ersetzt eine falsch erkannte Schreibweise in Titel, Notiz und Transkript einer Aufnahme
+    func correctTerm(wrong: String, right: String, for id: UUID) async throws
 
     // MARK: Export
     func setExports(_ exports: [ExportResult], for id: UUID) async throws

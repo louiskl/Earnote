@@ -90,6 +90,33 @@ final class AppEnvironment {
     }
 
     #if DEBUG
+    /// Nur Debug-Build: `EARNOTE_DEMO_LIBRARY=1` legt im Sandbox-Ordner eine Beispielaufnahme mit Notiz
+    /// und Transkript an – für Bildschirmfotos und den Design-Review, ohne echte Daten anzufassen.
+    private func addDemoLibraryIfRequested() async {
+        guard ProcessInfo.processInfo.environment["EARNOTE_DEMO_LIBRARY"] != nil,
+              (try? await libraryRepository.recordings())?.isEmpty == true else { return }
+        var rec = Recording(title: "Analysis II – Eigenwerte", categoryID: library.categories.first?.id,
+                            startedAt: Date().addingTimeInterval(-5_400))
+        rec.endedAt = rec.startedAt.addingTimeInterval(5_100)
+        rec.status = .done
+        try? await libraryRepository.insertRecording(rec)
+        try? await libraryRepository.saveTranscript(
+            Transcript(segments: [TranscriptSegment(start: 0, end: 6, text: "Heute sprechen wir über Eigenwerte, sagt Professor Maier."),
+                                  TranscriptSegment(start: 6, end: 14, text: "Die Klausur findet am 12. Februar statt.")],
+                       engine: "Whisper large-v3"), for: rec.id)
+        try? await libraryRepository.saveNote(
+            Summary(title: "Eigenwerte und Eigenvektoren",
+                    markdown: "In der Vorlesung ging es um Eigenwerte, ihre Berechnung über das charakteristische "
+                        + "Polynom und die Bedeutung für Diagonalisierbarkeit.\n\n## Rechenweg\n- Charakteristisches "
+                        + "Polynom aufstellen\n- Nullstellen bestimmen\n- Eigenräume berechnen\n\n## Aufgaben\n"
+                        + "- [ ] Übungsblatt 4 bis Freitag rechnen\n- [ ] Klausurtermin am 12. Februar notieren",
+                    taskCount: 2, provider: "Lokale KI"), for: rec.id)
+        try? await libraryRepository.insertGlossaryTerm(GlossaryTerm(term: "Professor Meyer", variants: ["Maier", "Mayer"]))
+        try? await libraryRepository.insertGlossaryTerm(GlossaryTerm(term: "Eigenwert", variants: ["Eigen Wert"],
+                                                                    categoryID: library.categories.first?.id))
+        await library.load()
+    }
+
     /// Nur Debug-Build: `EARNOTE_SANDBOX=<Ordner>` startet mit eigenem Datenordner und eigener Einstellungs-Domäne
     /// („app.earnote.sandbox“). So berühren Tests und Screenshots weder Aufnahmen noch Einstellungen des Nutzers.
     static func sandboxIfRequested() -> AppEnvironment? {
@@ -108,6 +135,9 @@ final class AppEnvironment {
                                            audio: audio, defaults: defaults)
         _ = await Task.detached(priority: .userInitiated) { await importer.runIfNeeded() }.value
         await library.load()
+        #if DEBUG
+        await addDemoLibraryIfRequested()
+        #endif
         queue.resumeInterruptedWork()
     }
 }

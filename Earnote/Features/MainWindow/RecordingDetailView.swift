@@ -6,10 +6,11 @@ import SwiftUI
 struct RecordingDetailView: View {
     let recordingID: UUID?
     let mode: DetailMode
+    @Binding var editingNote: Bool
 
     var body: some View {
         if let recordingID {
-            RecordingDetailContent(recordingID: recordingID, mode: mode)
+            RecordingDetailContent(recordingID: recordingID, mode: mode, editingNote: $editingNote)
                 .id(recordingID)
         } else {
             ContentUnavailableView("Keine Aufnahme ausgewählt", systemImage: "waveform",
@@ -22,10 +23,12 @@ private struct RecordingDetailContent: View {
     @Environment(RecordingController.self) private var recorder
     @Query private var matches: [LibraryRecording]
     let mode: DetailMode
+    @Binding var editingNote: Bool
 
-    init(recordingID: UUID, mode: DetailMode) {
+    init(recordingID: UUID, mode: DetailMode, editingNote: Binding<Bool>) {
         _matches = Query(filter: #Predicate<LibraryRecording> { $0.id == recordingID })
         self.mode = mode
+        _editingNote = editingNote
     }
 
     var body: some View {
@@ -34,7 +37,7 @@ private struct RecordingDetailContent: View {
                 RecordingStageView()
             } else {
                 switch mode {
-                case .note: NoteView(recording: recording)
+                case .note: NoteView(recording: recording, editing: $editingNote)
                 case .transcript: TranscriptView(recording: recording)
                 }
             }

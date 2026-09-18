@@ -5,6 +5,7 @@ import SwiftUI
 struct NoteView: View {
     @Environment(LibraryStore.self) private var library
     let recording: LibraryRecording
+    @Binding var editing: Bool
 
     /// Gerade abgehakter Stand, bis die Bibliothek ihn gespeichert zurückmeldet (verhindert Flackern)
     @State private var pendingMarkdown: String?
@@ -12,6 +13,15 @@ struct NoteView: View {
     var body: some View {
         if let note = recording.note {
             let markdown = pendingMarkdown ?? note.markdown
+            if editing {
+                NoteEditor(markdown: markdown) { edited in
+                    if let edited, edited != markdown {
+                        pendingMarkdown = edited
+                        library.updateSummaryText(recording.id, markdown: edited)
+                    }
+                    editing = false
+                }
+            } else {
             ScrollView {
                 VStack(alignment: .leading, spacing: 10) {
                     DetailHeader(recording: recording)
@@ -33,6 +43,7 @@ struct NoteView: View {
             }
             .onChange(of: note.markdown) { _, stored in
                 if stored == pendingMarkdown { pendingMarkdown = nil }
+            }
             }
         } else if recording.isBusy || recording.status == .failed {
             ProcessingStateView(recording: recording)
@@ -142,5 +153,40 @@ private struct NoteBlockView: View {
     private func inline(_ text: String) -> AttributedString {
         (try? AttributedString(markdown: text, options: .init(interpretedSyntax: .inlineOnlyPreservingWhitespace)))
             ?? AttributedString(text)
+    }
+}
+
+
+/// Notiz bearbeiten: der Text, wie er gespeichert ist. Überschriften beginnen mit „## “,
+/// Aufgaben mit „- [ ] “ – alles andere ist gewöhnlicher Text.
+private struct NoteEditor: View {
+    let markdown: String
+    /// nil = abgebrochen
+    let onDone: (String?) -> Void
+
+    @State private var draft = ""
+    @FocusState private var focused: Bool
+
+    var body: some View {
+        VStack(spacing: 0) {
+            TextEditor(text: $draft)
+                .font(.body)
+                .focused($focused)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 12)
+            Divider()
+            HStack {
+                Text("Überschrift: ## · Aufgabe: - [ ]")
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+                Spacer()
+                Button("Abbrechen") { onDone(nil) }
+                    .keyboardShortcut(.cancelAction)
+                Button("Sichern") { onDone(draft) }
+                    .keyboardShortcut(.defaultAction)
+            }
+            .padding(12)
+        }
+        .onAppear { draft = markdown; focused = true }
     }
 }

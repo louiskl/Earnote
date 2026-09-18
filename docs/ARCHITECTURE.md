@@ -136,5 +136,8 @@ Regeln: Views lesen die Bibliothek direkt über `@Query` auf dem gemeinsamen `Mo
 - **Phase 2c erledigt:** Einstellungen (`Views/Settings/`) und Einrichtungsassistent (`Views/Onboarding/`) sind native
   `Form`-Ansichten und lesen `LibraryStore`/`RecordingController` direkt. Das eigene Design-System
   (`Views/Components/`, `Views/Legacy/`) ist gelöscht; geblieben ist `Support/Brand.swift` für Zeichen und Call-Hinweis.
+- **Phase 3a/3b erledigt:** Notiz bearbeiten und zurücksetzen (`LibraryRepository.restoreGeneratedNote`), Korrekturen
+  (`correctTerm` über Titel, Notiz und Transkript) und das Wörterbuch (`Glossary`, `TermCorrection`). Die Pipeline gibt
+  die Begriffe an Spracherkennung (`Transcriber.transcribe(hints:)`) und KI (`SummaryContext.glossary`) weiter.
 - **Offen:** `AppState` wird nur noch vom Menüleistenfenster und vom Call-Hinweis genutzt – mit deren Umbau entfällt die Fassade.
 - **Später – iCloud:** mit Entwicklerkonto `cloudKitDatabase` einschalten; Audio bleibt lokal.

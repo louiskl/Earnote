@@ -2,7 +2,8 @@ import Foundation
 
 public protocol Transcriber: Sendable {
     var engineName: String { get }
-    func transcribe(audio url: URL, language: String,
+    /// `hints` sind Namen und Fachbegriffe aus dem Wörterbuch; Engines, die so etwas nicht können, ignorieren sie.
+    func transcribe(audio url: URL, language: String, hints: [String],
                     progress: @escaping @Sendable (Double) -> Void) async throws -> [TranscriptSegment]
 }
 

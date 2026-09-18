@@ -58,7 +58,7 @@ final class FakeTranscriber: Transcriber, TranscriberProvider, @unchecked Sendab
 
     func makeTranscriber(for settings: AppSettings) async throws -> any Transcriber { self }
 
-    func transcribe(audio url: URL, language: String,
+    func transcribe(audio url: URL, language: String, hints: [String],
                     progress: @escaping @Sendable (Double) -> Void) async throws -> [TranscriptSegment] {
         transcribed.mutate { $0.append(url.deletingLastPathComponent().lastPathComponent) }
         let segments = try await result(url)

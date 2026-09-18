@@ -33,6 +33,8 @@ public final class ProcessingQueue {
     /// Wird aufgerufen, wenn nichts mehr zu tun ist (z. B. geladene Modelle aus dem Speicher werfen)
     @ObservationIgnored private let onDrain: @MainActor () -> Void
     @ObservationIgnored private var queue: [UUID] = []
+    /// Einmalige Anweisung je Aufnahme für den nächsten Durchgang („Neu zusammenfassen …“)
+    @ObservationIgnored private var instructions: [UUID: String] = [:]
     @ObservationIgnored private var task: Task<Void, Never>?
     @ObservationIgnored private var activity: NSObjectProtocol?
 
@@ -44,8 +46,9 @@ public final class ProcessingQueue {
     /// Wartende Aufnahmen in Reihenfolge (ohne die laufende)
     public var pending: [UUID] { queue }
 
-    public func enqueue(_ id: UUID, next: Bool = false) {
+    public func enqueue(_ id: UUID, next: Bool = false, instruction: String = "") {
         guard let library, library.recording(id) != nil else { return }
+        if !instruction.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty { instructions[id] = instruction }
         // Wird die Aufnahme gerade verarbeitet (z. B. „Neu zusammenfassen“ während der Transkription),
         // den laufenden Durchgang abbrechen und mit dem neuen Stand von vorn beginnen.
         if processingID == id { task?.cancel() }
@@ -60,6 +63,7 @@ public final class ProcessingQueue {
     /// sonst wartet die restliche Warteschlange, bis die gelöschte Aufnahme fertig (oder gescheitert) ist.
     public func remove(_ id: UUID) {
         queue.removeAll { $0 == id }
+        instructions[id] = nil
         progress[id] = nil
         if processingID == id { task?.cancel() }
     }
@@ -134,7 +138,9 @@ public final class ProcessingQueue {
         guard !Task.isCancelled, let library, let rec = library.recording(id) else { return }
         let settings = library.settings
         let category = library.category(rec.categoryID)
-        await pipeline.process(rec, settings: settings, category: category, events: events)
+        let instruction = instructions.removeValue(forKey: id) ?? ""
+        await pipeline.process(rec, settings: settings, category: category, events: events,
+                               extraInstructions: instruction)
     }
 
     private var events: ProcessingEvents {

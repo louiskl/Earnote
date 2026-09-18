@@ -131,3 +131,32 @@ final class AudioStoreTests: XCTestCase {
         XCTAssertFalse(FileManager.default.fileExists(atPath: dir.path))
     }
 }
+
+final class GlossaryTests: XCTestCase {
+    func testReplacesWholeWordsOnlyAndIgnoresCase() {
+        XCTAssertEqual(TermCorrection.replace("Herr maier und Maier", wrong: "Maier", with: "Meyer"),
+                       "Herr Meyer und Meyer")
+        XCTAssertEqual(TermCorrection.replace("Maiers Buch", wrong: "Maier", with: "Meyer"), "Maiers Buch")
+        XCTAssertEqual(TermCorrection.replace("Siehe § 5 oben", wrong: "§ 5", with: "§ 15"), "Siehe § 15 oben")
+        XCTAssertEqual(TermCorrection.replace("A $ B", wrong: "$", with: "€"), "A € B", "Sonderzeichen bleiben Text")
+        XCTAssertEqual(TermCorrection.replace("nichts", wrong: "  ", with: "x"), "nichts")
+    }
+
+    func testGlossaryForCategoryKeepsGlobalAndOwnTerms() {
+        let mine = UUID(), other = UUID()
+        let terms = [GlossaryTerm(term: "Global"),
+                     GlossaryTerm(term: "Meins", categoryID: mine),
+                     GlossaryTerm(term: "Fremd", categoryID: other),
+                     GlossaryTerm(term: "   ", categoryID: mine)]
+        XCTAssertEqual(Glossary.forCategory(mine, in: terms).map(\.term), ["Global", "Meins"])
+        XCTAssertEqual(Glossary.speechHints(Glossary.forCategory(nil, in: terms)), ["Global"])
+    }
+
+    func testPromptTextListsVariants() {
+        let text = Glossary.promptText([GlossaryTerm(term: "Meyer", variants: ["Maier", "Mayer"]),
+                                        GlossaryTerm(term: "Eigenwert")])
+        XCTAssertTrue(text.contains("- Meyer (oft falsch erkannt als: Maier, Mayer)"), text)
+        XCTAssertTrue(text.contains("- Eigenwert"), text)
+        XCTAssertEqual(Glossary.promptText([]), "")
+    }
+}

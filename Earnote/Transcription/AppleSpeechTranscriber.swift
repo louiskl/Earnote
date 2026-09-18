@@ -15,7 +15,8 @@ struct AppleSpeechTranscriber: Transcriber {
         return await SpeechTranscriber.supportedLocale(equivalentTo: Locale(identifier: id)) != nil
     }
 
-    func transcribe(audio url: URL, language: String,
+    // `hints` bleiben ungenutzt: Apples SpeechTranscriber nimmt keine Begriffsliste entgegen.
+    func transcribe(audio url: URL, language: String, hints: [String],
                     progress: @escaping @Sendable (Double) -> Void) async throws -> [TranscriptSegment] {
         let id = language == "auto" ? Locale.current.identifier : language
         guard let locale = await SpeechTranscriber.supportedLocale(equivalentTo: Locale(identifier: id)) else {

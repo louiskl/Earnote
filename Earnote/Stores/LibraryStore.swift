@@ -18,6 +18,8 @@ final class LibraryStore: RecordingLibrary {
         didSet { if !isApplyingLoad { persistCategoryChanges(from: oldValue) } }
     }
     private(set) var recordings: [Recording] = []
+    /// Wörterbuch: richtige Schreibweisen von Namen und Fachbegriffen
+    private(set) var glossary: [GlossaryTerm] = []
     /// Bibliothek ist geladen (vorher sind Aufnahmen und Bereiche noch leer)
     private(set) var isLoaded = false
     /// Ausgewählte Aufnahme im Hauptfenster (zieht in Phase 2 in den Fensterzustand um)
@@ -50,6 +52,7 @@ final class LibraryStore: RecordingLibrary {
         do {
             let loadedCategories = try await library.categories()
             let loadedRecordings = try await library.recordings()
+            glossary = (try? await library.glossaryTerms()) ?? []
             isApplyingLoad = true
             categories = loadedCategories
             isApplyingLoad = false
@@ -267,15 +270,73 @@ final class LibraryStore: RecordingLibrary {
 
     // MARK: Verarbeitung
 
-    func enqueue(_ id: UUID, next: Bool = false) { queue.enqueue(id, next: next) }
+    func enqueue(_ id: UUID, next: Bool = false, instruction: String = "") {
+        queue.enqueue(id, next: next, instruction: instruction)
+    }
 
     /// Alles neu: Transkription, Zusammenfassung, Export.
-    func reprocess(_ id: UUID, retranscribe: Bool) {
+    /// `instruction` gilt nur für diesen Durchgang (z. B. „Kürzer fassen, auf Formeln achten“).
+    func reprocess(_ id: UUID, retranscribe: Bool, instruction: String = "") {
         let library = self.library
         if retranscribe { write("Transkript löschen") { try await library.deleteTranscript(for: id) } }
         write("Notiz löschen") { try await library.deleteNote(for: id) }
         update(id) { $0.exports = [] }
-        enqueue(id)
+        enqueue(id, instruction: instruction)
+    }
+
+    /// Verwirft die Änderungen des Nutzers und stellt die Fassung der KI wieder her.
+    func restoreGeneratedNote(_ id: UUID) {
+        let library = self.library
+        write("KI-Fassung wiederherstellen") { _ = try await library.restoreGeneratedNote(for: id) }
+        update(id) { $0.isNoteEdited = false }
+    }
+
+    // MARK: Namen & Begriffe
+
+    /// Ersetzt eine falsch erkannte Schreibweise in Titel, Notiz und Transkript dieser Aufnahme.
+    /// `remember` nimmt die Korrektur ins Wörterbuch auf, damit sie künftig gar nicht erst entsteht.
+    func correctTerm(_ id: UUID, wrong: String, right: String, remember: Bool) {
+        let wrong = wrong.trimmingCharacters(in: .whitespacesAndNewlines)
+        let right = right.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !wrong.isEmpty, !right.isEmpty, wrong.caseInsensitiveCompare(right) != .orderedSame else { return }
+        let library = self.library
+        write("Begriff korrigieren") { try await library.correctTerm(wrong: wrong, right: right, for: id) }
+        if let i = recordings.firstIndex(where: { $0.id == id }) {
+            recordings[i].title = TermCorrection.replace(recordings[i].title, wrong: wrong, with: right)
+            recordings[i].summaryTitle = recordings[i].summaryTitle.map { TermCorrection.replace($0, wrong: wrong, with: right) }
+            recordings[i].isNoteEdited = true
+        }
+        guard remember else { return }
+        let categoryID = recording(id)?.categoryID
+        if var existing = glossary.first(where: { $0.term.caseInsensitiveCompare(right) == .orderedSame
+                                                 && $0.categoryID == categoryID }) {
+            guard !existing.variants.contains(where: { $0.caseInsensitiveCompare(wrong) == .orderedSame }) else { return }
+            existing.variants.append(wrong)
+            updateGlossaryTerm(existing)
+        } else {
+            addGlossaryTerm(GlossaryTerm(term: right, variants: [wrong], categoryID: categoryID))
+        }
+    }
+
+    // MARK: Wörterbuch
+
+    func addGlossaryTerm(_ term: GlossaryTerm) {
+        glossary.append(term)
+        let library = self.library
+        write("Wörterbuch ergänzen") { try await library.insertGlossaryTerm(term) }
+    }
+
+    func updateGlossaryTerm(_ term: GlossaryTerm) {
+        guard let i = glossary.firstIndex(where: { $0.id == term.id }) else { return }
+        glossary[i] = term
+        let library = self.library
+        write("Wörterbuch ändern") { try await library.updateGlossaryTerm(term) }
+    }
+
+    func deleteGlossaryTerm(_ id: UUID) {
+        glossary.removeAll { $0.id == id }
+        let library = self.library
+        write("Wörterbuch löschen") { try await library.deleteGlossaryTerm(id) }
     }
 
     func reexport(_ id: UUID) {

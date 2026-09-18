@@ -252,6 +252,42 @@ final class LibraryRepositoryTests: XCTestCase {
         XCTAssertEqual(note?.markdown, "- [x] A\n- [ ] B", "Gelesen wird die aktuelle Fassung")
     }
 
+    func testRestoreGeneratedNoteUndoesEdits() async throws {
+        let rec = Recording(title: "Test")
+        try await library.insertRecording(rec)
+        try await library.saveNote(Summary(title: "KI-Titel", markdown: "- [ ] A\n- [ ] B", taskCount: 2, provider: "Lokale KI"), for: rec.id)
+        try await library.updateNoteText("Alles gelöscht", taskCount: 0, for: rec.id)
+
+        let restored = try await library.restoreGeneratedNote(for: rec.id)
+        XCTAssertEqual(restored?.markdown, "- [ ] A\n- [ ] B")
+        XCTAssertEqual(restored?.title, "KI-Titel")
+        XCTAssertEqual(restored?.taskCount, 2)
+        let stored = try XCTUnwrap(ModelContext(library.modelContainer).fetch(FetchDescriptor<LibraryNote>()).first)
+        XCTAssertNil(stored.editedAt, "Nach dem Zurücksetzen gilt die Notiz wieder als unverändert")
+    }
+
+    func testCorrectTermFixesTitleNoteAndTranscript() async throws {
+        var rec = Recording(title: "Vorlesung bei Maier")
+        rec.status = .done
+        try await library.insertRecording(rec)
+        try await library.saveNote(Summary(title: "Vorlesung Maier", markdown: "Professor Maier erklärt Maiers Satz.",
+                                           taskCount: 0, provider: "Lokale KI"), for: rec.id)
+        try await library.saveTranscript(Transcript(segments: [TranscriptSegment(start: 0, end: 2, text: "Hallo, hier ist maier.")],
+                                                    engine: "Whisper"), for: rec.id)
+
+        try await library.correctTerm(wrong: "Maier", right: "Meyer", for: rec.id)
+
+        let note = try await library.note(for: rec.id)
+        XCTAssertEqual(note?.title, "Vorlesung Meyer")
+        XCTAssertEqual(note?.markdown, "Professor Meyer erklärt Maiers Satz.", "Nur ganze Wörter werden ersetzt")
+        let stored2 = try await library.recording(rec.id)
+        XCTAssertEqual(stored2?.title, "Vorlesung bei Meyer")
+        let transcript = try await library.transcript(for: rec.id)
+        XCTAssertEqual(transcript?.segments.first?.text, "Hallo, hier ist Meyer.", "Groß- und Kleinschreibung ist egal")
+        let stored = try XCTUnwrap(ModelContext(library.modelContainer).fetch(FetchDescriptor<LibraryNote>()).first)
+        XCTAssertEqual(stored.generatedMarkdown, "Professor Maier erklärt Maiers Satz.", "KI-Original bleibt")
+    }
+
     // MARK: Transkript und Leistung
 
     private static func longTranscript(segments: Int) -> Transcript {

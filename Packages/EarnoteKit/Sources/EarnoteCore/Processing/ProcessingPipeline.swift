@@ -40,18 +40,22 @@ public struct ProcessingPipeline: Sendable {
     }
 
     /// Ein Durchgang für eine Aufnahme. Fehler landen im Status der Aufnahme; bei Abbruch wird nichts mehr gespeichert.
+    /// `extraInstructions` gilt nur für diesen Durchgang (aus „Neu zusammenfassen …“).
     public func process(_ rec: Recording, settings: AppSettings, category: RecordingCategory?,
-                        events: ProcessingEvents) async {
+                        events: ProcessingEvents, extraInstructions: String = "") async {
         let id = rec.id
         var step = "Transkription"
         do {
+            // Wörterbuch: hilft der Spracherkennung und der KI, Namen und Fachbegriffe richtig zu schreiben
+            let glossary = Glossary.forCategory(category?.id, in: (try? await library.glossaryTerms()) ?? [])
             // 1) Transkript (falls noch nicht vorhanden)
             var transcript = try await library.transcript(for: id)
             // Ein durchgehender Balken für die ganze Verarbeitung statt einem neuen pro Schritt:
             // Transkription bis 60 %, Zusammenfassung bis 95 %, der Rest ist der Export.
             let summarySpan = (transcript == nil ? 0.6 : 0.0)...0.95
             if transcript == nil {
-                let fresh = try await transcribe(rec, settings: settings, span: 0...0.6, events: events)
+                let fresh = try await transcribe(rec, settings: settings, hints: Glossary.speechHints(glossary),
+                                                 span: 0...0.6, events: events)
                 // Nach jedem längeren Schritt prüfen, ob die Aufnahme inzwischen gelöscht oder neu gestartet wurde,
                 // damit kein veralteter Stand gespeichert wird.
                 try Task.checkCancellation()
@@ -72,7 +76,8 @@ public struct ProcessingPipeline: Sendable {
                 let context = SummaryContext(category: category, titleHint: rec.hasAutoTitle ? "" : rec.title, sourceApp: rec.sourceApp,
                                              date: rec.startedAt, duration: rec.duration,
                                              hasSpeakers: settings.speakerLabels && rec.hasSystemAudio,
-                                             language: settings.ai.summaryLanguage)
+                                             language: settings.ai.summaryLanguage,
+                                             glossary: glossary, extraInstructions: extraInstructions)
                 let s = try await summarizer.summarize(transcript: text, context: context) { p in
                     events.progress(id, Self.map(p, to: summarySpan))
                 }
@@ -141,7 +146,7 @@ public struct ProcessingPipeline: Sendable {
         }
     }
 
-    private func transcribe(_ rec: Recording, settings: AppSettings, span: ClosedRange<Double>,
+    private func transcribe(_ rec: Recording, settings: AppSettings, hints: [String], span: ClosedRange<Double>,
                             events: ProcessingEvents) async throws -> Transcript {
         let id = rec.id
         await setStep(id, .transcribing, span.lowerBound, events)
@@ -173,7 +178,7 @@ public struct ProcessingPipeline: Sendable {
         }
 
         let offset = envelope == nil ? 0.0 : 0.1
-        var segments = try await transcriber.transcribe(audio: source, language: rec.language) { p in
+        var segments = try await transcriber.transcribe(audio: source, language: rec.language, hints: hints) { p in
             events.progress(id, Self.map(offset + p * (1 - offset), to: span))
         }
         guard !segments.isEmpty else { throw TranscriptionError.noSpeech }

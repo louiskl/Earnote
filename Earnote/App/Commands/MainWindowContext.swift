@@ -20,6 +20,8 @@ struct MainWindowContext {
     var requestDiscardRecording: () -> Void
     var newCategory: () -> Void
     var focusSearch: () -> Void
+    /// Notiz bearbeiten, neu zusammenfassen, korrigieren, zurücksetzen
+    var noteActions = NoteActions()
 }
 
 extension FocusedValues {

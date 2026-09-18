@@ -16,7 +16,7 @@
 | 2a | Neues natives Hauptfenster (Seitenleiste, Liste, Notiz, Inspector, Toolbar, Befehle, Suche, Teilen) | 0.6.0 | ✅ fertig |
 | 2b | Farbe zurück (Bereichsfarben), Aufnahme-Bühne mit Pegel und Live-Text, Menüleiste ohne „Zuletzt“, zentrales Call-Banner, signierte und notarisierte Version | 0.7.0 | ✅ fertig |
 | **2c** | **Einstellungen und Einrichtungsassistent nativ (inkl. Whisper-Vorbereitung), altes Design-System entfernt** | 0.7.1 | ▶ **fertig, Test durch den Nutzer offen** |
-| 3 | Funktionen für 1.0: Bearbeiten, Korrigieren & Wörterbuch, PDF-Lernzettel, Transkript-Qualität | 0.8 | geplant |
+| 3 | Funktionen für 1.0: Bearbeiten, Korrigieren & Wörterbuch, PDF-Lernzettel, Transkript-Qualität | 0.8 | ▶ **3a und 3b fertig** |
 | 4 | Qualität & Modelle: Benchmark, automatische Modellwahl, Härtetests | 0.9 | geplant |
 | 5 | Beta mit Kommilitonen · **parallel dazu Phase 6 (iPad/iPhone)** | 1.0 RC | geplant |
 | 🚀 | **Launch Earnote 1.0 für Mac** | 1.0 | |
@@ -79,14 +79,15 @@ Vorher: Architekturvorschlag nach Guidelines Abschnitt 20, vom Nutzer abgesegnet
 - [ ] Vom Nutzer zu prüfen: erster Durchlauf des Assistenten, Whisper-Vorbereitung auf dem eigenen Mac
 
 ## Phase 3 – Funktionen für 1.0 (0.7–0.8)
-**3a Notiz bearbeiten**
-- [ ] Notiz direkt bearbeiten, Titel ändern, „Auf KI-Version zurücksetzen“
-- [ ] Neu zusammenfassen mit anderem Bereich/Anweisung
+**3a Notiz bearbeiten (0.7.2)**
+- [x] Notiz direkt bearbeiten (⌘E), Titel über die Liste ändern, „Auf KI-Fassung zurücksetzen“
+- [x] „Neu zusammenfassen …“ mit anderem Bereich, zusätzlicher Anweisung und wahlweise neuem Transkript
 
-**3b Namen & Begriffe korrigieren + Wörterbuch**
-- [ ] „Namen & Begriffe korrigieren“: eine Ersetzung gilt in Notiz und Transkript
-- [ ] Wörterbuch pro Bereich (Dozierende, Fachbegriffe, Paragraphen) und global
-- [ ] Wörterbuch als Kontext für Whisper (Prompt) und für die KI – Fehler entstehen gar nicht erst
+**3b Namen & Begriffe korrigieren + Wörterbuch (0.7.2)**
+- [x] „Namen & Begriffe korrigieren“: eine Ersetzung gilt in Titel, Notiz und Transkript
+- [x] Wörterbuch pro Bereich und global (Einstellungen › Wörterbuch), Korrekturen wandern auf Wunsch hinein
+- [x] Wörterbuch als Kontext für Whisper (Prompt) und für die KI – Fehler entstehen gar nicht erst
+- [ ] Vom Nutzer zu prüfen: Wirkt der Whisper-Prompt bei echten Vorlesungen? (Apple-Spracherkennung kennt keine Begriffsliste)
 
 **3c PDF & Teilen**
 - [ ] Sauberes PDF (Lernzettel-Layout), Drucken

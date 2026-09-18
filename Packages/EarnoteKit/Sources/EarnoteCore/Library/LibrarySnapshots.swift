@@ -36,6 +36,7 @@ extension LibraryRecording {
         r.summaryTitle = note?.title
         r.summaryPreview = note?.preview
         r.taskCount = note?.taskCount ?? 0
+        r.isNoteEdited = note.map { $0.editedAt != nil }
         r.exports = (exports ?? []).map { $0.snapshot() }.sorted { ($0.date, $0.destinationID) < ($1.date, $1.destinationID) }
         return r
     }

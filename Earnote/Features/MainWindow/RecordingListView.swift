@@ -126,12 +126,21 @@ struct RecordingListView: View {
 /// Aktionen für eine Aufnahme – gleich im Kontextmenü, im „⋯“-Menü der Toolbar und im Menü „Notiz“.
 struct RecordingActionItems: View {
     @Environment(LibraryStore.self) private var library
+    @Environment(\.noteActions) private var noteActions
     let recordingID: UUID
 
     var body: some View {
         let recording = library.recording(recordingID)
         let busy = recording?.status.isBusy == true || recording?.status == .recording
-        Button("Neu zusammenfassen") { library.reprocess(recordingID, retranscribe: false) }
+        let hasNote = recording?.summaryTitle != nil
+        Button("Notiz bearbeiten", action: noteActions.edit)
+            .disabled(!hasNote || busy)
+        Button("Auf KI-Fassung zurücksetzen", action: noteActions.restoreGenerated)
+            .disabled(recording?.isNoteEdited != true)
+        Button("Namen & Begriffe korrigieren …", action: noteActions.correctTerms)
+            .disabled(!hasNote || busy)
+        Divider()
+        Button("Neu zusammenfassen …", action: noteActions.summarizeAgain)
             .disabled(recording == nil || busy)
         Button("Neu transkribieren") { library.reprocess(recordingID, retranscribe: true) }
             .disabled(recording == nil || busy || !library.hasAudio(recordingID))

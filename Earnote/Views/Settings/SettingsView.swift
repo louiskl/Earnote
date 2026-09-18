@@ -15,10 +15,11 @@ struct SettingsView: View {
             PermissionsSettings().tabItem { Label("Berechtigungen", systemImage: "lock.shield") }.tag("rechte")
             TranscriptionSettings().tabItem { Label("Transkription", systemImage: "waveform") }.tag("transkription")
             AISettings(llm: llm).tabItem { Label("KI", systemImage: "cpu") }.tag("ki")
+            GlossarySettings().tabItem { Label("Wörterbuch", systemImage: "character.book.closed") }.tag("woerterbuch")
             DestinationsSettings().tabItem { Label("Ziele", systemImage: "square.and.arrow.up") }.tag("ziele")
             AboutSettings().tabItem { Label("Über", systemImage: "info.circle") }.tag("ueber")
         }
-        .frame(width: 600, height: 480)
+        .frame(width: 640, height: 500)
     }
 }
 

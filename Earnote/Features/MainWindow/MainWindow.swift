@@ -22,6 +22,8 @@ struct MainWindow: View {
     @State private var pendingDeletion: UUID?
     @State private var confirmDiscard = false
     @State private var showOnboarding = false
+    @State private var editingNote = false
+    @State private var noteSheet: NoteSheet?
     @FocusState private var searchFocused: Bool
 
     private var filter: Binding<LibraryFilter> {
@@ -53,7 +55,8 @@ struct MainWindow: View {
                               onDelete: { pendingDeletion = $0 })
                 .navigationSplitViewColumnWidth(min: 260, ideal: 330, max: 520)
         } detail: {
-            RecordingDetailView(recordingID: selection.wrappedValue, mode: detailMode.wrappedValue)
+            RecordingDetailView(recordingID: selection.wrappedValue, mode: detailMode.wrappedValue,
+                                editingNote: $editingNote)
         }
         // Farbe kommt aus dem gewählten Bereich: Auswahl, Haken und Knöpfe übernehmen sie.
         .tint(windowTint)
@@ -89,6 +92,14 @@ struct MainWindow: View {
         .sheet(item: $editingCategory) { category in
             CategoryEditorSheet(category: category) { editingCategory = nil }
         }
+        .sheet(item: $noteSheet) { sheet in
+            if let id = selection.wrappedValue {
+                switch sheet {
+                case .summarizeAgain: SummarizeAgainSheet(recordingID: id)
+                case .correctTerms: CorrectTermSheet(recordingID: id)
+                }
+            }
+        }
         .sheet(isPresented: $showOnboarding) {
             OnboardingView { showOnboarding = false }
                 .interactiveDismissDisabled()
@@ -98,13 +109,22 @@ struct MainWindow: View {
         } message: {
             Text(recorder.lastError ?? library.lastError ?? "")
         }
-        .onAppear { if !library.settings.onboardingCompleted { showOnboarding = true } }
+        .onAppear {
+            if !library.settings.onboardingCompleted { showOnboarding = true }
+            #if DEBUG
+            demoSelectionIfRequested()
+            #endif
+        }
         .onReceive(NotificationCenter.default.publisher(for: .showOnboarding)) { _ in showOnboarding = true }
         .onChange(of: library.categories.map(\.id)) { _, ids in
             // Gelöschter Bereich war ausgewählt → zurück zu „Alle Aufnahmen“
             if let id = selectedCategoryID, !ids.contains(id) { filter.wrappedValue = .all }
         }
         .environment(\.categoryTint, windowTint)
+        .environment(\.noteActions, noteActions)
+        // Eine andere Aufnahme (oder das Transkript) beendet das Bearbeiten der Notiz
+        .onChange(of: selection.wrappedValue) { _, _ in editingNote = false }
+        .onChange(of: detailMode.wrappedValue) { _, mode in if mode != .note { editingNote = false } }
         .focusedSceneValue(\.mainWindow, context)
         // Mit Inspector brauchen vier Spalten mehr Platz; ohne ihn darf das Fenster kleiner werden.
         .frame(minWidth: inspectorShown ? 1100 : 840, minHeight: 560)
@@ -130,8 +150,35 @@ struct MainWindow: View {
                           requestDelete: { if let id = selection.wrappedValue { pendingDeletion = id } },
                           requestDiscardRecording: { confirmDiscard = true },
                           newCategory: newCategory,
-                          focusSearch: { searchFocused = true })
+                          focusSearch: { searchFocused = true },
+                          noteActions: noteActions)
     }
+
+    private var noteActions: NoteActions {
+        NoteActions(edit: { detailMode.wrappedValue = .note; editingNote = true },
+                    summarizeAgain: { noteSheet = .summarizeAgain },
+                    correctTerms: { noteSheet = .correctTerms },
+                    restoreGenerated: { if let id = selection.wrappedValue { library.restoreGeneratedNote(id) } })
+    }
+
+    #if DEBUG
+    /// Nur Debug-Build: erste Aufnahme auswählen und auf Wunsch gleich eine Notiz-Aktion öffnen
+    /// (`EARNOTE_DEMO_LIBRARY=1`, `EARNOTE_NOTE_ACTION=edit|summarize|correct`) – für Bildschirmfotos.
+    private func demoSelectionIfRequested() {
+        let env = ProcessInfo.processInfo.environment
+        guard env["EARNOTE_DEMO_LIBRARY"] != nil else { return }
+        Task { @MainActor in
+            try? await Task.sleep(nanoseconds: 1_500_000_000)
+            if selection.wrappedValue == nil { selection.wrappedValue = library.recordings.first?.id }
+            switch env["EARNOTE_NOTE_ACTION"] {
+            case "edit": noteActions.edit()
+            case "summarize": noteActions.summarizeAgain()
+            case "correct": noteActions.correctTerms()
+            default: break
+            }
+        }
+    }
+    #endif
 
     private func newCategory() {
         let category = library.addCategory()

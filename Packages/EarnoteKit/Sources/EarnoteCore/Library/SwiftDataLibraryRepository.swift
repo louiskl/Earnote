@@ -167,10 +167,42 @@ public actor SwiftDataLibraryRepository: LibraryRepository {
         try modelContext.save()
     }
 
+    public func restoreGeneratedNote(for id: UUID) throws -> Summary? {
+        guard let stored = try recordingModel(id)?.note, !stored.generatedMarkdown.isEmpty else { return nil }
+        stored.title = stored.generatedTitle
+        stored.markdown = stored.generatedMarkdown
+        stored.taskCount = NoteMarkdown.openTaskCount(stored.generatedMarkdown)
+        stored.editedAt = nil
+        try modelContext.save()
+        return stored.snapshot()
+    }
+
     public func deleteNote(for id: UUID) throws {
         guard let model = try recordingModel(id), let stored = model.note else { return }
         model.note = nil
         modelContext.delete(stored)
+        try modelContext.save()
+    }
+
+    /// Namen und Begriffe korrigieren: gilt für Titel, Notiz und Transkript, damit nirgends die falsche
+    /// Schreibweise stehen bleibt. Das KI-Original der Notiz bleibt unangetastet.
+    public func correctTerm(wrong: String, right: String, for id: UUID) throws {
+        guard let model = try recordingModel(id) else { return }
+        func fixed(_ text: String) -> String { TermCorrection.replace(text, wrong: wrong, with: right) }
+
+        model.title = fixed(model.title)
+        if let note = model.note {
+            let before = note.markdown + note.title
+            note.title = fixed(note.title)
+            note.markdown = fixed(note.markdown)
+            note.preview = note.preview.map(fixed)
+            if before != note.markdown + note.title { note.editedAt = Date() }
+        }
+        if let stored = model.transcript, var transcript = stored.snapshot() {
+            for i in transcript.segments.indices { transcript.segments[i].text = fixed(transcript.segments[i].text) }
+            try stored.apply(transcript)
+        }
+        model.modifiedAt = Date()
         try modelContext.save()
     }
 

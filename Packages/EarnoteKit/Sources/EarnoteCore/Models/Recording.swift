@@ -64,6 +64,9 @@ public struct Recording: Identifiable, Codable, Hashable, Sendable {
     /// Erster Satz der Notizen – für die Vorschau in der Liste
     public var summaryPreview: String?
     public var taskCount: Int = 0
+    /// Notiz wurde vom Nutzer geändert (dann lässt sie sich auf die KI-Fassung zurücksetzen).
+    /// Optional, damit ältere meta.json-Dateien weiter lesbar bleiben.
+    public var isNoteEdited: Bool?
     /// Summe der Pausen während der Aufnahme (optional, damit ältere meta.json-Dateien lesbar bleiben)
     public var pausedDuration: TimeInterval?
     /// Vom Nutzer benannt (nil bei älteren meta.json-Dateien: dann entscheidet das Namensmuster)

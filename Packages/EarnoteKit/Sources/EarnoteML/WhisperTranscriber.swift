@@ -16,7 +16,7 @@ public struct WhisperTranscriber: Transcriber {
         self.modelName = modelName
     }
 
-    public func transcribe(audio url: URL, language: String,
+    public func transcribe(audio url: URL, language: String, hints: [String],
                            progress: @escaping @Sendable (Double) -> Void) async throws -> [TranscriptSegment] {
         let kit = try await WhisperKitCache.shared.kit(for: modelFolder)
 
@@ -32,6 +32,16 @@ public struct WhisperTranscriber: Transcriber {
         } else {
             options.language = language
             options.detectLanguage = false
+        }
+
+        // Namen und Fachbegriffe als Prompt: Whisper schreibt sie danach deutlich häufiger richtig.
+        if !hints.isEmpty, let tokenizer = kit.tokenizer {
+            let text = "Begriffe: " + hints.prefix(40).joined(separator: ", ") + "."
+            let tokens = tokenizer.encode(text: " " + text).filter { $0 < tokenizer.specialTokens.specialTokenBegin }
+            if !tokens.isEmpty {
+                options.promptTokens = tokens
+                options.usePrefillPrompt = true
+            }
         }
 
         let reader = try ResamplingReader(url: url)

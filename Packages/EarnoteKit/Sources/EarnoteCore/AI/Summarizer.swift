@@ -173,9 +173,14 @@ public struct SummaryContext: Sendable {
     public var duration: TimeInterval
     public var hasSpeakers: Bool
     public var language: String
+    /// Wörterbuch: richtige Schreibweisen für diese Aufnahme
+    public var glossary: [GlossaryTerm]
+    /// Einmalige Anweisung des Nutzers für genau diesen Durchgang („Neu zusammenfassen“)
+    public var extraInstructions: String
 
     public init(category: RecordingCategory?, titleHint: String, sourceApp: String?, date: Date,
-                duration: TimeInterval, hasSpeakers: Bool, language: String) {
+                duration: TimeInterval, hasSpeakers: Bool, language: String,
+                glossary: [GlossaryTerm] = [], extraInstructions: String = "") {
         self.category = category
         self.titleHint = titleHint
         self.sourceApp = sourceApp
@@ -183,6 +188,8 @@ public struct SummaryContext: Sendable {
         self.duration = duration
         self.hasSpeakers = hasSpeakers
         self.language = language
+        self.glossary = glossary
+        self.extraInstructions = extraInstructions
     }
 }
 
@@ -406,6 +413,10 @@ public struct Summarizer: Sendable {
         if let app = c.sourceApp { p += "Aufgenommen in: \(app)\n" }
         if !c.titleHint.isEmpty { p += "Name der Aufnahme bzw. Datei: \(c.titleHint)\n" }
         p += "Umfang: \(Self.lengthGuidance(words: words))\n"
+        let glossary = Glossary.promptText(c.glossary)
+        if !glossary.isEmpty { p += "\n\(glossary)\n" }
+        let extra = c.extraInstructions.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !extra.isEmpty { p += "\nAnweisung des Nutzers für diese Notiz (geht allen anderen Regeln vor):\n\(extra)\n" }
         p += isNotes
             ? "\nDas folgende Material sind bereits verdichtete Notizen aus dem vollständigen Transkript, in zeitlicher Reihenfolge:\n\n"
             : "\nTranskript:\n\n"
