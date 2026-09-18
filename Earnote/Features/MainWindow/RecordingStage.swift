@@ -182,16 +182,22 @@ private struct LiveText: View {
             VStack(alignment: .leading, spacing: 6) {
                 (Text(tail) + Text(tail.isEmpty || volatile.isEmpty ? "" : " ")
                     + Text(volatile).foregroundColor(.secondary))
-                    .font(.title3)
-                    .lineSpacing(6)
+                    .font(.system(.title2, design: .rounded))
+                    .lineSpacing(8)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .contentTransition(.opacity)
-                    .animation(reduceMotion ? nil : .easeOut(duration: 0.25), value: settled)
-                    .animation(reduceMotion ? nil : .easeOut(duration: 0.25), value: volatile)
+                    .animation(reduceMotion ? nil : .easeOut(duration: 0.3), value: settled)
+                    .animation(reduceMotion ? nil : .easeOut(duration: 0.3), value: volatile)
                     .textSelection(.enabled)
             }
+            .padding(.top, 8)
         }
         .defaultScrollAnchor(.bottom)
+        // Oben laufen die Worte weich in den Pegel hinein statt hart abzuschneiden.
+        .mask(LinearGradient(stops: [.init(color: .clear, location: 0),
+                                     .init(color: .black, location: 0.18),
+                                     .init(color: .black, location: 1)],
+                             startPoint: .top, endPoint: .bottom))
         .accessibilityLabel("Mitschrift")
         .accessibilityValue(settled + " " + volatile)
     }

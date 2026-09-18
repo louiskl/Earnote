@@ -5,6 +5,8 @@ import SwiftUI
 /// Seitenleiste als Source List: Bibliothek und Bereiche, je mit Anzahl.
 struct SidebarView: View {
     @Environment(LibraryStore.self) private var library
+    @Environment(\.categoryTint) private var tint
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Query(sort: [SortDescriptor(\LibraryCategory.sortIndex), SortDescriptor(\LibraryCategory.createdAt)])
     private var categories: [LibraryCategory]
     @Query private var recordings: [LibraryRecording]
@@ -52,6 +54,10 @@ struct SidebarView: View {
             }
         }
         .listStyle(.sidebar)
+        // Die Seitenleiste nimmt die Farbe des gewählten Bereichs auf – dezent, damit Text lesbar bleibt.
+        .scrollContentBackground(.hidden)
+        .background(tint.opacity(0.16))
+        .animation(reduceMotion ? nil : .easeInOut(duration: 0.25), value: tint)
         .safeAreaInset(edge: .bottom, spacing: 0) {
             HStack {
                 Button(action: onNewCategory) {
@@ -74,6 +80,7 @@ struct SidebarView: View {
             Text("Die Aufnahmen bleiben erhalten.")
         }
     }
+
 
     private func move(from source: IndexSet, to destination: Int) {
         var ids = categories.map(\.id)

@@ -1,62 +1,58 @@
+import AppKit
 import EarnoteCore
 import SwiftUI
 
+/// Einstellungen als eigene Szene: pro Thema ein Tab, jeder Tab ein natives Formular.
 struct SettingsView: View {
-    @EnvironmentObject var app: AppState
+    let llm: LLMFactory
+    /// Im Debug-Build kann `EARNOTE_SETTINGS_TAB` einen Tab direkt öffnen (Bildschirmfotos, Design-Review)
+    @State private var tab = ProcessInfo.processInfo.environment["EARNOTE_SETTINGS_TAB"] ?? "allgemein"
 
     var body: some View {
-        TabView {
-            GeneralSettings().tabItem { Label("Allgemein", systemImage: "gearshape") }
-            page { PermissionsPanel() }.tabItem { Label("Berechtigungen", systemImage: "lock.shield") }
-            page { TranscriptionPanel() }.tabItem { Label("Transkription", systemImage: "waveform") }
-            page { AIPanel() }.tabItem { Label("KI", systemImage: "sparkles") }
-            page { DestinationsPanel() }.tabItem { Label("Ziele", systemImage: "square.and.arrow.up") }
-            page { CategoriesPanel() }.tabItem { Label("Bereiche", systemImage: "square.grid.2x2") }
-            AboutView().tabItem { Label("Über", systemImage: "info.circle") }
+        TabView(selection: $tab) {
+            GeneralSettings().tabItem { Label("Allgemein", systemImage: "gearshape") }.tag("allgemein")
+            RecordingSettings().tabItem { Label("Aufnahme", systemImage: "mic") }.tag("aufnahme")
+            PermissionsSettings().tabItem { Label("Berechtigungen", systemImage: "lock.shield") }.tag("rechte")
+            TranscriptionSettings().tabItem { Label("Transkription", systemImage: "waveform") }.tag("transkription")
+            AISettings(llm: llm).tabItem { Label("KI", systemImage: "cpu") }.tag("ki")
+            DestinationsSettings().tabItem { Label("Ziele", systemImage: "square.and.arrow.up") }.tag("ziele")
+            AboutSettings().tabItem { Label("Über", systemImage: "info.circle") }.tag("ueber")
         }
-        .frame(width: 680, height: 620)
-    }
-
-    private func page<Content: View>(@ViewBuilder _ content: () -> Content) -> some View {
-        ScrollView { content().padding(24) }
+        .frame(width: 600, height: 480)
     }
 }
 
+/// Allgemein: Erscheinungsbild, Start, Speicher und der Einrichtungsassistent.
 struct GeneralSettings: View {
-    @EnvironmentObject var app: AppState
+    @Environment(LibraryStore.self) private var library
     @State private var launchAtLogin = LoginItem.isEnabled
 
     var body: some View {
+        @Bindable var library = library
         Form {
+            Section {
+                Picker("Erscheinungsbild", selection: $library.settings.appearance) {
+                    ForEach(AppearanceChoice.allCases) { Text($0.label).tag($0) }
+                }
+                .pickerStyle(.segmented)
+            }
             Section("Start") {
                 Toggle("\(AppInfo.name) beim Start des Macs automatisch öffnen", isOn: $launchAtLogin)
-                    .onChange(of: launchAtLogin) { _, v in LoginItem.set(v) }
-                Toggle("Fenster beim Start zeigen (sonst nur in der Menüleiste)", isOn: $app.settings.openWindowAtLaunch)
+                    .onChange(of: launchAtLogin) { _, on in LoginItem.set(on) }
+                Toggle("Fenster beim Start zeigen", isOn: $library.settings.openWindowAtLaunch)
             }
-            Section("Call-Erkennung") {
-                Toggle("Calls automatisch erkennen und Aufnahme vorschlagen", isOn: $app.settings.meetingDetection)
-                Toggle("Aufnahme automatisch beenden, wenn der Call endet", isOn: $app.settings.autoStopWhenCallEnds)
-                    .disabled(!app.settings.meetingDetection)
+            Section {
+                Toggle("Audiodateien nach der Verarbeitung behalten", isOn: $library.settings.keepAudioFiles)
+            } header: {
+                Text("Speicher")
+            } footer: {
+                Text("Behaltene Aufnahmen lassen sich später neu transkribieren. Eine Stunde braucht 250–600 MB.")
             }
-            Section("Aufnahme") {
-                Toggle("Systemton mit aufnehmen (Teilnehmer in Calls)", isOn: $app.settings.recordSystemAudio)
-                MicrophoneSettings()
-                Toggle("Hinweis zum Einverständnis anzeigen", isOn: $app.settings.showConsentReminder)
-                Picker("Standard-Bereich", selection: $app.settings.defaultCategoryID) {
-                    Text("Erster Bereich").tag(UUID?.none)
-                    ForEach(app.categories) { Text("\($0.displayEmoji)  \($0.name)").tag(Optional($0.id)) }
-                }
-            }
-            Section("Speicher") {
-                Toggle("Audiodateien nach der Verarbeitung behalten", isOn: $app.settings.keepAudioFiles)
-                Text("Behaltene Audiodateien ermöglichen eine spätere Neu-Transkription. 1 Stunde ≈ 250–600 MB.")
-                    .font(.caption).foregroundStyle(.secondary)
+            Section {
                 HStack {
                     Button("Datenordner öffnen") { NSWorkspace.shared.open(Storage.standard.root) }
                     Button("Protokoll öffnen") { NSWorkspace.shared.open(Log.url) }
                 }
-            }
-            Section {
                 Button("Einrichtungsassistent erneut starten") {
                     NotificationCenter.default.post(name: .showOnboarding, object: nil)
                     NSApp.activate(ignoringOtherApps: true)
@@ -67,26 +63,65 @@ struct GeneralSettings: View {
     }
 }
 
-struct AboutView: View {
+/// Aufnahme: Mikrofon, Systemton, Call-Erkennung und der Standard-Bereich.
+struct RecordingSettings: View {
+    @Environment(LibraryStore.self) private var library
+
     var body: some View {
-        VStack(spacing: 14) {
-            Image(nsImage: NSApp.applicationIconImage).resizable().frame(width: 96, height: 96)
-            Text(AppInfo.name).font(Theme.Font.title)
-            Text("Version \(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "–")")
-                .foregroundStyle(.secondary)
-            Text("Kostenlose, quelloffene KI-Notizen für Meetings, Calls und Vorlesungen.\nLokal transkribiert. Deine Daten, deine Wahl.")
+        @Bindable var library = library
+        Form {
+            Section("Mikrofon") {
+                MicrophoneSettings()
+            }
+            Section {
+                Toggle("Systemton mitaufnehmen", isOn: $library.settings.recordSystemAudio)
+            } footer: {
+                Text("Nimmt auch die anderen Teilnehmer in Zoom, Teams und Meet auf.")
+            }
+            Section("Calls") {
+                Toggle("Calls automatisch erkennen und Aufnahme vorschlagen", isOn: $library.settings.meetingDetection)
+                Toggle("Aufnahme beenden, wenn der Call endet", isOn: $library.settings.autoStopWhenCallEnds)
+                    .disabled(!library.settings.meetingDetection)
+            }
+            Section {
+                Picker("Standard-Bereich", selection: $library.settings.defaultCategoryID) {
+                    Text("Erster Bereich").tag(UUID?.none)
+                    ForEach(library.categories) { Text("\($0.displayEmoji)  \($0.name)").tag(Optional($0.id)) }
+                }
+                Toggle("Hinweis zum Einverständnis anzeigen", isOn: $library.settings.showConsentReminder)
+            } footer: {
+                Text("Bitte hole vor jeder Aufnahme das Einverständnis aller Beteiligten ein.")
+            }
+        }
+        .formStyle(.grouped)
+    }
+}
+
+/// Über: Version, Zweck, Quellcode.
+struct AboutSettings: View {
+    private var version: String {
+        Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "–"
+    }
+
+    var body: some View {
+        VStack(spacing: 12) {
+            Image(nsImage: NSApp.applicationIconImage)
+                .resizable().frame(width: 96, height: 96)
+                .accessibilityHidden(true)
+            Text(AppInfo.name).font(.title.weight(.semibold))
+            Text("Version \(version)").foregroundStyle(.secondary)
+            Text("Kostenlose, quelloffene Notizen für Vorlesungen, Meetings und Calls.\nLokal transkribiert – deine Aufnahmen bleiben auf deinem Mac.")
                 .multilineTextAlignment(.center)
             if let repository = AppInfo.repository {
                 HStack {
-                    Link("GitHub", destination: repository)
+                    Link("Quellcode", destination: repository)
                     Text("·")
                     Link("Fehler melden", destination: repository.appendingPathComponent("issues"))
                 }
             }
-            Text("MIT-Lizenz").font(.caption).foregroundStyle(.tertiary)
+            Text("MIT-Lizenz").font(.callout).foregroundStyle(.tertiary)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .padding(30)
+        .padding(24)
     }
 }
-

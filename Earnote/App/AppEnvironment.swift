@@ -55,6 +55,7 @@ final class AppEnvironment {
 
         library.willDelete = { [weak recorder] id in recorder?.endIfActive(id) }
         library.onSettingsChanged = { [weak recorder, weak queue] old, new in
+            if old.appearance != new.appearance { Appearance.apply(new.appearance) }
             recorder?.updateDetection(enabled: new.meetingDetection)
             if old.ai != new.ai { queue?.aiProviderChanged() }
         }

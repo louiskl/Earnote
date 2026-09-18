@@ -133,6 +133,8 @@ Regeln: Views lesen die Bibliothek direkt über `@Query` auf dem gemeinsamen `Mo
 
 ## Nächste Schritte
 
-- **Phase 2b – restliche Oberfläche:** Einstellungen, Einrichtungsassistent, Menüleistenfenster und Call-Hinweis nach den
-  Design-Guidelines neu bauen, danach `AppState` und die Views unter `Views/Legacy/` entfernen.
+- **Phase 2c erledigt:** Einstellungen (`Views/Settings/`) und Einrichtungsassistent (`Views/Onboarding/`) sind native
+  `Form`-Ansichten und lesen `LibraryStore`/`RecordingController` direkt. Das eigene Design-System
+  (`Views/Components/`, `Views/Legacy/`) ist gelöscht; geblieben ist `Support/Brand.swift` für Zeichen und Call-Hinweis.
+- **Offen:** `AppState` wird nur noch vom Menüleistenfenster und vom Call-Hinweis genutzt – mit deren Umbau entfällt die Fassade.
 - **Später – iCloud:** mit Entwicklerkonto `cloudKitDatabase` einschalten; Audio bleibt lokal.

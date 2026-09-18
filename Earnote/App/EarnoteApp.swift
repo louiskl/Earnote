@@ -60,10 +60,10 @@ struct EarnoteApp: App {
         }
 
         Settings {
-            SettingsView()
-                .environmentObject(app)
-                .environmentObject(app.meter)
-                .environmentObject(app.live)
+            SettingsView(llm: environment.llm)
+                .environment(environment.library)
+                .environment(environment.recorder)
+                .environment(environment.recorder.audioInputs)
         }
 
         MenuBarExtra {
@@ -97,6 +97,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
         case "dark": NSApp.appearance = NSAppearance(named: .darkAqua)
         case "light": NSApp.appearance = NSAppearance(named: .aqua)
         default: break
+        }
+        // Nur für Tests: die Einstellungen direkt öffnen (Bildschirmfotos, Design-Review)
+        if ProcessInfo.processInfo.environment["EARNOTE_SHOW_SETTINGS"] != nil {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                NSApp.activate(ignoringOtherApps: true)
+                // Über den Menübefehl, weil `showSettingsWindow:` ohne aktives Fenster nicht greift
+                let items = NSApp.mainMenu?.items.first?.submenu?.items ?? []
+                if let item = items.first(where: { $0.title.contains("Einstellungen") || $0.title.contains("Settings") }),
+                   let action = item.action {
+                    NSApp.sendAction(action, to: item.target, from: item)
+                }
+            }
         }
         // Nur für Tests: den Call-Hinweis einmal zeigen, ohne dass ein echter Call laufen muss
         if let demoCall = ProcessInfo.processInfo.environment["EARNOTE_DEMO_CALL"], let state = app {

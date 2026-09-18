@@ -14,8 +14,8 @@
 | 1b | Datenmodell: SwiftData, iCloud-tauglich, macOS 15, Speicher aufgeteilt | 0.4.0 | ✅ fertig |
 | 1c | Aufnahme robust + Mikrofon auswählen | 0.5.0 | ✅ fertig |
 | 2a | Neues natives Hauptfenster (Seitenleiste, Liste, Notiz, Inspector, Toolbar, Befehle, Suche, Teilen) | 0.6.0 | ✅ fertig |
-| **2b** | **Farbe zurück (Bereichsfarben), Aufnahme-Bühne mit Pegel und Live-Text, Menüleiste ohne „Zuletzt“, zentrales Call-Banner, signierte und notarisierte Version** | 0.7.0 | ▶ **als Nächstes** |
-| 2c | Einstellungen und Einrichtungsassistent nativ (inkl. Whisper-Vorbereitung), altes Design-System entfernt | 0.7.x | geplant |
+| 2b | Farbe zurück (Bereichsfarben), Aufnahme-Bühne mit Pegel und Live-Text, Menüleiste ohne „Zuletzt“, zentrales Call-Banner, signierte und notarisierte Version | 0.7.0 | ✅ fertig |
+| **2c** | **Einstellungen und Einrichtungsassistent nativ (inkl. Whisper-Vorbereitung), altes Design-System entfernt** | 0.7.1 | ▶ **fertig, Test durch den Nutzer offen** |
 | 3 | Funktionen für 1.0: Bearbeiten, Korrigieren & Wörterbuch, PDF-Lernzettel, Transkript-Qualität | 0.8 | geplant |
 | 4 | Qualität & Modelle: Benchmark, automatische Modellwahl, Härtetests | 0.9 | geplant |
 | 5 | Beta mit Kommilitonen · **parallel dazu Phase 6 (iPad/iPhone)** | 1.0 RC | geplant |
@@ -67,6 +67,16 @@ Vorher: Architekturvorschlag nach Guidelines Abschnitt 20, vom Nutzer abgesegnet
 - [ ] Eigenes Design-System, Karten und Verläufe entfernt
 - [ ] Leer-, Lade- und Fehlerzustände; schmale und breite Fenster; Dark Mode; VoiceOver; Tastaturbedienung
 - [ ] Anti-Vibecoding-Review (Guidelines Abschnitt 28)
+
+## ✅ Phase 2c – Einstellungen und Assistent nativ (0.7.1)
+- [x] Einstellungen als Szene mit sieben Tabs, jeder ein `Form` mit `.formStyle(.grouped)`; neuer Tab „Aufnahme“
+- [x] Einrichtungsassistent: fünf Schritte, Kopfzeile, Inhalt, Knopfzeile – ohne Verläufe, Kacheln und eigene Knopfstile
+- [x] Ziele-Schritt aus dem Assistenten entfernt (Export ist optional und steckt in den Einstellungen)
+- [x] Whisper-Vorbereitung sichtbar: „Für diesen Mac vorbereiten“ (läuft nach dem Download automatisch), Status „Bereit“
+- [x] Bereichs-Editor als `Form`; Vorlagen-Auswahl als Häkchenliste
+- [x] Altes Design-System gelöscht (`DesignSystem.swift`, `Components.swift`, `Views/Legacy/`), übrig: `Support/Brand.swift`
+- [x] Einstellungen und Assistent lesen `LibraryStore`/`RecordingController` direkt; `AppState` nur noch in Menüleiste und Call-Hinweis
+- [ ] Vom Nutzer zu prüfen: erster Durchlauf des Assistenten, Whisper-Vorbereitung auf dem eigenen Mac
 
 ## Phase 3 – Funktionen für 1.0 (0.7–0.8)
 **3a Notiz bearbeiten**

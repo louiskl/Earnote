@@ -26,9 +26,14 @@ public final class WhisperModelManager: ObservableObject {
     @Published public var lastError: String?
     @Published public private(set) var installed: [String: URL] = [:]
     @Published public var available: [String] = []
+    /// Modell, das gerade für den Chip vorbereitet wird
+    @Published public var preparing: String?
+    /// Modelle, die schon für diesen Mac vorbereitet sind
+    @Published public private(set) var prepared: Set<String> = []
 
     private let repo = "argmaxinc/whisperkit-coreml"
     private var installedKey = "whisper.installed"
+    private var preparedKey = "whisper.prepared"
 
     private init() {
         if let saved = UserDefaults.standard.dictionary(forKey: installedKey) as? [String: String] {
@@ -36,6 +41,7 @@ public final class WhisperModelManager: ObservableObject {
                 FileManager.default.fileExists(atPath: path) ? URL(fileURLWithPath: path) : nil
             }
         }
+        prepared = Set(UserDefaults.standard.stringArray(forKey: preparedKey) ?? []).intersection(installed.keys)
     }
 
     public var recommendedModel: String {
@@ -91,12 +97,37 @@ public final class WhisperModelManager: ObservableObject {
         }
     }
 
+    /// Lädt das Modell einmal vollständig, damit macOS es für den Chip übersetzt. Das passiert sonst
+    /// unsichtbar bei der ersten Transkription und dauert auf älteren Macs viele Minuten.
+    /// Danach wird der Speicher wieder freigegeben – die Übersetzung bleibt auf der Festplatte.
+    @discardableResult
+    public func prepare(_ model: String) async -> Bool {
+        guard preparing == nil, let installed = installedFolder(for: model), installed.model == model else { return false }
+        preparing = model
+        lastError = nil
+        defer { preparing = nil }
+        do {
+            _ = try await WhisperKitCache.shared.kit(for: installed.folder)
+            await WhisperKitCache.shared.release()
+            prepared.insert(model)
+            UserDefaults.standard.set(Array(prepared), forKey: preparedKey)
+            Log.info("Whisper-Modell vorbereitet: \(model)")
+            return true
+        } catch {
+            lastError = "Das Modell konnte nicht vorbereitet werden: \(error.localizedDescription)"
+            Log.error(lastError!)
+            return false
+        }
+    }
+
     public func delete(_ model: String) {
         guard let url = installed[model] else { return }
         Task { await WhisperKitCache.shared.release() }
         try? FileManager.default.removeItem(at: url)
         installed[model] = nil
+        prepared.remove(model)
         UserDefaults.standard.set(installed.mapValues(\.path), forKey: installedKey)
+        UserDefaults.standard.set(Array(prepared), forKey: preparedKey)
     }
 }
 

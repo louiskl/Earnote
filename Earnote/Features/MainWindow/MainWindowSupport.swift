@@ -83,3 +83,8 @@ enum AudioImportPanel {
         return panel.runModal() == .OK ? panel.urls : []
     }
 }
+
+extension Notification.Name {
+    /// Einrichtungsassistent erneut zeigen (aus den Einstellungen)
+    static let showOnboarding = Notification.Name("\(AppInfo.bundleIdentifier).showOnboarding")
+}

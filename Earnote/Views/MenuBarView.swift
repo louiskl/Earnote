@@ -26,19 +26,29 @@ struct MenuBarView: View {
     @Environment(RecordingController.self) private var recorder
     @Environment(\.openWindow) private var openWindow
 
+    /// Bereich, in dem die nächste Aufnahme landet – vorbelegt mit dem Standardbereich
+    @State private var chosenCategoryID: UUID?
+
     private static let width: CGFloat = 300
+
+    private var activeCategory: RecordingCategory? {
+        library.category(chosenCategoryID ?? library.settings.defaultCategoryID) ?? library.categories.first
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             header
             Divider()
-            RecordControl(categoryID: library.settings.defaultCategoryID, maxNameLength: 26)
+            RecordControl(categoryID: activeCategory?.id, maxNameLength: 26)
                 .controlSize(.large)
                 .frame(maxWidth: .infinity, alignment: .leading)
+                .tint(activeCategory?.tint ?? .accentColor)
             if recorder.isRecording {
                 LiveSummary(meter: recorder.meter, isPaused: recorder.isPaused,
                             categoryName: activeCategoryName)
+                    .tint(activeCategory?.tint ?? .accentColor)
             } else {
+                categoryPicker
                 MicrophoneChoiceMenu(maxNameLength: 26)
                     .labelsHidden()
             }
@@ -56,6 +66,38 @@ struct MenuBarView: View {
         .lineLimit(1)
         .padding(14)
         .frame(width: Self.width)
+    }
+
+    /// Bereiche direkt wählbar – ein Tipp genügt, kein Umweg über ein Menü.
+    private var categoryPicker: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            ForEach(library.categories) { category in
+                let selected = activeCategory?.id == category.id
+                Button {
+                    chosenCategoryID = category.id
+                } label: {
+                    HStack(spacing: 8) {
+                        CategoryBadge(emoji: category.emoji, symbol: category.symbol,
+                                      tint: category.tint, size: 18)
+                        Text(category.name)
+                            .truncationMode(.middle)
+                        Spacer(minLength: 0)
+                        if selected {
+                            Image(systemName: "checkmark")
+                                .font(.caption.weight(.semibold))
+                                .foregroundStyle(category.tint)
+                        }
+                    }
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 5)
+                    .background(RoundedRectangle(cornerRadius: 7, style: .continuous)
+                        .fill(selected ? category.tint.opacity(0.14) : .clear))
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityAddTraits(selected ? [.isSelected] : [])
+            }
+        }
     }
 
     private var header: some View {

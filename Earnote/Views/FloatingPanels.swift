@@ -55,13 +55,13 @@ final class FloatingPanels {
         }
     }
 
-    /// Waagerecht mittig, im oberen Drittel des Bildschirms mit der Maus – unterhalb der Menüleiste.
+    /// Waagerecht mittig, auf 10 % der Höhe unter der Menüleiste – auf dem Bildschirm mit der Maus.
     private func origin(for size: CGSize) -> NSPoint {
         let mouse = NSEvent.mouseLocation
         let screen = NSScreen.screens.first { $0.frame.contains(mouse) } ?? NSScreen.main ?? NSScreen.screens[0]
         let frame = screen.visibleFrame
         let x = frame.midX - size.width / 2
-        let y = frame.maxY - frame.height / 3 - size.height / 2
+        let y = frame.maxY - frame.height * 0.10 - size.height
         return NSPoint(x: x.rounded(), y: min(y, frame.maxY - size.height - 8).rounded())
     }
 
@@ -81,37 +81,59 @@ final class FloatingPanels {
     }
 }
 
-/// Eine Zeile, eine Pille: Symbol · „… erkannt“ · Mitschreiben · Nicht jetzt.
+/// Ein Hinweis, der ins Auge springt: Logo, klare Ansage, ein Knopf im Earnote-Rot.
+/// Bewusst eine Zeile hoch, damit nichts umbricht.
 struct CallPromptView: View {
     let appName: String
     var onRecord: () -> Void
     var onDismiss: () -> Void
 
     var body: some View {
-        HStack(spacing: 10) {
-            Image(systemName: "phone.fill")
-                .foregroundStyle(.green)
-                .accessibilityHidden(true)
-            Text("\(appName)-Call erkannt")
-                .truncationMode(.middle)
-                .font(.headline)
+        HStack(spacing: 14) {
+            AppMark()
+            VStack(alignment: .leading, spacing: 1) {
+                Text("\(appName)-Call erkannt")
+                    .font(.system(.title3, design: .rounded).weight(.semibold))
+                    .truncationMode(.middle)
+                Text("Soll \(AppInfo.name) mitschreiben?")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            }
             Button("Mitschreiben", action: onRecord)
-                .buttonStyle(.borderedProminent)
+                .buttonStyle(.plain)
+                .font(.headline)
+                .foregroundStyle(.white)
+                .padding(.horizontal, 18)
+                .padding(.vertical, 9)
+                .background(Capsule().fill(Brand.gradient))
                 .keyboardShortcut(.defaultAction)
             Button("Nicht jetzt", action: onDismiss)
-                .buttonStyle(.borderless)
+                .buttonStyle(.plain)
+                .font(.subheadline)
                 .foregroundStyle(.secondary)
         }
         .lineLimit(1)
         .fixedSize(horizontal: true, vertical: false)
-        .padding(.horizontal, 16)
-        .padding(.vertical, 10)
-        .frame(minHeight: 44)
-        .frame(maxWidth: 520)
-        .background(.regularMaterial, in: Capsule())
-        .overlay(Capsule().strokeBorder(Color.primary.opacity(0.08)))
+        .padding(.horizontal, 18)
+        .padding(.vertical, 14)
+        .frame(maxWidth: 560)
+        .background(.background, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous)
+            .strokeBorder(Color.primary.opacity(0.08)))
         .onExitCommand(perform: onDismiss)
         .accessibilityElement(children: .contain)
         .accessibilityLabel("\(appName)-Call erkannt")
+    }
+}
+
+/// Das Earnote-Zeichen: Wellenform im Markenrot
+private struct AppMark: View {
+    var body: some View {
+        Image(systemName: "waveform")
+            .font(.system(size: 20, weight: .semibold))
+            .foregroundStyle(.white)
+            .frame(width: 38, height: 38)
+            .background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(Brand.gradient))
+            .accessibilityHidden(true)
     }
 }

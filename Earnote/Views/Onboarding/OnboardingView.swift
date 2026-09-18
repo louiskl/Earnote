@@ -1,12 +1,15 @@
 import EarnoteCore
+import EarnoteML
 import SwiftUI
 
+/// Einrichtungsassistent: ein Blatt, feste Kopfzeile, Inhalt aus den Einstellungen, Knöpfe unten.
+/// Die Schritte sind bewusst wenige – Ziele, Anbieter und Feineinstellungen kommen später in den Einstellungen.
 struct OnboardingView: View {
-    @EnvironmentObject var app: AppState
+    @Environment(LibraryStore.self) private var library
     var onFinish: () -> Void
 
     enum Step: Int, CaseIterable {
-        case welcome, categories, permissions, ai, transcription, destinations, done
+        case welcome, categories, permissions, ai, transcription, done
 
         var title: String {
             switch self {
@@ -15,257 +18,181 @@ struct OnboardingView: View {
             case .permissions: return "Kurz ein paar Freigaben"
             case .ai: return "Wer schreibt deine Notizen?"
             case .transcription: return "Spracherkennung"
-            case .destinations: return "Wohin mit den Notizen?"
-            case .done: return "Alles bereit ✨"
+            case .done: return "Alles bereit"
             }
         }
 
         var subtitle: String {
             switch self {
-            case .welcome: return "Deine Meetings, Calls und Vorlesungen – automatisch als gute Notizen. Privat auf deinem Mac."
-            case .categories: return "Wähle aus, was zu dir passt. Daraus werden deine Bereiche – du kannst sie jederzeit ändern."
-            case .permissions: return "Damit \(AppInfo.name) aufnehmen und dich benachrichtigen kann. Alles bleibt auf deinem Mac."
-            case .ai: return "\(AppInfo.name) bringt eine eigene KI mit, die komplett auf deinem Mac läuft. Einmal laden – danach privat, kostenlos und offline."
+            case .welcome: return "Deine Vorlesungen, Meetings und Calls – automatisch als Notizen, privat auf deinem Mac."
+            case .categories: return "Daraus werden deine Bereiche. Du kannst sie jederzeit ändern."
+            case .permissions: return "Damit \(AppInfo.name) aufnehmen und dich benachrichtigen kann."
+            case .ai: return "\(AppInfo.name) bringt eine eigene KI mit, die komplett auf deinem Mac läuft."
             case .transcription: return "Die Spracherkennung läuft immer lokal. Die Voreinstellung passt für die meisten."
-            case .destinations: return "\(AppInfo.name) legt fertige Notizen automatisch dort ab, wo du arbeitest. Mehrfachauswahl möglich."
             case .done: return "\(AppInfo.name) wartet ab jetzt oben in der Menüleiste auf dich."
             }
         }
     }
 
-    @State private var step: Step = .welcome
-    @State private var direction: Edge = .trailing
+    /// Im Debug-Build kann `EARNOTE_ONBOARDING_STEP` einen Schritt direkt öffnen (Bildschirmfotos, Design-Review)
+    @State private var step: Step = Step(rawValue: Int(ProcessInfo.processInfo.environment["EARNOTE_ONBOARDING_STEP"] ?? "") ?? 0) ?? .welcome
     @State private var selectedTemplates: Set<String> = []
     @State private var subjects: [String] = []
     @State private var launchAtLogin = true
 
     var body: some View {
         VStack(spacing: 0) {
-            VStack(alignment: .leading, spacing: Theme.Space.m) {
-                HStack(spacing: 6) {
-                    ForEach(Step.allCases, id: \.self) { s in
-                        Capsule()
-                            .fill(s.rawValue <= step.rawValue ? Color.white : Color.white.opacity(0.35))
-                            .frame(width: s == step ? 28 : 8, height: 8)
-                    }
-                    Spacer()
-                    if step != .welcome && step != .done {
-                        Text("Schritt \(step.rawValue) von \(Step.allCases.count - 2)")
-                            .font(Theme.Font.caption.weight(.semibold))
-                            .foregroundStyle(.white.opacity(0.85))
-                    }
-                    // Wer den Assistenten später erneut öffnet, muss nicht alles durchklicken
-                    if app.settings.onboardingCompleted {
-                        Button { onFinish() } label: { Image(systemName: "xmark") }
-                            .buttonStyle(RoundIconButtonStyle(size: 26, fill: .white.opacity(0.35)))
-                            .help("Schließen")
-                            .keyboardShortcut(.cancelAction)
-                    }
-                }
-                .animation(.spring(response: 0.35, dampingFraction: 0.8), value: step)
-
-                VStack(alignment: .leading, spacing: Theme.Space.xs + 2) {
-                    Text(step.title)
-                        .font(.system(size: 26, weight: .bold))
-                    Text(step.subtitle)
-                        .font(Theme.Font.body)
-                        .foregroundStyle(.primary.opacity(0.7))
-                        .fittingHeight()
-                }
-                .id(step)
-                .transition(.opacity)
+            VStack(alignment: .leading, spacing: 4) {
+                Text(step.title).font(.title2.weight(.semibold))
+                Text(step.subtitle)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
             }
-            .padding(.horizontal, Theme.Space.xxl)
-            .padding(.top, Theme.Space.xl + 4)
-            .padding(.bottom, Theme.Space.l)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(20)
 
-            ScrollView {
-                content
-                    .padding(Theme.Space.xl)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .id(step)
-                    .transition(.asymmetric(insertion: .move(edge: direction).combined(with: .opacity), removal: .opacity))
-            }
-            .background(
-                RoundedRectangle(cornerRadius: 18, style: .continuous)
-                    .fill(Theme.cardBackground)
-                    .shadow(color: .black.opacity(0.1), radius: 18, y: 6)
-            )
-            .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-            .padding(.horizontal, Theme.Space.l)
+            Divider()
+            content
+            Divider()
 
             HStack {
-                if step != .welcome && step != .done {
-                    Button("Zurück") { go(-1) }.buttonStyle(SecondaryButtonStyle())
+                if step != .welcome {
+                    Text("Schritt \(step.rawValue) von \(Step.allCases.count - 1)")
+                        .foregroundStyle(.secondary)
                 }
                 Spacer()
-                if [.ai, .transcription, .destinations].contains(step) {
-                    Button("Später") { go(1) }.buttonStyle(.plain).foregroundStyle(.secondary)
-                        .padding(.trailing, Theme.Space.s)
+                if library.settings.onboardingCompleted {
+                    Button("Schließen", action: onFinish).keyboardShortcut(.cancelAction)
                 }
-                Button(primaryTitle) {
-                    if step == .done { finish() } else { go(1) }
+                if step != .welcome && step != .done {
+                    Button("Zurück") { go(-1) }
                 }
-                .buttonStyle(PrimaryButtonStyle())
-                .keyboardShortcut(.defaultAction)
-                .disabled(step == .categories && selectedTemplates.isEmpty && subjects.isEmpty)
+                Button(primaryTitle) { step == .done ? finish() : go(1) }
+                    .keyboardShortcut(.defaultAction)
+                    .disabled(step == .categories && selectedTemplates.isEmpty && subjects.isEmpty)
             }
-            .padding(.horizontal, Theme.Space.xl)
-            .padding(.vertical, Theme.Space.l)
+            .padding(16)
         }
-        .frame(width: 780, height: 680)
-        .background(Backdrop(tint: Theme.brand))
+        .frame(width: 620, height: 560)
         .onAppear(perform: preselect)
+    }
+
+    @ViewBuilder private var content: some View {
+        switch step {
+        case .welcome: WelcomeStep()
+        case .categories:
+            CategoryTemplateList(selected: $selectedTemplates, subjects: $subjects)
+        case .permissions: PermissionsSettings()
+        case .ai: AIStep()
+        case .transcription: TranscriptionSettings()
+        case .done: DoneStep(launchAtLogin: $launchAtLogin)
+        }
     }
 
     private var primaryTitle: String {
         switch step {
         case .welcome: return "Los geht’s"
         case .done: return "\(AppInfo.name) öffnen"
-        case .categories:
-            let count = selectedTemplates.count + subjects.count - (selectedTemplates.contains("lecture") && !subjects.isEmpty ? 1 : 0)
-            return count > 0 ? "Weiter mit \(count) \(count == 1 ? "Bereich" : "Bereichen")" : "Weiter"
         default: return "Weiter"
         }
     }
 
     private func go(_ delta: Int) {
         if step == .categories && delta > 0 { applyCategories() }
-        direction = delta > 0 ? .trailing : .leading
-        withAnimation(.spring(response: 0.4, dampingFraction: 0.88)) {
-            step = Step(rawValue: step.rawValue + delta) ?? step
-        }
+        step = Step(rawValue: step.rawValue + delta) ?? step
     }
 
     /// Erste Einrichtung: sinnvolle Vorauswahl. Erneuter Durchlauf: das, was schon da ist.
     private func preselect() {
-        let existing = Set(app.categories.map(\.name))
-        if app.settings.onboardingCompleted {
-            selectedTemplates = Set(CategoryTemplate.all.filter { existing.contains($0.name) }.map(\.id))
-        } else {
-            selectedTemplates = CategoryTemplate.suggested
+        let existing = Set(library.categories.map(\.name))
+        selectedTemplates = library.settings.onboardingCompleted
+            ? Set(CategoryTemplate.all.filter { existing.contains($0.name) }.map(\.id))
+            : CategoryTemplate.suggested
+        // Erster Start ohne geladenes Whisper-Modell: die eingebaute Spracherkennung von macOS ist sofort einsatzbereit.
+        if !library.settings.onboardingCompleted, TranscriberFactory.appleSpeechAvailable,
+           WhisperModelManager.shared.installed.isEmpty {
+            library.settings.transcriptionEngine = .apple
         }
     }
 
-    /// Übernimmt die Auswahl: Nicht gewählte, unbenutzte Standardbereiche verschwinden, neue kommen dazu.
+    /// Übernimmt die Auswahl: Nicht gewählte, unbenutzte Bereiche verschwinden, neue kommen dazu.
     private func applyCategories() {
-        let chosenNames = Set(CategoryTemplate.all.filter { selectedTemplates.contains($0.id) }.map(\.name)).union(subjects)
-        let used = Set(app.recordings.compactMap(\.categoryID))
-        app.categories.removeAll { !chosenNames.contains($0.name) && !used.contains($0.id) }
-        app.addCategories(templates: selectedTemplates, subjects: subjects)
-        if app.category(app.settings.defaultCategoryID) == nil {
-            app.settings.defaultCategoryID = app.categories.first?.id
+        let chosen = Set(CategoryTemplate.all.filter { selectedTemplates.contains($0.id) }.map(\.name)).union(subjects)
+        let used = Set(library.recordings.compactMap(\.categoryID))
+        library.categories.removeAll { !chosen.contains($0.name) && !used.contains($0.id) }
+        library.addCategories(templates: selectedTemplates, subjects: subjects)
+        if library.category(library.settings.defaultCategoryID) == nil {
+            library.settings.defaultCategoryID = library.categories.first?.id
         }
-        if app.categories.isEmpty { app.categories = RecordingCategory.defaults }
+        if library.categories.isEmpty { library.categories = RecordingCategory.defaults }
     }
 
     private func finish() {
-        app.settings.onboardingCompleted = true
+        library.settings.onboardingCompleted = true
         LoginItem.set(launchAtLogin)
         onFinish()
     }
+}
 
-    @ViewBuilder
-    private var content: some View {
-        switch step {
-        case .welcome: welcome
-        case .categories: CategoryTemplatePicker(selected: $selectedTemplates, subjects: $subjects)
-        case .permissions: PermissionsPanel()
-        case .ai: AIPanel()
-        case .transcription: TranscriptionPanel()
-        case .destinations: DestinationsPanel()
-        case .done: done
-        }
-    }
-
-    private var welcome: some View {
-        VStack(alignment: .leading, spacing: Theme.Space.xl) {
-            HStack(spacing: Theme.Space.l) {
+/// Was die App macht – in vier Zeilen, ohne Kacheln.
+private struct WelcomeStep: View {
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            HStack(spacing: 16) {
                 Image(nsImage: NSApp.applicationIconImage)
-                    .resizable().frame(width: 84, height: 84)
-                    .shadow(color: .black.opacity(0.15), radius: 10, y: 4)
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Nie wieder mitschreiben.").font(.system(size: 22, weight: .bold))
-                    Text("\(AppInfo.name) hört zu, schreibt mit und macht daraus Notizen mit Aufgaben – während du dich aufs Gespräch konzentrierst.")
-                        .font(Theme.Font.body).foregroundStyle(.secondary).fittingHeight()
-                }
+                    .resizable().frame(width: 72, height: 72)
+                    .accessibilityHidden(true)
+                Text("\(AppInfo.name) hört zu, schreibt mit und macht daraus Notizen mit Aufgaben – "
+                     + "während du dich aufs Zuhören konzentrierst.")
+                    .fixedSize(horizontal: false, vertical: true)
             }
-            LazyVGrid(columns: [GridItem(.flexible(), spacing: Theme.Space.m), GridItem(.flexible())], spacing: Theme.Space.m) {
-                feature("🎙️", "Nimmt alles auf", "Mikrofon und Ton aus Zoom, Teams, Meet – ohne Zusatzsoftware.", color: Theme.accent)
-                feature("🔒", "Bleibt privat", "Transkription und KI laufen auf deinem Mac. Nichts geht in die Cloud.", color: .green)
-                feature("✍️", "Schreibt echte Notizen", "Kurzfassung, Themen, Entscheidungen und Aufgaben zum Abhaken.", color: Theme.brandSecondary)
-                feature("📤", "Legt sie ab", "Notion, Obsidian, Apple Notizen, Markdown, Bear oder Craft.", color: .blue)
+            VStack(alignment: .leading, spacing: 10) {
+                Label("Nimmt Mikrofon und den Ton aus Zoom, Teams und Meet auf", systemImage: "mic")
+                Label("Transkription und KI laufen auf deinem Mac – nichts geht in die Cloud", systemImage: "lock")
+                Label("Notiz mit Kurzfassung, Themen und Aufgaben zum Abhaken", systemImage: "list.bullet.rectangle")
+                Label("Auf Wunsch zusätzlich in Notion, Obsidian, Apple Notizen und mehr", systemImage: "square.and.arrow.up")
             }
+            Spacer()
         }
+        .padding(20)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
+}
 
-    private func feature(_ emoji: String, _ title: String, _ detail: String, color: Color) -> some View {
-        HStack(alignment: .top, spacing: Theme.Space.m) {
-            EmojiBadge(emoji: emoji, color: color, size: 40)
-            VStack(alignment: .leading, spacing: 2) {
-                Text(title).font(Theme.Font.body.weight(.semibold))
-                Text(detail).font(Theme.Font.caption).foregroundStyle(.secondary).fittingHeight()
+/// KI-Schritt: nur die eingebaute KI. Alles andere steckt in den Einstellungen.
+private struct AIStep: View {
+    var body: some View {
+        Form {
+            LocalModelSection()
+            Section {
+                Text("Andere KI-Anbieter – Apple Intelligence, Claude, ChatGPT, eigene Server – "
+                     + "findest du später in den Einstellungen unter „KI“.")
+                    .foregroundStyle(.secondary)
             }
-            Spacer(minLength: 0)
         }
-        .padding(Theme.Space.m)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(RoundedRectangle(cornerRadius: 14, style: .continuous).fill(color.opacity(0.06)))
+        .formStyle(.grouped)
     }
+}
 
-    private var done: some View {
-        VStack(alignment: .leading, spacing: Theme.Space.l) {
-            VStack(alignment: .leading, spacing: Theme.Space.s) {
-                startOption(isOn: $launchAtLogin, emoji: "🚀", title: "\(AppInfo.name) beim Start des Macs automatisch öffnen",
-                            detail: "Empfohlen – so verpasst du keinen Call, den \(AppInfo.name) erkennen soll.")
-                startOption(isOn: $app.settings.openWindowAtLaunch, emoji: "🪟", title: "Fenster beim Start zeigen",
-                            detail: "Aus: \(AppInfo.name) startet unauffällig nur in der Menüleiste.")
+/// Letzter Schritt: Start-Verhalten und die wichtigsten Handgriffe.
+private struct DoneStep: View {
+    @Environment(LibraryStore.self) private var library
+    @Binding var launchAtLogin: Bool
+
+    var body: some View {
+        @Bindable var library = library
+        Form {
+            Section("Start") {
+                Toggle("\(AppInfo.name) beim Start des Macs automatisch öffnen", isOn: $launchAtLogin)
+                Toggle("Fenster beim Start zeigen", isOn: $library.settings.openWindowAtLaunch)
             }
-
-            VStack(alignment: .leading, spacing: Theme.Space.m) {
-                Text("Gut zu wissen").font(Theme.Font.body.weight(.semibold))
-                tip("☝️", "Oben in der Menüleiste startest du eine Aufnahme mit einem Klick.")
-                tip("📞", "Sobald ein Call beginnt, fragt \(AppInfo.name) automatisch nach.")
-                tip("⌨️", "⇧⌘R startet oder stoppt eine Aufnahme, ⇧⌘P pausiert.")
-                tip("🤝", "Bitte hole vor jeder Aufnahme das Einverständnis aller Beteiligten ein.")
+            Section("Gut zu wissen") {
+                Label("In der Menüleiste startest du eine Aufnahme mit einem Klick.", systemImage: "menubar.arrow.up.rectangle")
+                Label("Sobald ein Call beginnt, fragt \(AppInfo.name) von selbst nach.", systemImage: "phone")
+                Label("⇧⌘R startet und stoppt, ⇧⌘P pausiert.", systemImage: "keyboard")
+                Label("Bitte hole vor jeder Aufnahme das Einverständnis aller Beteiligten ein.", systemImage: "hand.raised")
             }
-            .padding(Theme.Space.l)
-            .background(RoundedRectangle(cornerRadius: 14, style: .continuous).fill(Color.primary.opacity(0.035)))
         }
-    }
-
-    private func startOption(isOn: Binding<Bool>, emoji: String, title: String, detail: String) -> some View {
-        Button { isOn.wrappedValue.toggle() } label: {
-            HStack(spacing: Theme.Space.m) {
-                Text(emoji).font(.system(size: 22))
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(title).font(Theme.Font.body.weight(.semibold)).foregroundStyle(.primary)
-                    Text(detail).font(Theme.Font.caption).foregroundStyle(.secondary)
-                }
-                Spacer()
-                Image(systemName: isOn.wrappedValue ? "checkmark.circle.fill" : "circle")
-                    .font(.system(size: 22))
-                    .foregroundStyle(isOn.wrappedValue ? Theme.accent : Color.secondary.opacity(0.4))
-                    .contentTransition(.symbolEffect(.replace))
-            }
-            .padding(Theme.Space.l)
-            .background(
-                RoundedRectangle(cornerRadius: 14, style: .continuous)
-                    .fill(isOn.wrappedValue ? Theme.accent.opacity(0.07) : Color.primary.opacity(0.03))
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 14, style: .continuous)
-                    .strokeBorder(isOn.wrappedValue ? Theme.accent.opacity(0.4) : Color.primary.opacity(0.06))
-            )
-            .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
-    }
-
-    private func tip(_ emoji: String, _ text: String) -> some View {
-        HStack(alignment: .top, spacing: Theme.Space.m) {
-            Text(emoji)
-            Text(text).font(Theme.Font.small).fittingHeight()
-        }
+        .formStyle(.grouped)
     }
 }

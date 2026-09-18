@@ -140,8 +140,29 @@ public struct DestinationSettings: Codable, Hashable, Sendable {
     public init() {}
 }
 
+/// Hell, dunkel oder wie das System
+public enum AppearanceChoice: String, Codable, CaseIterable, Identifiable, Sendable {
+    case system, light, dark
+    public var id: String { rawValue }
+    public var label: String {
+        switch self {
+        case .system: return "System"
+        case .light: return "Hell"
+        case .dark: return "Dunkel"
+        }
+    }
+    public var symbol: String {
+        switch self {
+        case .system: return "circle.lefthalf.filled"
+        case .light: return "sun.max"
+        case .dark: return "moon"
+        }
+    }
+}
+
 public struct AppSettings: Codable, Hashable, Sendable {
     public var onboardingCompleted = false
+    public var appearance: AppearanceChoice = .system
     public var transcriptionEngine: TranscriptionEngineKind = .whisperKit
     public var whisperModel: String = ""
     public var language: String = "de"
@@ -169,6 +190,7 @@ public struct AppSettings: Codable, Hashable, Sendable {
         let c = try decoder.container(keyedBy: CodingKeys.self)
         let d = AppSettings()
         onboardingCompleted = try c.decodeIfPresent(Bool.self, forKey: .onboardingCompleted) ?? d.onboardingCompleted
+        appearance = (try? c.decodeIfPresent(AppearanceChoice.self, forKey: .appearance)) ?? d.appearance
         transcriptionEngine = (try? c.decodeIfPresent(TranscriptionEngineKind.self, forKey: .transcriptionEngine)) ?? d.transcriptionEngine
         whisperModel = try c.decodeIfPresent(String.self, forKey: .whisperModel) ?? d.whisperModel
         language = try c.decodeIfPresent(String.self, forKey: .language) ?? d.language
