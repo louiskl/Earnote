@@ -26,7 +26,7 @@ SIGN_ARGS=(CODE_SIGN_IDENTITY="-" CODE_SIGN_STYLE=Manual DEVELOPMENT_TEAM="" COD
 if [[ -n "${DEVELOPER_ID:-}" ]]; then
     TEAM_ID="$(sed -E 's/.*\(([A-Z0-9]+)\)$/\1/' <<<"$DEVELOPER_ID")"
     SIGN_ARGS=(CODE_SIGN_IDENTITY="$DEVELOPER_ID" CODE_SIGN_STYLE=Manual DEVELOPMENT_TEAM="$TEAM_ID"
-               CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO OTHER_CODE_SIGN_FLAGS="--timestamp")
+               CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO OTHER_CODE_SIGN_FLAGS="--timestamp --options runtime")
     echo "▸ Signiere mit: $DEVELOPER_ID"
 else
     echo "▸ Kein DEVELOPER_ID gesetzt – signiere ad-hoc"
@@ -54,6 +54,10 @@ if [[ -n "${DEVELOPER_ID:-}" ]]; then
         echo "▸ Notarisiere (dauert ein paar Minuten) …"
         xcrun notarytool submit "$DMG" --keychain-profile "$NOTARY_PROFILE" --wait
         xcrun stapler staple "$DMG"
+        echo "▸ Prüfe Signatur und Notarisierung …"
+        codesign -dv --verbose=4 "$APP" 2>&1 | grep -E "Authority|TeamIdentifier|Runtime|Timestamp" || true
+        spctl -a -t open --context context:primary-signature -v "$DMG" || true
+        xcrun stapler validate "$DMG"
     fi
 fi
 

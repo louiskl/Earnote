@@ -91,7 +91,7 @@ PRs are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) and the [roadmap](docs/R
 - **Sprecher-Unterscheidung** in „Ich“ und „Andere“
 - **Einrichtungsassistent** und Bedienung über die Menüleiste, ganz ohne Terminal
 
-**Installation:** `Earnote.dmg` unter [Releases](../../releases) herunterladen und in den Programme-Ordner ziehen. Beim ersten Start blockiert macOS die App, weil sie noch nicht von Apple notarisiert ist: *Systemeinstellungen › Datenschutz & Sicherheit* öffnen, nach unten scrollen und bei Earnote auf *Dennoch öffnen* klicken (nur einmal nötig).
+**Installation:** `Earnote.dmg` unter [Releases](../../releases) herunterladen, öffnen und Earnote in den Programme-Ordner ziehen. Die App ist von Apple notarisiert und startet mit einem Doppelklick – ohne Umweg über die Systemeinstellungen.
 **Selbst bauen:** `Earnote.xcodeproj` in Xcode öffnen und mit ⌘R starten.
 
 > ⚖️ Bitte vor jeder Aufnahme das Einverständnis aller Beteiligten einholen (§ 201 StGB).
