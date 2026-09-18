@@ -23,7 +23,10 @@ struct EarnoteCommands: Commands {
         }
 
         CommandMenu("Aufnahme") {
-            Button(recorder.isRecording ? "Aufnahme stoppen" : "Aufnahme starten") {
+            // Der Zustand kommt aus dem vordersten Fenster (siehe `MainWindowContext`);
+            // ohne offenes Fenster steht er auf „nimmt nicht auf“.
+            let isRecording = window?.isRecording ?? false
+            Button(isRecording ? "Aufnahme stoppen" : "Aufnahme starten") {
                 if recorder.isRecording {
                     recorder.stopRecording()
                 } else {
@@ -31,13 +34,13 @@ struct EarnoteCommands: Commands {
                 }
             }
             .keyboardShortcut("r", modifiers: [.command, .shift])
-            Button(recorder.isPaused ? "Fortsetzen" : "Pause") { recorder.togglePause() }
+            Button(window?.isPaused == true ? "Fortsetzen" : "Pause") { recorder.togglePause() }
                 .keyboardShortcut("p", modifiers: [.command, .shift])
-                .disabled(!recorder.isRecording)
+                .disabled(!isRecording)
             Button("Aufnahme verwerfen …") { window?.requestDiscardRecording() }
-                .disabled(!recorder.isRecording || window == nil)
+                .disabled(!isRecording || window == nil)
             Divider()
-            MicrophoneCommandPicker(library: library, audioInputs: audioInputs, isRecording: recorder.isRecording)
+            MicrophoneCommandPicker(library: library, audioInputs: audioInputs, isRecording: isRecording)
         }
 
         CommandMenu("Notiz") {
@@ -66,10 +69,11 @@ struct EarnoteCommands: Commands {
 
         CommandGroup(after: .pasteboard) {
             Divider()
-            Button("Löschen …") { window?.requestDelete() }
+            // „Aufnahme löschen …“, damit es nicht mit dem „Löschen“ für Text verwechselt wird
+            Button("Aufnahme löschen …") { window?.requestDelete() }
                 .keyboardShortcut(.delete, modifiers: .command)
                 .disabled(window?.selectedRecordingID == nil || window?.isEditingText == true
-                          || window?.selectedRecordingID == recorder.activeRecordingID)
+                          || window?.selectedRecordingID == window?.activeRecordingID)
         }
 
         CommandGroup(after: .textEditing) {

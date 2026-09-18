@@ -11,6 +11,11 @@ struct MainWindowContext {
     var inspectorShown: Binding<Bool>
     /// Ein Textfeld (Suche, Umbenennen) hat den Fokus – dann nicht mit ⌘⌫ löschen
     var isEditingText: Bool
+    /// Zustand der Aufnahme. Er kommt über das Fenster, weil `Commands` Änderungen an den
+    /// Stores selbst nicht mitbekommt und die Menütitel sonst veraltet wären.
+    var isRecording: Bool
+    var isPaused: Bool
+    var activeRecordingID: UUID?
     var requestDelete: () -> Void
     var requestDiscardRecording: () -> Void
     var newCategory: () -> Void
