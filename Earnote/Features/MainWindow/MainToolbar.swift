@@ -71,12 +71,18 @@ private struct RecordControl: View {
                 Divider()
                 MicrophoneChoiceMenu()
             } label: {
-                Label("Aufnehmen", systemImage: "record.circle")
+                // Ohne eigenes Label liest VoiceOver den Symbolnamen vor („Bildschirmaufnahme“)
+                Label {
+                    Text("Aufnehmen")
+                } icon: {
+                    Image(systemName: "record.circle").accessibilityLabel("Aufnehmen")
+                }
             } primaryAction: {
                 recorder.startRecording(category: categoryID.flatMap(library.category))
             }
             .menuIndicator(.visible)
             .help("Aufnahme starten (⇧⌘R)")
+            .accessibilityLabel("Aufnehmen")
         }
     }
 }
