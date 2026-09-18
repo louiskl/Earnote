@@ -101,13 +101,16 @@ struct MainWindow: View {
             if let id = selectedCategoryID, !ids.contains(id) { filter.wrappedValue = .all }
         }
         .focusedSceneValue(\.mainWindow, context)
-        .frame(minWidth: 900, minHeight: 560)
+        // Mit Inspector brauchen vier Spalten mehr Platz; ohne ihn darf das Fenster kleiner werden.
+        .frame(minWidth: inspectorShown ? 1100 : 840, minHeight: 560)
     }
 
     private var context: MainWindowContext {
         MainWindowContext(selectedRecordingID: selection.wrappedValue, selectedCategoryID: selectedCategoryID,
                           detailMode: detailMode, inspectorShown: $inspectorShown,
                           isEditingText: searchFocused || renamingRecordingID != nil || renamingCategoryID != nil,
+                          isRecording: recorder.isRecording, isPaused: recorder.isPaused,
+                          activeRecordingID: recorder.activeRecordingID,
                           requestDelete: { if let id = selection.wrappedValue { pendingDeletion = id } },
                           requestDiscardRecording: { confirmDiscard = true },
                           newCategory: newCategory,
