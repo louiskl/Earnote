@@ -71,7 +71,7 @@ struct RecordingRow: View {
                     .accessibilityValue("\(Int((progress ?? 0) * 100)) Prozent")
             }
         } else {
-            Text(([MainWindowFormat.time(recording.startedAt), TimeFormat.duration(recording.duration)] + [categoryName].compactMap { $0 })
+            Text(([MainWindowFormat.time(recording.startedAt), MainWindowFormat.duration(recording.duration)] + [categoryName].compactMap { $0 })
                 .joined(separator: " · "))
                 .lineLimit(1)
         }

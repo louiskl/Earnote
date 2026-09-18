@@ -30,6 +30,12 @@ enum MainWindowFormat {
 
     static func dateAndTime(_ date: Date) -> String { date.formatted(date: .abbreviated, time: .shortened) }
 
+    /// Dauer gut lesbar und nicht mit einer Uhrzeit zu verwechseln: „48 Sek.“, „36 Min.“, „1 Std., 28 Min.“
+    static func duration(_ seconds: TimeInterval) -> String {
+        if seconds < 60 { return "\(Int(seconds)) Sek." }
+        return Duration.seconds(seconds).formatted(.units(allowed: [.hours, .minutes], width: .abbreviated))
+    }
+
     /// Name einer Sprache aus den Einstellungen („de“ → „Deutsch“)
     static func language(_ code: String) -> String {
         AppSettings.languages.first { $0.code == code }?.name ?? code

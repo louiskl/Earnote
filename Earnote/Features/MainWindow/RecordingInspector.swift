@@ -58,7 +58,7 @@ private struct InspectorContent: View {
             }
             .disabled(recording.status == .recording)
             LabeledContent("Datum", value: MainWindowFormat.dateAndTime(recording.startedAt))
-            LabeledContent("Dauer", value: TimeFormat.duration(recording.duration))
+            LabeledContent("Dauer", value: MainWindowFormat.duration(recording.duration))
             LabeledContent("Quelle", value: source(recording))
             LabeledContent("Sprache", value: MainWindowFormat.language(recording.languageCode))
         }

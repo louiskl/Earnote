@@ -53,7 +53,7 @@ struct DetailHeader: View {
             Text(recording.displayTitle)
                 .font(.title2.weight(.semibold))
                 .textSelection(.enabled)
-            Text(([MainWindowFormat.dateAndTime(recording.startedAt), TimeFormat.duration(recording.duration)]
+            Text(([MainWindowFormat.dateAndTime(recording.startedAt), MainWindowFormat.duration(recording.duration)]
                   + [recording.category?.name].compactMap { $0 }).joined(separator: " · "))
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
