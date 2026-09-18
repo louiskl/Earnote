@@ -111,6 +111,10 @@ final class AppEnvironment {
                         + "Polynom aufstellen\n- Nullstellen bestimmen\n- Eigenräume berechnen\n\n## Aufgaben\n"
                         + "- [ ] Übungsblatt 4 bis Freitag rechnen\n- [ ] Klausurtermin am 12. Februar notieren",
                     taskCount: 2, provider: "Lokale KI"), for: rec.id)
+        try? await libraryRepository.setExports([
+            ExportResult(destinationID: MarkdownDestination.id, destinationName: "Markdown-Ordner", success: true,
+                         message: "Exportiert", url: "file:///tmp/Analysis.md"),
+        ], for: rec.id)
         try? await libraryRepository.insertGlossaryTerm(GlossaryTerm(term: "Professor Meyer", variants: ["Maier", "Mayer"]))
         try? await libraryRepository.insertGlossaryTerm(GlossaryTerm(term: "Eigenwert", variants: ["Eigen Wert"],
                                                                     categoryID: library.categories.first?.id))

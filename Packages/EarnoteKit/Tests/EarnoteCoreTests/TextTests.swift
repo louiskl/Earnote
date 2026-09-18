@@ -199,3 +199,21 @@ final class TranscriptQualityTests: XCTestCase {
         XCTAssertEqual(SearchText.ranges(in: "abc", query: "x").count, 0)
     }
 }
+
+final class SettingsCompatibilityTests: XCTestCase {
+    /// Eine ältere Einstellungsdatei kennt neue Felder nicht – trotzdem darf nichts verloren gehen.
+    func testOlderSettingsKeepTheirValues() throws {
+        let json = """
+            {"onboardingCompleted": true,
+             "destinations": {"enabled": ["markdown", "notion"], "notionDatabaseID": "abc"},
+             "ai": {"provider": "anthropic", "model": "claude-sonnet-4-5"}}
+            """.data(using: .utf8)!
+        let settings = try JSONDecoder().decode(AppSettings.self, from: json)
+        XCTAssertEqual(settings.destinations.enabled, ["markdown", "notion"])
+        XCTAssertEqual(settings.destinations.notionDatabaseID, "abc")
+        XCTAssertEqual(settings.destinations.bearTags, DestinationSettings().bearTags, "Fehlendes Feld: Standardwert")
+        XCTAssertEqual(settings.ai.provider, .anthropic)
+        XCTAssertEqual(settings.ai.summaryLanguage, AIConfig().summaryLanguage)
+        XCTAssertTrue(settings.onboardingCompleted)
+    }
+}

@@ -186,6 +186,16 @@ private struct DoneStep: View {
                 Toggle("\(AppInfo.name) beim Start des Macs automatisch öffnen", isOn: $launchAtLogin)
                 Toggle("Fenster beim Start zeigen", isOn: $library.settings.openWindowAtLaunch)
             }
+            if WhisperModelManager.shared.preparing != nil || WhisperModelManager.shared.downloading != nil
+                || LocalModelManager.shared.isDownloading {
+                Section("Läuft noch im Hintergrund") {
+                    ModelStatusRow()
+                        .listRowInsets(EdgeInsets())
+                    Text("Du kannst den Assistenten schließen und sofort aufnehmen. Die erste Notiz kommt, "
+                         + "sobald alles fertig geladen ist.")
+                        .font(.callout).foregroundStyle(.secondary)
+                }
+            }
             Section("Gut zu wissen") {
                 Label("In der Menüleiste startest du eine Aufnahme mit einem Klick.", systemImage: "menubar.arrow.up.rectangle")
                 Label("Sobald ein Call beginnt, fragt \(AppInfo.name) von selbst nach.", systemImage: "phone")

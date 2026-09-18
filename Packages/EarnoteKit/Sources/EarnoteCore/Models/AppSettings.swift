@@ -114,6 +114,18 @@ public struct AIConfig: Codable, Hashable, Sendable {
 
     public init() {}
 
+    /// Fehlt ein Feld (ältere Version), bleibt der Standardwert stehen – der Rest geht nicht verloren.
+    public init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        let d = AIConfig()
+        // Ein unbekannter Anbieter stammt aus einer neueren Version – dann passen auch Modell und Server nicht mehr.
+        guard let known = try? c.decodeIfPresent(AIProviderKind.self, forKey: .provider) else { self = d; return }
+        provider = known ?? d.provider
+        model = (try? c.decodeIfPresent(String.self, forKey: .model)) ?? d.model
+        baseURL = (try? c.decodeIfPresent(String.self, forKey: .baseURL)) ?? d.baseURL
+        summaryLanguage = (try? c.decodeIfPresent(String.self, forKey: .summaryLanguage)) ?? d.summaryLanguage
+    }
+
     public var effectiveModel: String { model.isEmpty ? provider.defaultModel : model }
     public var effectiveBaseURL: String { baseURL.isEmpty ? provider.defaultBaseURL : baseURL }
 }
@@ -138,6 +150,22 @@ public struct DestinationSettings: Codable, Hashable, Sendable {
     public var craftSpaceID: String = ""
 
     public init() {}
+
+    /// Wie bei `AIConfig`: Ein neues Feld in einer neueren Version darf die alten Einstellungen nicht löschen.
+    public init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        let d = DestinationSettings()
+        enabled = (try? c.decodeIfPresent(Set<String>.self, forKey: .enabled)) ?? d.enabled
+        includeTranscript = (try? c.decodeIfPresent(Bool.self, forKey: .includeTranscript)) ?? d.includeTranscript
+        notionDatabaseID = (try? c.decodeIfPresent(String.self, forKey: .notionDatabaseID)) ?? d.notionDatabaseID
+        notionDatabaseURL = (try? c.decodeIfPresent(String.self, forKey: .notionDatabaseURL)) ?? d.notionDatabaseURL
+        obsidianVaultPath = (try? c.decodeIfPresent(String.self, forKey: .obsidianVaultPath)) ?? d.obsidianVaultPath
+        obsidianFolder = (try? c.decodeIfPresent(String.self, forKey: .obsidianFolder)) ?? d.obsidianFolder
+        markdownFolderPath = (try? c.decodeIfPresent(String.self, forKey: .markdownFolderPath)) ?? d.markdownFolderPath
+        appleNotesFolder = (try? c.decodeIfPresent(String.self, forKey: .appleNotesFolder)) ?? d.appleNotesFolder
+        bearTags = (try? c.decodeIfPresent(String.self, forKey: .bearTags)) ?? d.bearTags
+        craftSpaceID = (try? c.decodeIfPresent(String.self, forKey: .craftSpaceID)) ?? d.craftSpaceID
+    }
 }
 
 /// Hell, dunkel oder wie das System

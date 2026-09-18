@@ -52,6 +52,7 @@ struct MenuBarView: View {
                 MicrophoneChoiceMenu(maxNameLength: 26)
                     .labelsHidden()
             }
+            ModelStatusRow()
             Divider()
             Button("Hauptfenster öffnen") { MainWindowOpener.showOrOpen(openWindow) }
                 .buttonStyle(.link)

@@ -339,8 +339,16 @@ final class LibraryStore: RecordingLibrary {
         write("Wörterbuch löschen") { try await library.deleteGlossaryTerm(id) }
     }
 
-    func reexport(_ id: UUID) {
-        update(id) { $0.exports = [] }
+    /// Erneut exportieren – ohne `destinationID` in alle eingeschalteten Ziele, sonst nur in dieses eine.
+    /// Erfolgreiche Exporte der anderen Ziele bleiben stehen und werden nicht doppelt angelegt.
+    func reexport(_ id: UUID, destinationID: String? = nil) {
+        update(id) { recording in
+            if let destinationID {
+                recording.exports.removeAll { $0.destinationID == destinationID }
+            } else {
+                recording.exports = []
+            }
+        }
         enqueue(id)
     }
 

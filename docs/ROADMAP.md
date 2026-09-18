@@ -104,12 +104,15 @@ Vorher: Architekturvorschlag nach Guidelines Abschnitt 20, vom Nutzer abgesegnet
 - [x] Sprachaktivität vor der Transkription: Ist fast durchgehend Stille, läuft Whisper gar nicht erst
 - [ ] Vom Nutzer zu prüfen: Verschwinden die erfundenen Sätze bei echten Aufnahmen – und bleibt echter Inhalt stehen?
 
-**3f Erster Start ohne Wartefalle**
-- [ ] Whisper-Modell direkt nach dem Download für den Chip vorbereiten (einmalig ~15 Min. auf M1) – mit klarer Anzeige im Einrichtungsassistenten
+**3f Erster Start ohne Wartefalle (0.7.2 und 0.7.5)**
+- [x] Whisper-Modell direkt nach dem Download für den Chip vorbereiten (einmalig, mehrere Minuten)
+- [x] Klare Anzeige im Assistenten („Läuft noch im Hintergrund“), im Hauptfenster und in der Menüleiste, solange geladen oder vorbereitet wird
 
-**3g Export**
-- [ ] Export-Status pro Ziel im Inspector, einzelnes Ziel erneut exportieren
-- [ ] Hinweis, wenn ein Ziel nicht eingerichtet ist
+**3g Export (0.7.5)**
+- [x] Export-Status pro Ziel im Inspector – auch für Ziele, in die noch nie exportiert wurde
+- [x] Einzelnes Ziel erneut exportieren („Erneut“), erfolgreiche Exporte bleiben stehen
+- [x] Hinweis mit „Einrichten …“, wenn ein Ziel eingeschaltet, aber nicht fertig eingerichtet ist
+- [x] Nebenbei: Einstellungen einer älteren Version verlieren keine Ziele mehr (fehlende Felder bekommen Standardwerte)
 
 ## Phase 4 – Qualität & Modelle (0.9)
 - [ ] **Referenz-Aufnahmen** (vom Nutzer): kurze Notiz, 90-Min.-Vorlesung mit Fachbegriffen, Zoom-/Teams-Call

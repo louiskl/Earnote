@@ -99,16 +99,38 @@ private struct InspectorContent: View {
     }
 
     private func exportSection(_ recording: LibraryRecording) -> some View {
-        Section("Export") {
-            let exports = (recording.exports ?? []).sorted { $0.destinationName < $1.destinationName }
-            if exports.isEmpty {
-                Text("Noch nicht exportiert").foregroundStyle(.secondary)
+        let targets = exportTargets(recording)
+        let busy = recording.isBusy || recording.status == .recording
+        return Section("Export") {
+            if targets.isEmpty {
+                Text("Kein Ziel eingeschaltet – die Notizen bleiben in \(AppInfo.name).")
+                    .foregroundStyle(.secondary)
+                SettingsLink { Text("Ziele einrichten …") }
             }
-            ForEach(exports, id: \.persistentModelID) { export in
-                ExportRow(export: export) { if let url = export.externalURL.flatMap(URL.init(string:)) { openURL(url) } }
+            ForEach(targets, id: \.id) { target in
+                ExportRow(target: target, busy: busy,
+                          onOpen: { if let url = target.url.flatMap(URL.init(string:)) { openURL(url) } },
+                          onRetry: { library.reexport(recording.id, destinationID: target.id) })
             }
-            Button("Erneut exportieren") { library.reexport(recording.id) }
-                .disabled(recording.isBusy || recording.status == .recording)
+            if targets.count > 1 {
+                Button("Alle Ziele erneut exportieren") { library.reexport(recording.id) }
+                    .disabled(busy)
+            }
+        }
+    }
+
+    /// Alle Ziele dieser Aufnahme: die eingeschalteten (bzw. die des Bereichs) und dazu ältere Exporte,
+    /// deren Ziel inzwischen ausgeschaltet ist.
+    private func exportTargets(_ recording: LibraryRecording) -> [ExportTarget] {
+        let settings = library.settings.destinations
+        let category = recording.category?.snapshot()
+        let activeIDs = (category?.destinationIDs.isEmpty == false ? category!.destinationIDs : settings.enabled)
+        let exports = Dictionary((recording.exports ?? []).map { ($0.destinationID, $0) }, uniquingKeysWith: { a, _ in a })
+        let ids = activeIDs.union(exports.keys)
+        return Destinations.all.filter { ids.contains($0.id) }.map { info in
+            ExportTarget(id: info.id, name: info.name, export: exports[info.id],
+                         isActive: activeIDs.contains(info.id),
+                         setupProblem: Destinations.setupProblem(info.id, settings))
         }
     }
 
@@ -140,24 +162,69 @@ private struct LiveDurationText: View {
     }
 }
 
+/// Ein Ziel mit seinem Stand für diese Aufnahme
+private struct ExportTarget: Identifiable {
+    let id: String
+    let name: String
+    let export: LibraryExport?
+    /// Ziel ist eingeschaltet (sonst bleibt nur der alte Stand stehen)
+    let isActive: Bool
+    /// Ziel ist eingeschaltet, aber noch nicht fertig eingerichtet
+    let setupProblem: String?
+
+    var url: String? { export?.externalURL }
+
+    var state: ExportState? { export?.state }
+
+    var detail: String? {
+        if !isActive { return "Ziel ist ausgeschaltet" }
+        if let setupProblem { return setupProblem }
+        guard let export else { return "Noch nicht exportiert" }
+        return export.state == .success ? nil : export.message
+    }
+
+    var stateText: String {
+        guard isActive else { return "ausgeschaltet" }
+        switch state {
+        case .success: return "exportiert"
+        case .skipped: return "übersprungen"
+        case .failed: return "fehlgeschlagen"
+        case nil: return setupProblem == nil ? "noch nicht exportiert" : "nicht eingerichtet"
+        }
+    }
+}
+
 private struct ExportRow: View {
-    let export: LibraryExport
+    let target: ExportTarget
+    let busy: Bool
     let onOpen: () -> Void
+    let onRetry: () -> Void
 
     var body: some View {
         LabeledContent {
-            if export.externalURL != nil {
-                Button("Öffnen", action: onOpen)
-                    .controlSize(.small)
+            HStack(spacing: 8) {
+                if target.url != nil {
+                    Button("Öffnen", action: onOpen).controlSize(.small)
+                }
+                if target.isActive {
+                    if target.setupProblem != nil {
+                        SettingsLink { Text("Einrichten …") }
+                            .controlSize(.small)
+                    } else {
+                        Button(target.state == .success ? "Erneut" : "Exportieren", action: onRetry)
+                            .controlSize(.small)
+                            .disabled(busy)
+                    }
+                }
             }
         } label: {
             Label {
                 VStack(alignment: .leading, spacing: 1) {
-                    Text(export.destinationName)
-                    if export.state != .success {
-                        Text(export.message)
+                    Text(target.name)
+                    if let detail = target.detail {
+                        Text(detail)
                             .font(.caption)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(target.setupProblem == nil ? AnyShapeStyle(.secondary) : AnyShapeStyle(Color.orange))
                             .lineLimit(2)
                     }
                 }
@@ -166,32 +233,28 @@ private struct ExportRow: View {
                     .foregroundStyle(color)
             }
         }
-        .help(export.message)
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(export.destinationName): \(stateText)")
+        .accessibilityLabel("\(target.name): \(target.stateText)")
     }
 
     private var symbol: String {
-        switch export.state {
+        guard target.isActive else { return "circle.dashed" }
+        if target.setupProblem != nil { return "exclamationmark.circle" }
+        switch target.state {
         case .success: return "checkmark.circle.fill"
         case .skipped: return "minus.circle"
         case .failed: return "exclamationmark.triangle.fill"
+        case nil: return "circle"
         }
     }
 
     private var color: Color {
-        switch export.state {
+        guard target.isActive else { return .secondary }
+        if target.setupProblem != nil { return .orange }
+        switch target.state {
         case .success: return .green
-        case .skipped: return .secondary
         case .failed: return .orange
-        }
-    }
-
-    private var stateText: String {
-        switch export.state {
-        case .success: return "exportiert"
-        case .skipped: return "übersprungen"
-        case .failed: return "fehlgeschlagen"
+        case .skipped, nil: return .secondary
         }
     }
 }

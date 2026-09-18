@@ -41,6 +41,7 @@ struct RecordingListView: View {
                 }
             }
         }
+        .safeAreaInset(edge: .bottom, spacing: 0) { ModelStatusRow() }
         .navigationTitle(title)
         // Gewählte Aufnahme ist nicht (mehr) in der Liste – anderer Bereich, Suche, gelöscht
         // oder ein gespeicherter Fensterzustand, der nicht zu dieser Bibliothek passt.

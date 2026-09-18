@@ -1,4 +1,5 @@
 import EarnoteCore
+import EarnoteML
 import SwiftData
 import SwiftUI
 
@@ -169,14 +170,18 @@ struct MainWindow: View {
     }
 
     #if DEBUG
-    /// Nur Debug-Build: erste Aufnahme auswählen und auf Wunsch gleich eine Notiz-Aktion öffnen
-    /// (`EARNOTE_DEMO_LIBRARY=1`, `EARNOTE_NOTE_ACTION=edit|summarize|correct`) – für Bildschirmfotos.
+    /// Nur Debug-Build, für Bildschirmfotos: erste Aufnahme auswählen (`EARNOTE_DEMO_LIBRARY=1`) und auf Wunsch
+    /// den Inspector zeigen (`EARNOTE_DEMO_INSPECTOR`), suchen (`EARNOTE_DEMO_SEARCH`), die Vorbereitungs-Zeile
+    /// zeigen (`EARNOTE_DEMO_PREPARING`) oder eine Notiz-Aktion öffnen (`EARNOTE_NOTE_ACTION=edit|summarize|correct|pdf`).
     private func demoSelectionIfRequested() {
         let env = ProcessInfo.processInfo.environment
         guard env["EARNOTE_DEMO_LIBRARY"] != nil else { return }
         Task { @MainActor in
             try? await Task.sleep(nanoseconds: 1_500_000_000)
             if selection.wrappedValue == nil { selection.wrappedValue = library.recordings.first?.id }
+            if env["EARNOTE_DEMO_INSPECTOR"] != nil { inspectorShown = true; detailMode.wrappedValue = .note }
+            // Nur Debug: die Vorbereitungs-Zeile zeigen, ohne ein Modell zu laden
+            if env["EARNOTE_DEMO_PREPARING"] != nil { WhisperModelManager.shared.preparing = "large-v3-v20240930_turbo" }
             if let query = env["EARNOTE_DEMO_SEARCH"] {
                 searchText = query
                 detailMode.wrappedValue = .transcript
