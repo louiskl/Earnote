@@ -31,21 +31,24 @@ struct SidebarView: View {
                         .tag(LibraryFilter.problems)
                 }
             }
-            Section("Bereiche") {
-                ForEach(categories) { category in
-                    CategoryRow(category: category, count: counts.count(for: .category(category.id)),
-                                isRenaming: renamingCategoryID == category.id,
-                                onRename: { library.renameCategory(category.id, to: $0); renamingCategoryID = nil },
-                                onCancelRename: { renamingCategoryID = nil })
-                        .tag(LibraryFilter.category(category.id))
-                        .contextMenu {
-                            Button("Umbenennen") { renamingCategoryID = category.id }
-                            Button("Bearbeiten …") { onEdit(category.id) }
-                            Divider()
-                            Button("Löschen …", role: .destructive) { pendingDeletion = category }
-                        }
+            // Ohne eigene Bereiche keine leere Überschrift; der Knopf unten legt den ersten an.
+            if !categories.isEmpty {
+                Section("Bereiche") {
+                    ForEach(categories) { category in
+                        CategoryRow(category: category, count: counts.count(for: .category(category.id)),
+                                    isRenaming: renamingCategoryID == category.id,
+                                    onRename: { library.renameCategory(category.id, to: $0); renamingCategoryID = nil },
+                                    onCancelRename: { renamingCategoryID = nil })
+                            .tag(LibraryFilter.category(category.id))
+                            .contextMenu {
+                                Button("Umbenennen") { renamingCategoryID = category.id }
+                                Button("Bearbeiten …") { onEdit(category.id) }
+                                Divider()
+                                Button("Löschen …", role: .destructive) { pendingDeletion = category }
+                            }
+                    }
+                    .onMove(perform: move)
                 }
-                .onMove(perform: move)
             }
         }
         .listStyle(.sidebar)
