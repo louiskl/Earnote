@@ -9,6 +9,8 @@ struct NoteView: View {
     let editRequest: UUID?
     /// Die Anfrage ist angekommen und darf zurückgesetzt werden
     let onEditStarted: () -> Void
+    /// Laufende Suche: Fundstellen in der Notiz hervorheben
+    var searchText = ""
 
     /// Gerade abgehakter Stand, bis die Bibliothek ihn gespeichert zurückmeldet (verhindert Flackern)
     @State private var pendingMarkdown: String?
@@ -44,7 +46,7 @@ struct NoteView: View {
                         StatusLine(recording: recording)
                     }
                     ForEach(NoteMarkdown.blocks(markdown)) { block in
-                        NoteBlockView(block: block) { line in
+                        NoteBlockView(block: block, searchText: searchText) { line in
                             guard let updated = NoteMarkdown.togglingTask(in: markdown, line: line) else { return }
                             pendingMarkdown = updated
                             library.updateSummaryText(recording.id, markdown: updated)
@@ -107,6 +109,7 @@ private struct StatusLine: View {
 /// Ein Block der Notiz in Systemtypografie
 private struct NoteBlockView: View {
     let block: NoteBlock
+    let searchText: String
     let onToggleTask: (Int) -> Void
 
     var body: some View {
@@ -163,10 +166,9 @@ private struct NoteBlockView: View {
         .textSelection(.enabled)
     }
 
-    /// Fett, kursiv und Code innerhalb einer Zeile
+    /// Fett, kursiv und Code innerhalb einer Zeile – und die Fundstellen der Suche
     private func inline(_ text: String) -> AttributedString {
-        (try? AttributedString(markdown: text, options: .init(interpretedSyntax: .inlineOnlyPreservingWhitespace)))
-            ?? AttributedString(text)
+        SearchHighlight.attributed(text, query: searchText, inlineMarkdown: true)
     }
 }
 

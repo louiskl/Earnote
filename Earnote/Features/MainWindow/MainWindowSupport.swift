@@ -25,6 +25,32 @@ extension LibraryCategory {
     var displayEmoji: String { snapshot().displayEmoji }
 }
 
+/// Fundstellen der Suche im Text hervorheben – in der Notiz und im Transkript.
+enum SearchHighlight {
+    static func attributed(_ text: String, query: String, inlineMarkdown: Bool = false) -> AttributedString {
+        var result: AttributedString
+        if inlineMarkdown {
+            result = (try? AttributedString(markdown: text, options: .init(interpretedSyntax: .inlineOnlyPreservingWhitespace)))
+                ?? AttributedString(text)
+        } else {
+            result = AttributedString(text)
+        }
+        let ranges = SearchText.ranges(in: String(result.characters), query: query)
+        guard !ranges.isEmpty else { return result }
+        for range in ranges {
+            guard let attributed = Range(range, in: result) else { continue }
+            result[attributed].backgroundColor = Color(nsColor: .findHighlightColor)
+            result[attributed].foregroundColor = .black
+        }
+        return result
+    }
+
+    /// Enthält der Text eine Fundstelle?
+    static func matches(_ text: String, query: String) -> Bool {
+        !SearchText.normalized(query).isEmpty && SearchText.matches(text, query: query)
+    }
+}
+
 enum MainWindowFormat {
     static func time(_ date: Date) -> String { date.formatted(date: .omitted, time: .shortened) }
 

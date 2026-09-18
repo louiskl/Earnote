@@ -85,7 +85,7 @@ public struct WhisperTranscriber: Transcriber {
             offset += Double(samples.count) / 16_000
             progress(min(1, offset / total))
         }
-        return TranscriptCleanup.removeRepetitions(segments)
+        return segments
     }
 
     static func quietestPoint(in samples: [Float], from start: Int, to end: Int) -> Int {

@@ -170,4 +170,28 @@ public enum SearchText {
         let variants = variants(query)
         return variants.isEmpty || variants.contains { text.localizedStandardContains($0) }
     }
+
+    /// Fundstellen im Text – für das Hervorheben in Notiz und Transkript.
+    /// Sucht wie die Bibliothek: Groß-/Kleinschreibung, Akzente und Umlaut-Umschreibungen egal.
+    public static func ranges(in text: String, query: String) -> [Range<String.Index>] {
+        let variants = variants(query)
+        guard !variants.isEmpty, !text.isEmpty else { return [] }
+        var found: [Range<String.Index>] = []
+        for variant in variants {
+            var start = text.startIndex
+            while start < text.endIndex,
+                  let range = text.range(of: variant, options: [.caseInsensitive, .diacriticInsensitive],
+                                         range: start..<text.endIndex, locale: .current) {
+                found.append(range)
+                start = range.upperBound > range.lowerBound ? range.upperBound : text.index(after: range.lowerBound)
+            }
+        }
+        // Verschiedene Schreibweisen finden teils dieselbe Stelle – jede Fundstelle nur einmal.
+        var unique: [Range<String.Index>] = []
+        for range in found.sorted(by: { $0.lowerBound < $1.lowerBound })
+        where unique.last.map({ range.lowerBound >= $0.upperBound }) ?? true {
+            unique.append(range)
+        }
+        return unique
+    }
 }

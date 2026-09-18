@@ -94,13 +94,15 @@ Vorher: Architekturvorschlag nach Guidelines Abschnitt 20, vom Nutzer abgesegnet
 - [x] Drucken (⌘P) über den Druckdialog von macOS
 - [x] Teilen über das macOS-Teilen-Menü (Notiz als Text in der Toolbar; PDF nach dem Sichern aus dem Finder)
 
-**3d Suche**
-- [ ] Volltextsuche in Transkripten mit Sprung zur Stelle
+**3d Suche (0.7.4)**
+- [x] Volltextsuche in Transkripten: Fundstellen hervorgehoben, Sprung zur ersten Stelle, Anzahl der Treffer
+- [x] Fundstellen auch in der Notiz hervorgehoben
 
-**3e Transkript-Qualität**
-- [ ] Erfundene Sätze bei Stille filtern („Dankeschön“, „Vielen Dank“, „Untertitel im Auftrag des ZDF“ …)
-- [ ] „Keine Sprache erkannt“ statt Fantasie-Notiz
-- [ ] Sprachaktivität (VAD) vor der Transkription
+**3e Transkript-Qualität (0.7.4)**
+- [x] Erfundene Sätze bei Stille filtern: Abspann-Floskeln immer, Höflichkeitsfloskeln nur allein in einer Pause
+- [x] „Keine Sprache erkannt“ statt Fantasie-Notiz (unter drei gesprochenen Wörtern wird nichts zusammengefasst)
+- [x] Sprachaktivität vor der Transkription: Ist fast durchgehend Stille, läuft Whisper gar nicht erst
+- [ ] Vom Nutzer zu prüfen: Verschwinden die erfundenen Sätze bei echten Aufnahmen – und bleibt echter Inhalt stehen?
 
 **3f Erster Start ohne Wartefalle**
 - [ ] Whisper-Modell direkt nach dem Download für den Chip vorbereiten (einmalig ~15 Min. auf M1) – mit klarer Anzeige im Einrichtungsassistenten

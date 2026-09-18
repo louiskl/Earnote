@@ -59,7 +59,8 @@ struct MainWindow: View {
         } detail: {
             RecordingDetailView(recordingID: selection.wrappedValue, mode: detailMode.wrappedValue,
                                 editRequest: noteEditRequest,
-                                onEditStarted: { noteEditRequest = nil })
+                                onEditStarted: { noteEditRequest = nil },
+                                searchText: searchResults == nil ? "" : searchText)
         }
         // Farbe kommt aus dem gewählten Bereich: Auswahl, Haken und Knöpfe übernehmen sie.
         .tint(windowTint)
@@ -176,6 +177,10 @@ struct MainWindow: View {
         Task { @MainActor in
             try? await Task.sleep(nanoseconds: 1_500_000_000)
             if selection.wrappedValue == nil { selection.wrappedValue = library.recordings.first?.id }
+            if let query = env["EARNOTE_DEMO_SEARCH"] {
+                searchText = query
+                detailMode.wrappedValue = .transcript
+            }
             switch env["EARNOTE_NOTE_ACTION"] {
             case "edit": if let id = library.recordings.first?.id { noteActions.edit(id) }
             case "summarize": noteActions.summarizeAgain()

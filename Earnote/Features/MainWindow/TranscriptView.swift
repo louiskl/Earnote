@@ -5,6 +5,8 @@ import SwiftUI
 struct TranscriptView: View {
     @Environment(LibraryStore.self) private var library
     let recording: LibraryRecording
+    /// Laufende Suche: Fundstellen hervorheben und zur ersten springen
+    var searchText = ""
 
     @State private var paragraphs: [TranscriptParagraph] = []
     @State private var state: LoadState = .loading
@@ -25,22 +27,45 @@ struct TranscriptView: View {
                                            description: Text("Für diese Aufnahme gibt es kein Transkript."))
                 }
             case .loaded:
-                ScrollView {
-                    LazyVStack(alignment: .leading, spacing: 12) {
-                        DetailHeader(recording: recording)
-                            .padding(.bottom, 6)
-                        ForEach(paragraphs) { paragraph in
-                            TranscriptParagraphView(paragraph: paragraph)
+                ScrollViewReader { proxy in
+                    ScrollView {
+                        LazyVStack(alignment: .leading, spacing: 12) {
+                            DetailHeader(recording: recording)
+                                .padding(.bottom, 6)
+                            if let hits = hitCount, hits > 0 {
+                                Text(hits == 1 ? "Eine Fundstelle" : "\(hits) Fundstellen")
+                                    .font(.callout)
+                                    .foregroundStyle(.secondary)
+                            }
+                            ForEach(paragraphs) { paragraph in
+                                TranscriptParagraphView(paragraph: paragraph, searchText: searchText)
+                                    .id(paragraph.id)
+                            }
                         }
+                        .frame(maxWidth: 720, alignment: .leading)
+                        .padding(24)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                     }
-                    .frame(maxWidth: 720, alignment: .leading)
-                    .padding(24)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .onChange(of: searchText, initial: true) { _, _ in jumpToFirstHit(proxy) }
+                    .onChange(of: paragraphs.count) { _, _ in jumpToFirstHit(proxy) }
                 }
             }
         }
         // Neu laden, wenn die Verarbeitung ein Transkript geschrieben oder entfernt hat
         .task(id: "\(recording.id)|\(recording.statusRaw)") { await load() }
+    }
+
+    /// Anzahl der Fundstellen im ganzen Transkript (nil = keine Suche)
+    private var hitCount: Int? {
+        guard !SearchText.normalized(searchText).isEmpty else { return nil }
+        return paragraphs.reduce(0) { $0 + SearchText.ranges(in: $1.text, query: searchText).count }
+    }
+
+    /// „Sprung zur Stelle“: zum ersten Absatz mit Treffer scrollen
+    private func jumpToFirstHit(_ proxy: ScrollViewProxy) {
+        guard !SearchText.normalized(searchText).isEmpty,
+              let first = paragraphs.first(where: { SearchText.matches($0.text, query: searchText) }) else { return }
+        withAnimation(.easeInOut(duration: 0.2)) { proxy.scrollTo(first.id, anchor: .top) }
     }
 
     private func load() async {
@@ -91,6 +116,7 @@ struct TranscriptParagraph: Identifiable {
 
 private struct TranscriptParagraphView: View {
     let paragraph: TranscriptParagraph
+    let searchText: String
 
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
@@ -104,7 +130,7 @@ private struct TranscriptParagraphView: View {
                         .foregroundStyle(.secondary)
                 }
             }
-            Text(paragraph.text)
+            Text(SearchHighlight.attributed(paragraph.text, query: searchText))
                 .fixedSize(horizontal: false, vertical: true)
         }
         .textSelection(.enabled)

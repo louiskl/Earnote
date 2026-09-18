@@ -177,11 +177,21 @@ public struct ProcessingPipeline: Sendable {
                 "Die Aufnahme ist stumm (Pegel \(Int(max(peak, -160))) dB). Prüfe in den Systemeinstellungen, ob \(AppInfo.name) das Mikrofon verwenden darf und das richtige Eingabegerät ausgewählt ist.")
         }
 
+        // Fast nur Stille: Whisper würde daraus Sätze erfinden – lieber gleich sagen, dass nichts zu hören war.
+        if let envelope, envelope.loudShare < 0.005 {
+            throw TranscriptionError.noSpeech
+        }
+
         let offset = envelope == nil ? 0.0 : 0.1
         var segments = try await transcriber.transcribe(audio: source, language: rec.language, hints: hints) { p in
             events.progress(id, Self.map(offset + p * (1 - offset), to: span))
         }
-        guard !segments.isEmpty else { throw TranscriptionError.noSpeech }
+        // Schleifen und die Sätze, die Whisper aus Stille erfindet, gehören nicht ins Transkript –
+        // sonst entsteht daraus eine Notiz über ein Gespräch, das nie stattgefunden hat.
+        let raw = segments.count
+        segments = TranscriptCleanup.clean(segments)
+        if segments.count < raw { Log.info("Transkript bereinigt: \(raw - segments.count) von \(raw) Abschnitten entfernt") }
+        guard TranscriptCleanup.spokenWords(segments) >= 3 else { throw TranscriptionError.noSpeech }
 
         if let envelope, rec.hasSystemAudio {
             for i in segments.indices {

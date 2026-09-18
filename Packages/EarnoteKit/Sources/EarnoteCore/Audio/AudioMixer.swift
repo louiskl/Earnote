@@ -73,6 +73,19 @@ public struct EnergyEnvelope: Codable, Sendable {
         return ratios[ratios.count / 2]
     }
 
+    /// Anteil der Zeit, in der überhaupt etwas zu hören ist (0…1) – grobe Sprach-Erkennung vor der Transkription.
+    /// Ist er praktisch null, war die Aufnahme stumm und Whisper würde nur Sätze erfinden.
+    public var loudShare: Double {
+        let windows = max(mic.count, system.count)
+        guard windows > 0 else { return 1 }
+        let loud = (0..<windows).filter { i in
+            let m = i < mic.count ? mic[i] : 0
+            let s = i < system.count ? system[i] : 0
+            return max(m, s) > Self.silence * 3
+        }.count
+        return Double(loud) / Double(windows)
+    }
+
     /// Lauter Systemton lässt das Mikrofon mithören. Nur was deutlich darüber liegt, ist die eigene Stimme.
     public func isOwnVoice(mic m: Float, system s: Float) -> Bool {
         m > max(Self.silence * 2, bleed * s * Self.ownVoiceFactor)

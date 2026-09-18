@@ -160,3 +160,42 @@ final class GlossaryTests: XCTestCase {
         XCTAssertEqual(Glossary.promptText([]), "")
     }
 }
+
+final class TranscriptQualityTests: XCTestCase {
+    private func segment(_ text: String, _ start: Double, _ end: Double) -> TranscriptSegment {
+        TranscriptSegment(start: start, end: end, text: text)
+    }
+
+    func testRemovesInventedSubtitleCredits() {
+        let segments = [segment("Wir beginnen mit Kapitel drei.", 0, 4),
+                        segment("Untertitel im Auftrag des ZDF, 2021", 60, 64),
+                        segment("Zurück zum Thema.", 120, 123)]
+        let cleaned = TranscriptCleanup.clean(segments)
+        XCTAssertEqual(cleaned.map(\.text), ["Wir beginnen mit Kapitel drei.", "Zurück zum Thema."])
+    }
+
+    func testKeepsPoliteWordsInConversationButNotInSilence() {
+        let inTalk = [segment("Kannst du das schicken?", 0, 2),
+                      segment("Vielen Dank!", 2.5, 3.5),
+                      segment("Mache ich.", 4, 5)]
+        XCTAssertEqual(TranscriptCleanup.clean(inTalk).count, 3, "Mitten im Gespräch ist der Dank echt")
+
+        let inSilence = [segment("Wir sind fertig.", 0, 3),
+                         segment("Dankeschön.", 400, 402)]
+        XCTAssertEqual(TranscriptCleanup.clean(inSilence).map(\.text), ["Wir sind fertig."],
+                       "Allein in einer langen Pause erfindet Whisper die Floskel")
+    }
+
+    func testCountsSpokenWordsForTheNoSpeechCheck() {
+        XCTAssertEqual(TranscriptCleanup.spokenWords([segment("Hallo Welt", 0, 1)]), 2)
+        XCTAssertEqual(TranscriptCleanup.spokenWords([]), 0)
+    }
+
+    func testSearchRangesFindEveryHitAcrossUmlautSpellings() {
+        let text = "Grüße an Grüsse und gruesse"
+        let ranges = SearchText.ranges(in: text, query: "gruesse")
+        XCTAssertEqual(ranges.count, 3, "Alle drei Schreibweisen zählen als Treffer")
+        XCTAssertEqual(SearchText.ranges(in: text, query: "  ").count, 0)
+        XCTAssertEqual(SearchText.ranges(in: "abc", query: "x").count, 0)
+    }
+}

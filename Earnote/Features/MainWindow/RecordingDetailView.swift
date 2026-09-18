@@ -9,11 +9,13 @@ struct RecordingDetailView: View {
     /// Aufnahme, deren Notiz bearbeitet werden soll – als Wert, damit die Änderung sicher unten ankommt
     let editRequest: UUID?
     let onEditStarted: () -> Void
+    /// Laufende Suche – Fundstellen werden hervorgehoben, das Transkript springt zur ersten
+    let searchText: String
 
     var body: some View {
         if let recordingID {
             RecordingDetailContent(recordingID: recordingID, mode: mode,
-                                   editRequest: editRequest, onEditStarted: onEditStarted)
+                                   editRequest: editRequest, onEditStarted: onEditStarted, searchText: searchText)
                 .id(recordingID)
         } else {
             ContentUnavailableView("Keine Aufnahme ausgewählt", systemImage: "waveform",
@@ -28,12 +30,15 @@ private struct RecordingDetailContent: View {
     let mode: DetailMode
     let editRequest: UUID?
     let onEditStarted: () -> Void
+    let searchText: String
 
-    init(recordingID: UUID, mode: DetailMode, editRequest: UUID?, onEditStarted: @escaping () -> Void) {
+    init(recordingID: UUID, mode: DetailMode, editRequest: UUID?, onEditStarted: @escaping () -> Void,
+         searchText: String) {
         _matches = Query(filter: #Predicate<LibraryRecording> { $0.id == recordingID })
         self.mode = mode
         self.editRequest = editRequest
         self.onEditStarted = onEditStarted
+        self.searchText = searchText
     }
 
     var body: some View {
@@ -42,8 +47,11 @@ private struct RecordingDetailContent: View {
                 RecordingStageView()
             } else {
                 switch mode {
-                case .note: NoteView(recording: recording, editRequest: editRequest, onEditStarted: onEditStarted)
-                case .transcript: TranscriptView(recording: recording)
+                case .note:
+                    NoteView(recording: recording, editRequest: editRequest, onEditStarted: onEditStarted,
+                             searchText: searchText)
+                case .transcript:
+                    TranscriptView(recording: recording, searchText: searchText)
                 }
             }
         } else {
