@@ -1,6 +1,6 @@
 # Earnote – Roadmap
 
-> Stand: 17.09.2026 (nachmittags) · gepflegt vom Architekten · Versionen sind Arbeitsstände, öffentlich wird erst 1.0.
+> Stand: 18.09.2026 · gepflegt vom Architekten · Versionen sind Arbeitsstände, öffentlich wird erst 1.0.
 > Leitlinien: [DESIGN_GUIDELINES.md](DESIGN_GUIDELINES.md) · Aufbau: [ARCHITECTURE.md](ARCHITECTURE.md)
 
 **Ziel von 1.0:** Eine ausgereifte, native Mac-App, mit der Studierende ohne Technik-Kenntnisse und ohne KI-Abo Vorlesungen, Meetings und Calls mitschreiben lassen – kostenlos, privat, lokal.
@@ -13,13 +13,14 @@
 | 1a | Kern herauslösen: `EarnoteKit` (Core + ML), `AppState` zerlegt, schnelle Tests, iOS-Build-Beweis | 0.3.0 | ✅ fertig |
 | 1b | Datenmodell: SwiftData, iCloud-tauglich, macOS 15, Speicher aufgeteilt | 0.4.0 | ✅ fertig |
 | 1c | Aufnahme robust + Mikrofon auswählen | 0.5.0 | ✅ fertig |
-| **2a** | **Neues natives Hauptfenster** (Seitenleiste, Liste, Notiz, Inspector, Toolbar, Befehle, Suche, Teilen) | 0.6.0 | ▶ **als Nächstes** |
-| 2b | Einstellungen, Einrichtungsassistent (mit Whisper-Vorbereitung), Menüleiste, Call-Pop-up nativ; altes Design-System entfernt | 0.6.x | geplant |
-| 3 | Funktionen für 1.0: Bearbeiten, Korrigieren & Wörterbuch, PDF & Teilen, Suche, Transkript-Qualität | 0.7–0.8 | geplant |
+| 2a | Neues natives Hauptfenster (Seitenleiste, Liste, Notiz, Inspector, Toolbar, Befehle, Suche, Teilen) | 0.6.0 | ✅ fertig |
+| **2b** | **Farbe zurück (Bereichsfarben), Aufnahme-Bühne mit Pegel und Live-Text, Menüleiste ohne „Zuletzt“, zentrales Call-Banner, signierte und notarisierte Version** | 0.7.0 | ▶ **als Nächstes** |
+| 2c | Einstellungen und Einrichtungsassistent nativ (inkl. Whisper-Vorbereitung), altes Design-System entfernt | 0.7.x | geplant |
+| 3 | Funktionen für 1.0: Bearbeiten, Korrigieren & Wörterbuch, PDF-Lernzettel, Transkript-Qualität | 0.8 | geplant |
 | 4 | Qualität & Modelle: Benchmark, automatische Modellwahl, Härtetests | 0.9 | geplant |
-| 5 | Launch-Vorbereitung: Signierung, Updates, Beta mit Kommilitonen, Website | 1.0 RC | geplant |
+| 5 | Beta mit Kommilitonen · **parallel dazu Phase 6 (iPad/iPhone)** | 1.0 RC | geplant |
 | 🚀 | **Launch Earnote 1.0 für Mac** | 1.0 | |
-| 6 | iPad eigenständig, iPhone als Begleit-App, iCloud-Sync | 1.1 | nach Launch |
+| 6 | iPad eigenständig, iPhone als Begleit-App, iCloud-Sync | 1.1 | **startet parallel zur Mac-Beta** |
 | 7 | Kurs-Gruppen: Bereiche mit Kommilitonen teilen | 1.2 | nach Launch |
 
 ---
