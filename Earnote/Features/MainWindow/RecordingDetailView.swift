@@ -53,7 +53,9 @@ struct DetailHeader: View {
             Text(recording.displayTitle)
                 .font(.title2.weight(.semibold))
                 .textSelection(.enabled)
-            Text(([MainWindowFormat.dateAndTime(recording.startedAt), MainWindowFormat.duration(recording.duration)]
+            // Während der Aufnahme steht die Laufzeit direkt darunter; hier wäre sie nur doppelt.
+            Text(([MainWindowFormat.dateAndTime(recording.startedAt)]
+                  + (recording.status == .recording ? [] : [MainWindowFormat.duration(recording.duration)])
                   + [recording.category?.name].compactMap { $0 }).joined(separator: " · "))
                 .font(.subheadline)
                 .foregroundStyle(.secondary)

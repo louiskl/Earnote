@@ -56,26 +56,26 @@ private struct LiveRecordingContent: View {
             Divider()
             Text("Live-Mitschrift")
                 .font(.headline)
-            ScrollView {
-                liveText
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .textSelection(.enabled)
-                    .defaultScrollAnchor(.bottom)
+            if live.isEmpty {
+                Text(live.unavailable ?? "Sobald jemand spricht, erscheint hier die Live-Mitschrift.")
+                    .foregroundStyle(.secondary)
+                Spacer(minLength: 0)
+            } else {
+                ScrollView {
+                    liveText
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .textSelection(.enabled)
+                }
+                .defaultScrollAnchor(.bottom)
             }
-            .defaultScrollAnchor(.bottom)
         }
         .frame(maxWidth: 720, alignment: .leading)
         .padding(24)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
 
-    @ViewBuilder private var liveText: some View {
-        if live.isEmpty {
-            Text(live.unavailable ?? "Sobald jemand spricht, erscheint hier die Live-Mitschrift.")
-                .foregroundStyle(.secondary)
-        } else {
-            Text(live.settled) + Text(live.settled.isEmpty ? "" : " ") + Text(live.volatile).foregroundColor(.secondary)
-        }
+    private var liveText: Text {
+        Text(live.settled) + Text(live.settled.isEmpty ? "" : " ") + Text(live.volatile).foregroundColor(.secondary)
     }
 }
 
@@ -85,13 +85,11 @@ private struct LevelGauge: View {
     let label: String
 
     var body: some View {
-        Gauge(value: MainWindowFormat.level(level)) {
-            Text(label)
-        }
-        .gaugeStyle(.linearCapacity)
-        .labelsHidden()
-        .frame(maxWidth: 240)
-        .accessibilityLabel(label)
-        .accessibilityValue("\(Int(MainWindowFormat.level(level) * 100)) Prozent")
+        // Ohne eigenes Label: die Zeile davor sagt schon, welcher Pegel gemeint ist.
+        Gauge(value: MainWindowFormat.level(level)) { EmptyView() }
+            .gaugeStyle(.linearCapacity)
+            .frame(maxWidth: 240)
+            .accessibilityLabel(label)
+            .accessibilityValue("\(Int(MainWindowFormat.level(level) * 100)) Prozent")
     }
 }

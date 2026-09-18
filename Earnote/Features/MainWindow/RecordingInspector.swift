@@ -20,6 +20,7 @@ struct RecordingInspector: View {
 private struct InspectorContent: View {
     @Environment(LibraryStore.self) private var library
     @Environment(ProcessingQueue.self) private var queue
+    @Environment(RecordingController.self) private var recorder
     @Environment(\.openURL) private var openURL
     @Query private var matches: [LibraryRecording]
     @Query(sort: [SortDescriptor(\LibraryCategory.sortIndex), SortDescriptor(\LibraryCategory.createdAt)])
@@ -58,7 +59,11 @@ private struct InspectorContent: View {
             }
             .disabled(recording.status == .recording)
             LabeledContent("Datum", value: MainWindowFormat.dateAndTime(recording.startedAt))
-            LabeledContent("Dauer", value: MainWindowFormat.duration(recording.duration))
+            if recording.status == .recording {
+                LabeledContent("Dauer") { LiveDurationText(meter: recorder.meter) }
+            } else {
+                LabeledContent("Dauer", value: MainWindowFormat.duration(recording.duration))
+            }
             LabeledContent("Quelle", value: source(recording))
             LabeledContent("Sprache", value: MainWindowFormat.language(recording.languageCode))
         }
@@ -115,6 +120,15 @@ private struct InspectorContent: View {
     private func noteAuthor(_ recording: LibraryRecording) -> String {
         guard let note = recording.note else { return "–" }
         return [note.provider, note.modelName].compactMap { $0 }.filter { !$0.isEmpty }.joined(separator: " · ")
+    }
+}
+
+/// Laufzeit der laufenden Aufnahme; aktualisiert sich selbst, ohne den ganzen Inspector neu zu zeichnen.
+private struct LiveDurationText: View {
+    @ObservedObject var meter: LiveMeter
+
+    var body: some View {
+        Text(TimeFormat.duration(meter.elapsed)).monospacedDigit()
     }
 }
 
