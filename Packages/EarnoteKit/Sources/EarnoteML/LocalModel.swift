@@ -143,9 +143,11 @@ public actor LocalLLMCache {
 
     public func container() async throws -> ModelContainer {
         if let container { return container }
+        let started = Date()
         let loaded = try await LLMModelFactory.shared.loadContainer(from: LocalModelManager.folder,
                                                                      using: TransformersTokenizerLoader())
         container = loaded
+        Log.info(String(format: "Lokales Modell in den Speicher geladen (%.0f s)", Date().timeIntervalSince(started)))
         return loaded
     }
 
@@ -171,7 +173,10 @@ public struct LocalLLMClient: LLMClient {
         let container = try await LocalLLMCache.shared.container()
         let session = ChatSession(container, instructions: system,
                                   generateParameters: GenerateParameters(maxTokens: 4_000, temperature: 0.3, topP: 0.9))
+        let started = Date()
         let answer = try await session.respond(to: prompt)
+        let seconds = Date().timeIntervalSince(started)
+        Log.info(String(format: "Lokale KI: %d Zeichen hinein, %d heraus, %.0f s", prompt.count, answer.count, seconds))
         return answer.removingThinkBlocks
     }
 }

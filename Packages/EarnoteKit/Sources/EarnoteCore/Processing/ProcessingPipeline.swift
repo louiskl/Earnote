@@ -54,8 +54,10 @@ public struct ProcessingPipeline: Sendable {
             // Transkription bis 60 %, Zusammenfassung bis 95 %, der Rest ist der Export.
             let summarySpan = (transcript == nil ? 0.6 : 0.0)...0.95
             if transcript == nil {
+                let started = Date()
                 let fresh = try await transcribe(rec, settings: settings, hints: Glossary.speechHints(glossary),
                                                  span: 0...0.6, events: events)
+                Self.logDuration("Transkription", since: started, audioSeconds: fresh.segments.last?.end)
                 // Nach jedem längeren Schritt prüfen, ob die Aufnahme inzwischen gelöscht oder neu gestartet wurde,
                 // damit kein veralteter Stand gespeichert wird.
                 try Task.checkCancellation()
@@ -78,9 +80,11 @@ public struct ProcessingPipeline: Sendable {
                                              hasSpeakers: settings.speakerLabels && rec.hasSystemAudio,
                                              language: settings.ai.summaryLanguage,
                                              glossary: glossary, extraInstructions: extraInstructions)
+                let started = Date()
                 let s = try await summarizer.summarize(transcript: text, context: context) { p in
                     events.progress(id, Self.map(p, to: summarySpan))
                 }
+                Self.logDuration("Notiz (\(settings.ai.provider.label), \(text.count) Zeichen Transkript)", since: started)
                 try Task.checkCancellation()
                 try await library.saveNote(s, for: id)
                 summary = s
@@ -203,6 +207,17 @@ public struct ProcessingPipeline: Sendable {
 
     private func setStep(_ id: UUID, _ status: RecordingStatus, _ progress: Double, _ events: ProcessingEvents) async {
         await events.update(id) { $0.status = status; $0.progress = progress }
+    }
+
+    /// Wie lange ein Schritt gebraucht hat – die Grundlage für alle Geschwindigkeitsfragen.
+    /// Mit `audioSeconds` steht auch das Verhältnis zur Aufnahmedauer im Protokoll („12× Echtzeit“).
+    static func logDuration(_ step: String, since start: Date, audioSeconds: Double? = nil) {
+        let seconds = Date().timeIntervalSince(start)
+        var line = String(format: "%@ fertig in %.0f s", step, seconds)
+        if let audioSeconds, audioSeconds > 0, seconds > 0 {
+            line += String(format: " (%.0f s Audio, %.1f× Echtzeit)", audioSeconds, audioSeconds / seconds)
+        }
+        Log.info(line)
     }
 
     /// Fortschritt eines Schritts (0…1) auf seinen Abschnitt des Gesamtbalkens abbilden.
