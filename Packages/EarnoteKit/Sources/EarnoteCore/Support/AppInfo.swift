@@ -11,13 +11,8 @@ public enum AppInfo {
     public static let keychainService = "app.earnote.secrets"
     public static let logFileName = "earnote.log"
 
-    /// Öffentliche Repository-Adresse. Bleibt `nil`, bis das Repository veröffentlicht ist –
-    /// solange zeigt die Oberfläche keine Links dorthin.
-    public static let repository: URL? = nil
-
-    /// Adresse für Rückmeldungen aus der App. Bleibt `nil`, bis sie feststeht – dann zeigt die
-    /// Oberfläche nur „Diagnose kopieren“ statt eines Mail-Knopfs.
-    public static let feedbackEmail: String? = nil
+    /// Öffentliches Repository – Quellcode, Fehlermeldungen und die Update-Datei für Sparkle.
+    public static let repository = URL(string: "https://github.com/louiskl/Earnote")!
 
     // MARK: Frühere Werte (bis Version 0.1.1 hieß die App „Earmark“) – nur für die Datenübernahme
 

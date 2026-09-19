@@ -16,6 +16,8 @@ final class AppEnvironment {
     let recorder: RecordingController
     /// Übergang bis Phase 2b: Schnittstelle der noch alten Views (Einstellungen, Einrichtung, Menüleiste, Call-Pop-up)
     let appState: AppState
+    /// Sucht einmal am Tag nach einer neueren Version
+    let updates = UpdateStatus()
 
     private let storage: Storage
     private let defaults: UserDefaults
@@ -78,6 +80,7 @@ final class AppEnvironment {
 
         if library.settings.meetingDetection { recorder.detector.start() }
         Task { await start() }
+        Task { [updates] in await updates.checkIfDue() }
     }
 
     /// Leere Umgebung in einem temporären Ordner für die App-Tests

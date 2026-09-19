@@ -44,6 +44,7 @@ struct EarnoteApp: App {
                 .environment(environment.recorder)
                 .environment(environment.queue)
                 .environment(environment.recorder.audioInputs)
+                .environment(environment.updates)
                 // Nur für die noch alten Sheets (Bereichs-Editor, Einrichtungsassistent) bis Phase 2b
                 .environmentObject(app)
                 .environmentObject(app.meter)
@@ -61,6 +62,7 @@ struct EarnoteApp: App {
 
         Settings {
             SettingsView(llm: environment.llm)
+                .environment(environment.updates)
                 .environment(environment.library)
                 .environment(environment.recorder)
                 .environment(environment.recorder.audioInputs)

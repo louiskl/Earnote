@@ -50,7 +50,8 @@ AI meeting notes are great, but usually tied to one app and a monthly subscripti
 ### Install
 
 Download the latest `Earnote.dmg` from [Releases](../../releases) and drag Earnote into *Applications*.
-Earnote isn't notarized by Apple yet, so macOS blocks the first launch. Open *System Settings › Privacy & Security*, scroll down and click *Open Anyway* next to Earnote. You only need to do this once.
+The app is signed with an Apple Developer ID and notarized, so it opens with a double-click – no detour through System Settings.
+Earnote checks once a day whether a newer version is available and shows a hint with a download link; it never installs anything on its own.
 
 ### Build from source
 
@@ -91,7 +92,9 @@ PRs are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) and the [roadmap](docs/R
 - **Sprecher-Unterscheidung** in „Ich“ und „Andere“
 - **Einrichtungsassistent** und Bedienung über die Menüleiste, ganz ohne Terminal
 
-**Installation:** `Earnote.dmg` unter [Releases](../../releases) herunterladen, öffnen und Earnote in den Programme-Ordner ziehen. Die App ist von Apple notarisiert und startet mit einem Doppelklick – ohne Umweg über die Systemeinstellungen.
+**Installation:** `Earnote.dmg` unter [Releases](../../releases) herunterladen, öffnen und Earnote in den Programme-Ordner ziehen. Die App ist von Apple notarisiert und startet mit einem Doppelklick – ohne Umweg über die Systemeinstellungen. Earnote schaut einmal am Tag nach, ob es eine neuere Version gibt, und zeigt dann einen Hinweis mit Download-Link – installiert wird nie von allein.
+
+**Fehler melden:** In der App unter *Einstellungen › Über › „Fehler melden …“* – damit ist der Bericht gleich mit Version, macOS und den letzten Protokollzeilen vorausgefüllt.
 **Selbst bauen:** `Earnote.xcodeproj` in Xcode öffnen und mit ⌘R starten.
 
 > ⚖️ Bitte vor jeder Aufnahme das Einverständnis aller Beteiligten einholen (§ 201 StGB).

@@ -107,13 +107,12 @@ struct RecordingSettings: View {
 /// Rückmeldung geben: Mail mit den wichtigsten Angaben oder Diagnose in die Zwischenablage,
 /// dazu der Weg zum Protokoll. Ohne diese Angaben ist ein Fehlerbericht selten zu gebrauchen.
 struct FeedbackButtons: View {
+    @Environment(\.openURL) private var openURL
     @State private var copied = false
 
     var body: some View {
         HStack {
-            if let address = AppInfo.feedbackEmail {
-                Button("Feedback senden") { sendMail(to: address) }
-            }
+            Button("Fehler melden …") { openURL(Diagnostics.issueURL()) }
             Button(copied ? "Diagnose kopiert" : "Diagnose kopieren") {
                 NSPasteboard.general.clearContents()
                 NSPasteboard.general.setString(Diagnostics.text(), forType: .string)
@@ -124,19 +123,22 @@ struct FeedbackButtons: View {
         .controlSize(.small)
     }
 
-    private func sendMail(to address: String) {
-        let subject = "\(AppInfo.name) \(Diagnostics.version): Rückmeldung"
-        let body = "Was ist passiert?\n\n\n\n---\n\(Diagnostics.text())"
-        var components = URLComponents()
-        components.scheme = "mailto"
-        components.path = address
-        components.queryItems = [URLQueryItem(name: "subject", value: subject), URLQueryItem(name: "body", value: body)]
-        if let url = components.url { NSWorkspace.shared.open(url) }
-    }
 }
 
 /// Angaben, die bei jeder Rückmeldung helfen – ohne Aufnahmen oder Notizen.
 enum Diagnostics {
+    /// Vorausgefülltes Issue auf GitHub: Die Angaben stehen schon drin, es fehlt nur die Beschreibung.
+    static func issueURL() -> URL {
+        var components = URLComponents(url: AppInfo.repository.appendingPathComponent("issues/new"),
+                                       resolvingAgainstBaseURL: false)
+        components?.queryItems = [
+            URLQueryItem(name: "title", value: ""),
+            URLQueryItem(name: "body", value: "**Was ist passiert?**\n\n\n**Was hattest du erwartet?**\n\n\n"
+                         + "**So lässt es sich wiederholen:**\n1. \n2. \n\n---\n```\n\(text())\n```"),
+        ]
+        return components?.url ?? AppInfo.repository.appendingPathComponent("issues")
+    }
+
     static var version: String {
         Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "–"
     }
@@ -164,8 +166,25 @@ enum Diagnostics {
 
 /// Über: Version, Zweck, Quellcode.
 struct AboutSettings: View {
+    @Environment(UpdateStatus.self) private var updates
+    @Environment(\.openURL) private var openURL
+
     private var version: String {
         Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "–"
+    }
+
+    @ViewBuilder private var updateLine: some View {
+        if let release = updates.available {
+            Button("Version \(release.version) laden") { openURL(release.download ?? release.page) }
+                .controlSize(.small)
+        } else if updates.isChecking {
+            ProgressView().controlSize(.small)
+        } else {
+            Button(updates.checkedAt == nil ? "Nach Updates suchen" : "Aktuell – erneut suchen") {
+                Task { await updates.check() }
+            }
+            .controlSize(.small)
+        }
     }
 
     var body: some View {
@@ -175,15 +194,10 @@ struct AboutSettings: View {
                 .accessibilityHidden(true)
             Text(AppInfo.name).font(.title.weight(.semibold))
             Text("Version \(version)").foregroundStyle(.secondary)
+            updateLine
             Text("Kostenlose, quelloffene Notizen für Vorlesungen, Meetings und Calls.\nLokal transkribiert – deine Aufnahmen bleiben auf deinem Mac.")
                 .multilineTextAlignment(.center)
-            if let repository = AppInfo.repository {
-                HStack {
-                    Link("Quellcode", destination: repository)
-                    Text("·")
-                    Link("Fehler melden", destination: repository.appendingPathComponent("issues"))
-                }
-            }
+            Link("Quellcode auf GitHub", destination: AppInfo.repository)
             FeedbackButtons()
             Text("MIT-Lizenz").font(.callout).foregroundStyle(.tertiary)
         }
