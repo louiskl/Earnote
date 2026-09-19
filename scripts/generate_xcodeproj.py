@@ -113,7 +113,7 @@ common_target = {
     "INFOPLIST_FILE": "Earnote/Resources/Info.plist",
     "LD_RUNPATH_SEARCH_PATHS": "$(inherited) @executable_path/../Frameworks",
     "MACOSX_DEPLOYMENT_TARGET": "15.0",
-    "MARKETING_VERSION": "0.8.2",
+    "MARKETING_VERSION": "0.8.3",
     "PRODUCT_BUNDLE_IDENTIFIER": "app.earnote.Earnote",
     "PRODUCT_NAME": "$(TARGET_NAME)",
     "SWIFT_EMIT_LOC_STRINGS": "YES",
