@@ -37,6 +37,12 @@ struct GeneralSettings: View {
                 }
                 .pickerStyle(.segmented)
             }
+            Section {
+                Toggle("Einmal am Tag nach Updates suchen", isOn: $library.settings.checkForUpdates)
+            } footer: {
+                Text("Fragt bei GitHub nach der neuesten Version. Das ist der einzige Netzzugriff von \(AppInfo.name), "
+                     + "solange du keine Cloud-KI verwendest – Aufnahmen und Notizen bleiben in jedem Fall auf dem Mac.")
+            }
             Section("Start") {
                 Toggle("\(AppInfo.name) beim Start des Macs automatisch öffnen", isOn: $launchAtLogin)
                     .onChange(of: launchAtLogin) { _, on in LoginItem.set(on) }

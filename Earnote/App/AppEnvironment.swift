@@ -80,7 +80,7 @@ final class AppEnvironment {
 
         if library.settings.meetingDetection { recorder.detector.start() }
         Task { await start() }
-        Task { [updates] in await updates.checkIfDue() }
+        if library.settings.checkForUpdates { Task { [updates] in await updates.checkIfDue() } }
     }
 
     /// Leere Umgebung in einem temporären Ordner für die App-Tests

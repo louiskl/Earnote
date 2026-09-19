@@ -199,6 +199,8 @@ public struct AppSettings: Codable, Hashable, Sendable {
     public var destinations = DestinationSettings()
     public var meetingDetection = true
     public var autoStopWhenCallEnds = true
+    /// Einmal am Tag bei GitHub nach einer neueren Version fragen (der einzige Netzzugriff ohne Cloud-KI)
+    public var checkForUpdates = true
     /// Schon während der Aufnahme transkribieren – danach ist die Notiz viel schneller fertig
     public var transcribeWhileRecording = true
     public var recordSystemAudio = true
@@ -221,6 +223,7 @@ public struct AppSettings: Codable, Hashable, Sendable {
         let d = AppSettings()
         onboardingCompleted = try c.decodeIfPresent(Bool.self, forKey: .onboardingCompleted) ?? d.onboardingCompleted
         appearance = (try? c.decodeIfPresent(AppearanceChoice.self, forKey: .appearance)) ?? d.appearance
+        checkForUpdates = (try? c.decodeIfPresent(Bool.self, forKey: .checkForUpdates)) ?? d.checkForUpdates
         transcribeWhileRecording = (try? c.decodeIfPresent(Bool.self, forKey: .transcribeWhileRecording)) ?? d.transcribeWhileRecording
         transcriptionEngine = (try? c.decodeIfPresent(TranscriptionEngineKind.self, forKey: .transcriptionEngine)) ?? d.transcriptionEngine
         whisperModel = try c.decodeIfPresent(String.self, forKey: .whisperModel) ?? d.whisperModel
