@@ -53,6 +53,8 @@ public protocol AudioStore: Sendable {
     /// Löscht Mikrofon-, Systemton-, Misch- und importierte Audiodatei
     func deleteAudio(for recording: Recording)
     func hasAudio(_ recording: Recording) -> Bool
+    /// Datei zum Anhören: die gemischte Aufnahme, sonst das Mikrofon, sonst die importierte Datei
+    func playbackURL(for recording: Recording) -> URL?
     /// Löscht den ganzen Ordner der Aufnahme
     func deleteFolder(for id: UUID)
 }
@@ -96,6 +98,17 @@ public struct FileAudioStore: AudioStore {
             do { try fm.removeItem(at: url) }
             catch { Log.error("Audiodatei nicht gelöscht (\(url.lastPathComponent)): \(error.localizedDescription)") }
         }
+    }
+
+    public func playbackURL(for recording: Recording) -> URL? {
+        if let fileName = recording.importedFileName {
+            let imported = importedAudioURL(for: recording.id, fileName: fileName)
+            if fm.fileExists(atPath: imported.path) { return imported }
+        }
+        for url in [mixURL(for: recording.id), micURL(for: recording.id)] where fm.fileExists(atPath: url.path) {
+            return url
+        }
+        return nil
     }
 
     public func hasAudio(_ recording: Recording) -> Bool {

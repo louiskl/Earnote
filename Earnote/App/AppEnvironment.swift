@@ -114,6 +114,11 @@ final class AppEnvironment {
                         + "Polynom aufstellen\n- Nullstellen bestimmen\n- Eigenräume berechnen\n\n## Aufgaben\n"
                         + "- [ ] Übungsblatt 4 bis Freitag rechnen\n- [ ] Klausurtermin am 12. Februar notieren",
                     taskCount: 2, provider: "Lokale KI"), for: rec.id)
+        // Nur Debug: eine Audiodatei zum Anhören unterschieben (EARNOTE_DEMO_AUDIO=<Pfad>)
+        if let path = ProcessInfo.processInfo.environment["EARNOTE_DEMO_AUDIO"] {
+            audio.createFolder(for: rec.id)
+            try? FileManager.default.copyItem(at: URL(fileURLWithPath: path), to: audio.mixURL(for: rec.id))
+        }
         try? await libraryRepository.setExports([
             ExportResult(destinationID: MarkdownDestination.id, destinationName: "Markdown-Ordner", success: true,
                          message: "Exportiert", url: "file:///tmp/Analysis.md"),

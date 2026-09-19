@@ -26,6 +26,8 @@ struct MainWindow: View {
     /// Anfrage „Notiz dieser Aufnahme bearbeiten“. Die Notizansicht nimmt sie entgegen und setzt sie zurück;
     /// so bleibt der Bearbeiten-Zustand dort, wo der Editor steht, und nie bei einer anderen Aufnahme.
     @State private var noteEditRequest: UUID?
+    /// Abspielen der gewählten Aufnahme – gehört dem Fenster
+    @State private var player = AudioPlayer()
     @State private var noteSheet: NoteSheet?
     @FocusState private var searchFocused: Bool
 
@@ -62,6 +64,7 @@ struct MainWindow: View {
                                 editRequest: noteEditRequest,
                                 onEditStarted: { noteEditRequest = nil },
                                 searchText: searchResults == nil ? "" : searchText)
+                .safeAreaInset(edge: .bottom, spacing: 0) { PlayerBar() }
         }
         // Farbe kommt aus dem gewählten Bereich: Auswahl, Haken und Knöpfe übernehmen sie.
         .tint(windowTint)
@@ -127,6 +130,13 @@ struct MainWindow: View {
         }
         .environment(\.categoryTint, windowTint)
         .environment(\.noteActions, noteActions)
+        .environment(player)
+        // Andere Aufnahme gewählt: den Ton der vorherigen nicht weiterlaufen lassen
+        .onChange(of: selection.wrappedValue, initial: true) { _, id in loadAudio(id) }
+        // Beim Start steht die Auswahl aus dem Fensterzustand schon fest, die Bibliothek ist aber noch
+        // nicht geladen – dann gäbe es ohne diesen zweiten Versuch nie einen Player.
+        .onChange(of: library.isLoaded) { _, _ in loadAudio(selection.wrappedValue) }
+        .onChange(of: recorder.activeRecordingID) { _, active in if active != nil { player.stop() } }
         // Das Transkript zeigt keinen Editor; die Notiz einer anderen Aufnahme auch nicht (Vergleich über die ID)
         .onChange(of: detailMode.wrappedValue) { _, mode in if mode != .note { noteEditRequest = nil } }
         .focusedSceneValue(\.mainWindow, context)
@@ -155,7 +165,12 @@ struct MainWindow: View {
                           requestDiscardRecording: { confirmDiscard = true },
                           newCategory: newCategory,
                           focusSearch: { searchFocused = true },
-                          noteActions: noteActions)
+                          noteActions: noteActions,
+                          playback: player.hasAudio
+                              ? PlaybackCommands(isPlaying: player.isPlaying,
+                                                 playPause: { player.playPause() },
+                                                 skip: { player.skip($0) })
+                              : nil)
     }
 
     private var noteActions: NoteActions {
@@ -200,6 +215,15 @@ struct MainWindow: View {
         }
     }
     #endif
+
+    /// Audiodatei der gewählten Aufnahme bereitstellen (oder den Player leeren)
+    private func loadAudio(_ id: UUID?) {
+        guard let id, let recording = library.recording(id), recording.status != .recording else {
+            player.stop()
+            return
+        }
+        player.load(id, url: library.audio.playbackURL(for: recording))
+    }
 
     private func newCategory() {
         let category = library.addCategory()

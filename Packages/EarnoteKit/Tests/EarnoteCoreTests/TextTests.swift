@@ -286,3 +286,13 @@ final class TranscriptQualityFromRealLecturesTests: XCTestCase {
         XCTAssertEqual(call.systemLoudShare, 0.5, accuracy: 0.01)
     }
 }
+
+final class TimeFormatTests: XCTestCase {
+    func testReadsTimestampsBackIntoSeconds() {
+        XCTAssertEqual(TimeFormat.seconds("00:14:05"), 845)
+        XCTAssertEqual(TimeFormat.seconds("14:05"), 845, "Ohne Stunden zählt das Muster Minuten:Sekunden")
+        XCTAssertEqual(TimeFormat.seconds("1:02:03"), 3723)
+        XCTAssertEqual(TimeFormat.seconds("Unsinn"), 0)
+        XCTAssertEqual(TimeFormat.seconds(TimeFormat.clock(845)), 845, "Hin und zurück ergibt dasselbe")
+    }
+}

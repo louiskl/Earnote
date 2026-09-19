@@ -147,9 +147,9 @@ Stunde Wartezeit kam vom zugeklappten Deckel, nicht von der Rechenleistung.
 Ziel: Was eine fremde Person in der ersten Woche braucht, ohne zu fragen.
 
 **Anhören und finden**
-- [ ] **Audio-Player**: Klick auf eine Zeitmarke im Transkript spielt genau diese Stelle; Leertaste
-      spielt/pausiert, Wellenform mit Position. Größte Lücke für Lernende – die App behält den Ton,
-      kann ihn aber nicht abspielen.
+- [x] **Audio-Player (0.9.0)**: schmale Leiste unter Notiz und Transkript (Pause, ±15 Sekunden, Position),
+      jede Zeitmarke in Transkript und Notiz springt an ihre Stelle, der laufende Absatz wird hervorgehoben,
+      Bedienung auch über das Menü „Aufnahme“ (⌥Leertaste, ⌥←, ⌥→)
 - [ ] Notiz und Transkript nebeneinander (Klick auf einen Notizabschnitt springt ins Transkript)
 - [ ] Vorwärts/rückwärts durch die Fundstellen der Suche (⌘G)
 

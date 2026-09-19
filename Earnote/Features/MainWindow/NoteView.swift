@@ -123,10 +123,7 @@ private struct NoteBlockView: View {
                 Text(inline(text))
                     .font(level == 3 ? .headline : .title3.weight(.semibold))
                 if let timestamp {
-                    Text(timestamp)
-                        .font(.caption.monospacedDigit())
-                        .foregroundStyle(.secondary)
-                        .accessibilityLabel("Zeitmarke \(timestamp)")
+                    TimestampButton(seconds: TimeFormat.seconds(timestamp), label: timestamp)
                 }
             }
             .textSelection(.enabled)

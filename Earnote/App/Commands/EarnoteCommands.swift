@@ -40,6 +40,18 @@ struct EarnoteCommands: Commands {
             Button("Aufnahme verwerfen …") { window?.requestDiscardRecording() }
                 .disabled(!isRecording || window == nil)
             Divider()
+            Button(window?.playback?.isPlaying == true ? "Pause" : "Aufnahme anhören") {
+                window?.playback?.playPause()
+            }
+            .keyboardShortcut(.space, modifiers: .option)
+            .disabled(window?.playback == nil)
+            Button("15 Sekunden zurück") { window?.playback?.skip(-AudioPlayer.skipSeconds) }
+                .keyboardShortcut(.leftArrow, modifiers: .option)
+                .disabled(window?.playback == nil)
+            Button("15 Sekunden vor") { window?.playback?.skip(AudioPlayer.skipSeconds) }
+                .keyboardShortcut(.rightArrow, modifiers: .option)
+                .disabled(window?.playback == nil)
+            Divider()
             MicrophoneCommandPicker(library: library, audioInputs: audioInputs, isRecording: isRecording)
         }
 

@@ -37,8 +37,11 @@ struct TranscriptView: View {
                                     .font(.callout)
                                     .foregroundStyle(.secondary)
                             }
-                            ForEach(paragraphs) { paragraph in
-                                TranscriptParagraphView(paragraph: paragraph, searchText: searchText)
+                            ForEach(Array(paragraphs.enumerated()), id: \.element.id) { index, paragraph in
+                                // Der nächste Absatz beginnt dort, wo dieser endet – genauer geht es ohne Segmentzeiten nicht
+                                TranscriptParagraphView(paragraph: paragraph, searchText: searchText,
+                                                        end: index + 1 < paragraphs.count
+                                                            ? paragraphs[index + 1].start : .greatestFiniteMagnitude)
                                     .id(paragraph.id)
                             }
                         }
@@ -115,15 +118,17 @@ struct TranscriptParagraph: Identifiable {
 }
 
 private struct TranscriptParagraphView: View {
+    @Environment(AudioPlayer.self) private var player
     let paragraph: TranscriptParagraph
     let searchText: String
+    /// Ende des Absatzes – für die Hervorhebung der laufenden Stelle
+    let end: TimeInterval
 
     var body: some View {
+        let playing = player.isPlaying(from: paragraph.start, to: end)
         VStack(alignment: .leading, spacing: 2) {
             HStack(spacing: 8) {
-                Text(TimeFormat.clock(paragraph.start))
-                    .font(.caption.monospacedDigit())
-                    .foregroundStyle(.secondary)
+                TimestampButton(seconds: paragraph.start)
                 if let speaker = paragraph.speaker {
                     Text(speaker)
                         .font(.caption.weight(.semibold))
@@ -132,8 +137,12 @@ private struct TranscriptParagraphView: View {
             }
             Text(SearchHighlight.attributed(paragraph.text, query: searchText))
                 .fixedSize(horizontal: false, vertical: true)
+                .textSelection(.enabled)
         }
-        .textSelection(.enabled)
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
+        .background(playing ? AnyShapeStyle(.selection.opacity(0.35)) : AnyShapeStyle(.clear),
+                    in: RoundedRectangle(cornerRadius: 6, style: .continuous))
         .accessibilityElement(children: .combine)
     }
 }

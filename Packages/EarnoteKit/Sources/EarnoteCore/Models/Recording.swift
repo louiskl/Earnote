@@ -174,6 +174,13 @@ public enum TimeFormat {
         return String(format: "%d:%02d", s / 60, s % 60)
     }
 
+    /// Umgekehrter Weg: „00:14:05“ oder „14:05“ zurück in Sekunden – für die Zeitmarken in der Notiz.
+    public static func seconds(_ clock: String) -> Double {
+        let parts = clock.split(separator: ":").compactMap { Double($0) }
+        guard !parts.isEmpty else { return 0 }
+        return parts.reduce(0) { $0 * 60 + $1 }
+    }
+
     /// Für VoiceOver: „2 Minuten, 14 Sekunden“
     public static func spoken(_ seconds: TimeInterval) -> String {
         let formatter = DateComponentsFormatter()

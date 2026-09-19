@@ -22,6 +22,15 @@ struct MainWindowContext {
     var focusSearch: () -> Void
     /// Notiz bearbeiten, neu zusammenfassen, korrigieren, zurücksetzen
     var noteActions = NoteActions()
+    /// Anhören der gewählten Aufnahme (nil = keine Audiodatei)
+    var playback: PlaybackCommands?
+}
+
+/// Abspielen aus der Menüleiste heraus
+struct PlaybackCommands {
+    var isPlaying = false
+    var playPause: () -> Void = {}
+    var skip: (TimeInterval) -> Void = { _ in }
 }
 
 extension FocusedValues {
