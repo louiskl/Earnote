@@ -46,3 +46,30 @@ struct ModelStatusRow: View {
         }
     }
 }
+
+/// Hinweis, solange eine Aufnahme verarbeitet wird. Wichtig, weil macOS beim Zuklappen schläft –
+/// und die Verarbeitung dann mit schläft. Das kostet sonst unbemerkt eine halbe Stunde.
+struct ProcessingHintRow: View {
+    @Environment(ProcessingQueue.self) private var queue
+    @Environment(LibraryStore.self) private var library
+
+    var body: some View {
+        if let id = queue.processingID, let recording = library.recording(id) {
+            HStack(spacing: 10) {
+                ProgressView(value: queue.progress[id] ?? 0).frame(width: 70)
+                VStack(alignment: .leading, spacing: 1) {
+                    Text("\(recording.status.label): \(recording.title)")
+                        .font(.callout).lineLimit(1).truncationMode(.middle)
+                    Text("Lass den Deckel offen – zugeklappt schläft der Mac und die Verarbeitung pausiert.")
+                        .font(.caption).foregroundStyle(.secondary)
+                }
+                Spacer(minLength: 0)
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(.bar)
+            .accessibilityElement(children: .combine)
+        }
+    }
+}

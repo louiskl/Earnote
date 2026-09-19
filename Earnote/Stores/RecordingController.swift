@@ -52,6 +52,7 @@ final class RecordingController {
     @ObservationIgnored var hideCallPrompt: () -> Void = {}
 
     @ObservationIgnored private let library: LibraryStore
+    @ObservationIgnored private let transcribers: any TranscriberProvider
     @ObservationIgnored private let notify: (String, String) -> Void
     @ObservationIgnored private var session: RecordingSession?
     @ObservationIgnored private var isStarting = false
@@ -60,6 +61,9 @@ final class RecordingController {
     @ObservationIgnored private var meterTimer: Timer?
     @ObservationIgnored private var recordingActivity: NSObjectProtocol?
     @ObservationIgnored private var liveTranscriber: AnyObject?
+    /// Transkribiert schon während der Aufnahme abschnittsweise mit (siehe `LiveTranscription`)
+    @ObservationIgnored private var chunked: LiveTranscription?
+    @ObservationIgnored private var chunkLoop: Task<Void, Never>?
     @ObservationIgnored private var recordingStartedByCall = false
     /// Hinweis „gewähltes Mikrofon nicht verbunden“ nur einmal je Gerät und App-Start
     @ObservationIgnored private var toldAboutMissingMicrophone: Set<String> = []
@@ -68,10 +72,11 @@ final class RecordingController {
     var activeRecording: Recording? { activeRecordingID.flatMap(library.recording) }
 
     init(library: LibraryStore, detector: MeetingDetector, audioInputs: AudioInputDevices,
-         notify: @escaping (String, String) -> Void) {
+         transcribers: any TranscriberProvider, notify: @escaping (String, String) -> Void) {
         self.library = library
         self.detector = detector
         self.audioInputs = audioInputs
+        self.transcribers = transcribers
         self.notify = notify
         detector.onCallStarted = { [weak self] app in self?.callStarted(app) }
         detector.onCallEnded = { [weak self] app in self?.callEnded(app) }
@@ -155,6 +160,7 @@ final class RecordingController {
             recordingActivity = ProcessInfo.processInfo.beginActivity(options: .userInitiated, reason: "Aufnahme läuft")
             startMeter(startedAt: rec.startedAt)
             startLiveTranscript(session: session, language: rec.language)
+            startChunkedTranscription(for: rec, settings: settings)
             hideCallPrompt()
             Log.info("Aufnahme gestartet: \(name) (Systemton: \(session.systemAudioActive))")
         }
@@ -197,14 +203,27 @@ final class RecordingController {
     func stopRecording() {
         guard let id = activeRecordingID else { return }
         let paused = totalPaused
+        // Vor dem Aufräumen sichern: Der Rest des Transkripts wird gleich noch fertig gemacht.
+        let worker = chunked
         endRecordingSession()
         library.update(id) {
             $0.endedAt = Date()
             $0.pausedDuration = paused > 0 ? paused : nil
-            $0.status = .queued
+            $0.status = worker == nil ? .queued : .transcribing
         }
         Log.info("Aufnahme beendet")
-        library.enqueue(id)
+        guard let worker else {
+            library.enqueue(id)
+            return
+        }
+        // Während der Aufnahme lief schon fast alles; jetzt fehlt nur noch der letzte Abschnitt.
+        Task { @MainActor in
+            if let transcript = await worker.finish() {
+                await library.saveTranscript(id, transcript)
+                Log.info("Transkript war beim Stopp schon fertig (\(transcript.segments.count) Abschnitte)")
+            }
+            library.enqueue(id)
+        }
     }
 
     func cancelRecording() {
@@ -216,6 +235,38 @@ final class RecordingController {
     /// Wird eine Aufnahme gelöscht, während sie noch läuft: Aufnahme beenden.
     func endIfActive(_ id: UUID) {
         if activeRecordingID == id { endRecordingSession() }
+    }
+
+    /// Transkribiert den Ton schon während der Aufnahme abschnittsweise, damit nach dem Stopp
+    /// nur noch der Rest übrig ist. Schlägt etwas fehl, wird danach einfach normal transkribiert.
+    private func startChunkedTranscription(for recording: Recording, settings: AppSettings) {
+        chunked = nil
+        chunkLoop?.cancel()
+        guard settings.transcribeWhileRecording else { return }
+        let library = self.library
+        let transcribers = self.transcribers
+        Task { @MainActor in
+            do {
+                let transcriber = try await transcribers.makeTranscriber(for: settings)
+                let terms = Glossary.forCategory(recording.categoryID, in: library.glossary)
+                let worker = LiveTranscription(recordingID: recording.id, hasSystemAudio: recording.hasSystemAudio,
+                                               language: recording.language, hints: Glossary.speechHints(terms),
+                                               audio: library.audio, transcriber: transcriber)
+                guard activeRecordingID == recording.id else { return }
+                chunked = worker
+                chunkLoop = Task.detached(priority: .utility) {
+                    while !Task.isCancelled {
+                        try? await Task.sleep(nanoseconds: 30_000_000_000)
+                        guard !Task.isCancelled else { return }
+                        await worker.advance()
+                    }
+                }
+                Log.info("Transkribiere schon während der Aufnahme")
+            } catch {
+                // Kein Modell geladen o. Ä.: Nach der Aufnahme meldet die Warteschlange den Fehler verständlich.
+                Log.info("Kein Mitschreiben während der Aufnahme: \(error.localizedDescription)")
+            }
+        }
     }
 
     /// Läuft während der Aufnahme mit und zeigt an, was gerade gesprochen wird.
@@ -259,6 +310,9 @@ final class RecordingController {
 
     private func endRecordingSession() {
         stopLiveTranscript()
+        chunkLoop?.cancel()
+        chunkLoop = nil
+        chunked = nil
         session?.stop()
         session = nil
         activeRecordingID = nil

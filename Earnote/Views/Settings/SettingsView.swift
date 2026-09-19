@@ -79,6 +79,12 @@ struct RecordingSettings: View {
             } footer: {
                 Text("Nimmt auch die anderen Teilnehmer in Zoom, Teams und Meet auf.")
             }
+            Section {
+                Toggle("Schon während der Aufnahme transkribieren", isOn: $library.settings.transcribeWhileRecording)
+            } footer: {
+                Text("Die Notiz ist dann kurz nach dem Ende fertig statt erst nach einer langen Rechenzeit. "
+                     + "Kostet währenddessen etwas Akku – am Netzteil merkst du nichts davon.")
+            }
             Section("Calls") {
                 Toggle("Calls automatisch erkennen und Aufnahme vorschlagen", isOn: $library.settings.meetingDetection)
                 Toggle("Aufnahme beenden, wenn der Call endet", isOn: $library.settings.autoStopWhenCallEnds)

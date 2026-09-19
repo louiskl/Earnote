@@ -50,7 +50,7 @@ final class AppEnvironment {
         queue.library = library
         AudioInputDevices.removeLeftoversFromEarlierRuns()
         let recorder = RecordingController(library: library, detector: MeetingDetector(), audioInputs: AudioInputDevices(),
-                                           notify: { Notifier.send($0, $1) })
+                                           transcribers: PlatformTranscribers(), notify: { Notifier.send($0, $1) })
         let appState = AppState(library: library, recorder: recorder, llm: llm)
 
         library.willDelete = { [weak recorder] id in recorder?.endIfActive(id) }

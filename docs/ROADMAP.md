@@ -108,6 +108,14 @@ Vorher: Architekturvorschlag nach Guidelines Abschnitt 20, vom Nutzer abgesegnet
 - [x] Whisper-Modell direkt nach dem Download für den Chip vorbereiten (einmalig, mehrere Minuten)
 - [x] Klare Anzeige im Assistenten („Läuft noch im Hintergrund“), im Hauptfenster und in der Menüleiste, solange geladen oder vorbereitet wird
 
+**3h Schneller fertig (0.8.0)**
+- [x] Transkribieren läuft schon während der Aufnahme (abschnittsweise, Schnitt am letzten fertigen Satz)
+- [x] Nach dem Stopp bleibt nur der letzte Abschnitt – die Warteschlange schreibt direkt die Notiz
+- [x] Schalter „Schon während der Aufnahme transkribieren“ (Einstellungen › Aufnahme)
+- [x] Hinweis während der Verarbeitung: zugeklappter Mac schläft und pausiert sie
+- [ ] Vom Nutzer zu prüfen: Wie viel schneller ist eine 90-Minuten-Vorlesung wirklich fertig?
+- [ ] Offen: faster-whisper geprüft und verworfen (CTranslate2 hat kein Metal, läuft auf dem Mac nur auf der CPU)
+
 **3g Export (0.7.5)**
 - [x] Export-Status pro Ziel im Inspector – auch für Ziele, in die noch nie exportiert wurde
 - [x] Einzelnes Ziel erneut exportieren („Erneut“), erfolgreiche Exporte bleiben stehen

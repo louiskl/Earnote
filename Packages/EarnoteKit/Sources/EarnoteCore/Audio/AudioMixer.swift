@@ -19,6 +19,15 @@ public final class ResamplingReader {
         duration = Double(file.length) / file.processingFormat.sampleRate
     }
 
+    /// Springt an eine Stelle der Datei (in Sekunden). Danach liest `read` von dort weiter.
+    public func seek(toSeconds seconds: Double) {
+        let position = AVAudioFramePosition(max(0, seconds) * file.processingFormat.sampleRate)
+        guard position < file.length else { endOfFile = true; return }
+        file.framePosition = position
+        endOfFile = false
+        converter.reset()
+    }
+
     /// Liefert bis zu `frames` Samples, oder nil am Dateiende.
     public func read(frames: AVAudioFrameCount) -> AVAudioPCMBuffer? {
         guard let out = AVAudioPCMBuffer(pcmFormat: Self.outputFormat, frameCapacity: frames) else { return nil }
@@ -116,17 +125,40 @@ public enum AudioMixer {
     /// die Lautsprecher mithört – und dieser Anteil kann beim Mischen leise gedreht werden.
     public static func mix(mic: URL, system: URL?, output: URL,
                            progress: @escaping (Double) -> Void) throws -> EnergyEnvelope {
-        let envelope = try measure(mic: mic, system: system) { progress($0 * 0.4) }
-        try write(mic: mic, system: system, output: output, envelope: envelope) { progress(0.4 + $0 * 0.6) }
+        try mix(mic: mic, system: system, output: output, from: 0, to: nil, progress: progress)
+    }
+
+    /// Mischt nur den Ausschnitt `from ..< to` (Sekunden; `to` nil = bis zum Ende).
+    /// Wird beim Transkribieren während der Aufnahme gebraucht: Der Ton wächst noch, jeder Abschnitt
+    /// wird einzeln gemischt und transkribiert.
+    public static func mix(mic: URL, system: URL?, output: URL, from: Double, to: Double?,
+                           progress: @escaping (Double) -> Void) throws -> EnergyEnvelope {
+        let envelope = try measure(mic: mic, system: system, from: from, to: to) { progress($0 * 0.4) }
+        try write(mic: mic, system: system, output: output, envelope: envelope, from: from, to: to) { progress(0.4 + $0 * 0.6) }
         return envelope
     }
 
-    private static func readers(mic: URL, system: URL?) throws -> (ResamplingReader, ResamplingReader?, Double) {
+    /// Wie viele Sekunden Ton bereits auf der Platte stehen (beide Spuren, das Kürzere zählt).
+    public static func availableSeconds(mic: URL, system: URL?) -> Double {
+        guard let micFile = try? AVAudioFile(forReading: mic) else { return 0 }
+        let micSeconds = Double(micFile.length) / micFile.processingFormat.sampleRate
+        guard let system, FileManager.default.fileExists(atPath: system.path),
+              let systemFile = try? AVAudioFile(forReading: system) else { return micSeconds }
+        return min(micSeconds, Double(systemFile.length) / systemFile.processingFormat.sampleRate)
+    }
+
+    private static func readers(mic: URL, system: URL?, from: Double = 0,
+                                to: Double? = nil) throws -> (ResamplingReader, ResamplingReader?, Double) {
         let micReader = try ResamplingReader(url: mic)
         let sysReader: ResamplingReader? = try system.flatMap { url in
             FileManager.default.fileExists(atPath: url.path) ? try ResamplingReader(url: url) : nil
         }
-        return (micReader, sysReader, max(micReader.duration, sysReader?.duration ?? 0))
+        if from > 0 {
+            micReader.seek(toSeconds: from)
+            sysReader?.seek(toSeconds: from)
+        }
+        let end = to ?? max(micReader.duration, sysReader?.duration ?? 0)
+        return (micReader, sysReader, max(0, end - from))
     }
 
     private static func rms(_ buffer: AVAudioPCMBuffer?) -> Float {
@@ -137,14 +169,14 @@ public enum AudioMixer {
     }
 
     /// 1. Durchgang: Lautstärke beider Spuren je Zeitfenster.
-    private static func measure(mic: URL, system: URL?,
+    private static func measure(mic: URL, system: URL?, from: Double = 0, to: Double? = nil,
                                 progress: (Double) -> Void) throws -> EnergyEnvelope {
-        let (micReader, sysReader, total) = try readers(mic: mic, system: system)
+        let (micReader, sysReader, total) = try readers(mic: mic, system: system, from: from, to: to)
         var micEnv: [Float] = [], sysEnv: [Float] = []
         var micDone = false, sysDone = sysReader == nil
         var processed: Double = 0
 
-        while !(micDone && sysDone) {
+        while !(micDone && sysDone), processed < total {
             let m = micDone ? nil : micReader.read(frames: windowFrames)
             let s = sysDone ? nil : sysReader?.read(frames: windowFrames)
             if m == nil { micDone = true }
@@ -161,8 +193,9 @@ public enum AudioMixer {
     /// 2. Durchgang: mischen. Bei Lautsprecherbetrieb wird das Mikrofon dort leise gedreht,
     /// wo es nur den Systemton mithört – sonst steht alles doppelt in der Aufnahme (Echo).
     private static func write(mic: URL, system: URL?, output: URL, envelope: EnergyEnvelope,
+                              from: Double = 0, to: Double? = nil,
                               progress: (Double) -> Void) throws {
-        let (micReader, sysReader, total) = try readers(mic: mic, system: system)
+        let (micReader, sysReader, total) = try readers(mic: mic, system: system, from: from, to: to)
         let settings: [String: Any] = [
             AVFormatIDKey: kAudioFormatLinearPCM,
             AVSampleRateKey: sampleRate,
@@ -180,7 +213,7 @@ public enum AudioMixer {
         var index = 0
         var previousGain: Float = 1
 
-        while !(micDone && sysDone) {
+        while !(micDone && sysDone), processed < total {
             let m = micDone ? nil : micReader.read(frames: windowFrames)
             let s = sysDone ? nil : sysReader?.read(frames: windowFrames)
             if m == nil { micDone = true }

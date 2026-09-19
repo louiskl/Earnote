@@ -199,6 +199,8 @@ public struct AppSettings: Codable, Hashable, Sendable {
     public var destinations = DestinationSettings()
     public var meetingDetection = true
     public var autoStopWhenCallEnds = true
+    /// Schon während der Aufnahme transkribieren – danach ist die Notiz viel schneller fertig
+    public var transcribeWhileRecording = true
     public var recordSystemAudio = true
     public var keepAudioFiles = true
     public var showConsentReminder = true
@@ -219,6 +221,7 @@ public struct AppSettings: Codable, Hashable, Sendable {
         let d = AppSettings()
         onboardingCompleted = try c.decodeIfPresent(Bool.self, forKey: .onboardingCompleted) ?? d.onboardingCompleted
         appearance = (try? c.decodeIfPresent(AppearanceChoice.self, forKey: .appearance)) ?? d.appearance
+        transcribeWhileRecording = (try? c.decodeIfPresent(Bool.self, forKey: .transcribeWhileRecording)) ?? d.transcribeWhileRecording
         transcriptionEngine = (try? c.decodeIfPresent(TranscriptionEngineKind.self, forKey: .transcriptionEngine)) ?? d.transcriptionEngine
         whisperModel = try c.decodeIfPresent(String.self, forKey: .whisperModel) ?? d.whisperModel
         language = try c.decodeIfPresent(String.self, forKey: .language) ?? d.language

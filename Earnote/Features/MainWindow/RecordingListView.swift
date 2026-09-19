@@ -41,7 +41,12 @@ struct RecordingListView: View {
                 }
             }
         }
-        .safeAreaInset(edge: .bottom, spacing: 0) { ModelStatusRow() }
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            VStack(spacing: 0) {
+                ProcessingHintRow()
+                ModelStatusRow()
+            }
+        }
         .navigationTitle(title)
         // Gewählte Aufnahme ist nicht (mehr) in der Liste – anderer Bereich, Suche, gelöscht
         // oder ein gespeicherter Fensterzustand, der nicht zu dieser Bibliothek passt.

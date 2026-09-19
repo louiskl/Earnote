@@ -268,6 +268,16 @@ final class LibraryStore: RecordingLibrary {
         }
     }
 
+    /// Transkript, das schon während der Aufnahme entstanden ist, speichern (die Warteschlange
+    /// überspringt die Transkription dann und schreibt direkt die Notiz).
+    func saveTranscript(_ id: UUID, _ transcript: Transcript) async {
+        do {
+            try await library.saveTranscript(transcript, for: id)
+        } catch {
+            Log.error("Live-Transkript speichern: \(error.localizedDescription)")
+        }
+    }
+
     // MARK: Verarbeitung
 
     func enqueue(_ id: UUID, next: Bool = false, instruction: String = "") {

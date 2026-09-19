@@ -297,3 +297,76 @@ final class ProcessingQueueTests: XCTestCase {
         XCTAssertEqual(stored?.status, .done)
     }
 }
+
+/// Transkribieren während der Aufnahme (Phase 4a)
+final class LiveTranscriptionTests: XCTestCase {
+    private var folder: TestFolder!
+
+    override func setUpWithError() throws {
+        folder = try TestFolder()
+    }
+
+    override func tearDownWithError() throws {
+        folder = nil
+    }
+
+    /// Der Transcriber liefert pro Abschnitt zwei Sätze, deren Zeiten immer bei 0 beginnen –
+    /// genau wie eine echte Engine, die nur ihr Stück Audio kennt.
+    private func chunkTranscriber() -> FakeTranscriber {
+        let counter = Locked<Int>(0)
+        return FakeTranscriber { _ in
+            let n = counter.mutate { value -> Int in value += 1; return value }
+            return [TranscriptSegment(start: 0, end: 1, text: "Satz A\(n)"),
+                    TranscriptSegment(start: 1, end: 2, text: "Satz B\(n)")]
+        }
+    }
+
+    func testTranscribesWhileRecordingAndStitchesTheParts() async throws {
+        let id = UUID()
+        folder.audio.createFolder(for: id)
+        try TestFolder.writeAudio(to: folder.audio.micURL(for: id), amplitude: 0.5, seconds: 4)
+
+        let live = LiveTranscription(recordingID: id, hasSystemAudio: false, language: "de", hints: [],
+                                     audio: folder.audio, transcriber: chunkTranscriber(), chunkSeconds: 2)
+        await live.advance()
+        // Vom ersten Abschnitt bleibt nur der erste Satz: Der letzte könnte mitten im Wort enden.
+        var covered = await live.coveredSeconds
+        XCTAssertEqual(covered, 1, accuracy: 0.001)
+
+        let finished = await live.finish()
+        let transcript = try XCTUnwrap(finished)
+        XCTAssertEqual(transcript.segments.map(\.text), ["Satz A1", "Satz A2", "Satz B2"])
+        // Der zweite Abschnitt beginnt bei Sekunde 1, seine Zeiten sind entsprechend verschoben.
+        XCTAssertEqual(transcript.segments[1].start, 1, accuracy: 0.001)
+        XCTAssertEqual(transcript.segments[2].end, 3, accuracy: 0.001)
+        covered = await live.coveredSeconds
+        XCTAssertEqual(covered, 4, accuracy: 0.05, "Nach dem Stopp ist alles abgedeckt")
+    }
+
+    func testWithoutEnoughNewAudioNothingHappens() async throws {
+        let id = UUID()
+        folder.audio.createFolder(for: id)
+        try TestFolder.writeAudio(to: folder.audio.micURL(for: id), amplitude: 0.5, seconds: 1)
+
+        let live = LiveTranscription(recordingID: id, hasSystemAudio: false, language: "de", hints: [],
+                                     audio: folder.audio, transcriber: chunkTranscriber(), chunkSeconds: 60)
+        await live.advance()
+        let covered = await live.coveredSeconds
+        XCTAssertEqual(covered, 0, "Erst ab einem vollen Abschnitt lohnt sich ein Durchgang")
+    }
+
+    func testAFailingEngineFallsBackToTheNormalWay() async throws {
+        let id = UUID()
+        folder.audio.createFolder(for: id)
+        try TestFolder.writeAudio(to: folder.audio.micURL(for: id), amplitude: 0.5, seconds: 4)
+        struct Boom: Error {}
+        let live = LiveTranscription(recordingID: id, hasSystemAudio: false, language: "de", hints: [],
+                                     audio: folder.audio, transcriber: FakeTranscriber { _ in throw Boom() },
+                                     chunkSeconds: 2)
+        await live.advance()
+        let failed = await live.hasFailed
+        XCTAssertTrue(failed)
+        let transcript = await live.finish()
+        XCTAssertNil(transcript, "Ohne brauchbares Zwischenergebnis wird nach der Aufnahme normal transkribiert")
+    }
+}
