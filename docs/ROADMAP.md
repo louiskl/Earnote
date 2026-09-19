@@ -1,6 +1,7 @@
 # Earnote – Roadmap
 
-> Stand: 18.09.2026 · gepflegt vom Architekten · Versionen sind Arbeitsstände, öffentlich wird erst 1.0.
+> Stand: 19.09.2026 · gepflegt vom Architekten · Versionen sind Arbeitsstände, öffentlich wird erst 1.0.
+> Beta läuft: [Releases](https://github.com/louiskl/Earnote/releases) · [Anleitung für Tester](BETA.md)
 > Leitlinien: [DESIGN_GUIDELINES.md](DESIGN_GUIDELINES.md) · Aufbau: [ARCHITECTURE.md](ARCHITECTURE.md)
 
 **Ziel von 1.0:** Eine ausgereifte, native Mac-App, mit der Studierende ohne Technik-Kenntnisse und ohne KI-Abo Vorlesungen, Meetings und Calls mitschreiben lassen – kostenlos, privat, lokal.
@@ -9,6 +10,23 @@
 
 | Phase | Inhalt | Version | Status |
 |---|---|---|---|
+| 0 | Fundament: Code gesichert, Umbenennung Earmark → Earnote, Datenübernahme | 0.2.0 | ✅ fertig |
+| 1a | Kern herauslösen: `EarnoteKit` (Core + ML), `AppState` zerlegt, schnelle Tests, iOS-Build-Beweis | 0.3.0 | ✅ fertig |
+| 1b | Datenmodell: SwiftData, iCloud-tauglich, macOS 15, Speicher aufgeteilt | 0.4.0 | ✅ fertig |
+| 1c | Aufnahme robust + Mikrofon auswählen | 0.5.0 | ✅ fertig |
+| 2a | Neues natives Hauptfenster (Seitenleiste, Liste, Notiz, Inspector, Toolbar, Befehle, Suche, Teilen) | 0.6.0 | ✅ fertig |
+| 2b | Farbe zurück, Aufnahme-Bühne, Menüleiste, Call-Banner, signierte und notarisierte Version | 0.7.0 | ✅ fertig |
+| 2c | Einstellungen und Einrichtungsassistent nativ, altes Design-System entfernt | 0.7.1 | ✅ fertig |
+| 3a–3g | Notiz bearbeiten, Begriffe korrigieren & Wörterbuch, PDF-Lernzettel, Suche im Transkript, saubere Transkripte, Export je Ziel | 0.7.2–0.7.5 | ✅ fertig |
+| 3h | Schneller fertig: Transkription läuft schon während der Aufnahme | 0.8.0 | ✅ fertig |
+| 4a | Härtefälle, öffentliches Repository, Beta-Auslieferung, Sprecherlabels nur bei Calls | 0.8.1–0.8.5 | ✅ fertig |
+| **4b** | **Reif für andere: Audio anhören, englische Oberfläche, Kalender, Modellwahl** | 0.9 | ▶ **als Nächstes** |
+| 5 | Launch: Website, Demo-Video, Homebrew, Beta mit Kommilitonen, Markenrecherche | 1.0 RC | geplant |
+| 🚀 | **Launch Earnote 1.0 für Mac** | 1.0 | |
+| 6 | iPad eigenständig, iPhone als Begleit-App, iCloud-Sync | 1.1 | nach Launch |
+| 7 | Mac App Store prüfen (Sandbox), Kurs-Gruppen teilen | 1.2 | nach Launch |
+
+---|---|---|---|
 | 0 | Fundament: Code gesichert, Umbenennung Earmark → Earnote, Datenübernahme | 0.2.0 | ✅ fertig |
 | 1a | Kern herauslösen: `EarnoteKit` (Core + ML), `AppState` zerlegt, schnelle Tests, iOS-Build-Beweis | 0.3.0 | ✅ fertig |
 | 1b | Datenmodell: SwiftData, iCloud-tauglich, macOS 15, Speicher aufgeteilt | 0.4.0 | ✅ fertig |
@@ -122,66 +140,111 @@ Vorher: Architekturvorschlag nach Guidelines Abschnitt 20, vom Nutzer abgesegnet
 - [x] Hinweis mit „Einrichten …“, wenn ein Ziel eingeschaltet, aber nicht fertig eingerichtet ist
 - [x] Nebenbei: Einstellungen einer älteren Version verlieren keine Ziele mehr (fehlende Felder bekommen Standardwerte)
 
-## Phase 4 – Qualität & Modelle (0.9)
-- [ ] **Referenz-Aufnahmen** (vom Nutzer): kurze Notiz, 90-Min.-Vorlesung mit Fachbegriffen, Zoom-/Teams-Call
-- [ ] Modellvergleich mit echten Vorlesungen: Qwen3 4B / 8B / 14B, Gemma 3 4B – Lernzettel nebeneinander bewerten
-- [ ] Automatische Modellwahl nach Gerät (Arbeitsspeicher, Chip)
-- [ ] 3-Stunden-Vorlesung Ende-zu-Ende: Dauer, Speicher, Akku, Wärme
-- [x] Härtefälle Teil 1 (0.8.1): Festplatte voll (Start blockiert bzw. Aufnahme sauber beendet), Mac schläft ein
-      (Aufnahme wird beendet und gespeichert), kein Pegel seit einer Minute (Hinweis mit nächstem Schritt)
-- [x] Härtefälle Teil 2 (0.8.4): Whisper-Download abbrechbar, halb geladene Modelle werden entfernt,
-      verständliche Meldung bei Abbruch (das lokale KI-Modell konnte das schon über seine `.complete`-Markierung)
-- [ ] Härtefälle Teil 3: Gerät gewechselt und Berechtigung entzogen am echten Mac durchspielen
-- [x] „Ich / Andere“-Sprechererkennung geprüft (0.8.5): An einer echten Vorlesung waren 147 von 569 Abschnitten
-      als „Ich“ markiert, obwohl der Nutzer nur zugehört hat. Sprecherlabels gibt es jetzt nur noch, wenn beide
-      Spuren nennenswert etwas beigetragen haben (Call), nicht bei einer Vorlesung über das Mikrofon.
-- [ ] Swift-6-Sprachmodus
-- [ ] `LegacyMigration` (Earmark → Earnote) entfernen
+## ✅ Phase 4a – Härtefälle und Beta-Auslieferung (0.8.1–0.8.5)
+- [x] Festplatte voll: unter 300 MB startet keine Aufnahme, unter 1,5 GB Hinweis mit Restlaufzeit,
+      beim Vollaufen wird sauber beendet statt abgebrochen
+- [x] Mac schläft ein (Deckel zu): Aufnahme wird beendet und gespeichert; während der Verarbeitung weist
+      eine Zeile darauf hin, dass ein zugeklappter Mac die Verarbeitung pausiert
+- [x] Kein Ton seit einer Minute → Hinweis mit nächstem Schritt, statt einer stummen Aufnahme am Ende
+- [x] Whisper-Download abbrechbar, halb geladene Modelle werden entfernt
+- [x] Öffentliches Repository (MIT), Kern-Tests in der CI, Kurzanleitung für Beta-Tester
+- [x] „Fehler melden“ als vorausgefülltes GitHub-Issue, „Diagnose kopieren“, Protokoll zeigen
+- [x] Update-Hinweis (tägliche Abfrage der GitHub-Releases, abschaltbar) und `docs/DATENSCHUTZ.md`
+- [x] Zeiten im Protokoll: Transkription mit Echtzeit-Faktor, Notiz, Ladezeit des lokalen Modells
+- [x] Sprecherlabels nur noch bei echten Calls (an echten Vorlesungen nachgewiesen fehlerhaft)
+- [ ] Gerät gewechselt und Berechtigung entzogen am echten Mac durchspielen
 
-## Phase 5 – Launch-Vorbereitung (1.0 RC)
-**Name & Recht**
-- [ ] Markenrecherche Earnote (DPMA, EUIPO, USPTO; Klassen 9 und 42), Domain, GitHub-/Instagram-/TikTok-Namen sichern
-- [ ] Impressum und Datenschutzerklärung; Hinweis auf § 201 StGB prüfen
+**Gemessen an zwei echten Vorlesungen (M1 Air, 16 GB):** Whisper large-v3-turbo transkribiert mit
+**≈ 12× Echtzeit** (60 Min. Ton in 5 Min.), die Notiz der lokalen KI braucht 6–7 Minuten. Die gefühlte
+Stunde Wartezeit kam vom zugeklappten Deckel, nicht von der Rechenleistung.
+
+## Phase 4b – Reif für andere (0.9)
+Ziel: Was eine fremde Person in der ersten Woche braucht, ohne zu fragen.
+
+**Anhören und finden**
+- [ ] **Audio-Player**: Klick auf eine Zeitmarke im Transkript spielt genau diese Stelle; Leertaste
+      spielt/pausiert, Wellenform mit Position. Größte Lücke für Lernende – die App behält den Ton,
+      kann ihn aber nicht abspielen.
+- [ ] Notiz und Transkript nebeneinander (Klick auf einen Notizabschnitt springt ins Transkript)
+- [ ] Vorwärts/rückwärts durch die Fundstellen der Suche (⌘G)
+
+**Für alle verständlich**
+- [ ] **Englische Oberfläche** (String Catalog, Deutsch bleibt Standard) – ohne Englisch fällt beim Launch
+      der halbe Markt weg (Reddit, Product Hunt, Hacker News sind englischsprachig)
+- [ ] Erster Start ohne Internet: verständliche Meldung statt hängendem Download
+- [ ] Anti-Vibecoding-Review über alle neuen Ansichten (Guidelines Abschnitt 28)
+
+**Alltag**
+- [ ] **Kalender-Anbindung**: Titel, Fach und Teilnehmende aus dem laufenden Termin übernehmen
+- [ ] **Globales Tastenkürzel** zum Starten/Stoppen aus jeder App
+- [ ] Aufnahme aus der Menüleiste mit Bereichswahl in einem Klick (heute zwei)
+
+**Zielgruppen schärfen**
+- [ ] **Studium**: Karteikarten aus der Notiz (Anki-CSV und Apple-Karteikarten), Semester-Zusammenfassung
+      über mehrere Vorlesungen eines Bereichs, Formeln im Lernzettel nicht zerschießen
+- [ ] **Meetings**: Aufgaben nach Apple Erinnerungen (und optional Things/Todoist), Entwurf für die
+      Follow-up-Mail, Kurzprotokoll zum Weiterschicken
+- [ ] **Schule**: einfachere Sprache in den Notizen (Schalter „einfach erklärt“), kleinere Modelle für
+      ältere Macs
+
+**Qualität und Modelle**
+- [ ] Modellvergleich mit den echten Vorlesungen: Qwen3 4B / 8B, Gemma 3 4B – Lernzettel nebeneinander
+- [ ] Automatische Modellwahl nach Gerät (Arbeitsspeicher, Chip) statt fester Voreinstellung
+- [ ] Notiz beschleunigen: Vorverdichten schon während der Aufnahme, sobald das Transkript lang ist
+- [ ] 3-Stunden-Vorlesung Ende-zu-Ende: Dauer, Speicher, Akku, Wärme
+- [ ] Swift-6-Sprachmodus, `LegacyMigration` (Earmark → Earnote) entfernen
+
+## Phase 5 – Launch (1.0 RC → 1.0)
+
+**Name & Recht** (liegt beim Nutzer)
+- [ ] Markenrecherche Earnote (DPMA, EUIPO, USPTO; Klassen 9 und 42)
+- [ ] Domain sichern (earnote.app o. ä.), Instagram-/TikTok-Namen sichern
+- [ ] Impressum und Datenschutzerklärung für die Website (die App-Seite steht in `docs/DATENSCHUTZ.md`)
+
+**Website** (Hauptweg zum Download)
+- [ ] Eine Seite, statisch, über GitHub Pages aus diesem Repository – kostenlos und sofort online
+- [ ] Inhalt: Was es macht · Screenshot/Video · Download-Knopf (neuestes Release) · „bleibt auf deinem Mac“ ·
+      Voraussetzungen · FAQ · Link zu GitHub
+- [ ] Demo-Video (30–60 s): aufnehmen, Notiz erscheint, Lernzettel als PDF – für Website, Product Hunt, Social
+- [ ] Screenshots in Hell und Dunkel, deutsch und englisch
 
 **Verteilung**
-- [ ] Apple-Entwicklerkonto (99 $/Jahr) → signieren und notarisieren (keine „Dennoch öffnen“-Hürde mehr)
-- [ ] Automatische Updates (Sparkle), Build und Release über GitHub Actions
-- [x] Diagnose kopieren und Protokoll zeigen (Einstellungen › Über)
-- [ ] „Feedback senden“ als Mail bzw. GitHub Issue – braucht eine Adresse bzw. das öffentliche Repository
+- [ ] **Direkt-Download** als Hauptweg: notarisierte DMG über GitHub Releases (läuft bereits)
+- [ ] **Homebrew Cask** (`brew install --cask earnote`) – eine Pull-Request, große Reichweite bei Mac-Nutzern
+- [ ] Automatische Updates: aktuell Hinweis mit Link; Sparkle erst, wenn die Nutzerzahl es rechtfertigt
+- [ ] Eintragen: AlternativeTo, openalternative.co, awesome-mac, Product Hunt, Show HN, r/macapps, r/Studium
+- [ ] Hochschule: Fachschaften, Uni-Newsletter, Instagram/TikTok – die Zielgruppe sitzt dort, nicht auf HN
 
-**Test**
-- [ ] Beta mit 5–10 Kommilitonen über 1–2 Wochen, echte Vorlesungen
-- [ ] Rückmeldungen einarbeiten
-
-**Schaufenster**
-- [ ] Öffentliches GitHub-Repo, README mit GIF und Screenshots, MIT-Lizenz, Beitragsregeln
-- [ ] One-Page-Website, Buy Me a Coffee und GitHub Sponsors
-- [ ] Ein Demo-Video (30–60 s), überall wiederverwendet
-
-## 🚀 Launch 1.0 (Mac)
-- Reddit (r/macapps, r/Studium, r/ObsidianMD, r/Notion), Show HN, Product Hunt, openalternative.co, AlternativeTo, awesome-mac
-- E-Mail an Mac-Blogs (iFun, Macwelt, t3n)
-- Danach: 1–2 Std./Woche für Fehlermeldungen, alle paar Wochen ein Update
+**Beta**
+- [ ] 5–10 Kommilitonen, 1–2 Wochen, echte Vorlesungen ([Anleitung](BETA.md) liegt bereit)
+- [ ] Rückmeldungen einarbeiten, danach 1.0
 
 ## Phase 6 – iPad & iPhone (1.1)
 - [ ] iCloud-Sync einschalten (CloudKit), Duplikat-Bereinigung, Sync-Status
 - [ ] iOS-App-Target auf demselben Kern
-- [ ] **iPad eigenständig** (M-Chip): Whisper + lokales Modell auf dem Gerät, „Increased Memory Limit“, Hintergrund-Aufgaben
-- [ ] **iPhone als Begleit-App**: nimmt auf, Mac verarbeitet, fertige Notiz wieder auf dem iPhone lesbar
+- [ ] **iPad eigenständig** (M-Chip): Whisper + lokales Modell auf dem Gerät, „Increased Memory Limit“
+- [ ] **iPhone als Begleit-App**: nimmt auf, Mac verarbeitet, fertige Notiz wieder auf dem iPhone
 - [ ] Oberfläche für iPad und iPhone
 
-## Phase 7 – Kurs-Gruppen (1.2)
+## Phase 7 – Nach dem Launch (1.2)
+
+**Mac App Store prüfen** – erst nach 1.0, mit offenem Ausgang. Was dagegen spricht:
+- Die Sandbox verlangt für den Systemton (Core-Audio-Process-Tap) und für AppleScript zu Apple Notizen,
+  Bear und Craft Ausnahmegenehmigungen, die im Review begründet werden müssen
+- Der Obsidian-Vault ist ein beliebiger Ordner: dafür bräuchte es „security-scoped bookmarks“ statt Pfaden
+- Updates außerhalb des Stores (Sparkle, eigene DMG) fallen weg; jede Fehlerbehebung wartet auf ein Review
+- Nutzen wäre Auffindbarkeit und Vertrauen – bei einer kostenlosen, quelloffenen App kein Geld
+
+**Kurs-Gruppen**
 - [ ] Bereich mit Kommilitonen teilen (iCloud-Freigabe, nur Apple-Geräte)
 
 ## Später / Ideen
-- Englische Oberfläche (String Catalog)
-- Echte Sprechererkennung (Sprecher 1/2/3)
-- Kalender-Anbindung (Titel und Teilnehmende aus dem Termin)
-- Globales Tastenkürzel zum Aufnehmen
-- Weitere Ziele: Google Docs, OneNote, Logseq, Anytype, Todoist, Webhooks; Notion-Anmeldung ohne Token
-- Öffentlicher Link zum Teilen
-- Ältere iPads ohne M-Chip (über Mac oder eigenen API-Schlüssel)
+- Echte Sprechererkennung (Sprecher 1/2/3) statt „Ich / Andere“
+- Weitere Ziele: Google Docs, OneNote, Logseq, Anytype, Webhooks; Notion-Anmeldung ohne Token
+- Öffentlicher Link zum Teilen einer Notiz
+- Ältere iPads ohne M-Chip (über den Mac oder einen eigenen API-Schlüssel)
 - Echo-Unterdrückung bei Lautsprecher-Calls
+- Buy Me a Coffee / GitHub Sponsors, falls die App Zulauf bekommt
 
 ---
 
@@ -189,12 +252,16 @@ Vorher: Architekturvorschlag nach Guidelines Abschnitt 20, vom Nutzer abgesegnet
 
 | Frage | Empfehlung | Fällig bis |
 |---|---|---|
-| Launch-Termin | **Fast-Track:** Beta mit Kommilitonen Anfang Oktober, Launch zum Vorlesungsbeginn Ende Oktober – nur wenn die Beta keine groben Fehler zeigt; sonst Anfang Januar vor der Klausurenphase | nach Phase 3 |
-| Apple-Entwicklerkonto | ✅ **verlängert am 17.09.** – noch: Zertifikat + Notarisierung einrichten; ohne Developer-ID fragt macOS nach jedem Update erneut nach der Mikrofon-Erlaubnis, und die „Dennoch öffnen“-Hürde bleibt | sofort |
-| Sprache der Oberfläche beim Launch | nur Deutsch, Texte aber schon im String Catalog | Phase 2 |
-| Lokales Standardmodell | nach Benchmark mit echten Vorlesungen | Phase 4 |
-| Ältere iPads unterstützen | nein zum Start | Phase 6 |
-| Name final | nach Markenrecherche | vor Phase 5 |
+| Launch-Termin | Beta ab sofort mit Kommilitonen, Launch Ende Oktober zum Semesterstart – nur wenn die Beta keine groben Fehler zeigt; sonst Anfang Januar vor der Klausurenphase | nach Phase 4b |
+| Mac App Store | **Vorerst nein.** Direkt-Download plus Homebrew deckt die Zielgruppe ab; die Sandbox würde Systemton und Export einschränken. Nach 1.0 neu bewerten | nach 1.0 |
+| Englische Oberfläche | **Ja, vor dem Launch.** Ohne Englisch fällt der größte Teil der Launch-Kanäle weg | Phase 4b |
+| Sparkle (automatische Updates) | Erst bei nennenswerter Nutzerzahl; bis dahin reicht der Hinweis mit Download-Link | nach 1.0 |
+| Lokales Standardmodell | nach dem Modellvergleich mit echten Vorlesungen | Phase 4b |
+| Domain | erst nach der Markenrecherche kaufen | vor Phase 5 |
 
 ## Erledigte Entscheidungen (Auszug)
-Earnote als Name (vorbehaltlich Prüfung) · MIT & kostenlos · Zielgruppe Studierende · eigenständige Bibliothek, Export optional · WhisperKit + lokales MLX-Modell als Standard · native macOS-Oberfläche nach Design-Guidelines · SwiftData mit iCloud-tauglichem Schema · Audio wird nie synchronisiert · macOS 15 als Mindestversion
+Earnote als Name (vorbehaltlich Prüfung) · MIT & kostenlos · Zielgruppe Studierende · eigenständige Bibliothek,
+Export optional · WhisperKit + lokales MLX-Modell als Standard · native macOS-Oberfläche nach Design-Guidelines ·
+SwiftData mit iCloud-tauglichem Schema · Audio wird nie synchronisiert · macOS 15 als Mindestversion ·
+öffentliches GitHub-Repository unter `louiskl/Earnote` · Veröffentlichung als notarisierte DMG vom Mac aus,
+nicht über die CI (das Zertifikat bleibt lokal)
