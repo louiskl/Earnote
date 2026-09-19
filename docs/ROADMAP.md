@@ -127,7 +127,9 @@ Vorher: Architekturvorschlag nach Guidelines Abschnitt 20, vom Nutzer abgesegnet
 - [ ] Modellvergleich mit echten Vorlesungen: Qwen3 4B / 8B / 14B, Gemma 3 4B – Lernzettel nebeneinander bewerten
 - [ ] Automatische Modellwahl nach Gerät (Arbeitsspeicher, Chip)
 - [ ] 3-Stunden-Vorlesung Ende-zu-Ende: Dauer, Speicher, Akku, Wärme
-- [ ] Härtefälle: Festplatte voll, Berechtigung entzogen, Download abgebrochen, Mac schläft ein, Gerät gewechselt
+- [x] Härtefälle Teil 1 (0.8.1): Festplatte voll (Start blockiert bzw. Aufnahme sauber beendet), Mac schläft ein
+      (Aufnahme wird beendet und gespeichert), kein Pegel seit einer Minute (Hinweis mit nächstem Schritt)
+- [ ] Härtefälle Teil 2: Download abgebrochen, Gerät gewechselt, Berechtigung entzogen – am echten Mac durchspielen
 - [ ] „Ich / Andere“-Sprechererkennung prüfen
 - [ ] Swift-6-Sprachmodus
 - [ ] `LegacyMigration` (Earmark → Earnote) entfernen
@@ -140,7 +142,8 @@ Vorher: Architekturvorschlag nach Guidelines Abschnitt 20, vom Nutzer abgesegnet
 **Verteilung**
 - [ ] Apple-Entwicklerkonto (99 $/Jahr) → signieren und notarisieren (keine „Dennoch öffnen“-Hürde mehr)
 - [ ] Automatische Updates (Sparkle), Build und Release über GitHub Actions
-- [ ] Button „Feedback senden“ (GitHub Issues)
+- [x] Diagnose kopieren und Protokoll zeigen (Einstellungen › Über)
+- [ ] „Feedback senden“ als Mail bzw. GitHub Issue – braucht eine Adresse bzw. das öffentliche Repository
 
 **Test**
 - [ ] Beta mit 5–10 Kommilitonen über 1–2 Wochen, echte Vorlesungen

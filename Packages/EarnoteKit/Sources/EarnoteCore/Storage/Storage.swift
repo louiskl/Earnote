@@ -28,6 +28,12 @@ public struct Storage: Sendable {
         return new
     }
 
+    /// Freier Platz auf dem Laufwerk des Datenordners (Bytes; nil = unbekannt)
+    public var availableBytes: Int64? {
+        let values = try? root.resourceValues(forKeys: [.volumeAvailableCapacityForImportantUsageKey])
+        return values?.volumeAvailableCapacityForImportantUsage
+    }
+
     public var recordingsDir: URL { dir("Recordings") }
     public var modelsDir: URL { dir("Models") }
 

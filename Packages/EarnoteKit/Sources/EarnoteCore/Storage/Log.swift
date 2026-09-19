@@ -21,6 +21,12 @@ public enum Log {
         }
     }
 
+    /// Die letzten Zeilen des Protokolls – für Rückmeldungen aus der App.
+    public static func lastLines(_ count: Int) -> String {
+        guard let text = try? String(contentsOf: url, encoding: .utf8) else { return "(kein Protokoll)" }
+        return text.components(separatedBy: "\n").filter { !$0.isEmpty }.suffix(count).joined(separator: "\n")
+    }
+
     public static func info(_ msg: String) { write("INFO", msg) }
     public static func error(_ msg: String) { write("FEHLER", msg) }
 

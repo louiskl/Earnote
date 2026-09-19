@@ -217,3 +217,19 @@ final class SettingsCompatibilityTests: XCTestCase {
         XCTAssertTrue(settings.onboardingCompleted)
     }
 }
+
+final class DiskSpaceTests: XCTestCase {
+    func testWarnsBeforeTheDiskIsFull() {
+        XCTAssertEqual(DiskSpace.check(availableBytes: 20 * 1_073_741_824), .fine)
+        XCTAssertEqual(DiskSpace.check(availableBytes: nil), .fine, "Unbekannt heißt: nicht im Weg stehen")
+
+        let low = DiskSpace.check(availableBytes: 1_000 * 1_048_576)
+        XCTAssertEqual(low, .low(freeMB: 1_000, minutesLeft: 1_000 / DiskSpace.megabytesPerMinute))
+        XCTAssertTrue(low.message?.contains("58 Minuten") == true, low.message ?? "-")
+
+        let critical = DiskSpace.check(availableBytes: 100 * 1_048_576)
+        XCTAssertEqual(critical, .critical(freeMB: 100))
+        XCTAssertTrue(critical.message?.contains("100 MB") == true, critical.message ?? "-")
+        XCTAssertNil(DiskSpace.fine.message)
+    }
+}

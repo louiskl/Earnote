@@ -15,6 +15,10 @@ public enum AppInfo {
     /// solange zeigt die Oberfläche keine Links dorthin.
     public static let repository: URL? = nil
 
+    /// Adresse für Rückmeldungen aus der App. Bleibt `nil`, bis sie feststeht – dann zeigt die
+    /// Oberfläche nur „Diagnose kopieren“ statt eines Mail-Knopfs.
+    public static let feedbackEmail: String? = nil
+
     // MARK: Frühere Werte (bis Version 0.1.1 hieß die App „Earmark“) – nur für die Datenübernahme
 
     public static let legacyBundleIdentifier = "app.earmark.Earmark"

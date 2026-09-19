@@ -67,6 +67,12 @@ final class RecordingController {
     @ObservationIgnored private var recordingStartedByCall = false
     /// Hinweis „gewähltes Mikrofon nicht verbunden“ nur einmal je Gerät und App-Start
     @ObservationIgnored private var toldAboutMissingMicrophone: Set<String> = []
+    /// Seit wann das Mikrofon nichts mehr liefert (für den Hinweis „kein Ton“)
+    @ObservationIgnored private var silentSince: Date?
+    @ObservationIgnored private var toldAboutSilence = false
+    @ObservationIgnored private var lastDiskCheck = Date.distantPast
+    @ObservationIgnored private var toldAboutLowSpace = false
+    @ObservationIgnored private var sleepObserver: NSObjectProtocol?
 
     var isRecording: Bool { activeRecordingID != nil }
     var activeRecording: Recording? { activeRecordingID.flatMap(library.recording) }
@@ -101,6 +107,12 @@ final class RecordingController {
                     SystemSettingsLink.microphone()
                     return
                 }
+            }
+            // Zu wenig Platz: Eine Aufnahme, die nach zehn Minuten abbricht, hilft niemandem.
+            let space = library.audio.diskSpace
+            if case .critical = space {
+                lastError = space.message
+                return
             }
             let settings = library.settings
             let df = DateFormatter()
@@ -153,7 +165,13 @@ final class RecordingController {
             if let error = session.systemAudioError {
                 lastError = "Die Aufnahme läuft nur mit Mikrofon. Systemton konnte nicht gestartet werden: \(error) Prüfe die Systemaudio-Berechtigung für \(AppInfo.name) in den Systemeinstellungen."
             }
+            if case .low = space { lastError = space.message }
             recordingStartedByCall = byCall
+            silentSince = nil
+            toldAboutSilence = false
+            lastDiskCheck = Date()
+            toldAboutLowSpace = false
+            startSleepWatch()
             isPaused = false
             pausedAt = nil
             pausedTotal = 0
@@ -309,6 +327,7 @@ final class RecordingController {
     }
 
     private func endRecordingSession() {
+        stopSleepWatch()
         stopLiveTranscript()
         chunkLoop?.cancel()
         chunkLoop = nil
@@ -335,8 +354,73 @@ final class RecordingController {
                 self.meter.mic = s.micLevel
                 self.meter.system = s.systemLevel
                 self.meter.elapsed = max(0, Date().timeIntervalSince(startedAt) - self.totalPaused)
+                self.watchForSilence(level: s.micLevel, isPaused: s.isPaused)
+                self.watchDiskSpace()
             }
         }
+    }
+
+    /// Ein echtes Mikrofon rauscht immer ein wenig. Kommt eine Minute lang exakt nichts, stimmt etwas nicht
+    /// (Berechtigung entzogen, Gerät stummgeschaltet) – dann lieber früh Bescheid sagen als hinterher.
+    private func watchForSilence(level: Float, isPaused: Bool) {
+        guard !isPaused else { silentSince = nil; return }
+        guard level < 0.0002 else { silentSince = nil; return }
+        let since = silentSince ?? Date()
+        silentSince = since
+        guard !toldAboutSilence, Date().timeIntervalSince(since) > 60 else { return }
+        toldAboutSilence = true
+        let message = "Seit einer Minute ist nichts zu hören. Prüfe, ob das richtige Mikrofon gewählt ist und "
+            + "\(AppInfo.name) es verwenden darf (Systemeinstellungen › Datenschutz & Sicherheit › Mikrofon)."
+        lastError = message
+        notify("Kein Ton", message)
+        Log.error("Aufnahme ohne Pegel seit 60 s")
+    }
+
+    /// Läuft die Platte während der Aufnahme voll, wird sauber beendet – das Aufgenommene bleibt erhalten.
+    private func watchDiskSpace() {
+        guard Date().timeIntervalSince(lastDiskCheck) > 30 else { return }
+        lastDiskCheck = Date()
+        let space = library.audio.diskSpace
+        switch space {
+        case .fine:
+            return
+        case .low:
+            if !toldAboutLowSpace, let message = space.message {
+                toldAboutLowSpace = true
+                lastError = message
+                notify("Wenig Speicherplatz", message)
+            }
+        case .critical:
+            let message = "Die Aufnahme wurde beendet, weil der Speicherplatz ausgeht. Das bisher Aufgenommene "
+                + "wird ganz normal verarbeitet."
+            Log.error("Aufnahme wegen Speicherplatz beendet")
+            stopRecording()
+            lastError = message
+            notify("Speicherplatz voll", message)
+        }
+    }
+
+    /// Klappt der Mac zu, schläft er – mitten in der Aufnahme. Lieber sauber beenden und verarbeiten,
+    /// als eine halb geschriebene Datei zu hinterlassen.
+    private func startSleepWatch() {
+        guard sleepObserver == nil else { return }
+        sleepObserver = NSWorkspace.shared.notificationCenter.addObserver(
+            forName: NSWorkspace.willSleepNotification, object: nil, queue: .main) { [weak self] _ in
+                MainActor.assumeIsolated {
+                    guard let self, self.isRecording else { return }
+                    Log.info("Mac schläft ein – Aufnahme wird beendet")
+                    self.stopRecording()
+                    let message = "Der Mac ist eingeschlafen, deshalb wurde die Aufnahme beendet und gespeichert. "
+                        + "Lass den Deckel offen, wenn weiter mitgeschrieben werden soll."
+                    self.lastError = message
+                    self.notify("Aufnahme beendet", message)
+                }
+            }
+    }
+
+    private func stopSleepWatch() {
+        if let sleepObserver { NSWorkspace.shared.notificationCenter.removeObserver(sleepObserver) }
+        sleepObserver = nil
     }
 
     private func stopMeter() {

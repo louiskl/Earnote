@@ -1,7 +1,45 @@
 import Foundation
 
+/// Wie es um den Speicherplatz steht – entscheidet, ob eine Aufnahme starten darf und wann sie
+/// vorsichtshalber beendet wird. Eine Stunde Aufnahme (Mikrofon + Systemton) braucht rund 1 GB.
+public enum DiskSpace: Sendable, Equatable {
+    /// Genug Platz
+    case fine
+    /// Wird knapp – Aufnahme läuft, aber mit Hinweis
+    case low(freeMB: Int, minutesLeft: Int)
+    /// Zu wenig, um verlässlich aufzunehmen
+    case critical(freeMB: Int)
+
+    /// Rund 17 MB pro Minute (Mikrofon und Systemton getrennt, dazu die gemischte Datei)
+    public static let megabytesPerMinute = 17
+
+    public static func check(availableBytes: Int64?) -> DiskSpace {
+        guard let availableBytes else { return .fine }
+        let freeMB = Int(availableBytes / 1_048_576)
+        if freeMB < 300 { return .critical(freeMB: freeMB) }
+        if freeMB < 1_500 { return .low(freeMB: freeMB, minutesLeft: freeMB / megabytesPerMinute) }
+        return .fine
+    }
+
+    /// Verständlicher Satz für die Oberfläche (nil, wenn alles in Ordnung ist)
+    public var message: String? {
+        switch self {
+        case .fine:
+            return nil
+        case .low(let freeMB, let minutesLeft):
+            return "Nur noch \(freeMB) MB frei – das reicht für etwa \(minutesLeft) Minuten Aufnahme. "
+                + "Mach etwas Platz, sonst bricht die Aufnahme vorzeitig ab."
+        case .critical(let freeMB):
+            return "Zu wenig Speicherplatz: nur noch \(freeMB) MB frei. "
+                + "Lösche etwas (oder alte Aufnahmen in \(AppInfo.name)) und starte die Aufnahme neu."
+        }
+    }
+}
+
 /// Audiodateien der Aufnahmen. Sie bleiben immer lokal auf dem Gerät und werden nie synchronisiert.
 public protocol AudioStore: Sendable {
+    /// Platz auf dem Laufwerk, auf dem die Aufnahmen landen
+    var diskSpace: DiskSpace { get }
     /// Ordner der Aufnahme (z. B. zum Zeigen im Finder)
     func folderURL(for id: UUID) -> URL
     /// Legt den Ordner an, bevor Audio hineingeschrieben wird
@@ -22,6 +60,8 @@ public protocol AudioStore: Sendable {
 /// Audio als Dateien unter `<Datenordner>/Recordings/<id>/`
 public struct FileAudioStore: AudioStore {
     public let storage: Storage
+
+    public var diskSpace: DiskSpace { DiskSpace.check(availableBytes: storage.availableBytes) }
 
     public init(storage: Storage = .standard) {
         self.storage = storage

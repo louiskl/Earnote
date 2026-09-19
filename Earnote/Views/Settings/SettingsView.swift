@@ -104,6 +104,64 @@ struct RecordingSettings: View {
     }
 }
 
+/// Rückmeldung geben: Mail mit den wichtigsten Angaben oder Diagnose in die Zwischenablage,
+/// dazu der Weg zum Protokoll. Ohne diese Angaben ist ein Fehlerbericht selten zu gebrauchen.
+struct FeedbackButtons: View {
+    @State private var copied = false
+
+    var body: some View {
+        HStack {
+            if let address = AppInfo.feedbackEmail {
+                Button("Feedback senden") { sendMail(to: address) }
+            }
+            Button(copied ? "Diagnose kopiert" : "Diagnose kopieren") {
+                NSPasteboard.general.clearContents()
+                NSPasteboard.general.setString(Diagnostics.text(), forType: .string)
+                copied = true
+            }
+            Button("Protokoll zeigen") { NSWorkspace.shared.activateFileViewerSelecting([Log.url]) }
+        }
+        .controlSize(.small)
+    }
+
+    private func sendMail(to address: String) {
+        let subject = "\(AppInfo.name) \(Diagnostics.version): Rückmeldung"
+        let body = "Was ist passiert?\n\n\n\n---\n\(Diagnostics.text())"
+        var components = URLComponents()
+        components.scheme = "mailto"
+        components.path = address
+        components.queryItems = [URLQueryItem(name: "subject", value: subject), URLQueryItem(name: "body", value: body)]
+        if let url = components.url { NSWorkspace.shared.open(url) }
+    }
+}
+
+/// Angaben, die bei jeder Rückmeldung helfen – ohne Aufnahmen oder Notizen.
+enum Diagnostics {
+    static var version: String {
+        Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "–"
+    }
+
+    static func text() -> String {
+        let os = ProcessInfo.processInfo.operatingSystemVersionString
+        var model = "Mac"
+        var size = 0
+        sysctlbyname("hw.model", nil, &size, nil, 0)
+        if size > 0 {
+            var buffer = [CChar](repeating: 0, count: size)
+            sysctlbyname("hw.model", &buffer, &size, nil, 0)
+            model = String(cString: buffer)
+        }
+        let memory = ProcessInfo.processInfo.physicalMemory / 1_073_741_824
+        return """
+            \(AppInfo.name) \(version)
+            macOS: \(os)
+            Mac: \(model), \(memory) GB
+            Letzte Protokollzeilen:
+            \(Log.lastLines(20))
+            """
+    }
+}
+
 /// Über: Version, Zweck, Quellcode.
 struct AboutSettings: View {
     private var version: String {
@@ -126,6 +184,7 @@ struct AboutSettings: View {
                     Link("Fehler melden", destination: repository.appendingPathComponent("issues"))
                 }
             }
+            FeedbackButtons()
             Text("MIT-Lizenz").font(.callout).foregroundStyle(.tertiary)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
