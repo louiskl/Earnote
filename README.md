@@ -99,6 +99,8 @@ PRs are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) and the [roadmap](docs/R
 
 > ⚖️ Bitte vor jeder Aufnahme das Einverständnis aller Beteiligten einholen (§ 201 StGB).
 
+**Beta-Tester:** Die Kurzanleitung steht in [docs/BETA.md](docs/BETA.md).
+
 ## License
 
 [MIT](LICENSE)
