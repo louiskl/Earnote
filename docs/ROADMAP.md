@@ -129,7 +129,9 @@ Vorher: Architekturvorschlag nach Guidelines Abschnitt 20, vom Nutzer abgesegnet
 - [ ] 3-Stunden-Vorlesung Ende-zu-Ende: Dauer, Speicher, Akku, Wärme
 - [x] Härtefälle Teil 1 (0.8.1): Festplatte voll (Start blockiert bzw. Aufnahme sauber beendet), Mac schläft ein
       (Aufnahme wird beendet und gespeichert), kein Pegel seit einer Minute (Hinweis mit nächstem Schritt)
-- [ ] Härtefälle Teil 2: Download abgebrochen, Gerät gewechselt, Berechtigung entzogen – am echten Mac durchspielen
+- [x] Härtefälle Teil 2 (0.8.4): Whisper-Download abbrechbar, halb geladene Modelle werden entfernt,
+      verständliche Meldung bei Abbruch (das lokale KI-Modell konnte das schon über seine `.complete`-Markierung)
+- [ ] Härtefälle Teil 3: Gerät gewechselt und Berechtigung entzogen am echten Mac durchspielen
 - [ ] „Ich / Andere“-Sprechererkennung prüfen
 - [ ] Swift-6-Sprachmodus
 - [ ] `LegacyMigration` (Earmark → Earnote) entfernen

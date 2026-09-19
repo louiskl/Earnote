@@ -34,6 +34,7 @@ public final class WhisperModelManager: ObservableObject {
     private let repo = "argmaxinc/whisperkit-coreml"
     private var installedKey = "whisper.installed"
     private var preparedKey = "whisper.prepared"
+    private var downloadTask: Task<Void, Never>?
 
     private init() {
         if let saved = UserDefaults.standard.dictionary(forKey: installedKey) as? [String: String] {
@@ -71,6 +72,34 @@ public final class WhisperModelManager: ObservableObject {
         return available.first { $0.hasSuffix(model) } ?? model
     }
 
+    /// Laden und gleich danach für den Chip vorbereiten – so, wie es die Oberfläche braucht.
+    /// Der Task wird gemerkt, damit sich ein 1,6-GB-Download auch wieder abbrechen lässt.
+    public func startDownload(_ model: String) {
+        guard downloading == nil else { return }
+        downloadTask = Task {
+            if await download(model) { await prepare(model) }
+        }
+    }
+
+    /// Bricht einen laufenden Download ab und räumt die halb geladenen Dateien weg.
+    public func cancelDownload() {
+        guard let model = downloading else { return }
+        downloadTask?.cancel()
+        downloadTask = nil
+        downloading = nil
+        downloadProgress = 0
+        removePartialDownload(of: model)
+        Log.info("Whisper-Download abgebrochen: \(model)")
+    }
+
+    /// Ordner eines nicht zu Ende geladenen Modells entfernen – sonst liegen bis zu 1,6 GB ungenutzt herum.
+    private func removePartialDownload(of model: String) {
+        guard installed[model] == nil else { return }
+        let folder = Storage.standard.modelsDir
+            .appendingPathComponent("models/\(repo)/openai_whisper-\(resolve(model))", isDirectory: true)
+        try? FileManager.default.removeItem(at: folder)
+    }
+
     public func download(_ model: String) async -> Bool {
         downloading = model
         downloadProgress = 0
@@ -90,8 +119,12 @@ public final class WhisperModelManager: ObservableObject {
             UserDefaults.standard.set(installed.mapValues(\.path), forKey: installedKey)
             Log.info("Whisper-Modell geladen: \(variant) → \(folder.path)")
             return true
+        } catch is CancellationError {
+            return false
         } catch {
-            lastError = "Download fehlgeschlagen: \(error.localizedDescription)"
+            removePartialDownload(of: model)
+            lastError = "Download fehlgeschlagen: \(error.localizedDescription). "
+                + "Prüfe die Internetverbindung und versuche es erneut."
             Log.error(lastError!)
             return false
         }

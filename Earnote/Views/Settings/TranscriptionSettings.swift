@@ -73,6 +73,7 @@ struct WhisperModelSection: View {
             HStack {
                 ProgressView(value: models.downloadProgress).frame(width: 120)
                 Text("\(Int(models.downloadProgress * 100)) %").font(.callout.monospacedDigit())
+                Button("Abbrechen") { models.cancelDownload() }
             }
         } else if models.preparing == model {
             HStack {
@@ -93,12 +94,8 @@ struct WhisperModelSection: View {
                 Button("Löschen") { models.delete(model) }
             }
         } else {
-            Button("Laden") {
-                Task {
-                    if await models.download(model) { await models.prepare(model) }
-                }
-            }
-            .disabled(models.downloading != nil)
+            Button("Laden") { models.startDownload(model) }
+                .disabled(models.downloading != nil)
         }
     }
 }
