@@ -1,13 +1,21 @@
-name: Build
+name: Tests
+
+# Läuft bei jedem Push und bei Pull Requests. Bewusst nur die Kern-Tests und der iOS-Build des Kerns:
+# Sie brauchen weder WhisperKit noch MLX und sind in Minuten durch.
+#
+# Die veröffentlichte DMG entsteht nicht hier, sondern auf dem Mac mit `./scripts/build_release.sh`.
+# Grund: Signieren und Notarisieren brauchen das Developer-ID-Zertifikat, und das gehört nicht als
+# Geheimnis in ein öffentliches Repository, solange es auch von Hand geht.
 
 on:
   push:
     branches: [main]
-    tags: ["v*"]
   pull_request:
+  workflow_dispatch:
 
 jobs:
-  build:
+  tests:
+    name: Kern-Tests
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
@@ -15,51 +23,17 @@ jobs:
       - name: Xcode-Version anzeigen
         run: xcodebuild -version
 
-      - name: Kern-Tests (EarnoteCore, ohne WhisperKit/MLX zu bauen)
+      - name: Pakete cachen
+        uses: actions/cache@v4
+        with:
+          path: Packages/EarnoteKit/.build
+          key: spm-${{ runner.os }}-${{ hashFiles('Packages/EarnoteKit/Package.resolved') }}
+          restore-keys: spm-${{ runner.os }}-
+
+      - name: Kern-Tests (ohne WhisperKit und MLX)
         working-directory: Packages/EarnoteKit
         run: swift test --test-product EarnoteKitPackageTests
 
-      - name: Metal-Toolchain laden (für das lokale Sprachmodell / MLX)
-        run: xcodebuild -downloadComponent MetalToolchain
-
-      # Signiert nur, wenn die Secrets gesetzt sind – sonst wie bisher ad-hoc.
-      - name: Zertifikat und Notarisierung vorbereiten
-        if: ${{ secrets.MACOS_CERTIFICATE != '' }}
-        env:
-          MACOS_CERTIFICATE: ${{ secrets.MACOS_CERTIFICATE }}
-          MACOS_CERTIFICATE_PWD: ${{ secrets.MACOS_CERTIFICATE_PWD }}
-          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-          NOTARY_APPLE_ID: ${{ secrets.NOTARY_APPLE_ID }}
-          NOTARY_TEAM_ID: ${{ secrets.NOTARY_TEAM_ID }}
-          NOTARY_PASSWORD: ${{ secrets.NOTARY_PASSWORD }}
-        run: |
-          echo "$MACOS_CERTIFICATE" | base64 --decode > /tmp/cert.p12
-          security create-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
-          security default-keychain -s build.keychain
-          security unlock-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
-          security import /tmp/cert.p12 -k build.keychain -P "$MACOS_CERTIFICATE_PWD" -T /usr/bin/codesign
-          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" build.keychain
-          rm /tmp/cert.p12
-          if [ -n "$NOTARY_PASSWORD" ]; then
-            xcrun notarytool store-credentials earnote-notary \
-              --apple-id "$NOTARY_APPLE_ID" --team-id "$NOTARY_TEAM_ID" --password "$NOTARY_PASSWORD"
-          fi
-
-      - name: App bauen und DMG erstellen
-        env:
-          # Ohne Secrets bleiben beide leer: dann signiert das Skript ad-hoc wie bisher.
-          DEVELOPER_ID: ${{ secrets.MACOS_CERTIFICATE != '' && format('Developer ID Application: {0} ({1})', secrets.MACOS_SIGNING_NAME, secrets.NOTARY_TEAM_ID) || '' }}
-          NOTARY_PROFILE: ${{ secrets.NOTARY_PASSWORD != '' && 'earnote-notary' || '' }}
-        run: ./scripts/build_release.sh
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: Earnote
-          path: dist/Earnote.dmg
-
-      - name: Release veröffentlichen
-        if: startsWith(github.ref, 'refs/tags/v')
-        uses: softprops/action-gh-release@v2
-        with:
-          files: dist/Earnote.dmg
-          generate_release_notes: true
+      - name: iOS-Build des Kerns
+        working-directory: Packages/EarnoteKit
+        run: xcodebuild build -scheme EarnoteCore -destination 'generic/platform=iOS' | tail -5
