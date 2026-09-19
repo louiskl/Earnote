@@ -26,21 +26,6 @@
 | 6 | iPad eigenständig, iPhone als Begleit-App, iCloud-Sync | 1.1 | nach Launch |
 | 7 | Mac App Store prüfen (Sandbox), Kurs-Gruppen teilen | 1.2 | nach Launch |
 
----|---|---|---|
-| 0 | Fundament: Code gesichert, Umbenennung Earmark → Earnote, Datenübernahme | 0.2.0 | ✅ fertig |
-| 1a | Kern herauslösen: `EarnoteKit` (Core + ML), `AppState` zerlegt, schnelle Tests, iOS-Build-Beweis | 0.3.0 | ✅ fertig |
-| 1b | Datenmodell: SwiftData, iCloud-tauglich, macOS 15, Speicher aufgeteilt | 0.4.0 | ✅ fertig |
-| 1c | Aufnahme robust + Mikrofon auswählen | 0.5.0 | ✅ fertig |
-| 2a | Neues natives Hauptfenster (Seitenleiste, Liste, Notiz, Inspector, Toolbar, Befehle, Suche, Teilen) | 0.6.0 | ✅ fertig |
-| 2b | Farbe zurück (Bereichsfarben), Aufnahme-Bühne mit Pegel und Live-Text, Menüleiste ohne „Zuletzt“, zentrales Call-Banner, signierte und notarisierte Version | 0.7.0 | ✅ fertig |
-| **2c** | **Einstellungen und Einrichtungsassistent nativ (inkl. Whisper-Vorbereitung), altes Design-System entfernt** | 0.7.1 | ▶ **fertig, Test durch den Nutzer offen** |
-| 3 | Funktionen für 1.0: Bearbeiten, Korrigieren & Wörterbuch, PDF-Lernzettel, Transkript-Qualität | 0.8 | ▶ **3a und 3b fertig** |
-| 4 | Qualität & Modelle: Benchmark, automatische Modellwahl, Härtetests | 0.9 | geplant |
-| 5 | Beta mit Kommilitonen · **parallel dazu Phase 6 (iPad/iPhone)** | 1.0 RC | geplant |
-| 🚀 | **Launch Earnote 1.0 für Mac** | 1.0 | |
-| 6 | iPad eigenständig, iPhone als Begleit-App, iCloud-Sync | 1.1 | **startet parallel zur Mac-Beta** |
-| 7 | Kurs-Gruppen: Bereiche mit Kommilitonen teilen | 1.2 | nach Launch |
-
 ---
 
 ## ✅ Phase 0 – Fundament (0.2.0)
