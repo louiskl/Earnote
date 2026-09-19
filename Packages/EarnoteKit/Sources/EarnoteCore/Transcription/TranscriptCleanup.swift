@@ -32,6 +32,9 @@ public enum TranscriptCleanup {
             // Die Abspann-Floskeln stehen oft mit Jahreszahl oder Zusatz da – deshalb „enthält“ statt „gleich“.
             if creditPhrases.contains(where: text.contains) { return false }
             guard politePhrases.contains(text) else { return true }
+            // Drei Wörter, die sich über Sekunden ziehen: Das hat Whisper über eine stille Stelle gelegt.
+            let words = max(1, text.split(separator: " ").count)
+            if segment.end - segment.start > Double(words) * 1.5 + 1.5 { return false }
             // Steht die Floskel mitten im Gespräch, ist sie echt; steht sie allein in einer Pause, nicht.
             let gapBefore = index == 0 ? Double.infinity : segment.start - segments[index - 1].end
             let gapAfter = index == segments.count - 1 ? Double.infinity : segments[index + 1].start - segment.end

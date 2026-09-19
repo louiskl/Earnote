@@ -260,3 +260,29 @@ final class UpdateCheckTests: XCTestCase {
         XCTAssertNil(UpdateCheck.release(from: draft), "Entwürfe und Vorabversionen zählen nicht")
     }
 }
+
+final class TranscriptQualityFromRealLecturesTests: XCTestCase {
+    /// Aus einer echten Vorlesung: „Vielen Dank.“ über sieben Sekunden, direkt am Anfang.
+    func testRemovesPolitePhrasesStretchedOverSilence() {
+        let segments = [TranscriptSegment(start: 0, end: 7.2, text: "Vielen Dank."),
+                        TranscriptSegment(start: 7.5, end: 12, text: "Beginnen wir mit Kapitel eins.")]
+        XCTAssertEqual(TranscriptCleanup.clean(segments).map(\.text), ["Beginnen wir mit Kapitel eins."])
+    }
+
+    func testKeepsAQuickThankYouInConversation() {
+        let segments = [TranscriptSegment(start: 0, end: 2, text: "Hier ist die Datei."),
+                        TranscriptSegment(start: 2.1, end: 2.9, text: "Vielen Dank."),
+                        TranscriptSegment(start: 3, end: 5, text: "Gern.")]
+        XCTAssertEqual(TranscriptCleanup.clean(segments).count, 3)
+    }
+
+    func testSpeakerLabelsOnlyWithTwoRealSources() {
+        let lecture = EnergyEnvelope(mic: Array(repeating: 0.2, count: 100), system: Array(repeating: 0.0, count: 100))
+        XCTAssertFalse(lecture.hasTwoSources, "Vorlesung: alles kommt aus dem Mikrofon")
+
+        let call = EnergyEnvelope(mic: Array(repeating: 0.2, count: 100),
+                                  system: (0..<100).map { $0 % 2 == 0 ? 0.2 : 0 })
+        XCTAssertTrue(call.hasTwoSources, "Call: beide Spuren tragen bei")
+        XCTAssertEqual(call.systemLoudShare, 0.5, accuracy: 0.01)
+    }
+}

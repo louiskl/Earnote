@@ -132,7 +132,9 @@ Vorher: Architekturvorschlag nach Guidelines Abschnitt 20, vom Nutzer abgesegnet
 - [x] Härtefälle Teil 2 (0.8.4): Whisper-Download abbrechbar, halb geladene Modelle werden entfernt,
       verständliche Meldung bei Abbruch (das lokale KI-Modell konnte das schon über seine `.complete`-Markierung)
 - [ ] Härtefälle Teil 3: Gerät gewechselt und Berechtigung entzogen am echten Mac durchspielen
-- [ ] „Ich / Andere“-Sprechererkennung prüfen
+- [x] „Ich / Andere“-Sprechererkennung geprüft (0.8.5): An einer echten Vorlesung waren 147 von 569 Abschnitten
+      als „Ich“ markiert, obwohl der Nutzer nur zugehört hat. Sprecherlabels gibt es jetzt nur noch, wenn beide
+      Spuren nennenswert etwas beigetragen haben (Call), nicht bei einer Vorlesung über das Mikrofon.
 - [ ] Swift-6-Sprachmodus
 - [ ] `LegacyMigration` (Earmark → Earnote) entfernen
 

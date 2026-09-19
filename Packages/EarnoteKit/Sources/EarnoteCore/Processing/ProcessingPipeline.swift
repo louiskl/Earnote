@@ -77,7 +77,7 @@ public struct ProcessingPipeline: Sendable {
                 // Automatische Namen („Meeting – 15. Sept., 19:58“) sind kein Kontext – das Modell würde sie nur als Titel übernehmen
                 let context = SummaryContext(category: category, titleHint: rec.hasAutoTitle ? "" : rec.title, sourceApp: rec.sourceApp,
                                              date: rec.startedAt, duration: rec.duration,
-                                             hasSpeakers: settings.speakerLabels && rec.hasSystemAudio,
+                                             hasSpeakers: settings.speakerLabels && transcript.segments.contains { $0.speaker != nil },
                                              language: settings.ai.summaryLanguage,
                                              glossary: glossary, extraInstructions: extraInstructions)
                 let started = Date()
@@ -197,10 +197,15 @@ public struct ProcessingPipeline: Sendable {
         if segments.count < raw { Log.info("Transkript bereinigt: \(raw - segments.count) von \(raw) Abschnitten entfernt") }
         guard TranscriptCleanup.spokenWords(segments) >= 3 else { throw TranscriptionError.noSpeech }
 
-        if let envelope, rec.hasSystemAudio {
+        // „Ich“/„Andere“ nur, wenn beide Spuren etwas beigetragen haben. Sonst (typische Vorlesung:
+        // alles kommt aus dem Mikrofon) wäre die Zuordnung geraten und stünde nur im Weg.
+        if let envelope, rec.hasSystemAudio, envelope.hasTwoSources {
             for i in segments.indices {
                 segments[i].speaker = envelope.speaker(from: segments[i].start, to: segments[i].end)
             }
+        } else if let envelope, rec.hasSystemAudio {
+            Log.info(String(format: "Keine Sprecher-Zuordnung: Mikrofon %.0f %%, Systemton %.0f %% der Zeit aktiv",
+                            envelope.micLoudShare * 100, envelope.systemLoudShare * 100))
         }
         return Transcript(segments: segments, engine: transcriber.engineName)
     }

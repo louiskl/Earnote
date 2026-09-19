@@ -95,6 +95,19 @@ public struct EnergyEnvelope: Codable, Sendable {
         return Double(loud) / Double(windows)
     }
 
+    /// Anteil der Zeit, in dem die jeweilige Spur etwas aufgenommen hat
+    public var micLoudShare: Double { share(of: mic) }
+    public var systemLoudShare: Double { share(of: system) }
+
+    private func share(of track: [Float]) -> Double {
+        guard !track.isEmpty else { return 0 }
+        return Double(track.filter { $0 > Self.silence * 3 }.count) / Double(track.count)
+    }
+
+    /// Lohnt sich „Ich“ und „Andere“ überhaupt? Nur, wenn auf beiden Spuren nennenswert etwas passiert.
+    /// In einer Vorlesung ohne Call kommt alles aus dem Mikrofon – dann wäre jede Zuordnung geraten.
+    public var hasTwoSources: Bool { micLoudShare > 0.05 && systemLoudShare > 0.05 }
+
     /// Lauter Systemton lässt das Mikrofon mithören. Nur was deutlich darüber liegt, ist die eigene Stimme.
     public func isOwnVoice(mic m: Float, system s: Float) -> Bool {
         m > max(Self.silence * 2, bleed * s * Self.ownVoiceFactor)
