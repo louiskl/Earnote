@@ -14,22 +14,32 @@ import Tokenizers
 public final class LocalModelManager: ObservableObject {
     public static let shared = LocalModelManager()
 
-    public struct ModelInfo: Sendable {
-        public let repository: String
-        public let name: String
-        public let sizeText: String
+    /// Das Modell, das die App gerade benutzt. Wird von der App aus den Einstellungen gesetzt.
+    @Published public var selected: LocalModelInfo = LocalModelCatalog.standard {
+        didSet {
+            guard oldValue.id != selected.id else { return }
+            Self.current = selected
+            isInstalled = Self.isInstalled(selected)
+            progress = 0
+            // Das alte Modell hängt sonst im Speicher, obwohl ein anderes gefragt ist
+            Task { await LocalLLMCache.shared.release() }
+        }
     }
 
-    /// Qwen3 4B (Instruct 2507, 4 Bit): gutes Deutsch, hält sich an Vorgaben, verarbeitet lange Transkripte am Stück.
-    public static let standard = ModelInfo(repository: "mlx-community/Qwen3-4B-Instruct-2507-4bit",
-                                    name: "Qwen3 4B", sizeText: "2,3 GB")
+    /// Damit auch die nicht-isolierten Helfer wissen, um welches Modell es geht
+    nonisolated(unsafe) public private(set) static var current: LocalModelInfo = LocalModelCatalog.standard
 
-    @Published public private(set) var isInstalled = LocalModelManager.installed
+    @Published public private(set) var isInstalled = LocalModelManager.isInstalled(LocalModelCatalog.standard)
     @Published public private(set) var isDownloading = false
     @Published public private(set) var progress: Double = 0
     @Published public var lastError: String?
 
     private var downloadTask: Task<Void, Never>?
+
+    /// Welche Modelle schon geladen sind – für die Auswahl in den Einstellungen
+    public var installedModels: Set<String> {
+        Set(LocalModelCatalog.all.filter { Self.isInstalled($0) }.map(\.id))
+    }
 
     // MARK: Voraussetzungen
 
@@ -40,25 +50,35 @@ public final class LocalModelManager: ObservableObject {
 
     nonisolated public static var unsupportedReason: String? { DeviceCapabilities.localModelUnsupportedReason }
 
-    nonisolated public static var folder: URL {
+    nonisolated public static func folder(_ model: LocalModelInfo) -> URL {
         Storage.standard.modelsDir.appendingPathComponent("llm", isDirectory: true)
-            .appendingPathComponent(standard.repository.replacingOccurrences(of: "/", with: "--"), isDirectory: true)
+            .appendingPathComponent(model.id.replacingOccurrences(of: "/", with: "--"), isDirectory: true)
     }
+
+    /// Ordner des gerade gewählten Modells
+    nonisolated public static var folder: URL { folder(current) }
 
     /// Wird erst nach vollständigem Download geschrieben – ein abgebrochener Download gilt nicht als installiert.
-    nonisolated private static var completeMarker: URL { folder.appendingPathComponent(".complete") }
-    /// Name der Markierung vor der Umbenennung der App (wird bei der Datenübernahme umbenannt)
-    nonisolated private static var legacyCompleteMarker: URL { folder.appendingPathComponent(".earmark-complete") }
-
-    nonisolated public static var installed: Bool {
-        FileManager.default.fileExists(atPath: completeMarker.path)
-            || FileManager.default.fileExists(atPath: legacyCompleteMarker.path)
+    nonisolated private static func completeMarker(_ model: LocalModelInfo) -> URL {
+        folder(model).appendingPathComponent(".complete")
     }
+    /// Name der Markierung vor der Umbenennung der App (wird bei der Datenübernahme umbenannt)
+    nonisolated private static func legacyCompleteMarker(_ model: LocalModelInfo) -> URL {
+        folder(model).appendingPathComponent(".earmark-complete")
+    }
+
+    nonisolated public static func isInstalled(_ model: LocalModelInfo) -> Bool {
+        FileManager.default.fileExists(atPath: completeMarker(model).path)
+            || FileManager.default.fileExists(atPath: legacyCompleteMarker(model).path)
+    }
+
+    nonisolated public static var installed: Bool { isInstalled(current) }
 
     /// Liegen alle Dateien vollständig im Ordner? Prüft Konfiguration, Tokenizer und jede Gewichtsdatei,
     /// die im Index aufgeführt ist.
-    nonisolated public static var filesComplete: Bool {
+    nonisolated public static func filesComplete(_ model: LocalModelInfo) -> Bool {
         let fm = FileManager.default
+        let folder = folder(model)
         for name in ["config.json", "tokenizer.json", "tokenizer_config.json"]
         where !fm.fileExists(atPath: folder.appendingPathComponent(name).path) {
             return false
@@ -72,10 +92,15 @@ public final class LocalModelManager: ObservableObject {
         return fm.fileExists(atPath: folder.appendingPathComponent("model.safetensors").path)
     }
 
+    nonisolated public static var filesComplete: Bool { filesComplete(current) }
+
     // MARK: Download
 
-    public func download() {
-        guard !isDownloading, !isInstalled, Self.isSupported else { return }
+    public func download() { download(selected) }
+
+    public func download(_ model: LocalModelInfo) {
+        guard !isDownloading, !Self.isInstalled(model), Self.isSupported else { return }
+        selected = model
         isDownloading = true
         progress = 0
         lastError = nil
@@ -88,29 +113,30 @@ public final class LocalModelManager: ObservableObject {
                 return
             }
             do {
-                guard let repo = Repo.ID(rawValue: Self.standard.repository) else { return }
-                try FileManager.default.createDirectory(at: Self.folder, withIntermediateDirectories: true)
-                if !Self.filesComplete {
+                guard let repo = Repo.ID(rawValue: model.id) else { return }
+                let folder = Self.folder(model)
+                try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+                if !Self.filesComplete(model) {
                     // Kein zusätzlicher Cache: die Dateien liegen genau einmal im App-Ordner
                     let client = HubClient(cache: nil)
                     do {
                         _ = try await client.downloadSnapshot(
-                            of: repo, to: Self.folder,
+                            of: repo, to: folder,
                             matching: ["*.json", "*.safetensors", "*.jinja", "*.txt"],
                             progressHandler: { [weak self] p in self?.progress = p.fractionCompleted })
-                    } catch HubCacheError.snapshotRequiresCacheOrDestination(_) where Self.filesComplete {
+                    } catch HubCacheError.snapshotRequiresCacheOrDestination(_) where Self.filesComplete(model) {
                         // swift-huggingface 0.10 meldet ohne Cache ganz am Ende diesen Fehler, obwohl alle
                         // Dateien fertig im Zielordner liegen. Maßgeblich ist, was tatsächlich angekommen ist.
                     }
                 }
                 try Task.checkCancellation()
-                guard Self.filesComplete else {
+                guard Self.filesComplete(model) else {
                     throw LLMError(message: "Das Modell wurde nicht vollständig geladen. Bitte erneut versuchen.")
                 }
-                try Data().write(to: Self.completeMarker)
-                isInstalled = true
+                try Data().write(to: Self.completeMarker(model))
+                isInstalled = Self.isInstalled(selected)
                 progress = 1
-                Log.info("Lokales Modell geladen: \(Self.standard.repository)")
+                Log.info("Lokales Modell geladen: \(model.id) (\(model.sizeText))")
             } catch is CancellationError {
                 Log.info("Download des lokalen Modells abgebrochen")
             } catch {
@@ -124,11 +150,13 @@ public final class LocalModelManager: ObservableObject {
         downloadTask?.cancel()
     }
 
-    public func delete() {
+    public func delete() { delete(selected) }
+
+    public func delete(_ model: LocalModelInfo) {
         cancelDownload()
         Task { await LocalLLMCache.shared.release() }
-        try? FileManager.default.removeItem(at: Self.folder)
-        isInstalled = false
+        try? FileManager.default.removeItem(at: Self.folder(model))
+        isInstalled = Self.isInstalled(selected)
         progress = 0
     }
 

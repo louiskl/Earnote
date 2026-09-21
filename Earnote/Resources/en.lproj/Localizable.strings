@@ -966,7 +966,6 @@
 "Läuft während der Aufnahme ein Termin, heißt die Aufnahme wie er – sonst wie der Bereich mit Datum. Ganztägige Termine und lange Rahmen wie „Arbeit 9–17 Uhr“ zählen nicht." = "If an event is running while you record, the recording is named after it — otherwise after the area and date. All-day events and long blocks such as “Work 9–5” do not count.";
 "Die Aufnahme bekommt diesen Titel (aus „%@“)." = "The recording will get this title (from “%@”).";
 "Zugriff erlauben …" = "Allow access …";
-"%@ · %@" = "%@ · %@";
 
 /* Apple Erinnerungen */
 "Apple Erinnerungen" = "Apple Reminders";
@@ -982,7 +981,6 @@
 "Karteikarten erzeugen" = "Create flashcards";
 "Karteikarten entstehen …" = "Creating flashcards …";
 "Karteikarten sichern (Anki) …" = "Save flashcards (Anki) …";
-"Für diese Aufnahme gibt es noch keine Notiz." = "There is no note for this recording yet.";
 "Für Karteikarten braucht es eine KI. Wähle in den Einstellungen unter „KI“ eine aus." = "Flashcards need an AI. Pick one under Settings › AI.";
 "Die KI hat keine Karteikarten geliefert. Versuch es noch einmal." = "The AI did not return any flashcards. Please try again.";
 "Karteikarten: %@" = "Flashcards: %@";
@@ -1008,3 +1006,12 @@
 "Als Mail weiterschicken …" = "Send as email …";
 "Der Mail-Entwurf konnte nicht geöffnet werden." = "The email draft could not be opened.";
 "… (gekürzt)" = "… (shortened)";
+
+/* Lokale Modelle */
+"Automatisch (%@)" = "Automatic (%@)";
+"braucht %lld GB" = "needs %lld GB";
+"empfohlen" = "recommended";
+"geladen" = "downloaded";
+"Laden (%@)" = "Download (%@)";
+"Dieses Modell braucht mindestens %lld GB Arbeitsspeicher. Dieser Mac hat %lld GB – nimm lieber „%@“." = "This model needs at least %lld GB of memory. This Mac has %lld GB — better take “%@”.";
+"Einmaliger Download: %@. Danach schreibt %@ die Notizen direkt auf deinem Mac – ohne Konto, ohne Abo, auch ohne Internet." = "One-time download: %@. After that %@ writes the notes right on your Mac — no account, no subscription, offline.";

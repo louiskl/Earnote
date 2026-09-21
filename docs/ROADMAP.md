@@ -197,8 +197,14 @@ Ziel: Was eine fremde Person in der ersten Woche braucht, ohne zu fragen.
 - [ ] **Schule**: kleinere Modelle für ältere Macs
 
 **Qualität und Modelle**
-- [ ] Modellvergleich mit den echten Vorlesungen: Qwen3 4B / 8B, Gemma 3 4B – Lernzettel nebeneinander
-- [ ] Automatische Modellwahl nach Gerät (Arbeitsspeicher, Chip) statt fester Voreinstellung
+- [x] **Modellauswahl (0.9.3)**: sechs lokale Modelle von Qwen3 1.7B (1 GB, alte Macs) bis
+      Qwen3 30B A3B (17 GB, ab 32 GB RAM), dazu Gemma 3 in zwei Größen. Jedes Modell zeigt Größe,
+      Speicherbedarf und wofür es taugt; Modelle, die nicht in den Speicher passen, sind als solche
+      gekennzeichnet statt versteckt.
+- [x] **Automatische Wahl nach Gerät (0.9.3)**: „Automatisch“ nimmt, was zum Arbeitsspeicher passt
+      (bis 16 GB Qwen3 4B, darüber Qwen2.5 7B). Ein bereits geladenes Modell geht der Empfehlung vor –
+      ein Update zwingt niemanden zu einem neuen Download.
+- [ ] Modellvergleich an echten Vorlesungen: Lernzettel der Modelle nebeneinander bewerten
 - [ ] Notiz beschleunigen: Vorverdichten schon während der Aufnahme, sobald das Transkript lang ist
 - [ ] 3-Stunden-Vorlesung Ende-zu-Ende: Dauer, Speicher, Akku, Wärme
 - [ ] Swift-6-Sprachmodus, `LegacyMigration` (Earmark → Earnote) entfernen

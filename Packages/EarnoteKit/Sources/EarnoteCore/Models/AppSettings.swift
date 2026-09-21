@@ -113,6 +113,8 @@ public struct AIConfig: Codable, Hashable, Sendable {
     public var summaryLanguage: String = "Deutsch"
     /// Notizen in einfacher Sprache – für Schule und alle, denen Fachsprache im Weg steht
     public var simpleNotes: Bool = false
+    /// Gewähltes lokales Modell (Hugging-Face-Kennung); leer = das für diesen Mac empfohlene
+    public var localModel: String = ""
 
     public init() {}
 
@@ -127,6 +129,7 @@ public struct AIConfig: Codable, Hashable, Sendable {
         baseURL = (try? c.decodeIfPresent(String.self, forKey: .baseURL)) ?? d.baseURL
         summaryLanguage = (try? c.decodeIfPresent(String.self, forKey: .summaryLanguage)) ?? d.summaryLanguage
         simpleNotes = (try? c.decodeIfPresent(Bool.self, forKey: .simpleNotes)) ?? d.simpleNotes
+        localModel = (try? c.decodeIfPresent(String.self, forKey: .localModel)) ?? d.localModel
     }
 
     public var effectiveModel: String { model.isEmpty ? provider.defaultModel : model }

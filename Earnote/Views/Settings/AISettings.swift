@@ -187,15 +187,35 @@ struct AISettings: View {
     }
 }
 
-/// Die eingebaute KI: einmal laden, danach privat, kostenlos und offline.
+/// Die eingebaute KI: Modell wählen, einmal laden, danach privat, kostenlos und offline.
+/// Vorausgewählt ist, was zu diesem Mac passt – größer ist nicht automatisch besser.
 struct LocalModelSection: View {
-    @ObservedObject private var model = LocalModelManager.shared
+    @Environment(LibraryStore.self) private var library
+    @ObservedObject private var manager = LocalModelManager.shared
+
+    private var selected: LocalModelInfo { LocalModels.resolved(library.settings) }
+    private var recommended: LocalModelInfo { LocalModelCatalog.recommended() }
+    /// Was „Automatisch“ gerade bedeutet – ein schon geladenes Modell geht der Empfehlung vor
+    private var automatic: LocalModelInfo {
+        var withoutChoice = library.settings
+        withoutChoice.ai.localModel = ""
+        return LocalModels.resolved(withoutChoice)
+    }
 
     var body: some View {
+        @Bindable var library = library
         Section {
-            LabeledContent("Modell") {
-                Text(LocalModelManager.standard.name).foregroundStyle(.secondary)
+            Picker("Modell", selection: $library.settings.ai.localModel) {
+                // Leere Kennung heißt „nimm, was zu diesem Mac passt“ – auch wenn der Mac später wechselt
+                Text("Automatisch (\(automatic.name))").tag("")
+                Divider()
+                ForEach(LocalModelCatalog.all) { model in
+                    Text(label(for: model)).tag(model.id)
+                }
             }
+            .disabled(manager.isDownloading)
+            Text(selected.detail)
+                .font(.callout).foregroundStyle(.secondary)
             LabeledContent("Status") { status }
         } header: {
             Text("Eingebaute KI")
@@ -204,37 +224,51 @@ struct LocalModelSection: View {
         }
     }
 
+    /// „Qwen3 4B · 2,3 GB · empfohlen“ bzw. „… · braucht 16 GB“
+    private func label(for model: LocalModelInfo) -> String {
+        var parts = [model.name, model.sizeText]
+        if !LocalModelCatalog.fits(model) {
+            parts.append(String(localized: "braucht \(Int(model.minMemoryGB)) GB"))
+        } else if model.id == recommended.id {
+            parts.append(String(localized: "empfohlen"))
+        }
+        if manager.installedModels.contains(model.id) { parts.append(String(localized: "geladen")) }
+        return parts.joined(separator: " · ")
+    }
+
     private var footerText: String {
         if let reason = LocalModelManager.unsupportedReason { return reason }
-        if model.isInstalled {
-            return "Die Notizen entstehen direkt auf deinem Mac – ohne Konto, ohne Abo, auch ohne Internet."
+        if manager.isInstalled {
+            return String(localized: "Die Notizen entstehen direkt auf deinem Mac – ohne Konto, ohne Abo, auch ohne Internet.")
         }
-        return "Einmaliger Download: \(LocalModelManager.standard.sizeText). Danach schreibt \(AppInfo.name) die Notizen "
-            + "direkt auf deinem Mac – ohne Konto, ohne Abo, auch ohne Internet."
+        if !LocalModelCatalog.fits(selected) {
+            return String(localized: "Dieses Modell braucht mindestens \(Int(selected.minMemoryGB)) GB Arbeitsspeicher. Dieser Mac hat \(Int(DeviceCapabilities.memoryGB)) GB – nimm lieber „\(recommended.name)“.")
+        }
+        return String(localized: "Einmaliger Download: \(selected.sizeText). Danach schreibt \(AppInfo.name) die Notizen direkt auf deinem Mac – ohne Konto, ohne Abo, auch ohne Internet.")
     }
 
     @ViewBuilder private var status: some View {
         if let reason = LocalModelManager.unsupportedReason {
             Label(reason, systemImage: "exclamationmark.triangle").foregroundStyle(.orange)
-        } else if model.isDownloading {
+        } else if manager.isDownloading {
             HStack {
-                ProgressView(value: model.progress).frame(width: 120)
-                Text("\(Int(model.progress * 100)) %").font(.callout.monospacedDigit())
-                Button("Abbrechen") { model.cancelDownload() }
+                ProgressView(value: manager.progress).frame(width: 120)
+                Text("\(Int(manager.progress * 100)) %").font(.callout.monospacedDigit())
+                Button("Abbrechen") { manager.cancelDownload() }
             }
-        } else if model.isInstalled {
+        } else if manager.isInstalled {
             HStack {
                 Label("Bereit", systemImage: "checkmark.circle.fill").foregroundStyle(.green).labelStyle(.titleAndIcon)
-                Button("Löschen") { model.delete() }
-                    .help("Gibt \(LocalModelManager.standard.sizeText) Speicherplatz frei.")
+                Button("Löschen") { manager.delete(selected) }
+                    .help("Gibt \(selected.sizeText) Speicherplatz frei.")
             }
-        } else if let error = model.lastError {
+        } else if let error = manager.lastError {
             HStack {
                 Label(error, systemImage: "exclamationmark.triangle").foregroundStyle(.orange)
-                Button("Erneut laden") { model.download() }
+                Button("Erneut laden") { manager.download(selected) }
             }
         } else {
-            Button("Laden") { model.download() }
+            Button("Laden (\(selected.sizeText))") { manager.download(selected) }
         }
     }
 }

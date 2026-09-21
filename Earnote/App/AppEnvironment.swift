@@ -59,6 +59,7 @@ final class AppEnvironment {
         library.willDelete = { [weak recorder] id in recorder?.endIfActive(id) }
         library.onSettingsChanged = { [weak recorder, weak queue] old, new in
             if old.appearance != new.appearance { Appearance.apply(new.appearance) }
+            if old.ai.localModel != new.ai.localModel { LocalModels.apply(new) }
             recorder?.updateDetection(enabled: new.meetingDetection)
             if old.ai != new.ai { queue?.aiProviderChanged() }
         }
@@ -67,6 +68,8 @@ final class AppEnvironment {
             FloatingPanels.shared.showCallPrompt(app: app, state: appState)
         }
         recorder.hideCallPrompt = { FloatingPanels.shared.hideCallPrompt() }
+
+        LocalModels.apply(library.settings)
 
         self.container = container
         self.libraryRepository = libraryRepository
