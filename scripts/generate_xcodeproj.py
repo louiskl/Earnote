@@ -146,7 +146,7 @@ common_target = {
     "PRODUCT_BUNDLE_IDENTIFIER": "app.earnote.Earnote",
     "PRODUCT_NAME": "$(TARGET_NAME)",
     "SWIFT_EMIT_LOC_STRINGS": "YES",
-    "SWIFT_VERSION": "5.0",
+    "SWIFT_VERSION": "6.0",
 }
 TCFG_D, TCFG_R = uid("cfg", "target", "debug"), uid("cfg", "target", "release")
 add(TCFG_D, "{isa = XCBuildConfiguration; buildSettings = " + settings_block(common_target) + "; name = Debug; };")
@@ -202,7 +202,7 @@ add(PRODUCTS_GROUP, f'{{isa = PBXGroup; children = ({PRODUCT}, {TEST_PRODUCT}, )
 add(MAIN_GROUP, f'{{isa = PBXGroup; children = ({group_key(".")}, {PACKAGE_GROUP}, {TEST_GROUP}, {PRODUCTS_GROUP}, ); sourceTree = "<group>"; }};')
 test_settings = {
     "PRODUCT_BUNDLE_IDENTIFIER": "app.earnote.tests", "PRODUCT_NAME": "$(TARGET_NAME)",
-    "GENERATE_INFOPLIST_FILE": "YES", "SWIFT_VERSION": "5.0", "CODE_SIGN_IDENTITY": "-",
+    "GENERATE_INFOPLIST_FILE": "YES", "SWIFT_VERSION": "6.0", "CODE_SIGN_IDENTITY": "-",
     "CODE_SIGN_STYLE": "Manual", "TEST_HOST": "$(BUILT_PRODUCTS_DIR)/Earnote.app/Contents/MacOS/Earnote",
     "BUNDLE_LOADER": "$(TEST_HOST)", "LD_RUNPATH_SEARCH_PATHS": "$(inherited) @loader_path/../Frameworks @executable_path/../Frameworks",
 }

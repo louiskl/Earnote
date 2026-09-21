@@ -319,8 +319,9 @@ final class LibraryStore: RecordingLibrary {
             insert(entry)
             let library = self.library
             let id = entry.id
+            let stored = entry
             write("Übersicht sichern") {
-                try await library.insertRecording(entry)
+                try await library.insertRecording(stored)
                 try await library.saveNote(overview, for: id)
             }
             Log.info("Übersicht für „\(category.name)“ aus \(sources.count) Notizen")

@@ -96,7 +96,9 @@ struct FakeDestinations: DestinationProvider {
 // MARK: - Umgebung
 
 /// Temporärer Datenordner mit Audio-Ablage und In-Memory-Bibliothek; wird nach dem Test gelöscht.
-final class TestFolder {
+/// Nur in Tests: Ordner, Audio und Bibliothek für einen Durchgang. Jeder Test hat seinen eigenen
+/// und benutzt ihn nacheinander – deshalb `@unchecked Sendable`.
+final class TestFolder: @unchecked Sendable {
     let root: URL
     let audio: FileAudioStore
     let library: SwiftDataLibraryRepository

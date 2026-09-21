@@ -30,10 +30,13 @@ final class AppState: ObservableObject {
             _ = library.settings; _ = library.categories; _ = library.recordings
             _ = library.selection; _ = library.lastError
             _ = recorder.activeRecordingID; _ = recorder.isPaused; _ = recorder.lastError
-        } onChange: { [weak self] in
-            // Wird vor der Änderung aufgerufen – genau wie `objectWillChange`. Danach neu beobachten.
-            MainActor.assumeIsolated { self?.objectWillChange.send() }
-            Task { @MainActor [weak self] in self?.forwardChanges() }
+        } onChange: {
+            // Der Rückruf kommt ohne Actor-Zusage, deshalb der Sprung auf den Hauptactor.
+            // Die Ansichten zeichnen dadurch einen Durchlauf später neu – für diese Übergangs-Fassade genug.
+            Task { @MainActor [weak self] in
+                self?.objectWillChange.send()
+                self?.forwardChanges()
+            }
         }
     }
 

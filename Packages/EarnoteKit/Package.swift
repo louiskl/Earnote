@@ -36,5 +36,5 @@ let package = Package(
         .testTarget(name: "EarnoteCoreTests", dependencies: ["EarnoteCore"], resources: [.copy("Fixtures")]),
     ],
     // Swift-6-Sprachmodus folgt später; neuer Code ist trotzdem Sendable-sauber geschrieben.
-    swiftLanguageModes: [.v5]
+    swiftLanguageModes: [.v6]
 )

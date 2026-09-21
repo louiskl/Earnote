@@ -20,7 +20,8 @@ final class AudioPlayer {
     /// Sprung um 15 Sekunden – wie in Podcasts
     static let skipSeconds: TimeInterval = 15
 
-    deinit { ticker?.invalidate() }
+    // Kein `deinit`-Aufräumen: Der Timer hält den Player nicht fest (`weak self`) und wird beim
+    // `stop()` beendet – der Fensterzustand ruft es beim Wechsel der Aufnahme ohnehin auf.
 
     var hasAudio: Bool { player != nil }
 

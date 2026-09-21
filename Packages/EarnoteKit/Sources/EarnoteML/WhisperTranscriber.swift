@@ -18,8 +18,6 @@ public struct WhisperTranscriber: Transcriber {
 
     public func transcribe(audio url: URL, language: String, hints: [String],
                            progress: @escaping @Sendable (Double) -> Void) async throws -> [TranscriptSegment] {
-        let kit = try await WhisperKitCache.shared.kit(for: modelFolder)
-
         var options = DecodingOptions()
         options.task = .transcribe
         options.temperature = 0
@@ -35,9 +33,9 @@ public struct WhisperTranscriber: Transcriber {
         }
 
         // Namen und Fachbegriffe als Prompt: Whisper schreibt sie danach deutlich häufiger richtig.
-        if !hints.isEmpty, let tokenizer = kit.tokenizer {
+        if !hints.isEmpty {
             let text = "Begriffe: " + hints.prefix(40).joined(separator: ", ") + "."
-            let tokens = tokenizer.encode(text: " " + text).filter { $0 < tokenizer.specialTokens.specialTokenBegin }
+            let tokens = try await WhisperKitCache.shared.promptTokens(folder: modelFolder, text: text)
             if !tokens.isEmpty {
                 options.promptTokens = tokens
                 options.usePrefillPrompt = true
@@ -73,14 +71,10 @@ public struct WhisperTranscriber: Transcriber {
                 samples = Array(samples[..<cut])
             }
 
-            let results = try await kit.transcribe(audioArray: samples, decodeOptions: options)
-            for result in results {
-                for seg in result.segments {
-                    let text = seg.text.cleanedTranscriptText
-                    guard !text.isEmpty else { continue }
-                    segments.append(TranscriptSegment(start: offset + Double(seg.start),
-                                                      end: offset + Double(seg.end), text: text))
-                }
+            let fresh = try await WhisperKitCache.shared.transcribe(folder: modelFolder, samples: samples,
+                                                                    options: options)
+            segments += fresh.map {
+                TranscriptSegment(start: offset + $0.start, end: offset + $0.end, text: $0.text)
             }
             offset += Double(samples.count) / 16_000
             progress(min(1, offset / total))

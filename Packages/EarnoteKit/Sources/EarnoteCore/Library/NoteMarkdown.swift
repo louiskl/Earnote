@@ -20,9 +20,10 @@ public enum NoteBlock: Equatable, Sendable, Identifiable {
 }
 
 public enum NoteMarkdown {
-    private static let taskRegex = try! Regex(#"^(\s*)[-*] \[([ xX])\] (.*)$"#)
-    private static let timestampRegex = try! Regex(#"\s*\[(\d{1,2}:\d{2}(?::\d{2})?)\]\s*$"#)
-    private static let numberedRegex = try! Regex(#"^(\d+)\.\s+(.*)$"#)
+    // `Regex` ist nicht Sendable; als berechnete Eigenschaft gehört jede Auswertung dem Aufrufer.
+    private static var taskRegex: Regex<AnyRegexOutput> { try! Regex(#"^(\s*)[-*] \[([ xX])\] (.*)$"#) }
+    private static var timestampRegex: Regex<AnyRegexOutput> { try! Regex(#"\s*\[(\d{1,2}:\d{2}(?::\d{2})?)\]\s*$"#) }
+    private static var numberedRegex: Regex<AnyRegexOutput> { try! Regex(#"^(\d+)\.\s+(.*)$"#) }
 
     public static func blocks(_ markdown: String) -> [NoteBlock] {
         var blocks: [NoteBlock] = []

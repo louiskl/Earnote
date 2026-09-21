@@ -146,7 +146,7 @@ public final class WhisperModelManager: ObservableObject {
         lastError = nil
         defer { preparing = nil }
         do {
-            _ = try await WhisperKitCache.shared.kit(for: installed.folder)
+            try await WhisperKitCache.shared.warmUp(installed.folder)
             await WhisperKitCache.shared.release()
             prepared.insert(model)
             UserDefaults.standard.set(Array(prepared), forKey: preparedKey)
@@ -177,7 +177,31 @@ public actor WhisperKitCache {
     private var folder: URL?
     private var kit: WhisperKit?
 
-    public func kit(for folder: URL) async throws -> WhisperKit {
+    /// Lädt das Modell (falls nötig) und wirft es gleich wieder weg – für „Für diesen Mac vorbereiten“.
+    public func warmUp(_ folder: URL) async throws {
+        _ = try await kit(for: folder)
+    }
+
+    /// Transkribiert ein Stück Ton. Die Arbeit bleibt im Actor, weil `WhisperKit` nicht `Sendable` ist:
+    /// So kann das Modell nicht versehentlich von zwei Seiten gleichzeitig benutzt werden.
+    public func transcribe(folder: URL, samples: [Float], options: DecodingOptions) async throws -> [TranscriptSegment] {
+        let kit = try await kit(for: folder)
+        let results = try await kit.transcribe(audioArray: samples, decodeOptions: options)
+        return results.flatMap(\.segments).compactMap { segment in
+            let text = segment.text.cleanedTranscriptText
+            guard !text.isEmpty else { return nil }
+            return TranscriptSegment(start: Double(segment.start), end: Double(segment.end), text: text)
+        }
+    }
+
+    /// Namen und Fachbegriffe als Prompt-Tokens – der Tokenizer gehört zum Modell und bleibt hier drin.
+    public func promptTokens(folder: URL, text: String) async throws -> [Int] {
+        let kit = try await kit(for: folder)
+        guard let tokenizer = kit.tokenizer else { return [] }
+        return tokenizer.encode(text: " " + text).filter { $0 < tokenizer.specialTokens.specialTokenBegin }
+    }
+
+    private func kit(for folder: URL) async throws -> WhisperKit {
         if let kit, self.folder == folder { return kit }
         kit = nil
         let config = WhisperKitConfig(modelFolder: folder.path, verbose: false, prewarm: false, load: true, download: false)

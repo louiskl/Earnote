@@ -40,7 +40,7 @@ struct AppleIntelligenceClient: StructuredNotesClient {
                           decisions: notes.decisions, tasks: notes.tasks, openQuestions: notes.openQuestions)
     }
 
-    private static func translatingErrors<T>(_ body: @escaping () async throws -> T) async throws -> T {
+    private static func translatingErrors<T: Sendable>(_ body: @escaping @Sendable () async throws -> T) async throws -> T {
         do {
             // Ein einzelner Aufruf dauert normalerweise unter zwei Minuten. Hängt das Modell,
             // soll das nicht die ganze Warteschlange blockieren.
