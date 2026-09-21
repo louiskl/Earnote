@@ -5,6 +5,14 @@ mit und macht daraus Notizen. Nichts davon geht in die Cloud.
 
 ## Installieren
 
+Mit Homebrew geht es in einer Zeile:
+
+```bash
+brew tap louiskl/earnote && brew trust louiskl/earnote && brew install --cask earnote
+```
+
+Von Hand:
+
 1. Neueste `Earnote.dmg` unter [Releases](https://github.com/louiskl/Earnote/releases) laden.
 2. DMG öffnen, Earnote in den Ordner **Programme** ziehen, von dort starten.
 3. Beim ersten Start fragt macOS nach **Mikrofon**, **Systemton** und **Mitteilungen** – alle drei erlauben,

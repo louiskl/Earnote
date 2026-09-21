@@ -69,7 +69,13 @@ The interface follows your Mac: English or German. Notes are written in the lang
 
 ### Install
 
-Download the latest `Earnote.dmg` from [Releases](../../releases) and drag Earnote into *Applications*.
+With Homebrew:
+
+```bash
+brew tap louiskl/earnote && brew trust louiskl/earnote && brew install --cask earnote
+```
+
+Or download the latest `Earnote.dmg` from [Releases](../../releases) and drag Earnote into *Applications*.
 The app is signed with an Apple Developer ID and notarized, so it opens with a double-click – no detour through System Settings.
 Earnote checks once a day whether a newer version is available and shows a hint with a download link; it never installs anything on its own.
 
@@ -123,7 +129,9 @@ PRs are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) and the [roadmap](docs/R
 - **„Einfach erklärt“**: Schalter für kurze Sätze und erklärte Fachbegriffe – für Schule und fachfremde Themen
 - **Follow-up-Mail**: öffnet einen Entwurf mit der Notiz, verschickt wird nichts von allein
 
-**Installation:** `Earnote.dmg` unter [Releases](../../releases) herunterladen, öffnen und Earnote in den Programme-Ordner ziehen. Die App ist von Apple notarisiert und startet mit einem Doppelklick – ohne Umweg über die Systemeinstellungen. Earnote schaut einmal am Tag nach, ob es eine neuere Version gibt, und zeigt dann einen Hinweis mit Download-Link – installiert wird nie von allein.
+**Installation mit Homebrew:** `brew tap louiskl/earnote && brew trust louiskl/earnote && brew install --cask earnote`
+
+**Installation von Hand:** `Earnote.dmg` unter [Releases](../../releases) herunterladen, öffnen und Earnote in den Programme-Ordner ziehen. Die App ist von Apple notarisiert und startet mit einem Doppelklick – ohne Umweg über die Systemeinstellungen. Earnote schaut einmal am Tag nach, ob es eine neuere Version gibt, und zeigt dann einen Hinweis mit Download-Link – installiert wird nie von allein.
 
 **Fehler melden:** In der App unter *Einstellungen › Über › „Fehler melden …“* – damit ist der Bericht gleich mit Version, macOS und den letzten Protokollzeilen vorausgefüllt.
 **Selbst bauen:** `Earnote.xcodeproj` in Xcode öffnen und mit ⌘R starten.

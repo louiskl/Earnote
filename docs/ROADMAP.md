@@ -271,7 +271,10 @@ Erst wenn alle drei Blöcke stehen, wird aus 0.9.x die 1.0 – und erst danach b
 
 **Verteilung**
 - [ ] **Direkt-Download** als Hauptweg: notarisierte DMG über GitHub Releases (läuft bereits)
-- [ ] **Homebrew Cask** (`brew install --cask earnote`) – eine Pull-Request, große Reichweite bei Mac-Nutzern
+- [x] **Homebrew (0.9.3)**: eigener Tap [louiskl/homebrew-earnote](https://github.com/louiskl/homebrew-earnote) –
+      `brew tap louiskl/earnote && brew trust louiskl/earnote && brew install --cask earnote`.
+      Der offizielle `homebrew-cask` nimmt Selbsteinreichungen erst ab 225 Sternen (oder 90 Forks/Watchern)
+      und einem mindestens 30 Tage alten Repository auf – das kommt später.
 - [ ] Automatische Updates: aktuell Hinweis mit Link; Sparkle erst, wenn die Nutzerzahl es rechtfertigt
 - [ ] Eintragen: AlternativeTo, openalternative.co, awesome-mac, Product Hunt, Show HN, r/macapps, r/Studium
 - [ ] Hochschule: Fachschaften, Uni-Newsletter, Instagram/TikTok – die Zielgruppe sitzt dort, nicht auf HN
