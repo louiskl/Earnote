@@ -18,6 +18,11 @@ enum DetailMode: String, CaseIterable {
     var showsTranscript: Bool { self != .note }
 }
 
+/// Eine UUID, die sich als `item` an ein Blatt übergeben lässt
+struct IdentifiableID: Identifiable {
+    let id: UUID
+}
+
 /// Durch die Fundstellen der Suche blättern (⌘G). Die Ansicht meldet, wie viele es sind;
 /// das Menü zählt weiter, die Ansicht scrollt zur gezählten Stelle.
 @MainActor

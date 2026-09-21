@@ -1015,3 +1015,24 @@
 "Laden (%@)" = "Download (%@)";
 "Dieses Modell braucht mindestens %lld GB Arbeitsspeicher. Dieser Mac hat %lld GB – nimm lieber „%@“." = "This model needs at least %lld GB of memory. This Mac has %lld GB — better take “%@”.";
 "Einmaliger Download: %@. Danach schreibt %@ die Notizen direkt auf deinem Mac – ohne Konto, ohne Abo, auch ohne Internet." = "One-time download: %@. After that %@ writes the notes right on your Mac — no account, no subscription, offline.";
+
+/* Übersicht über einen Bereich */
+"Übersicht erstellen …" = "Create an overview …";
+"Übersicht über „%@“" = "Overview of “%@”";
+"Zeitraum" = "Period";
+"Letzter Monat" = "Last month";
+"Letzte drei Monate" = "Last three months";
+"Letzte sechs Monate" = "Last six months";
+"Aufnahmen" = "Recordings";
+"Eine Aufnahme" = "One recording";
+"%lld Aufnahmen" = "%lld recordings";
+"Die KI liest die fertigen Notizen dieses Bereichs und schreibt daraus eine Übersicht mit Themen, rotem Faden und Prüfungshinweisen. Sie landet als eigener Eintrag hier." = "The AI reads the finished notes of this area and writes an overview with topics, the thread that runs through them and exam hints. It lands here as its own entry.";
+"Zusätzliche Anweisung (optional)" = "Additional instruction (optional)";
+"Zum Beispiel: „Nur die Rechenwege“ oder „Mit Beispielaufgaben zu jedem Thema“." = "For example: “Only the calculations” or “With example problems for each topic”.";
+"Die KI liest die Notizen … das dauert ein paar Minuten." = "The AI is reading the notes … this takes a few minutes.";
+"Übersicht erstellen" = "Create overview";
+"Für eine Übersicht braucht es mindestens zwei fertige Aufnahmen in diesem Bereich." = "An overview needs at least two finished recordings in this area.";
+"Die Aufnahmen in diesem Bereich haben noch keine Notizen." = "The recordings in this area do not have notes yet.";
+"Für eine Übersicht braucht es eine KI. Wähle in den Einstellungen unter „KI“ eine aus." = "An overview needs an AI. Pick one under Settings › AI.";
+"Die KI hat keine Übersicht geliefert. Versuch es noch einmal." = "The AI did not return an overview. Please try again.";
+"Übersicht: %@" = "Overview: %@";

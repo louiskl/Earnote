@@ -15,6 +15,8 @@ struct SidebarView: View {
     @Binding var renamingCategoryID: UUID?
     let onEdit: (UUID) -> Void
     let onNewCategory: () -> Void
+    /// Übersicht über einen Bereich erstellen (öffnet das Blatt im Hauptfenster)
+    let onSummarize: (UUID) -> Void
 
     @State private var pendingDeletion: LibraryCategory?
 
@@ -45,6 +47,8 @@ struct SidebarView: View {
                             .contextMenu {
                                 Button("Umbenennen") { renamingCategoryID = category.id }
                                 Button("Bearbeiten …") { onEdit(category.id) }
+                                Divider()
+                                Button("Übersicht erstellen …") { onSummarize(category.id) }
                                 Divider()
                                 Button("Löschen …", role: .destructive) { pendingDeletion = category }
                             }

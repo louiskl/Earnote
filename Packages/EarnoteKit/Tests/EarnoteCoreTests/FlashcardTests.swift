@@ -112,3 +112,46 @@ final class KeychainCacheTests: XCTestCase {
         XCTAssertFalse(Keychain.hasValue(for: key), "ein leerer Schlüssel zählt als keiner")
     }
 }
+
+/// Die Übersicht über mehrere Aufnahmen steht und fällt mit dem Material, das ins Modell geht.
+final class PeriodSummaryTests: XCTestCase {
+    private func sources(_ count: Int, size: Int = 100) -> [PeriodSummary.Source] {
+        (0..<count).map { i in
+            PeriodSummary.Source(title: "Vorlesung \(i + 1)",
+                                 date: Date(timeIntervalSince1970: 1_700_000_000 + Double(i) * 86_400 * 7),
+                                 markdown: String(repeating: "x", count: size))
+        }
+    }
+
+    func testMaterialKeepsChronologyAndStaysWithinTheLimit() {
+        let material = PeriodSummary.material(sources(3), limit: 10_000)
+        let first = material.range(of: "Vorlesung 1")!
+        let last = material.range(of: "Vorlesung 3")!
+        XCTAssertTrue(first.lowerBound < last.lowerBound, "die früheste Mitschrift steht oben")
+        XCTAssertLessThanOrEqual(material.count, 10_000)
+    }
+
+    func testTooMuchMaterialIsCutAtWholeNotes() {
+        let all = sources(10, size: 1_000)
+        let limit = 3_000
+        let material = PeriodSummary.material(all, limit: limit)
+        XCTAssertLessThanOrEqual(material.count, limit)
+        XCTAssertTrue(material.contains("Vorlesung 1"))
+        XCTAssertFalse(material.contains("Vorlesung 9"), "was nicht mehr passt, fällt ganz weg statt halb")
+        XCTAssertEqual(PeriodSummary.fittingCount(all, limit: limit), 2)
+    }
+
+    func testSingleNoteStillProducesMaterialEvenIfItIsLongerThanTheLimit() {
+        let material = PeriodSummary.material(sources(1, size: 5_000), limit: 1_000)
+        XCTAssertFalse(material.isEmpty, "eine einzelne lange Notiz darf nicht zu leerem Material führen")
+        XCTAssertLessThanOrEqual(material.count, 1_000)
+    }
+
+    func testSystemPromptCarriesSubjectAndExtraInstruction() {
+        let system = PeriodSummary.system(language: "Deutsch", subject: "Analysis II", simple: true,
+                                          extra: "Nur die Rechenwege")
+        XCTAssertTrue(system.contains("Analysis II"))
+        XCTAssertTrue(system.contains("Nur die Rechenwege"))
+        XCTAssertTrue(system.contains("Prüfungshinweise"))
+    }
+}

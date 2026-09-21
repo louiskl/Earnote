@@ -100,3 +100,8 @@
 "Todoist-Schlüssel wird nicht akzeptiert" = "Todoist key was rejected";
 "Aus „%@“" = "From “%@”";
 "Transkript" = "Transcript";
+"Fach: %@" = "Subject: %@";
+"Sprache: %@" = "Language: %@";
+"Schreibe einfach: kurze Sätze, alltägliche Wörter, Fachbegriffe beim ersten Mal erklären." = "Write simply: short sentences, everyday words, explain technical terms the first time.";
+"Zusätzliche Anweisung: %@" = "Additional instruction: %@";
+"Hier sind die Mitschriften:" = "Here are the notes:";

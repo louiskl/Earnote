@@ -188,8 +188,11 @@ Ziel: Was eine fremde Person in der ersten Woche braucht, ohne zu fragen.
 - [x] **Aufgaben nach Apple Erinnerungen, Things und Todoist (0.9.3)**: je Bereich eine eigene Liste
       bzw. ein Projekt; Structured liest die Erinnerungslisten mit, eine eigene Anbindung braucht es nicht.
 - [x] **Logseq (0.9.3)**: Seite im Graphen als Aufzählung mit Eigenschaften und TODO-Blöcken
-- [ ] **Studium**: Semester-Zusammenfassung über mehrere Vorlesungen eines Bereichs,
-      Formeln im Lernzettel nicht zerschießen
+- [x] **Semester-Zusammenfassung (0.9.3)**: Rechtsklick auf einen Bereich › „Übersicht erstellen …“ –
+      Zeitraum wählen (Monat, drei, sechs Monate, alles), optional eine eigene Anweisung. Die KI liest
+      die fertigen Notizen und schreibt Überblick, Themen, roten Faden, Prüfungshinweise und offene
+      Aufgaben. Die Übersicht landet als eigener Eintrag im Bereich – lesbar, druckbar, exportierbar.
+- [ ] **Studium**: Formeln im Lernzettel nicht zerschießen
 - [ ] **Meetings**: Kurzprotokoll (nur Ergebnisse und Aufgaben) als eigene Fassung
 - [x] **Einfach erklärt (0.9.3)**: Schalter in Einstellungen › KI – kurze Sätze, alltägliche Wörter,
       Fachbegriffe werden beim ersten Mal erklärt

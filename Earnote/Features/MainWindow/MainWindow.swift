@@ -20,6 +20,8 @@ struct MainWindow: View {
     @State private var renamingRecordingID: UUID?
     @State private var renamingCategoryID: UUID?
     @State private var editingCategory: RecordingCategory?
+    /// Bereich, für den gerade eine Übersicht erstellt wird (Blatt)
+    @State private var summarizingCategoryID: UUID?
     @State private var pendingDeletion: UUID?
     @State private var confirmDiscard = false
     @State private var showOnboarding = false
@@ -54,7 +56,8 @@ struct MainWindow: View {
         NavigationSplitView {
             SidebarView(filter: filter, renamingCategoryID: $renamingCategoryID,
                         onEdit: { id in editingCategory = library.category(id) },
-                        onNewCategory: newCategory)
+                        onNewCategory: newCategory,
+                        onSummarize: { summarizingCategoryID = $0 })
                 .navigationSplitViewColumnWidth(min: 180, ideal: 220, max: 320)
         } content: {
             RecordingListView(filter: filter.wrappedValue, selection: selection, searchResults: searchResults,
@@ -102,6 +105,13 @@ struct MainWindow: View {
         }
         .sheet(item: $editingCategory) { category in
             CategoryEditorSheet(category: category) { editingCategory = nil }
+        }
+        .sheet(item: Binding(get: { summarizingCategoryID.map(IdentifiableID.init) },
+                             set: { summarizingCategoryID = $0?.id })) { wrapped in
+            CategorySummarySheet(categoryID: wrapped.id) { newID in
+                selection.wrappedValue = newID
+                detailMode.wrappedValue = .note
+            }
         }
         .sheet(item: $noteSheet) { sheet in
             if let id = selection.wrappedValue {
