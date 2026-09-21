@@ -24,8 +24,33 @@ final class MainWindowTests: XCTestCase {
     }
 
     func testLanguageNameFallsBackToTheCode() {
-        XCTAssertEqual(MainWindowFormat.language("de"), "Deutsch")
+        // Der Name kommt vom System und heißt je nach Oberflächensprache „Deutsch“ oder „German“
+        XCTAssertEqual(MainWindowFormat.language("de"), Locale.current.localizedString(forLanguageCode: "de")?.localizedCapitalized)
         XCTAssertEqual(MainWindowFormat.language("xx"), "xx")
+    }
+
+    @MainActor
+    func testSearchCursorWrapsAroundInBothDirections() {
+        let cursor = SearchCursor()
+        // Ohne Fundstellen passiert nichts
+        cursor.next()
+        XCTAssertEqual(cursor.index, 0)
+        XCTAssertEqual(cursor.count, 0)
+
+        cursor.reset(count: 3)
+        cursor.next()
+        XCTAssertEqual(cursor.index, 1)
+        cursor.next()
+        cursor.next()
+        XCTAssertEqual(cursor.index, 0, "nach der letzten Fundstelle geht es wieder von vorn los")
+        cursor.previous()
+        XCTAssertEqual(cursor.index, 2, "rückwärts von der ersten zur letzten")
+
+        // Neue Suche zählt von vorn
+        cursor.reset(count: 1)
+        XCTAssertEqual(cursor.index, 0)
+        cursor.next()
+        XCTAssertEqual(cursor.index, 0, "eine einzige Fundstelle bleibt stehen")
     }
 
     func testDetailModeSurvivesTheSceneStorageRoundTrip() {

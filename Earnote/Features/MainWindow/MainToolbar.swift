@@ -16,12 +16,11 @@ struct MainToolbar: ToolbarContent {
         }
         ToolbarItem(placement: .principal) {
             Picker("Ansicht", selection: $detailMode) {
-                Text("Notiz").tag(DetailMode.note)
-                Text("Transkript").tag(DetailMode.transcript)
+                ForEach(DetailMode.allCases, id: \.self) { Text($0.label).tag($0) }
             }
             .pickerStyle(.segmented)
             .disabled(selectedRecordingID == nil)
-            .help("Notiz (⌘1) oder Transkript (⌘2)")
+            .help("Notiz (⌘1), Transkript (⌘2) oder beides nebeneinander (⌘3)")
         }
         ToolbarItemGroup(placement: .primaryAction) {
             SelectionActions(recordingID: selectedRecordingID, onDelete: onDelete)

@@ -11,11 +11,14 @@ struct RecordingDetailView: View {
     let onEditStarted: () -> Void
     /// Laufende Suche – Fundstellen werden hervorgehoben, das Transkript springt zur ersten
     let searchText: String
+    /// Blättern durch die Fundstellen (⌘G) – das Transkript meldet und bedient sie
+    let searchCursor: SearchCursor
 
     var body: some View {
         if let recordingID {
             RecordingDetailContent(recordingID: recordingID, mode: mode,
-                                   editRequest: editRequest, onEditStarted: onEditStarted, searchText: searchText)
+                                   editRequest: editRequest, onEditStarted: onEditStarted,
+                                   searchText: searchText, searchCursor: searchCursor)
                 .id(recordingID)
         } else {
             ContentUnavailableView("Keine Aufnahme ausgewählt", systemImage: "waveform",
@@ -31,14 +34,16 @@ private struct RecordingDetailContent: View {
     let editRequest: UUID?
     let onEditStarted: () -> Void
     let searchText: String
+    let searchCursor: SearchCursor
 
     init(recordingID: UUID, mode: DetailMode, editRequest: UUID?, onEditStarted: @escaping () -> Void,
-         searchText: String) {
+         searchText: String, searchCursor: SearchCursor) {
         _matches = Query(filter: #Predicate<LibraryRecording> { $0.id == recordingID })
         self.mode = mode
         self.editRequest = editRequest
         self.onEditStarted = onEditStarted
         self.searchText = searchText
+        self.searchCursor = searchCursor
     }
 
     var body: some View {
@@ -48,15 +53,35 @@ private struct RecordingDetailContent: View {
             } else {
                 switch mode {
                 case .note:
-                    NoteView(recording: recording, editRequest: editRequest, onEditStarted: onEditStarted,
-                             searchText: searchText)
+                    note(recording)
                 case .transcript:
-                    TranscriptView(recording: recording, searchText: searchText)
+                    transcript(recording)
+                case .both:
+                    // Nebeneinander: die Breite teilt der Nutzer selbst auf (natives NSSplitView)
+                    HSplitView {
+                        note(recording)
+                            .frame(minWidth: 260)
+                        transcript(recording)
+                            .frame(minWidth: 260)
+                    }
                 }
             }
         } else {
             ContentUnavailableView("Aufnahme nicht gefunden", systemImage: "questionmark.folder")
         }
+    }
+
+    private func note(_ recording: LibraryRecording) -> some View {
+        NoteView(recording: recording, editRequest: editRequest, onEditStarted: onEditStarted,
+                 searchText: searchText)
+    }
+
+    private func transcript(_ recording: LibraryRecording) -> some View {
+        // Nebeneinander folgt das Transkript dem Ton: ein Klick auf eine Zeitmarke in der Notiz
+        // spielt die Stelle – und das Transkript scrollt mit.
+        // Nebeneinander steht der Titel schon über der Notiz – einmal reicht.
+        TranscriptView(recording: recording, searchText: searchText, cursor: searchCursor,
+                       followsPlayback: mode == .both, showsHeader: mode != .both)
     }
 }
 

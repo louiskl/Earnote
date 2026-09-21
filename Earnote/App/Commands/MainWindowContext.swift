@@ -24,6 +24,14 @@ struct MainWindowContext {
     var noteActions = NoteActions()
     /// Anhören der gewählten Aufnahme (nil = keine Audiodatei)
     var playback: PlaybackCommands?
+    /// Durch die Fundstellen der Suche blättern (nil = gerade keine Fundstellen)
+    var search: SearchNavigation?
+}
+
+/// Weitersuchen und zurück (⌘G, ⇧⌘G)
+struct SearchNavigation {
+    var next: () -> Void = {}
+    var previous: () -> Void = {}
 }
 
 /// Abspielen aus der Menüleiste heraus

@@ -20,7 +20,7 @@
 | 3a–3g | Notiz bearbeiten, Begriffe korrigieren & Wörterbuch, PDF-Lernzettel, Suche im Transkript, saubere Transkripte, Export je Ziel | 0.7.2–0.7.5 | ✅ fertig |
 | 3h | Schneller fertig: Transkription läuft schon während der Aufnahme | 0.8.0 | ✅ fertig |
 | 4a | Härtefälle, öffentliches Repository, Beta-Auslieferung, Sprecherlabels nur bei Calls | 0.8.1–0.8.5 | ✅ fertig |
-| **4b** | **Reif für andere: Audio anhören, englische Oberfläche, Kalender, Modellwahl** | 0.9 | ▶ **als Nächstes** |
+| **4b** | **Reif für andere: Audio anhören, englische Oberfläche, Kalender, Modellwahl** | 0.9 | ▶ **läuft** |
 | 5 | Launch: Website, Demo-Video, Homebrew, Beta mit Kommilitonen, Markenrecherche | 1.0 RC | geplant |
 | 🚀 | **Launch Earnote 1.0 für Mac** | 1.0 | |
 | 6 | iPad eigenständig, iPhone als Begleit-App, iCloud-Sync | 1.1 | nach Launch |
@@ -150,8 +150,10 @@ Ziel: Was eine fremde Person in der ersten Woche braucht, ohne zu fragen.
 - [x] **Audio-Player (0.9.0)**: schmale Leiste unter Notiz und Transkript (Pause, ±15 Sekunden, Position),
       jede Zeitmarke in Transkript und Notiz springt an ihre Stelle, der laufende Absatz wird hervorgehoben,
       Bedienung auch über das Menü „Aufnahme“ (⌥Leertaste, ⌥←, ⌥→)
-- [ ] Notiz und Transkript nebeneinander (Klick auf einen Notizabschnitt springt ins Transkript)
-- [ ] Vorwärts/rückwärts durch die Fundstellen der Suche (⌘G)
+- [x] **Notiz und Transkript nebeneinander (0.9.2)**: dritte Ansicht „Beides“ (⌘3) als natives `HSplitView`;
+      ein Klick auf eine Zeitmarke in der Notiz spielt die Stelle, das Transkript scrollt mit
+- [x] **Vorwärts/rückwärts durch die Fundstellen (0.9.2)**: ⌘G und ⇧⌘G blättern im Transkript,
+      die Kopfzeile zählt mit („Fundstelle 3 von 12“)
 
 **Für alle verständlich**
 - [x] **Englische Oberfläche (0.9.1)**: Deutsch steht im Quelltext und bleibt Standard, Englisch liegt als
@@ -192,7 +194,7 @@ Ziel: Was eine fremde Person in der ersten Woche braucht, ohne zu fragen.
       aus `docs/`, zweisprachig (`index.html` englisch, `de.html` deutsch), ohne Framework und ohne Tracking
 - [x] Inhalt: Was es macht · Screenshot in der jeweiligen Sprache · Download-Knopf auf das neueste Release ·
       „bleibt auf deinem Mac“ · Voraussetzungen · FAQ · Link zu GitHub
-- [ ] **Impressum nach § 5 TMG** (Name und Anschrift) – im Quelltext beider Seiten als TODO markiert
+- [x] **Impressum nach § 5 TMG** als eigene Seite (`impressum.html`), aus beiden Sprachen verlinkt
 - [ ] Demo-Video (30–60 s): aufnehmen, Notiz erscheint, Lernzettel als PDF – für Website, Product Hunt, Social
 - [ ] Screenshots in Hell und Dunkel, deutsch und englisch
 

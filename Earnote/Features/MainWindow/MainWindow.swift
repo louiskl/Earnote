@@ -28,6 +28,8 @@ struct MainWindow: View {
     @State private var noteEditRequest: UUID?
     /// Abspielen der gewählten Aufnahme – gehört dem Fenster
     @State private var player = AudioPlayer()
+    /// Fundstellen der laufenden Suche – gezählt von der Ansicht, weitergeblättert über ⌘G
+    @State private var searchCursor = SearchCursor()
     @State private var noteSheet: NoteSheet?
     @FocusState private var searchFocused: Bool
 
@@ -63,7 +65,8 @@ struct MainWindow: View {
             RecordingDetailView(recordingID: selection.wrappedValue, mode: detailMode.wrappedValue,
                                 editRequest: noteEditRequest,
                                 onEditStarted: { noteEditRequest = nil },
-                                searchText: searchResults == nil ? "" : searchText)
+                                searchText: searchResults == nil ? "" : searchText,
+                                searchCursor: searchCursor)
                 .safeAreaInset(edge: .bottom, spacing: 0) { PlayerBar() }
         }
         // Farbe kommt aus dem gewählten Bereich: Auswahl, Haken und Knöpfe übernehmen sie.
@@ -138,7 +141,11 @@ struct MainWindow: View {
         .onChange(of: library.isLoaded) { _, _ in loadAudio(selection.wrappedValue) }
         .onChange(of: recorder.activeRecordingID) { _, active in if active != nil { player.stop() } }
         // Das Transkript zeigt keinen Editor; die Notiz einer anderen Aufnahme auch nicht (Vergleich über die ID)
-        .onChange(of: detailMode.wrappedValue) { _, mode in if mode != .note { noteEditRequest = nil } }
+        .onChange(of: detailMode.wrappedValue) { _, mode in
+            if !mode.showsNote { noteEditRequest = nil }
+            // Ohne sichtbares Transkript gibt es nichts zu blättern (⌘G bliebe sonst im Menü aktiv)
+            if !mode.showsTranscript { searchCursor.reset(count: 0) }
+        }
         .focusedSceneValue(\.mainWindow, context)
         // Mit Inspector brauchen vier Spalten mehr Platz; ohne ihn darf das Fenster kleiner werden.
         .frame(minWidth: inspectorShown ? 1100 : 840, minHeight: 560)
@@ -170,6 +177,10 @@ struct MainWindow: View {
                               ? PlaybackCommands(isPlaying: player.isPlaying,
                                                  playPause: { player.playPause() },
                                                  skip: { player.skip($0) })
+                              : nil,
+                          search: searchCursor.count > 0
+                              ? SearchNavigation(next: { searchCursor.next() },
+                                                 previous: { searchCursor.previous() })
                               : nil)
     }
 
@@ -197,8 +208,12 @@ struct MainWindow: View {
                 try? await Task.sleep(nanoseconds: 500_000_000)
             }
             try? await Task.sleep(nanoseconds: 500_000_000)
-            if selection.wrappedValue == nil { selection.wrappedValue = library.recordings.first?.id }
+            // Immer setzen: ein gespeicherter Fensterzustand aus einem früheren Lauf zeigt sonst auf eine
+            // Aufnahme, die es in diesem Sandkasten nicht gibt – und die Liste räumt die Auswahl wieder ab.
+            selection.wrappedValue = library.recordings.first?.id
             if env["EARNOTE_DEMO_INSPECTOR"] != nil { inspectorShown = true; detailMode.wrappedValue = .note }
+            // Nur Debug: Ansicht festlegen („note“, „transcript“, „both“) – für Bildschirmfotos
+            if let mode = env["EARNOTE_DEMO_MODE"].flatMap(DetailMode.init(rawValue:)) { detailMode.wrappedValue = mode }
             // Nur Debug: die Vorbereitungs-Zeile zeigen, ohne ein Modell zu laden
             if env["EARNOTE_DEMO_PREPARING"] != nil { WhisperModelManager.shared.preparing = "large-v3-v20240930_turbo" }
             if let query = env["EARNOTE_DEMO_SEARCH"] {

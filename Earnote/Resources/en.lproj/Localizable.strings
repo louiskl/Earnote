@@ -41,7 +41,7 @@
 "%lld %%" = "%lld %%";
 
 /* No comment provided by engineer. */
-"%lld Fundstellen" = "%lld matches";
+"Fundstelle %lld von %lld · ⌘G" = "Match %lld of %lld · ⌘G";
 
 /* No comment provided by engineer. */
 "%lld Prozent" = "%lld percent";
@@ -623,7 +623,7 @@
 "Notiz" = "Note";
 
 /* No comment provided by engineer. */
-"Notiz (⌘1) oder Transkript (⌘2)" = "Note (⌘1) or transcript (⌘2)";
+"Notiz (⌘1), Transkript (⌘2) oder beides nebeneinander (⌘3)" = "Note (⌘1), transcript (⌘2) or both side by side (⌘3)";
 
 /* No comment provided by engineer. */
 "Notiz bearbeiten" = "Edit note";
@@ -944,3 +944,9 @@
 "Spanisch" = "Spanish";
 "Italienisch" = "Italian";
 "Sprache der Aufnahme" = "Language of the recording";
+
+/* Notiz und Transkript nebeneinander, Fundstellen durchblättern */
+"Beides" = "Both";
+"Notiz und Transkript" = "Note and transcript";
+"Weitersuchen" = "Find Next";
+"Rückwärts suchen" = "Find Previous";

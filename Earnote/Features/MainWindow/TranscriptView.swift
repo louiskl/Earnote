@@ -4,12 +4,21 @@ import SwiftUI
 /// Das Transkript als Absätze mit Zeitmarke und Sprecher. Wird im Hintergrund geladen und nur sichtbar gerendert.
 struct TranscriptView: View {
     @Environment(LibraryStore.self) private var library
+    @Environment(AudioPlayer.self) private var player
     let recording: LibraryRecording
     /// Laufende Suche: Fundstellen hervorheben und zur ersten springen
     var searchText = ""
+    /// Blättern durch die Fundstellen (⌘G) – nil, wenn diese Ansicht nicht blättert
+    var cursor: SearchCursor?
+    /// Nebeneinander mit der Notiz: beim Abspielen zur laufenden Stelle scrollen
+    var followsPlayback = false
+    /// Titelzeile zeigen (nebeneinander steht sie schon über der Notiz)
+    var showsHeader = true
 
     @State private var paragraphs: [TranscriptParagraph] = []
     @State private var state: LoadState = .loading
+    /// Zu jeder Fundstelle der Absatz, in dem sie steht – in der Reihenfolge des Transkripts
+    @State private var hits: [Int] = []
 
     private enum LoadState { case loading, loaded, missing }
 
@@ -30,10 +39,14 @@ struct TranscriptView: View {
                 ScrollViewReader { proxy in
                     ScrollView {
                         LazyVStack(alignment: .leading, spacing: 12) {
-                            DetailHeader(recording: recording)
-                                .padding(.bottom, 6)
-                            if let hits = hitCount, hits > 0 {
-                                Text(hits == 1 ? "Eine Fundstelle" : "\(hits) Fundstellen")
+                            if showsHeader {
+                                DetailHeader(recording: recording)
+                                    .padding(.bottom, 6)
+                            }
+                            if !hits.isEmpty {
+                                Text(hits.count == 1
+                                     ? "Eine Fundstelle"
+                                     : "Fundstelle \((cursor?.index ?? 0) + 1) von \(hits.count) · ⌘G")
                                     .font(.callout)
                                     .foregroundStyle(.secondary)
                             }
@@ -49,8 +62,14 @@ struct TranscriptView: View {
                         .padding(24)
                         .frame(maxWidth: .infinity, alignment: .leading)
                     }
-                    .onChange(of: searchText, initial: true) { _, _ in jumpToFirstHit(proxy) }
-                    .onChange(of: paragraphs.count) { _, _ in jumpToFirstHit(proxy) }
+                    .onChange(of: searchText, initial: true) { _, _ in updateHits(proxy) }
+                    .onChange(of: paragraphs.count) { _, _ in updateHits(proxy) }
+                    // Weitersuchen (⌘G) im Menü zählt hoch, hier wird gescrollt
+                    .onChange(of: cursor?.index) { _, _ in scrollToHit(proxy) }
+                    .onChange(of: playingParagraph) { _, id in
+                        guard followsPlayback, let id else { return }
+                        withAnimation(.easeInOut(duration: 0.2)) { proxy.scrollTo(id, anchor: .center) }
+                    }
                 }
             }
         }
@@ -58,17 +77,32 @@ struct TranscriptView: View {
         .task(id: "\(recording.id)|\(recording.statusRaw)") { await load() }
     }
 
-    /// Anzahl der Fundstellen im ganzen Transkript (nil = keine Suche)
-    private var hitCount: Int? {
-        guard !SearchText.normalized(searchText).isEmpty else { return nil }
-        return paragraphs.reduce(0) { $0 + SearchText.ranges(in: $1.text, query: searchText).count }
+    /// Absatz, der gerade läuft – zum Mitlesen neben der Notiz
+    private var playingParagraph: Int? {
+        guard player.isPlaying else { return nil }
+        return paragraphs.last { $0.start <= player.currentTime }?.id
     }
 
-    /// „Sprung zur Stelle“: zum ersten Absatz mit Treffer scrollen
-    private func jumpToFirstHit(_ proxy: ScrollViewProxy) {
-        guard !SearchText.normalized(searchText).isEmpty,
-              let first = paragraphs.first(where: { SearchText.matches($0.text, query: searchText) }) else { return }
-        withAnimation(.easeInOut(duration: 0.2)) { proxy.scrollTo(first.id, anchor: .top) }
+    /// Neue Suche oder neues Transkript: Fundstellen zählen und zur ersten springen
+    private func updateHits(_ proxy: ScrollViewProxy) {
+        guard !SearchText.normalized(searchText).isEmpty else {
+            hits = []
+            cursor?.reset(count: 0)
+            return
+        }
+        // Je Fundstelle ein Eintrag, damit „3 von 12“ und ⌘G dasselbe zählen
+        hits = paragraphs.flatMap { paragraph in
+            Array(repeating: paragraph.id, count: SearchText.ranges(in: paragraph.text, query: searchText).count)
+        }
+        cursor?.reset(count: hits.count)
+        scrollToHit(proxy)
+    }
+
+    /// Zur gezählten Fundstelle scrollen
+    private func scrollToHit(_ proxy: ScrollViewProxy) {
+        let index = cursor?.index ?? 0
+        guard hits.indices.contains(index) else { return }
+        withAnimation(.easeInOut(duration: 0.2)) { proxy.scrollTo(hits[index], anchor: .top) }
     }
 
     private func load() async {

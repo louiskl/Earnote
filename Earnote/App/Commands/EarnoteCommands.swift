@@ -106,6 +106,12 @@ struct EarnoteCommands: Commands {
             Button("Suchen") { window?.focusSearch() }
                 .keyboardShortcut("f")
                 .disabled(window == nil)
+            Button("Weitersuchen") { window?.search?.next() }
+                .keyboardShortcut("g")
+                .disabled(window?.search == nil)
+            Button("Rückwärts suchen") { window?.search?.previous() }
+                .keyboardShortcut("g", modifiers: [.command, .shift])
+                .disabled(window?.search == nil)
         }
 
         CommandGroup(before: .sidebar) {
@@ -114,6 +120,9 @@ struct EarnoteCommands: Commands {
                 .disabled(window?.selectedRecordingID == nil)
             Button("Transkript") { window?.detailMode.wrappedValue = .transcript }
                 .keyboardShortcut("2")
+                .disabled(window?.selectedRecordingID == nil)
+            Button("Notiz und Transkript") { window?.detailMode.wrappedValue = .both }
+                .keyboardShortcut("3")
                 .disabled(window?.selectedRecordingID == nil)
             Button((window?.inspectorShown.wrappedValue ?? false) ? "Inspector ausblenden" : "Inspector einblenden") {
                 window?.inspectorShown.wrappedValue.toggle()

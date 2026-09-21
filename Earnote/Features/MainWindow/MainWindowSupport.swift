@@ -2,9 +2,46 @@ import AppKit
 import EarnoteCore
 import SwiftUI
 
-/// Notiz oder Transkript im Detailbereich
-enum DetailMode: String {
-    case note, transcript
+/// Notiz, Transkript oder beides nebeneinander im Detailbereich
+enum DetailMode: String, CaseIterable {
+    case note, transcript, both
+
+    var label: LocalizedStringKey {
+        switch self {
+        case .note: return "Notiz"
+        case .transcript: return "Transkript"
+        case .both: return "Beides"
+        }
+    }
+
+    var showsNote: Bool { self != .transcript }
+    var showsTranscript: Bool { self != .note }
+}
+
+/// Durch die Fundstellen der Suche blättern (⌘G). Die Ansicht meldet, wie viele es sind;
+/// das Menü zählt weiter, die Ansicht scrollt zur gezählten Stelle.
+@MainActor
+@Observable
+final class SearchCursor {
+    private(set) var count = 0
+    /// Nummer der Fundstelle, zu der die Ansicht scrollen soll
+    private(set) var index = 0
+
+    /// Neue Suche oder neues Transkript: von vorn zählen
+    func reset(count: Int) {
+        self.count = count
+        index = 0
+    }
+
+    func next() {
+        guard count > 0 else { return }
+        index = (index + 1) % count
+    }
+
+    func previous() {
+        guard count > 0 else { return }
+        index = (index + count - 1) % count
+    }
 }
 
 /// Darstellung einer gespeicherten Aufnahme – dieselben Regeln wie beim Snapshot `Recording`.
