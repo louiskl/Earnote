@@ -234,33 +234,6 @@ final class DiskSpaceTests: XCTestCase {
     }
 }
 
-final class UpdateCheckTests: XCTestCase {
-    func testComparesVersionsStepByStep() {
-        XCTAssertTrue(UpdateCheck.isNewer("0.9.0", than: "0.8.1"))
-        XCTAssertTrue(UpdateCheck.isNewer("v0.10.0", than: "0.9.9"), "Zehn ist mehr als neun")
-        XCTAssertTrue(UpdateCheck.isNewer("1.0", than: "0.9.9"))
-        XCTAssertFalse(UpdateCheck.isNewer("0.8.1", than: "0.8.1"))
-        XCTAssertFalse(UpdateCheck.isNewer("0.8.0", than: "0.8.1"))
-        XCTAssertFalse(UpdateCheck.isNewer("kaputt", than: "0.8.1"))
-    }
-
-    func testReadsTheReleaseFromGitHub() throws {
-        let json = """
-            {"tag_name": "v0.9.0", "html_url": "https://github.com/louiskl/Earnote/releases/tag/v0.9.0",
-             "draft": false, "prerelease": false,
-             "assets": [{"name": "Earnote.dmg", "browser_download_url": "https://example.com/Earnote.dmg"}]}
-            """.data(using: .utf8)!
-        let release = try XCTUnwrap(UpdateCheck.release(from: json))
-        XCTAssertEqual(release.version, "0.9.0", "Das „v“ gehört nicht zur Version")
-        XCTAssertEqual(release.download?.lastPathComponent, "Earnote.dmg")
-
-        let draft = """
-            {"tag_name": "v1.0.0", "html_url": "https://example.com", "draft": true, "assets": []}
-            """.data(using: .utf8)!
-        XCTAssertNil(UpdateCheck.release(from: draft), "Entwürfe und Vorabversionen zählen nicht")
-    }
-}
-
 final class TranscriptQualityFromRealLecturesTests: XCTestCase {
     /// Aus einer echten Vorlesung: „Vielen Dank.“ über sieben Sekunden, direkt am Anfang.
     func testRemovesPolitePhrasesStretchedOverSilence() {

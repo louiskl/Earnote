@@ -74,6 +74,19 @@ for product in ["EarnoteCore", "EarnoteML"]:
     add(build, f'{{isa = PBXBuildFile; productRef = {prod}; }};')
     PKG_PRODUCTS.append(prod)
     PKG_BUILDS.append(build)
+# Sparkle: Selbstaktualisierung der App. Nur hier im App-Ziel – EarnoteKit bleibt frei davon,
+# damit der Kern weiter für iOS baut.
+SPARKLE_PACKAGE = uid("remotepkg", "Sparkle")
+add(SPARKLE_PACKAGE, '{isa = XCRemoteSwiftPackageReference; repositoryURL = "https://github.com/sparkle-project/Sparkle"; '
+    'requirement = {kind = upToNextMajorVersion; minimumVersion = 2.8.0; }; };')
+_sparkle_product = uid("pkgproduct", "Sparkle", "Sparkle")
+add(_sparkle_product, f'{{isa = XCSwiftPackageProductDependency; package = {SPARKLE_PACKAGE}; productName = Sparkle; }};')
+_sparkle_build = uid("pkgbuild", "Sparkle", "Sparkle")
+add(_sparkle_build, f'{{isa = PBXBuildFile; productRef = {_sparkle_product}; }};')
+PKG_REFS.append(SPARKLE_PACKAGE)
+PKG_PRODUCTS.append(_sparkle_product)
+PKG_BUILDS.append(_sparkle_build)
+
 PACKAGE_GROUP = uid("group", "Packages")
 add(PACKAGE_GROUP, '{isa = PBXFileReference; lastKnownFileType = wrapper; path = "Packages/EarnoteKit"; sourceTree = "<group>"; };')
 
@@ -142,7 +155,7 @@ common_target = {
     "INFOPLIST_FILE": "Earnote/Resources/Info.plist",
     "LD_RUNPATH_SEARCH_PATHS": "$(inherited) @executable_path/../Frameworks",
     "MACOSX_DEPLOYMENT_TARGET": "15.0",
-    "MARKETING_VERSION": "0.9.3",
+    "MARKETING_VERSION": "0.9.4",
     "PRODUCT_BUNDLE_IDENTIFIER": "app.earnote.Earnote",
     "PRODUCT_NAME": "$(TARGET_NAME)",
     "SWIFT_EMIT_LOC_STRINGS": "YES",

@@ -42,6 +42,14 @@
 	<string>Earnote legt offene Aufgaben aus deinen Notizen auf Wunsch in Apple Erinnerungen ab.</string>
 	<key>NSDocumentsFolderUsageDescription</key>
 	<string>Earnote speichert Notizen auf Wunsch als Markdown-Dateien in deinem Dokumente-Ordner.</string>
+	<key>SUFeedURL</key>
+	<string>https://louiskl.github.io/Earnote/appcast.xml</string>
+	<key>SUPublicEDKey</key>
+	<string>D3H55ScnlVdCPqEP3BWHWYZz1NDPiYRWM5/tDmg3zLw=</string>
+	<key>SUEnableAutomaticChecks</key>
+	<true/>
+	<key>SUScheduledCheckInterval</key>
+	<integer>86400</integer>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
 	<key>NSAppTransportSecurity</key>

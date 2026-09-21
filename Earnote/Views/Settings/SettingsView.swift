@@ -178,25 +178,15 @@ enum Diagnostics {
 
 /// Über: Version, Zweck, Quellcode.
 struct AboutSettings: View {
-    @Environment(UpdateStatus.self) private var updates
+    @Environment(AppUpdater.self) private var updates
     @Environment(\.openURL) private var openURL
 
-    private var version: String {
-        Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "–"
-    }
+    private var version: String { updates.currentVersion }
 
+    /// Sparkle zeigt Fund, Änderungen und Fortschritt in seinem eigenen Fenster – hier steht nur der Knopf.
     @ViewBuilder private var updateLine: some View {
-        if let release = updates.available {
-            Button("Version \(release.version) laden") { openURL(release.download ?? release.page) }
-                .controlSize(.small)
-        } else if updates.isChecking {
-            ProgressView().controlSize(.small)
-        } else {
-            Button(updates.checkedAt == nil ? "Nach Updates suchen" : "Aktuell – erneut suchen") {
-                Task { await updates.check() }
-            }
+        Button("Nach Updates suchen") { updates.checkNow() }
             .controlSize(.small)
-        }
     }
 
     var body: some View {

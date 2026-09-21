@@ -17,7 +17,7 @@ final class AppEnvironment {
     /// Übergang bis Phase 2b: Schnittstelle der noch alten Views (Einstellungen, Einrichtung, Menüleiste, Call-Pop-up)
     let appState: AppState
     /// Sucht einmal am Tag nach einer neueren Version
-    let updates = UpdateStatus()
+    let updates = AppUpdater()
 
     private let storage: Storage
     private let defaults: UserDefaults
@@ -60,9 +60,10 @@ final class AppEnvironment {
         let appState = AppState(library: library, recorder: recorder, llm: llm)
 
         library.willDelete = { [weak recorder] id in recorder?.endIfActive(id) }
-        library.onSettingsChanged = { [weak recorder, weak queue] old, new in
+        library.onSettingsChanged = { [weak recorder, weak queue, updates] old, new in
             if old.appearance != new.appearance { Appearance.apply(new.appearance) }
             if old.ai.localModel != new.ai.localModel { LocalModels.apply(new) }
+            if old.checkForUpdates != new.checkForUpdates { updates.automaticallyChecks = new.checkForUpdates }
             recorder?.updateDetection(enabled: new.meetingDetection)
             if old.ai != new.ai { queue?.aiProviderChanged() }
         }
@@ -87,7 +88,7 @@ final class AppEnvironment {
 
         if library.settings.meetingDetection { recorder.detector.start() }
         Task { await start() }
-        if library.settings.checkForUpdates { Task { [updates] in await updates.checkIfDue() } }
+        updates.automaticallyChecks = library.settings.checkForUpdates
     }
 
     /// Leere Umgebung in einem temporären Ordner für die App-Tests

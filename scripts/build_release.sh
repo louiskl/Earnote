@@ -62,4 +62,26 @@ if [[ -n "${DEVELOPER_ID:-}" ]]; then
 fi
 
 VERSION="$(defaults read "$APP/Contents/Info" CFBundleShortVersionString)"
+
+# Sparkle: Update-Datei (appcast.xml) erzeugen und signieren. Sie liegt unter docs/ und wird
+# über GitHub Pages ausgeliefert – dieselbe Adresse, die in der Info.plist als SUFeedURL steht.
+# Der private Schlüssel liegt im Schlüsselbund (einmalig mit Sparkles `generate_keys` angelegt).
+SPARKLE_BIN="$(find "$HOME/Library/Developer/Xcode/DerivedData" -path "*artifacts/sparkle/Sparkle/bin/generate_appcast" -print -quit 2>/dev/null || true)"
+if [[ -n "$SPARKLE_BIN" ]]; then
+    echo "▸ Erzeuge und signiere appcast.xml …"
+    APPCAST_DIR="$BUILD/appcast"
+    rm -rf "$APPCAST_DIR"; mkdir -p "$APPCAST_DIR"
+    cp "$DMG" "$APPCAST_DIR/Earnote-$VERSION.dmg"
+    "$SPARKLE_BIN" \
+        --download-url-prefix "https://github.com/louiskl/Earnote/releases/download/v$VERSION/" \
+        --link "https://louiskl.github.io/Earnote/" \
+        --full-release-notes-url "https://github.com/louiskl/Earnote/releases" \
+        -o "$ROOT/docs/appcast.xml" "$APPCAST_DIR"
+    # Die Datei im Release heißt immer Earnote.dmg – in der Update-Datei muss derselbe Name stehen.
+    /usr/bin/sed -i "" "s|/Earnote-$VERSION.dmg|/Earnote.dmg|g" "$ROOT/docs/appcast.xml"
+    echo "  → docs/appcast.xml (committen und pushen, damit Updates ankommen)"
+else
+    echo "▸ Kein Sparkle gefunden – appcast.xml unverändert (einmal in Xcode bauen hilft)"
+fi
+
 echo "✓ Fertig: $DMG  (Earnote $VERSION, $(du -h "$DMG" | cut -f1))"

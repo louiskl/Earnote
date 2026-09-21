@@ -74,30 +74,3 @@ struct ProcessingHintRow: View {
     }
 }
 
-/// Hinweis auf eine neuere Version – für die Beta wichtig, damit alle denselben Stand testen.
-struct UpdateRow: View {
-    @Environment(UpdateStatus.self) private var updates
-    @Environment(\.openURL) private var openURL
-
-    var body: some View {
-        if let release = updates.available {
-            HStack(spacing: 10) {
-                Image(systemName: "arrow.down.circle")
-                    .foregroundStyle(.tint)
-                VStack(alignment: .leading, spacing: 1) {
-                    Text("Version \(release.version) ist da").font(.callout)
-                    Text("Laden, in den Programme-Ordner ziehen, fertig.")
-                        .font(.caption).foregroundStyle(.secondary)
-                }
-                Spacer(minLength: 0)
-                Button("Laden") { openURL(release.download ?? release.page) }
-                    .controlSize(.small)
-            }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 8)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(.bar)
-            .accessibilityElement(children: .combine)
-        }
-    }
-}
