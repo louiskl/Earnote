@@ -16,3 +16,6 @@ Package.resolved.orig
 *.zip
 dist/
 icon-preview.png
+
+# Signaturprofil (enthält Team- und Zertifikatsangaben) – bleibt lokal
+scripts/*.provisionprofile

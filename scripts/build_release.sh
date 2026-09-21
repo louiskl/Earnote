@@ -22,11 +22,23 @@ DIST="$ROOT/dist"
 APP="$BUILD/Build/Products/Release/Earnote.app"
 DMG="$DIST/Earnote.dmg"
 
-SIGN_ARGS=(CODE_SIGN_IDENTITY="-" CODE_SIGN_STYLE=Manual DEVELOPMENT_TEAM="" CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO)
+# iCloud-Sync: nur mit Profil vom Typ „Developer ID“, das die CloudKit-Berechtigung enthält.
+# Liegt es unter scripts/Earnote.provisionprofile, wird es in die App gelegt und die erweiterten
+# Berechtigungen werden verwendet – sonst bleibt alles wie bisher (ohne iCloud).
+PROFILE="$ROOT/scripts/Earnote.provisionprofile"
+ENTITLEMENTS="Earnote/Resources/Earnote.entitlements"
+if [[ -f "$PROFILE" ]]; then
+    ENTITLEMENTS="Earnote/Resources/Earnote-iCloud.entitlements"
+    echo "▸ Profil gefunden – baue mit iCloud-Berechtigung"
+fi
+
+SIGN_ARGS=(CODE_SIGN_IDENTITY="-" CODE_SIGN_STYLE=Manual DEVELOPMENT_TEAM="" CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO
+           CODE_SIGN_ENTITLEMENTS="$ENTITLEMENTS")
 if [[ -n "${DEVELOPER_ID:-}" ]]; then
     TEAM_ID="$(sed -E 's/.*\(([A-Z0-9]+)\)$/\1/' <<<"$DEVELOPER_ID")"
     SIGN_ARGS=(CODE_SIGN_IDENTITY="$DEVELOPER_ID" CODE_SIGN_STYLE=Manual DEVELOPMENT_TEAM="$TEAM_ID"
-               CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO OTHER_CODE_SIGN_FLAGS="--timestamp --options runtime")
+               CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO CODE_SIGN_ENTITLEMENTS="$ENTITLEMENTS"
+               OTHER_CODE_SIGN_FLAGS="--timestamp --options runtime")
     echo "▸ Signiere mit: $DEVELOPER_ID"
 else
     echo "▸ Kein DEVELOPER_ID gesetzt – signiere ad-hoc"
@@ -47,6 +59,16 @@ if ! xcodebuild -project Earnote.xcodeproj -scheme Earnote -configuration Releas
 fi
 grep -E "warning: .*Earnote/" "$LOG" | sort -u | head -5 || true
 [[ -d "$APP" ]] || { echo "✗ Build lieferte keine App"; exit 1; }
+
+# Das Profil muss in der App liegen, sonst gilt die iCloud-Berechtigung beim Start nicht.
+# Nach dem Kopieren muss neu signiert werden – die Signatur deckt den Inhalt ab.
+if [[ -f "$PROFILE" ]]; then
+    cp "$PROFILE" "$APP/Contents/embedded.provisionprofile"
+    if [[ -n "${DEVELOPER_ID:-}" ]]; then
+        codesign --force --sign "$DEVELOPER_ID" --timestamp --options runtime \
+                 --entitlements "$ROOT/$ENTITLEMENTS" "$APP"
+    fi
+fi
 
 codesign --verify --strict "$APP"
 
