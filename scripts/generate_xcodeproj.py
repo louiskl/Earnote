@@ -151,20 +151,27 @@ ICLOUD_DEV_TEAM = os.environ.get("EARNOTE_ICLOUD_DEV_TEAM", "")
 APP_ENTITLEMENTS = ("Earnote/Resources/Earnote-iCloud-Development.entitlements" if ICLOUD_DEV_TEAM
                     else "Earnote/Resources/Earnote.entitlements")
 
+# Die Version der App steht nur hier. Sparkle vergleicht Fassungen an der Buildnummer
+# (CFBundleVersion), nicht am Namen – sie muss also mit jeder Fassung wachsen, sonst bietet die
+# App ein Update nie an. Aus „0.9.4“ wird 904.
+MARKETING_VERSION = "0.9.4"
+_parts = (MARKETING_VERSION.split(".") + ["0", "0"])[:3]
+BUILD_NUMBER = str(int(_parts[0]) * 10_000 + int(_parts[1]) * 100 + int(_parts[2]))
+
 common_target = {
     "ASSETCATALOG_COMPILER_APPICON_NAME": "AppIcon",
     "CODE_SIGN_ENTITLEMENTS": APP_ENTITLEMENTS,
     "CODE_SIGN_IDENTITY": "Apple Development" if ICLOUD_DEV_TEAM else "-",
     "CODE_SIGN_STYLE": "Automatic",
     "COMBINE_HIDPI_IMAGES": "YES",
-    "CURRENT_PROJECT_VERSION": "1",
+    "CURRENT_PROJECT_VERSION": BUILD_NUMBER,
     "DEVELOPMENT_TEAM": ICLOUD_DEV_TEAM,
     "ENABLE_HARDENED_RUNTIME": "YES",
     "GENERATE_INFOPLIST_FILE": "NO",
     "INFOPLIST_FILE": "Earnote/Resources/Info.plist",
     "LD_RUNPATH_SEARCH_PATHS": "$(inherited) @executable_path/../Frameworks",
     "MACOSX_DEPLOYMENT_TARGET": "15.0",
-    "MARKETING_VERSION": "0.9.4",
+    "MARKETING_VERSION": MARKETING_VERSION,
     "PRODUCT_BUNDLE_IDENTIFIER": "app.earnote.Earnote",
     "PRODUCT_NAME": "$(TARGET_NAME)",
     "SWIFT_EMIT_LOC_STRINGS": "YES",

@@ -1,0 +1,16 @@
+<?xml version="1.0" standalone="yes"?>
+<rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" version="2.0">
+    <channel>
+        <title>Earnote</title>
+        <item>
+            <title>0.9.4</title>
+            <pubDate>Mon, 21 Sep 2026 21:39:18 +0200</pubDate>
+            <link>https://louiskl.github.io/Earnote/</link>
+            <sparkle:fullReleaseNotesLink>https://github.com/louiskl/Earnote/releases</sparkle:fullReleaseNotesLink>
+            <sparkle:version>1</sparkle:version>
+            <sparkle:shortVersionString>0.9.4</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>15.0</sparkle:minimumSystemVersion>
+            <enclosure url="https://github.com/louiskl/Earnote/releases/download/v0.9.4/Earnote.dmg" length="28056972" type="application/octet-stream" sparkle:edSignature="GUJW2xEDJy2B4s3lGT8oxf6ppDVEZQ1O4J7BtlAZKGbf0rgepgO6juAwiN3OvETdun8neFfrwa4+JyeY29DRDA=="/>
+        </item>
+    </channel>
+</rss>
