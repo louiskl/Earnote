@@ -142,14 +142,23 @@ def settings_block(d):
         out.append(f"{k} = {vs}; ")
     return "{" + "".join(out) + "}"
 
+# Signatur des App-Ziels. Normalfall: ad-hoc, ohne Team, ohne iCloud – so baut das Projekt auf
+# jedem Rechner ohne Entwicklerkonto. Nur für den einmaligen Lauf, der das CloudKit-Schema anlegt,
+# setzt man EARNOTE_ICLOUD_DEV_TEAM=<Team-ID>: Dann signiert Xcode automatisch mit dem Konto und
+# die App darf in die Entwicklungs-Umgebung von CloudKit schreiben. Danach wieder ohne die Variable
+# erzeugen (siehe docs/ROADMAP.md, „iCloud-Sync einschalten“).
+ICLOUD_DEV_TEAM = os.environ.get("EARNOTE_ICLOUD_DEV_TEAM", "")
+APP_ENTITLEMENTS = ("Earnote/Resources/Earnote-iCloud-Development.entitlements" if ICLOUD_DEV_TEAM
+                    else "Earnote/Resources/Earnote.entitlements")
+
 common_target = {
     "ASSETCATALOG_COMPILER_APPICON_NAME": "AppIcon",
-    "CODE_SIGN_ENTITLEMENTS": "Earnote/Resources/Earnote.entitlements",
-    "CODE_SIGN_IDENTITY": "-",
+    "CODE_SIGN_ENTITLEMENTS": APP_ENTITLEMENTS,
+    "CODE_SIGN_IDENTITY": "Apple Development" if ICLOUD_DEV_TEAM else "-",
     "CODE_SIGN_STYLE": "Automatic",
     "COMBINE_HIDPI_IMAGES": "YES",
     "CURRENT_PROJECT_VERSION": "1",
-    "DEVELOPMENT_TEAM": "",
+    "DEVELOPMENT_TEAM": ICLOUD_DEV_TEAM,
     "ENABLE_HARDENED_RUNTIME": "YES",
     "GENERATE_INFOPLIST_FILE": "NO",
     "INFOPLIST_FILE": "Earnote/Resources/Info.plist",

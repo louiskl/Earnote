@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <!--
-  Wie Earnote.entitlements, zusätzlich iCloud (CloudKit) für die Bibliothek.
+  Nur für den einmaligen Lauf, der das CloudKit-Schema anlegt.
 
-  Wird nur benutzt, wenn scripts/Earnote.provisionprofile vorhanden ist. Die Berechtigungen müssen
-  genau zu dem passen, was das Profil erlaubt – steht hier eine mehr, verweigert macOS die Signatur.
-  Außerhalb des App Store gehört „icloud-container-environment: Production“ dazu.
+  CloudKit hat zwei getrennte Umgebungen. Eine mit Developer ID signierte App spricht „Production“,
+  dort lässt sich aber kein Schema anlegen – das entsteht nur in „Development“ und wird danach in der
+  CloudKit-Konsole nach Production übernommen. Deshalb hier „Development“ und keine feste App-ID:
+  Die setzt Xcode beim automatischen Signieren selbst ein.
 -->
 <plist version="1.0">
 <dict>
@@ -13,10 +14,6 @@
 	<true/>
 	<key>com.apple.security.automation.apple-events</key>
 	<true/>
-	<key>com.apple.application-identifier</key>
-	<string>KZJJ4FFKXJ.app.earnote.Earnote</string>
-	<key>com.apple.developer.team-identifier</key>
-	<string>KZJJ4FFKXJ</string>
 	<key>com.apple.developer.icloud-services</key>
 	<array>
 		<string>CloudKit</string>
@@ -26,6 +23,6 @@
 		<string>iCloud.app.earnote.Earnote</string>
 	</array>
 	<key>com.apple.developer.icloud-container-environment</key>
-	<string>Production</string>
+	<string>Development</string>
 </dict>
 </plist>

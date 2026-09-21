@@ -355,10 +355,20 @@ das kann nur der Kontoinhaber:
 2. **App-ID `app.earnote.Earnote`** um die Fähigkeit **iCloud (CloudKit)** erweitern und den Container zuordnen
 3. **Provisioning-Profil vom Typ „Developer ID“** mit dieser App-ID erzeugen, herunterladen und in `scripts/`
    ablegen; `build_release.sh` muss es als `embedded.provisionprofile` in die App kopieren
-4. **Entitlements ergänzen** (`Earnote/Resources/Earnote.entitlements`):
-   `com.apple.developer.icloud-container-identifiers` = `iCloud.app.earnote.Earnote`,
-   `com.apple.developer.icloud-services` = `CloudKit`
-5. Danach: zwei Wochen allein auf zwei Macs laufen lassen (Duplikate, Konflikte, Löschungen), erst dann für Tester freigeben
+4. **Erledigt, sobald das Profil liegt:** `Earnote-iCloud.entitlements` und der Einbau des Profils
+   in `build_release.sh` stehen schon – beides schaltet sich automatisch ein.
+5. **CloudKit-Schema anlegen und nach Production übernehmen.** Eine mit Developer ID signierte App
+   spricht die Production-Umgebung, dort lässt sich aber kein Schema anlegen. Deshalb einmalig:
+
+   ```bash
+   EARNOTE_ICLOUD_DEV_TEAM=KZJJ4FFKXJ python3 scripts/generate_xcodeproj.py
+   open Earnote.xcodeproj      # ⌘R, Einstellungen › Allgemein › iCloud an, App neu starten
+   python3 scripts/generate_xcodeproj.py   # danach wieder auf den Normalfall zurück
+   ```
+
+   Danach in der [CloudKit-Konsole](https://icloud.developer.apple.com/) den Container wählen und
+   unter *Schema* → **Deploy Schema Changes** nach Production übernehmen.
+6. Zwei Wochen allein auf zwei Macs laufen lassen (Duplikate, Konflikte, Löschungen), erst dann für Tester freigeben
 
 Ohne Schritt 1–4 bleibt der Schalter wirkungslos: Die App fällt beim Start auf den lokalen Speicher zurück
 und schreibt den Grund ins Protokoll. Ein Datenverlust kann dabei nicht entstehen.
