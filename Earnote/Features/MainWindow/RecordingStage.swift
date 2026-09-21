@@ -88,7 +88,7 @@ private struct ElapsedTime: View {
 
     var body: some View {
         Text(TimeFormat.duration(meter.elapsed))
-            .font(.system(size: 44, weight: .semibold, design: .rounded))
+            .font(.system(size: 44, weight: .semibold))
             .monospacedDigit()
             .accessibilityLabel("Laufzeit \(TimeFormat.duration(meter.elapsed))")
     }

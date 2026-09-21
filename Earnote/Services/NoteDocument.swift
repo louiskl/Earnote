@@ -241,7 +241,8 @@ enum FollowUpMail {
     /// Mehr passt in einen mailto-Link nicht zuverlässig hinein
     static let maxLength = 4_000
 
-    static func compose(_ recordingID: UUID, library: LibraryStore) {
+    /// `short` = nur Kurzfassung, Ergebnisse und Aufgaben
+    static func compose(_ recordingID: UUID, library: LibraryStore, short: Bool = false) {
         Task {
             guard let recording = library.recording(recordingID),
                   let note = await library.summary(recordingID) else {
@@ -249,7 +250,9 @@ enum FollowUpMail {
                 return
             }
             let subject = recording.displayTitle
-            var body = NoteMarkdown.shareText(title: subject, markdown: note.markdown)
+            var body = short
+                ? NoteMarkdown.shortMinutes(title: subject, markdown: note.markdown)
+                : NoteMarkdown.shareText(title: subject, markdown: note.markdown)
             if body.count > maxLength {
                 body = String(body.prefix(maxLength)) + "\n\n" + String(localized: "… (gekürzt)")
             }
@@ -262,6 +265,23 @@ enum FollowUpMail {
                 library.lastError = String(localized: "Der Mail-Entwurf konnte nicht geöffnet werden.")
                 return
             }
+        }
+    }
+}
+
+/// Kurzprotokoll in die Zwischenablage – zum Einfügen in Mail, Slack oder Teams.
+@MainActor
+enum ShortMinutes {
+    static func copy(_ recordingID: UUID, library: LibraryStore) {
+        Task {
+            guard let recording = library.recording(recordingID),
+                  let note = await library.summary(recordingID) else {
+                library.lastError = String(localized: "Für diese Aufnahme gibt es noch keine Notiz.")
+                return
+            }
+            NSPasteboard.general.clearContents()
+            NSPasteboard.general.setString(NoteMarkdown.shortMinutes(title: recording.displayTitle,
+                                                                     markdown: note.markdown), forType: .string)
         }
     }
 }

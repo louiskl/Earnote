@@ -52,13 +52,12 @@ struct CategorySummarySheet: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            Text("Übersicht über „\(category?.name ?? "")“")
-                .font(.headline)
-                .padding(20)
-            Divider()
+        VStack(spacing: 0) {
             Form {
                 Section {
+                    LabeledContent("Bereich") {
+                        Text(category?.name ?? "").foregroundStyle(.secondary)
+                    }
                     Picker("Zeitraum", selection: $period) {
                         ForEach(Period.allCases) { Text($0.label).tag($0) }
                     }

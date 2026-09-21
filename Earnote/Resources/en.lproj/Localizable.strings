@@ -1036,3 +1036,8 @@
 "Für eine Übersicht braucht es eine KI. Wähle in den Einstellungen unter „KI“ eine aus." = "An overview needs an AI. Pick one under Settings › AI.";
 "Die KI hat keine Übersicht geliefert. Versuch es noch einmal." = "The AI did not return an overview. Please try again.";
 "Übersicht: %@" = "Overview: %@";
+"Kurzprotokoll kopieren" = "Copy short minutes";
+"Kurzprotokoll als Mail …" = "Short minutes as email …";
+"Erzeugen" = "Create";
+"Als Anki-Datei sichern …" = "Save as an Anki file …";
+"Weitergeben" = "Pass on";

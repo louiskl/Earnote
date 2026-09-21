@@ -155,14 +155,22 @@ struct RecordingActionItems: View {
         Button("Erneut exportieren") { library.reexport(recordingID) }
             .disabled(recording == nil || busy)
         Divider()
-        Button(library.makingFlashcards.contains(recordingID) ? "Karteikarten entstehen …" : "Karteikarten erzeugen") {
-            Task { await library.makeFlashcards(recordingID) }
+        // Zwei Untermenüs statt einer langen Liste: Lernen und Weitergeben sind zwei Absichten.
+        Menu("Karteikarten") {
+            Button(library.makingFlashcards.contains(recordingID) ? "Karteikarten entstehen …" : "Erzeugen") {
+                Task { await library.makeFlashcards(recordingID) }
+            }
+            .disabled(!hasNote || busy || library.makingFlashcards.contains(recordingID))
+            Button("Als Anki-Datei sichern …") { FlashcardExport.save(recordingID, library: library) }
+                .disabled(!hasNote)
         }
-        .disabled(!hasNote || busy || library.makingFlashcards.contains(recordingID))
-        Button("Karteikarten sichern (Anki) …") { FlashcardExport.save(recordingID, library: library) }
-            .disabled(!hasNote)
-        Button("Als Mail weiterschicken …") { FollowUpMail.compose(recordingID, library: library) }
-            .disabled(!hasNote)
+        .disabled(!hasNote)
+        Menu("Weitergeben") {
+            Button("Kurzprotokoll kopieren") { ShortMinutes.copy(recordingID, library: library) }
+            Button("Als Mail weiterschicken …") { FollowUpMail.compose(recordingID, library: library) }
+            Button("Kurzprotokoll als Mail …") { FollowUpMail.compose(recordingID, library: library, short: true) }
+        }
+        .disabled(!hasNote)
         Divider()
         Button("Als PDF sichern …") { NoteDocument.savePDF(recordingID, library: library) }
             .disabled(!hasNote)

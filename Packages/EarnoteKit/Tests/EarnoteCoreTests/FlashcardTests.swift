@@ -184,3 +184,50 @@ final class MathProtectionTests: XCTestCase {
         XCTAssertEqual(NoteMarkdown.protectingMath("Ganz normaler Text"), "Ganz normaler Text")
     }
 }
+
+/// Das Kurzprotokoll ist das, was man nach einem Meeting weiterschickt: Ergebnis und Aufgaben.
+final class ShortMinutesTests: XCTestCase {
+    private let note = """
+    Das Team hat den Zeitplan für die Einführung festgelegt.
+
+    ## Zeitplan
+
+    - Start im Oktober
+    - Schulung im November
+
+    ## Entscheidungen
+
+    - Wir bleiben bei Anbieter B
+    - Kein eigener Server
+
+    ## Aufgaben
+
+    - [ ] Angebot bis Freitag einholen
+    - [x] Termin mit dem Betriebsrat
+
+    ## Offene Fragen
+
+    - Wer übernimmt die Schulung?
+    """
+
+    func testKeepsSummaryResultsAndTasksAndDropsTheRest() {
+        let minutes = NoteMarkdown.shortMinutes(title: "Einführung neues System", markdown: note)
+        XCTAssertTrue(minutes.hasPrefix("# Einführung neues System"))
+        XCTAssertTrue(minutes.contains("Das Team hat den Zeitplan"))
+        XCTAssertTrue(minutes.contains("Wir bleiben bei Anbieter B"))
+        XCTAssertTrue(minutes.contains("- [ ] Angebot bis Freitag einholen"))
+        XCTAssertTrue(minutes.contains("- [x] Termin mit dem Betriebsrat"), "auch Erledigtes gehört ins Protokoll")
+        XCTAssertFalse(minutes.contains("Schulung im November"), "Themenblöcke bleiben draußen")
+        XCTAssertFalse(minutes.contains("Wer übernimmt die Schulung?"), "offene Fragen bleiben draußen")
+    }
+
+    func testWorksWithEnglishHeadingsAndWithoutResults() {
+        let english = "We agreed on the timeline.\n\n## Decisions\n\n- Vendor B\n\n## Tasks\n\n- [ ] Ask for a quote"
+        XCTAssertTrue(NoteMarkdown.shortMinutes(title: "Kickoff", markdown: english).contains("Vendor B"))
+
+        let plain = "Nur eine Kurzfassung ohne Abschnitte."
+        let minutes = NoteMarkdown.shortMinutes(title: "Kurz", markdown: plain)
+        XCTAssertTrue(minutes.contains("Nur eine Kurzfassung"))
+        XCTAssertFalse(minutes.contains("##"), "ohne Ergebnisse und Aufgaben keine leeren Überschriften")
+    }
+}

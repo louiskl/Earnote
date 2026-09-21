@@ -74,16 +74,31 @@ struct EarnoteCommands: Commands {
             Button("Erneut exportieren") { if let id { library.reexport(id) } }
                 .disabled(recording == nil || busy)
             Divider()
-            Button(id.map { library.makingFlashcards.contains($0) } == true
-                   ? "Karteikarten entstehen …" : "Karteikarten erzeugen") {
-                if let id { Task { await library.makeFlashcards(id) } }
+            // Untermenüs halten das Menü kurz – wie „Notiz“ in Mail oder „Format“ in Pages
+            Menu("Karteikarten") {
+                Button(id.map { library.makingFlashcards.contains($0) } == true ? "Karteikarten entstehen …" : "Erzeugen") {
+                    if let id { Task { await library.makeFlashcards(id) } }
+                }
+                .disabled(recording?.summaryTitle == nil || busy
+                          || id.map { library.makingFlashcards.contains($0) } == true)
+                Button("Als Anki-Datei sichern …") { if let id { FlashcardExport.save(id, library: library) } }
+                    .disabled(recording?.summaryTitle == nil)
             }
-            .disabled(recording?.summaryTitle == nil || busy
-                      || id.map { library.makingFlashcards.contains($0) } == true)
-            Button("Karteikarten sichern (Anki) …") { if let id { FlashcardExport.save(id, library: library) } }
-                .disabled(recording?.summaryTitle == nil)
-            Button("Als Mail weiterschicken …") { if let id { FollowUpMail.compose(id, library: library) } }
-                .disabled(recording?.summaryTitle == nil)
+            .disabled(recording?.summaryTitle == nil)
+            Menu("Weitergeben") {
+                Button("Kurzprotokoll kopieren") { if let id { ShortMinutes.copy(id, library: library) } }
+                Button("Als Mail weiterschicken …") { if let id { FollowUpMail.compose(id, library: library) } }
+                Button("Kurzprotokoll als Mail …") { if let id { FollowUpMail.compose(id, library: library, short: true) } }
+                Button("Teilen …") {
+                    guard let id, let recording else { return }
+                    Task {
+                        if let note = await library.summary(id) {
+                            SharePicker.show(NoteMarkdown.shareText(title: recording.displayTitle, markdown: note.markdown))
+                        }
+                    }
+                }
+            }
+            .disabled(recording?.summaryTitle == nil)
             Divider()
             Button("Als PDF sichern …") { if let id { NoteDocument.savePDF(id, library: library) } }
                 .disabled(recording?.summaryTitle == nil)
@@ -91,15 +106,6 @@ struct EarnoteCommands: Commands {
                 .keyboardShortcut("p")
                 .disabled(recording?.summaryTitle == nil)
             Divider()
-            Button("Teilen …") {
-                guard let id, let recording else { return }
-                Task {
-                    if let note = await library.summary(id) {
-                        SharePicker.show(NoteMarkdown.shareText(title: recording.displayTitle, markdown: note.markdown))
-                    }
-                }
-            }
-            .disabled(recording?.summaryTitle == nil)
             Button("Im Finder zeigen") { if let id { library.revealInFinder(id) } }
                 .disabled(recording == nil)
         }

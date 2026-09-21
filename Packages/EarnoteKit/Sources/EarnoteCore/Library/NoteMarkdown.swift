@@ -150,6 +150,49 @@ public enum NoteMarkdown {
         return out.joined(separator: "\n").trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
+    /// Wörter, an denen ein Ergebnis-Abschnitt zu erkennen ist – deutsch wie englisch,
+    /// weil die Sprache der Notizen frei wählbar ist.
+    private static let resultHeadings = ["entscheidungen", "ergebnisse", "beschlüsse",
+                                         "decisions", "results", "outcomes", "key decisions"]
+
+    /// Kurzprotokoll zum Weiterschicken: Titel, die Kurzfassung, Ergebnisse und alle Aufgaben –
+    /// ohne Themenblöcke und Transkript. Findet sich kein Ergebnis-Abschnitt, bleibt es bei
+    /// Kurzfassung und Aufgaben.
+    public static func shortMinutes(title: String, markdown: String) -> String {
+        var intro: [String] = []
+        var results: [String] = []
+        var tasks: [String] = []
+        var inResults = false
+        var beforeFirstHeading = true
+
+        for line in markdown.components(separatedBy: "\n") {
+            let trimmed = line.trimmingCharacters(in: .whitespaces)
+            if trimmed.hasPrefix("#") {
+                beforeFirstHeading = false
+                let heading = trimmed.drop(while: { $0 == "#" }).trimmingCharacters(in: .whitespaces).lowercased()
+                inResults = resultHeadings.contains { heading.contains($0) }
+                continue
+            }
+            if isTask(trimmed) {
+                tasks.append(trimmed)
+            } else if inResults, !trimmed.isEmpty {
+                results.append(trimmed)
+            } else if beforeFirstHeading, !trimmed.isEmpty {
+                intro.append(trimmed)
+            }
+        }
+
+        var out = "# \(title)\n"
+        if !intro.isEmpty { out += "\n" + intro.joined(separator: "\n") + "\n" }
+        if !results.isEmpty { out += "\n## " + t("Ergebnisse") + "\n" + results.joined(separator: "\n") + "\n" }
+        if !tasks.isEmpty { out += "\n## " + t("Aufgaben") + "\n" + tasks.joined(separator: "\n") + "\n" }
+        return out
+    }
+
+    private static func isTask(_ trimmed: String) -> Bool {
+        trimmed.hasPrefix("- [") || trimmed.hasPrefix("* [")
+    }
+
     /// Text zum Teilen: Titel als Überschrift, dann die Notiz
     public static func shareText(title: String, markdown: String) -> String {
         "# \(title)\n\n\(markdown)"

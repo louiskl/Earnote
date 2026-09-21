@@ -42,6 +42,9 @@ final class FloatingPanels {
 
         panel.alphaValue = 0
         panel.orderFrontRegardless()
+        // Schlüsselfenster werden, ohne die App nach vorn zu holen (dafür ist ein nichtaktivierendes
+        // Panel da): Erst dann sieht der Hauptknopf aktiv aus und ⏎ bzw. ⎋ wirken.
+        panel.makeKey()
         let reduceMotion = NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
         NSAnimationContext.runAnimationGroup { context in
             context.duration = reduceMotion ? 0 : 0.2
@@ -93,33 +96,37 @@ struct CallPromptView: View {
             AppMark()
             VStack(alignment: .leading, spacing: 1) {
                 Text("\(appName)-Call erkannt")
-                    .font(.system(.title3, design: .rounded).weight(.semibold))
+                    .font(.headline)
                     .truncationMode(.middle)
                 Text("Soll \(AppInfo.name) mitschreiben?")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
+            // Begründete Ausnahme von „Systemknöpfe statt eigener“ (Guidelines 14):
+            // Dieses Fenster erscheint, während eine andere App vorn ist. Ein nichtaktivierendes
+            // Panel kann dann nicht Schlüsselfenster sein – macOS zeichnet Systemknöpfe darin grau,
+            // also ausgerechnet den Knopf, der mitten im Call sofort erkennbar sein muss.
             Button("Mitschreiben", action: onRecord)
                 .buttonStyle(.plain)
-                .font(.headline)
+                .font(.body.weight(.semibold))
                 .foregroundStyle(.white)
-                .padding(.horizontal, 18)
-                .padding(.vertical, 9)
-                .background(Capsule().fill(Brand.gradient))
+                .padding(.horizontal, 14)
+                .padding(.vertical, 7)
+                .background(Brand.tint, in: RoundedRectangle(cornerRadius: 7, style: .continuous))
                 .keyboardShortcut(.defaultAction)
             Button("Nicht jetzt", action: onDismiss)
                 .buttonStyle(.plain)
-                .font(.subheadline)
                 .foregroundStyle(.secondary)
+                .keyboardShortcut(.cancelAction)
         }
         .lineLimit(1)
         .fixedSize(horizontal: true, vertical: false)
         .padding(.horizontal, 18)
         .padding(.vertical, 14)
         .frame(maxWidth: 560)
-        .background(.background, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
-        .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous)
-            .strokeBorder(Color.primary.opacity(0.08)))
+        // Ein schwebendes Fenster braucht seinen eigenen Hintergrund – dafür das Systemmaterial,
+        // damit er sich wie Spotlight und die Menüleisten-Fenster von macOS verhält.
+        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
         .onExitCommand(perform: onDismiss)
         .accessibilityElement(children: .contain)
         .accessibilityLabel("\(appName)-Call erkannt")
