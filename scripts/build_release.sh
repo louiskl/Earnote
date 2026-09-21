@@ -33,10 +33,20 @@ else
 fi
 
 echo "▸ Baue Earnote (Release) …"
-xcodebuild -project Earnote.xcodeproj -scheme Earnote -configuration Release \
-    -derivedDataPath "$BUILD" -destination 'generic/platform=macOS' \
-    "${SIGN_ARGS[@]}" clean build | grep -E "error:|warning: .*Earnote/|BUILD" || true
-[[ -d "$APP" ]] || { echo "✗ Build fehlgeschlagen"; exit 1; }
+# Das Protokoll geht in eine Datei, damit ein Fehlschlag nicht in einer Pipe verschwindet:
+# Vorher lief das Skript weiter und hätte aus einer alten App eine DMG gebaut.
+mkdir -p "$BUILD"
+LOG="$BUILD/build.log"
+rm -rf "$APP"
+if ! xcodebuild -project Earnote.xcodeproj -scheme Earnote -configuration Release \
+        -derivedDataPath "$BUILD" -destination 'generic/platform=macOS' \
+        "${SIGN_ARGS[@]}" clean build > "$LOG" 2>&1; then
+    grep -E "error:" "$LOG" | sort -u | head -20
+    echo "✗ Build fehlgeschlagen – vollständiges Protokoll: $LOG"
+    exit 1
+fi
+grep -E "warning: .*Earnote/" "$LOG" | sort -u | head -5 || true
+[[ -d "$APP" ]] || { echo "✗ Build lieferte keine App"; exit 1; }
 
 codesign --verify --strict "$APP"
 
