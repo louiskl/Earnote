@@ -7,7 +7,9 @@ import SwiftData
 // - keine eindeutigen Attribute (`.unique` / `#Unique`)
 // - jede Beziehung optional, mit expliziter Inverse, keine `.deny`-Löschregel
 // - Enums als String-Rohwert, große Daten mit `.externalStorage`
-// - eigene stabile `id: UUID` als normales Attribut
+// - eigene stabile `id: UUID` als normales Attribut bei allem, was die App selbst adressiert
+//   (Aufnahme, Bereich, Wörterbucheintrag). Transkript, Notiz und Export hängen an genau einer
+//   Aufnahme und werden nie einzeln gesucht – sie brauchen keine.
 // Audiodateien gehören nicht dazu; sie bleiben lokal (`AudioStore`).
 
 public enum EarnoteSchemaV1: VersionedSchema {

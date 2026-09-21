@@ -275,7 +275,8 @@ Erst wenn alle drei Blöcke stehen, wird aus 0.9.x die 1.0 – und erst danach b
       `brew tap louiskl/earnote && brew trust louiskl/earnote && brew install --cask earnote`.
       Der offizielle `homebrew-cask` nimmt Selbsteinreichungen erst ab 225 Sternen (oder 90 Forks/Watchern)
       und einem mindestens 30 Tage alten Repository auf – das kommt später.
-- [ ] Automatische Updates: aktuell Hinweis mit Link; Sparkle erst, wenn die Nutzerzahl es rechtfertigt
+- [x] **Automatische Updates (0.9.4)**: Sparkle 2.10 – einmal am Tag Appcast prüfen, Änderungen zeigen,
+      auf Zuspruch installieren. Update-Datei EdDSA-signiert, `build_release.sh` erzeugt sie mit.
 - [ ] Eintragen: AlternativeTo, openalternative.co, awesome-mac, Product Hunt, Show HN, r/macapps, r/Studium
 - [ ] Hochschule: Fachschaften, Uni-Newsletter, Instagram/TikTok – die Zielgruppe sitzt dort, nicht auf HN
 
@@ -294,7 +295,8 @@ heute für iOS – das bleibt die Eintrittskarte, und der iOS-Build läuft bei j
 2. iPhone als Begleit-App: nur aufnehmen und hochladen – kleiner Umfang, sofort nützlich
 3. iPad eigenständig mit Whisper und lokalem Modell (M-Chip)
 
-- [ ] iCloud-Sync einschalten (CloudKit), Duplikat-Bereinigung, Sync-Status
+- [~] iCloud-Sync: Code vorbereitet (Schalter, Container, Rückfall). Es fehlen die Schritte im
+      Entwicklerportal – siehe „iCloud-Sync einschalten“ am Ende dieser Datei. Danach: Duplikat-Bereinigung und Sync-Status
 - [ ] iOS-App-Target auf demselben Kern
 - [ ] **iPad eigenständig** (M-Chip): Whisper + lokales Modell auf dem Gerät, „Increased Memory Limit“
 - [ ] **iPhone als Begleit-App**: nimmt auf, Mac verarbeitet, fertige Notiz wieder auf dem iPhone
@@ -340,3 +342,23 @@ Export optional · WhisperKit + lokales MLX-Modell als Standard · native macOS-
 SwiftData mit iCloud-tauglichem Schema · Audio wird nie synchronisiert · macOS 15 als Mindestversion ·
 öffentliches GitHub-Repository unter `louiskl/Earnote` · Veröffentlichung als notarisierte DMG vom Mac aus,
 nicht über die CI (das Zertifikat bleibt lokal)
+
+---
+
+## iCloud-Sync einschalten – was noch fehlt
+
+Der Code ist vorbereitet (Schalter in Einstellungen › Allgemein, Container `iCloud.app.earnote.Earnote`,
+Rückfall auf den lokalen Speicher, wenn die Berechtigung fehlt). Was noch im Entwicklerportal passieren muss –
+das kann nur der Kontoinhaber:
+
+1. **iCloud-Container anlegen**: `iCloud.app.earnote.Earnote` (Certificates, Identifiers & Profiles › Identifiers › iCloud Containers)
+2. **App-ID `app.earnote.Earnote`** um die Fähigkeit **iCloud (CloudKit)** erweitern und den Container zuordnen
+3. **Provisioning-Profil vom Typ „Developer ID“** mit dieser App-ID erzeugen, herunterladen und in `scripts/`
+   ablegen; `build_release.sh` muss es als `embedded.provisionprofile` in die App kopieren
+4. **Entitlements ergänzen** (`Earnote/Resources/Earnote.entitlements`):
+   `com.apple.developer.icloud-container-identifiers` = `iCloud.app.earnote.Earnote`,
+   `com.apple.developer.icloud-services` = `CloudKit`
+5. Danach: zwei Wochen allein auf zwei Macs laufen lassen (Duplikate, Konflikte, Löschungen), erst dann für Tester freigeben
+
+Ohne Schritt 1–4 bleibt der Schalter wirkungslos: Die App fällt beim Start auf den lokalen Speicher zurück
+und schreibt den Grund ins Protokoll. Ein Datenverlust kann dabei nicht entstehen.

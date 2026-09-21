@@ -25,8 +25,11 @@ final class AppEnvironment {
     init(storage: Storage = .standard, defaults: UserDefaults = .standard) {
         let container: ModelContainer
         var openError: String?
+        // Die Einstellung wird gebraucht, bevor der Store steht – deshalb hier direkt gelesen.
+        let settings = UserDefaultsSettingsRepository(defaults: defaults).loadSettings() ?? AppSettings()
         do {
-            container = try LibraryContainer.make(url: storage.root.appendingPathComponent(LibraryContainer.fileName))
+            container = try LibraryContainer.make(url: storage.root.appendingPathComponent(LibraryContainer.fileName),
+                                                  syncsWithCloud: settings.syncWithCloud)
         } catch {
             // Nicht einfach mit einer leeren Bibliothek weitermachen, ohne es zu sagen
             Log.error("Bibliothek öffnen: \(error)")

@@ -233,6 +233,8 @@ public struct AppSettings: Codable, Hashable, Sendable {
     public var defaultCategoryID: UUID?
     /// Hauptfenster beim Start der App öffnen (sonst nur in der Menüleiste)
     public var openWindowAtLaunch = true
+    /// Bibliothek über iCloud auf mehreren Geräten halten (Audio bleibt lokal). Gilt ab dem nächsten Start.
+    public var syncWithCloud = false
     /// Gewähltes Mikrofon (Core-Audio-UID); nil = Systemstandard. Gilt pro Gerät.
     public var microphoneDeviceUID: String?
     /// Name des gewählten Mikrofons – damit es auch angezeigt werden kann, wenn es gerade nicht verbunden ist
@@ -265,6 +267,7 @@ public struct AppSettings: Codable, Hashable, Sendable {
         showConsentReminder = try c.decodeIfPresent(Bool.self, forKey: .showConsentReminder) ?? d.showConsentReminder
         defaultCategoryID = try c.decodeIfPresent(UUID.self, forKey: .defaultCategoryID)
         openWindowAtLaunch = try c.decodeIfPresent(Bool.self, forKey: .openWindowAtLaunch) ?? d.openWindowAtLaunch
+        syncWithCloud = (try? c.decodeIfPresent(Bool.self, forKey: .syncWithCloud)) ?? d.syncWithCloud
         microphoneDeviceUID = try? c.decodeIfPresent(String.self, forKey: .microphoneDeviceUID)
         microphoneDeviceName = try? c.decodeIfPresent(String.self, forKey: .microphoneDeviceName)
     }

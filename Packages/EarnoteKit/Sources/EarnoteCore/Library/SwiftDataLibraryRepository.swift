@@ -1,13 +1,29 @@
 import Foundation
 import SwiftData
 
-/// Erzeugt den Speicher der Bibliothek. iCloud-Sync bleibt aus, bis ein Entwicklerkonto existiert.
+/// Erzeugt den Speicher der Bibliothek.
 public enum LibraryContainer {
     /// Dateiname im Datenordner
     public static let fileName = "Library.store"
 
-    public static func make(url: URL) throws -> ModelContainer {
+    /// iCloud-Container für die Bibliothek. Audio wird nie synchronisiert – nur Aufnahmedaten,
+    /// Transkripte, Notizen, Bereiche und Wörterbuch.
+    public static let cloudContainer = "iCloud.\(AppInfo.bundleIdentifier)"
+
+    /// `syncsWithCloud` setzt die App aus den Einstellungen. Ohne passende Berechtigung im Signaturprofil
+    /// schlägt der Start mit iCloud fehl – deshalb fällt er auf den reinen Ordner-Speicher zurück,
+    /// statt die Bibliothek gar nicht zu öffnen.
+    public static func make(url: URL, syncsWithCloud: Bool = false) throws -> ModelContainer {
         let schema = Schema(versionedSchema: EarnoteSchemaV1.self)
+        if syncsWithCloud {
+            do {
+                let cloud = ModelConfiguration(schema: schema, url: url,
+                                               cloudKitDatabase: .private(cloudContainer))
+                return try ModelContainer(for: schema, migrationPlan: EarnoteMigrationPlan.self, configurations: cloud)
+            } catch {
+                Log.error("iCloud-Sync nicht möglich, Bibliothek bleibt lokal: \(error.localizedDescription)")
+            }
+        }
         let configuration = ModelConfiguration(schema: schema, url: url, cloudKitDatabase: .none)
         return try ModelContainer(for: schema, migrationPlan: EarnoteMigrationPlan.self, configurations: configuration)
     }
