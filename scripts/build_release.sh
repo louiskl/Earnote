@@ -60,6 +60,35 @@ fi
 grep -E "warning: .*Earnote/" "$LOG" | sort -u | head -5 || true
 [[ -d "$APP" ]] || { echo "✗ Build lieferte keine App"; exit 1; }
 
+# Sparkle bringt eigene Hilfsprogramme mit (Updater, Autoupdate, zwei XPC-Dienste). Sie behalten
+# sonst die Signatur des Sparkle-Projekts – die Notarisierung lehnt das ab („not signed with a valid
+# Developer ID certificate“). Deshalb von innen nach außen neu signieren, mit Zeitstempel und
+# gehärteter Laufzeit; vorhandene Berechtigungen der Hilfsprogramme bleiben erhalten.
+if [[ -n "${DEVELOPER_ID:-}" && -d "$APP/Contents/Frameworks/Sparkle.framework" ]]; then
+    echo "▸ Signiere Sparkles Hilfsprogramme …"
+    SPARKLE_VERSION_DIR="$(find "$APP/Contents/Frameworks/Sparkle.framework/Versions" -maxdepth 1 -mindepth 1 -type d ! -name Current -print -quit)"
+    ENT_TMP="$(mktemp -d)"
+    sign_nested() {
+        local item="$1"
+        [[ -e "$item" ]] || return 0
+        local ent="$ENT_TMP/$(basename "$item").plist"
+        if codesign -d --entitlements :- --xml "$item" > "$ent" 2>/dev/null && [[ -s "$ent" ]]; then
+            codesign --force --sign "$DEVELOPER_ID" --timestamp --options runtime --entitlements "$ent" "$item"
+        else
+            codesign --force --sign "$DEVELOPER_ID" --timestamp --options runtime "$item"
+        fi
+    }
+    sign_nested "$SPARKLE_VERSION_DIR/XPCServices/Installer.xpc"
+    sign_nested "$SPARKLE_VERSION_DIR/XPCServices/Downloader.xpc"
+    sign_nested "$SPARKLE_VERSION_DIR/Updater.app"
+    sign_nested "$SPARKLE_VERSION_DIR/Autoupdate"
+    sign_nested "$APP/Contents/Frameworks/Sparkle.framework"
+    rm -rf "$ENT_TMP"
+    # Die App umfasst die Frameworks – ihre Signatur muss nach den Änderungen neu entstehen.
+    codesign --force --sign "$DEVELOPER_ID" --timestamp --options runtime \
+             --entitlements "$ROOT/$ENTITLEMENTS" "$APP"
+fi
+
 # Das Profil muss in der App liegen, sonst gilt die iCloud-Berechtigung beim Start nicht.
 # Nach dem Kopieren muss neu signiert werden – die Signatur deckt den Inhalt ab.
 if [[ -f "$PROFILE" ]]; then
