@@ -143,8 +143,8 @@ private struct InspectorContent: View {
     }
 
     private func source(_ recording: LibraryRecording) -> String {
-        if recording.origin == .importedFile { return "Importierte Audiodatei" }
-        return recording.sourceApp ?? "Mikrofon"
+        if recording.origin == .importedFile { return String(localized: "Importierte Audiodatei") }
+        return recording.sourceApp ?? String(localized: "Mikrofon")
     }
 
     private func noteAuthor(_ recording: LibraryRecording) -> String {
@@ -177,9 +177,9 @@ private struct ExportTarget: Identifiable {
     var state: ExportState? { export?.state }
 
     var detail: String? {
-        if !isActive { return "Ziel ist ausgeschaltet" }
+        if !isActive { return String(localized: "Ziel ist ausgeschaltet") }
         if let setupProblem { return setupProblem }
-        guard let export else { return "Noch nicht exportiert" }
+        guard let export else { return String(localized: "Noch nicht exportiert") }
         return export.state == .success ? nil : export.message
     }
 

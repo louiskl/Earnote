@@ -83,3 +83,6 @@
 "Wird zusammengefasst" = "Summarising";
 "Wissen aus Videos und Podcasts festhalten" = "Capture what videos and podcasts teach you";
 "Zu wenig Speicherplatz: nur noch %lld MB frei. Lösche etwas (oder alte Aufnahmen in %@) und starte die Aufnahme neu." = "Not enough storage: only %lld MB left. Delete something (or old recordings in %@) and start again.";
+"Notion-Schlüssel fehlt" = "Notion key is missing";
+"Notion-Datenbank noch nicht angelegt" = "Notion database not created yet";
+"Obsidian-Vault nicht ausgewählt" = "No Obsidian vault selected";

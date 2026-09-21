@@ -192,7 +192,11 @@ struct MainWindow: View {
         let env = ProcessInfo.processInfo.environment
         guard env["EARNOTE_DEMO_LIBRARY"] != nil else { return }
         Task { @MainActor in
-            try? await Task.sleep(nanoseconds: 1_500_000_000)
+            // Warten, bis die Bibliothek (inklusive Beispielaufnahme) wirklich da ist
+            for _ in 0..<40 where library.recordings.isEmpty {
+                try? await Task.sleep(nanoseconds: 500_000_000)
+            }
+            try? await Task.sleep(nanoseconds: 500_000_000)
             if selection.wrappedValue == nil { selection.wrappedValue = library.recordings.first?.id }
             if env["EARNOTE_DEMO_INSPECTOR"] != nil { inspectorShown = true; detailMode.wrappedValue = .note }
             // Nur Debug: die Vorbereitungs-Zeile zeigen, ohne ein Modell zu laden

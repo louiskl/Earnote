@@ -88,10 +88,10 @@ public struct CoreDestinations: DestinationProvider {
     public func setupProblem(_ id: String, _ s: DestinationSettings) -> String? {
         switch id {
         case NotionDestination.id:
-            if Keychain.notionToken?.isEmpty ?? true { return "Notion-Schlüssel fehlt" }
-            if s.notionDatabaseID.isEmpty { return "Notion-Datenbank noch nicht angelegt" }
+            if Keychain.notionToken?.isEmpty ?? true { return t("Notion-Schlüssel fehlt") }
+            if s.notionDatabaseID.isEmpty { return t("Notion-Datenbank noch nicht angelegt") }
         case ObsidianDestination.id:
-            if s.obsidianVaultPath.isEmpty { return "Obsidian-Vault nicht ausgewählt" }
+            if s.obsidianVaultPath.isEmpty { return t("Obsidian-Vault nicht ausgewählt") }
         default: break
         }
         return nil

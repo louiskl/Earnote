@@ -33,9 +33,9 @@ struct AppDestinations: DestinationProvider {
     func setupProblem(_ id: String, _ s: DestinationSettings) -> String? {
         switch id {
         case CraftDestination.id:
-            if s.craftSpaceID.isEmpty { return "Craft-Space-ID fehlt" }
+            if s.craftSpaceID.isEmpty { return String(localized: "Craft-Space-ID fehlt") }
         case BearDestination.id:
-            if NSWorkspace.shared.urlForApplication(withBundleIdentifier: "net.shinyfrog.bear") == nil { return "Bear ist nicht installiert" }
+            if NSWorkspace.shared.urlForApplication(withBundleIdentifier: "net.shinyfrog.bear") == nil { return String(localized: "Bear ist nicht installiert") }
         default:
             return core.setupProblem(id, s)
         }
