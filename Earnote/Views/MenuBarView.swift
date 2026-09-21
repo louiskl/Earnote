@@ -39,6 +39,7 @@ struct MenuBarView: View {
         VStack(alignment: .leading, spacing: 12) {
             header
             Divider()
+            if !recorder.isRecording { CalendarEventLine() }
             RecordControl(categoryID: activeCategory?.id, maxNameLength: 26)
                 .controlSize(.large)
                 .frame(maxWidth: .infinity, alignment: .leading)

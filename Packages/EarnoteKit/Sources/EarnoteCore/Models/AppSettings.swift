@@ -208,6 +208,8 @@ public struct AppSettings: Codable, Hashable, Sendable {
     public var globalShortcut = false
     /// Titel des laufenden Kalendertermins als Titel der Aufnahme übernehmen
     public var calendarTitles = false
+    /// Kalender, die dabei zählen (Kennungen). Leer heißt: alle.
+    public var calendarIDs: Set<String> = []
     public var keepAudioFiles = true
     public var showConsentReminder = true
     public var defaultCategoryID: UUID?
@@ -237,6 +239,7 @@ public struct AppSettings: Codable, Hashable, Sendable {
         destinations = (try? c.decodeIfPresent(DestinationSettings.self, forKey: .destinations)) ?? d.destinations
         globalShortcut = (try? c.decodeIfPresent(Bool.self, forKey: .globalShortcut)) ?? d.globalShortcut
         calendarTitles = (try? c.decodeIfPresent(Bool.self, forKey: .calendarTitles)) ?? d.calendarTitles
+        calendarIDs = (try? c.decodeIfPresent(Set<String>.self, forKey: .calendarIDs)) ?? d.calendarIDs
         meetingDetection = try c.decodeIfPresent(Bool.self, forKey: .meetingDetection) ?? d.meetingDetection
         autoStopWhenCallEnds = try c.decodeIfPresent(Bool.self, forKey: .autoStopWhenCallEnds) ?? d.autoStopWhenCallEnds
         recordSystemAudio = try c.decodeIfPresent(Bool.self, forKey: .recordSystemAudio) ?? d.recordSystemAudio

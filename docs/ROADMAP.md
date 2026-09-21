@@ -165,9 +165,11 @@ Ziel: Was eine fremde Person in der ersten Woche braucht, ohne zu fragen.
 
 **Alltag**
 - [x] **Kalender-Anbindung (0.9.2)**: Läuft ein Termin, heißt die Aufnahme wie er (Einstellungen › Aufnahme,
-      fragt beim Einschalten nach Zugriff). Ganztägige, abgesagte und beendete Termine zählen nicht;
-      bei mehreren gewinnt der kürzeste. Teilnehmende zu übernehmen kommt später – der Titel ist das,
-      wonach man sucht.
+      fragt beim Einschalten nach Zugriff). **Kalender einzeln wählbar** – der Arbeitskalender bleibt
+      draußen, Uni und Outlook zählen. Ganztägige, abgesagte, beendete und sehr lange Termine
+      („Arbeit 9–17 Uhr“, über vier Stunden) zählen nicht; bei mehreren gewinnt der kürzeste.
+      Vor dem Start steht der gefundene Titel im Fenster der Menüleiste und in den Einstellungen.
+- [ ] Kalender später: Teilnehmende als Sprecher-Hinweis, Termin-Notizen als Kontext für die KI
 - [x] **Globales Tastenkürzel (0.9.2)**: ⌃⌥⌘R startet und stoppt die Aufnahme aus jeder App heraus
       (fest vergeben, abschaltbar in Einstellungen › Aufnahme; belegt eine andere App dasselbe Kürzel,
       steht das im Protokoll)

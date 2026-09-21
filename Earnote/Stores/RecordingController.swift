@@ -120,7 +120,7 @@ final class RecordingController {
             df.dateFormat = "d. MMM, HH:mm"
             let cat = category ?? library.category(settings.defaultCategoryID) ?? library.categories.first
             // Läuft gerade ein Termin, heißt die Aufnahme wie er – das ist der Titel, den man sucht.
-            let fromCalendar = settings.calendarTitles ? CalendarTitles.currentTitle() : nil
+            let fromCalendar = settings.calendarTitles ? CalendarTitles.current(in: settings.calendarIDs)?.title : nil
             let name = title.isEmpty
                 ? (fromCalendar ?? "\(cat?.name ?? "Aufnahme") – \(df.string(from: Date()))")
                 : title

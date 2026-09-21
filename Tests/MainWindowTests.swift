@@ -50,11 +50,14 @@ final class MainWindowTests: XCTestCase {
             event("Mittagessen", from: 3 * 3600, to: 4 * 3600),
             event("Schon vorbei", from: -7200, to: -60),
         ]
-        XCTAssertEqual(CalendarTitles.pick(from: events, now: now), "Analysis II")
+        XCTAssertEqual(CalendarTitles.pick(from: events, now: now)?.title, "Analysis II")
         XCTAssertNil(CalendarTitles.pick(from: [events[0], events[4]], now: now),
                      "ganztägig und vorbei zählen beide nicht")
+        // „Arbeit 9–17 Uhr“ ist ein Rahmen, kein Termin, über den man eine Notiz schreibt
+        XCTAssertNil(CalendarTitles.pick(from: [event("Arbeit", from: -2 * 3600, to: 6 * 3600)], now: now),
+                     "Termine über vier Stunden zählen nicht")
         // Ein Termin, der in fünf Minuten beginnt, zählt schon (man startet vorher)
-        XCTAssertEqual(CalendarTitles.pick(from: [event("Lineare Algebra", from: 300, to: 3600)], now: now),
+        XCTAssertEqual(CalendarTitles.pick(from: [event("Lineare Algebra", from: 300, to: 3600)], now: now)?.title,
                        "Lineare Algebra")
         XCTAssertNil(CalendarTitles.pick(from: [event("Erst in einer Stunde", from: 3600, to: 7200)], now: now))
     }
