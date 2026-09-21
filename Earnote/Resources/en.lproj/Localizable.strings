@@ -936,3 +936,11 @@
 "Noch nicht exportiert" = "Not exported yet";
 "Craft-Space-ID fehlt" = "Craft space ID is missing";
 "Bear ist nicht installiert" = "Bear isn’t installed";
+
+/* Sprache der Notizen – der Wert wird an die KI weitergegeben, nur die Anzeige wird übersetzt */
+"Deutsch" = "German";
+"Englisch" = "English";
+"Französisch" = "French";
+"Spanisch" = "Spanish";
+"Italienisch" = "Italian";
+"Sprache der Aufnahme" = "Language of the recording";

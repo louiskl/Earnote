@@ -31,7 +31,8 @@ let package = Package(
                 .product(name: "MLXLMCommon", package: "mlx-swift-lm"),
                 .product(name: "HuggingFace", package: "swift-huggingface"),
                 .product(name: "Tokenizers", package: "swift-transformers"),
-            ]),
+            ],
+            resources: [.process("Resources")]),
         .testTarget(name: "EarnoteCoreTests", dependencies: ["EarnoteCore"], resources: [.copy("Fixtures")]),
     ],
     // Swift-6-Sprachmodus folgt später; neuer Code ist trotzdem Sendable-sauber geschrieben.

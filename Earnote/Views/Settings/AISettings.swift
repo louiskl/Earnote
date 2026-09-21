@@ -26,7 +26,8 @@ struct AISettings: View {
                     ForEach(AIProviderKind.allCases.filter { $0 != .localModel }) { Text($0.label).tag($0) }
                 }
                 Picker("Sprache der Notizen", selection: $library.settings.ai.summaryLanguage) {
-                    ForEach(Self.summaryLanguages, id: \.self) { Text($0) }
+                    // Der gespeicherte Wert bleibt deutsch (er geht so an die KI), übersetzt wird nur die Anzeige.
+                    ForEach(Self.summaryLanguages, id: \.self) { Text(LocalizedStringKey($0)).tag($0) }
                 }
             } footer: {
                 VStack(alignment: .leading, spacing: 4) {

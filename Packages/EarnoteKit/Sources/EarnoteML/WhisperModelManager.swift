@@ -15,10 +15,10 @@ public final class WhisperModelManager: ObservableObject {
 
     /// Kuratierte Auswahl – die tatsächlich verfügbaren Namen werden online abgeglichen.
     public static let curated: [ModelInfo] = [
-        ModelInfo(id: "large-v3-v20240930_turbo", title: "Large v3 Turbo", detail: "Beste Qualität, schnell · ca. 1,6 GB · empfohlen"),
-        ModelInfo(id: "large-v3-v20240930_626MB", title: "Large v3 Turbo (komprimiert)", detail: "Sehr gut, weniger Speicher · ca. 0,6 GB"),
-        ModelInfo(id: "small", title: "Small", detail: "Schnell, gute Qualität · ca. 0,5 GB"),
-        ModelInfo(id: "base", title: "Base", detail: "Sehr schnell, einfache Qualität · ca. 0,15 GB"),
+        ModelInfo(id: "large-v3-v20240930_turbo", title: "Large v3 Turbo", detail: t("Beste Qualität, schnell · ca. 1,6 GB · empfohlen")),
+        ModelInfo(id: "large-v3-v20240930_626MB", title: t("Large v3 Turbo (komprimiert)"), detail: t("Sehr gut, weniger Speicher · ca. 0,6 GB")),
+        ModelInfo(id: "small", title: "Small", detail: t("Schnell, gute Qualität · ca. 0,5 GB")),
+        ModelInfo(id: "base", title: "Base", detail: t("Sehr schnell, einfache Qualität · ca. 0,15 GB")),
     ]
 
     @Published public var downloading: String?

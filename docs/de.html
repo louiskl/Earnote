@@ -3,153 +3,292 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Earnote – Notizen aus Vorlesungen und Meetings, die auf deinem Mac bleiben</title>
-<meta name="description" content="Earnote nimmt Vorlesungen, Meetings und Calls auf, transkribiert lokal mit Whisper und schreibt daraus Notizen mit einer KI, die auf deinem Mac läuft. Kostenlos und quelloffen.">
+<title>Earnote – Notizen aus Vorlesungen und Meetings, direkt auf deinem Mac</title>
+<meta name="description" content="Earnote nimmt Vorlesungen, Meetings und Calls auf, transkribiert lokal mit Whisper und schreibt daraus eine fertige Notiz – mit einer KI, die auf deinem Mac läuft. Kostenlos und quelloffen.">
 <meta property="og:title" content="Earnote">
-<meta property="og:description" content="Vorlesungen und Meetings, mitgeschrieben auf deinem Mac. Kostenlos, quelloffen, nichts verlässt dein Gerät.">
+<meta property="og:description" content="Vorlesungen und Meetings, fertig mitgeschrieben. Kostenlos, quelloffen, nichts verlässt deinen Mac.">
 <meta property="og:image" content="https://louiskl.github.io/Earnote/assets/screenshot-de.png">
+<meta name="theme-color" content="#E8453B">
 <link rel="icon" href="assets/icon.png">
 <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
 
-<div class="wrap">
-<header class="top">
-    <span class="name"><img src="assets/icon.png" alt="">Earnote</span>
-    <nav>
-        <a href="https://github.com/louiskl/Earnote">GitHub</a>
-        <a href="index.html">English</a>
-    </nav>
+<div class="glow"><span class="a"></span><span class="b"></span><span class="c"></span></div>
+
+<nav class="nav">
+    <a class="brand" href="./de.html"><img src="assets/icon.png" alt="">Earnote</a>
+    <div class="links">
+        <a href="#how" class="hide-s">So läuft es</a>
+        <a href="#privacy" class="hide-s">Datenschutz</a>
+        <a href="#faq" class="hide-s">Fragen</a>
+        <a href="index.html">EN</a>
+        <a class="pill" href="https://github.com/louiskl/Earnote/releases/latest/download/Earnote.dmg">Laden</a>
+    </div>
+</nav>
+
+<header class="hero">
+    <div class="wrap">
+        <span class="badge"><i></i>Für macOS · Läuft komplett auf deinem Mac</span>
+        <h1>Sitz in der Vorlesung. <span class="accent">Lies die Notiz.</span></h1>
+        <p class="claim">Earnote nimmt auf, transkribiert mit Whisper und macht daraus eine geordnete Notiz –
+            alles auf deinem Mac. Ohne Konto, ohne Abo, ohne Cloud.</p>
+        <div class="cta">
+            <a class="btn" href="https://github.com/louiskl/Earnote/releases/latest/download/Earnote.dmg">↓ Für macOS laden</a>
+            <a class="btn ghost" href="https://github.com/louiskl/Earnote">Quelltext auf GitHub</a>
+        </div>
+        <p class="fine">macOS 15 oder neuer · Apple Silicon · kostenlos · MIT-Lizenz</p>
+    </div>
+    <div class="hero-shot reveal">
+        <img src="assets/screenshot-de.png" alt="Earnote mit einer Vorlesungsnotiz, Aufgaben, Inspektor und Abspielleiste">
+    </div>
 </header>
 
-<div class="hero">
-    <img class="icon" src="assets/icon.png" alt="Earnote-Symbol">
-    <h1>Deine Vorlesungen und Meetings, mitgeschrieben.</h1>
-    <p class="claim">Earnote nimmt auf, transkribiert mit Whisper und macht daraus geordnete Notizen –
-        alles auf deinem Mac. Ohne Konto, ohne Abo, ohne Cloud.</p>
-    <div class="buttons">
-        <a class="button" href="https://github.com/louiskl/Earnote/releases/latest/download/Earnote.dmg">Für macOS laden</a>
-        <a class="button secondary" href="https://github.com/louiskl/Earnote">Quellcode auf GitHub</a>
-    </div>
-    <p class="small">macOS 15 oder neuer · Apple Silicon · kostenlos · MIT-Lizenz</p>
-</div>
-
-<div class="shot"><img src="assets/screenshot-de.png" alt="Earnote mit einer Vorlesungsnotiz, Aufgabenliste, Inspector und Abspielleiste"></div>
-</div>
-
-<div class="wrap">
-<section>
-    <h2>Was es macht</h2>
-    <div class="grid">
-        <div>
-            <h3>Nimmt auf, was zählt</h3>
-            <p>Mikrofon und Systemton zusammen – die anderen in Zoom, Teams oder Meet sind also mit auf der
-                Aufnahme. Ohne Zusatzsoftware für den Ton.</p>
+<section id="how">
+    <div class="wrap split">
+        <div class="reveal">
+            <p class="eyebrow">So läuft es</p>
+            <h2>Aufnahme starten.<br><span class="dim">Lernzettel bekommen.</span></h2>
+            <ol class="steps">
+                <li><span class="num">1</span><div><h3>Aufnahme starten</h3>
+                    <p>⇧⌘R oder ein Klick in der Menüleiste. Mikrofon und Ton vom Mac werden zusammen aufgenommen.</p></div></li>
+                <li><span class="num">2</span><div><h3>Earnote schreibt mit</h3>
+                    <p>Whisper transkribiert schon, während du noch im Raum sitzt. Danach bleibt kaum etwas übrig.</p></div></li>
+                <li><span class="num">3</span><div><h3>Die Notiz ist fertig</h3>
+                    <p>Zusammenfassung, Themen, Entscheidungen und Aufgaben zum Abhaken – wenige Minuten nach dem Stoppen.</p></div></li>
+            </ol>
         </div>
-        <div>
-            <h3>Notizen, mit denen man arbeiten kann</h3>
-            <p>Kurzfassung, die Themen, die wirklich vorkamen, Entscheidungen und Aufgaben zum Abhaken –
-                statt einer Wand aus Transkript.</p>
-        </div>
-        <div>
-            <h3>Jede Stelle nachhören</h3>
-            <p>Jede Zeitmarke im Transkript ist ein Knopf: ein Klick und du hörst genau diesen Moment. Gut,
-                wenn ein Fachbegriff schwer zu verstehen war.</p>
-        </div>
-        <div>
-            <h3>Namen einmal richtigstellen</h3>
-            <p>Korrigier einen falsch gehörten Namen, und Earnote setzt ihn in Titel, Notiz und Transkript –
-                und merkt ihn sich für die nächste Aufnahme.</p>
-        </div>
-    </div>
-</section>
-
-<section>
-    <h2>Für zwei Sorten Tage gemacht</h2>
-    <div class="grid">
-        <div class="card">
-            <h3>Studium</h3>
-            <p>90 Minuten Vorlesung aufnehmen, Lernzettel als PDF herausbekommen. Begriffe aus deinem
-                Wörterbuch stehen richtig da, der Klausurtermin landet in den Aufgaben, und wo es zu schnell
-                ging, springst du zurück in den Ton.</p>
-        </div>
-        <div class="card">
-            <h3>Meetings und Calls</h3>
-            <p>Earnote merkt, wenn ein Call beginnt, und fragt, ob es mitschreiben soll. Danach hast du
-                Entscheidungen und Aufgaben mit Zuständigkeit – fertig zum Ablegen in Notion, Obsidian,
-                Apple Notizen, Bear, Craft oder einen Markdown-Ordner.</p>
+        <div class="reveal">
+            <div class="window">
+                <div class="bar"><i></i><i></i><i></i><span class="title">Lineare Algebra · Aufnahme</span></div>
+                <div class="body">
+                    <div class="rec">
+                        <span class="dot"></span><span class="time">42:18</span>
+                        <span class="wave">
+                            <span style="animation-delay:0s"></span><span style="animation-delay:.1s"></span>
+                            <span style="animation-delay:.2s"></span><span style="animation-delay:.35s"></span>
+                            <span style="animation-delay:.15s"></span><span style="animation-delay:.05s"></span>
+                            <span style="animation-delay:.25s"></span><span style="animation-delay:.4s"></span>
+                            <span style="animation-delay:.3s"></span><span style="animation-delay:.12s"></span>
+                            <span style="animation-delay:.22s"></span><span style="animation-delay:.32s"></span>
+                            <span style="animation-delay:.08s"></span><span style="animation-delay:.18s"></span>
+                            <span style="animation-delay:.28s"></span><span style="animation-delay:.38s"></span>
+                        </span>
+                    </div>
+                    <div class="line" style="width:92%"></div>
+                    <div class="line" style="width:78%"></div>
+                    <div class="line" style="width:86%"></div>
+                    <p class="fine" style="margin:14px 0 0">Auf diesem Mac transkribiert · 12× schneller als Echtzeit</p>
+                </div>
+            </div>
         </div>
     </div>
 </section>
 
 <section>
-    <h2>Es bleibt auf deinem Mac</h2>
-    <p>Die Transkription läuft lokal mit Whisper. Die Notizen schreibt ein Sprachmodell, das Earnote einmal
-        lädt und danach auf deinem Mac ausführt – ohne Konto, ohne API-Schlüssel, auch offline. Aufnahmen,
-        Transkripte und Notizen liegen in deinem Benutzerordner und werden nirgendwohin synchronisiert.</p>
-    <p>Wer lieber eine Cloud-KI nutzt (Claude, OpenAI, Gemini, Mistral, eigener Server), stellt das in den
-        Einstellungen um. Earnote sagt deutlich, wenn das Transkript den Mac verlassen würde.
-        <a href="DATENSCHUTZ.md">Was die App mit deinen Daten macht</a>.</p>
+    <div class="wrap split flip">
+        <div class="reveal">
+            <div class="window note">
+                <div class="bar"><i></i><i></i><i></i><span class="title">Notiz</span></div>
+                <div class="body">
+                    <h4>Eigenwerte und Eigenvektoren</h4>
+                    <p class="meta">21. Sep · 1 Std. 25 Min. · Lineare Algebra</p>
+                    <p style="margin:0 0 10px">Die Vorlesung ging um Eigenwerte, ihre Berechnung über das
+                        charakteristische Polynom und warum sie für die Diagonalisierbarkeit wichtig sind.</p>
+                    <h3 style="margin-top:16px">Aufgaben</h3>
+                    <ul>
+                        <li><span class="check on">✓</span>Kapitel 4 vor der Übung lesen</li>
+                        <li><span class="check"></span>Übungsblatt 4 bis Freitag rechnen</li>
+                        <li><span class="check"></span>Klausurtermin merken: 12. Februar</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="reveal">
+            <p class="eyebrow">Die Notiz</p>
+            <h2>Keine Wand aus Transkript.</h2>
+            <p class="lead">Earnote schreibt das, was du selbst geschrieben hättest, wenn du schnell genug gewesen
+                wärst: eine kurze Zusammenfassung, die Themen, die wirklich vorkamen, Entscheidungen und Aufgaben
+                zum Abhaken. Alles lässt sich bearbeiten oder mit einer eigenen Anweisung neu zusammenfassen –
+                die KI-Fassung ist einen Klick entfernt.</p>
+        </div>
+    </div>
 </section>
 
 <section>
-    <h2>Bevor du loslegst</h2>
-    <p>Earnote braucht <strong>macOS 15 oder neuer auf Apple Silicon</strong> (M1 und neuer) und etwa 8 GB
-        Arbeitsspeicher. Beim ersten Start lädt es das Sprachmodell für die Erkennung (ca. 1,6 GB) und die
-        lokale KI (ca. 2,3 GB) und bereitet beides für deinen Chip vor – das passiert einmal und dauert ein
-        paar Minuten.</p>
-    <p>Wer andere aufnimmt, braucht ihr Einverständnis (§ 201 StGB). Earnote blendet vor jeder Aufnahme einen
-        Hinweis ein; die Verantwortung liegt bei dir.</p>
+    <div class="wrap split">
+        <div class="reveal">
+            <p class="eyebrow">Nachhören</p>
+            <h2>Jede Zeitangabe ist ein Knopf.</h2>
+            <p class="lead">Wenn es zu schnell ging, klickst du im Transkript auf die Zeit und hörst genau diese
+                Stelle. Der Abschnitt, der gerade läuft, bleibt hervorgehoben, während du mitliest.</p>
+        </div>
+        <div class="reveal">
+            <div class="window">
+                <div class="bar"><i></i><i></i><i></i><span class="title">Transkript</span></div>
+                <div class="body" style="padding-bottom:6px">
+                    <div class="tline"><span class="ts">▶ 12:04</span><span>… das charakteristische Polynom liefert uns also die Eigenwerte.</span></div>
+                    <div class="tline playing"><span class="ts">▶ 12:31</span><span>Achtung: Eine doppelte Nullstelle heißt nicht automatisch, dass die Matrix nicht diagonalisierbar ist.</span></div>
+                    <div class="tline"><span class="ts">▶ 13:07</span><span>Wir machen jetzt ein Beispiel mit einer 3×3-Matrix.</span></div>
+                </div>
+                <div class="player">
+                    <span class="icon">⏪</span><span class="icon">▶</span><span class="icon">⏩</span>
+                    <span class="t">12:38</span>
+                    <span class="track"><b></b></span>
+                    <span class="t">−1:12:47</span>
+                </div>
+            </div>
+        </div>
+    </div>
 </section>
 
 <section>
-    <h2>Fragen</h2>
-    <dl class="faq">
-        <dt>Ist das wirklich kostenlos?</dt>
-        <dd>Ja. Kostenlos, quelloffen unter MIT-Lizenz, ohne Konto und ohne Bezahlvariante. Ein
-            Studentenprojekt, kein Geschäftsmodell.</dd>
-
-        <dt>Wie schnell ist es?</dt>
-        <dd>Auf einem MacBook Air mit M1 wird eine 60-Minuten-Vorlesung in etwa fünf Minuten transkribiert –
-            und weil Earnote schon während der Aufnahme mitschreibt, ist die Notiz meist wenige Minuten nach
-            dem Stopp fertig.</dd>
-
-        <dt>Funktioniert das mit Zoom, Teams und Meet?</dt>
-        <dd>Ja. Earnote nimmt den Systemton zusammen mit deinem Mikrofon auf, damit alle im Call im Transkript
-            landen.</dd>
-
-        <dt>Welche Sprachen?</dt>
-        <dd>Die Oberfläche folgt deinem Mac: Deutsch oder Englisch. Aufnahmen lassen sich in vielen Sprachen
-            transkribieren, die Sprache der Notizen wählst du getrennt.</dd>
-
-        <dt>Kann ich die Notizen bearbeiten?</dt>
-        <dd>Ja – Text ändern, mit anderer Anweisung neu zusammenfassen oder mit einem Klick zurück zur
-            KI-Fassung.</dd>
-
-        <dt>Warum nicht im App Store?</dt>
-        <dd>Die Sandbox dort würde bei der Aufnahme des Systemtons und beim Ablegen in andere Apps im Weg
-            stehen. Der Download hier ist von Apple signiert und notarisiert und startet mit einem
-            Doppelklick.</dd>
-    </dl>
+    <div class="wrap split flip">
+        <div class="reveal">
+            <div class="window">
+                <div class="bar"><i></i><i></i><i></i><span class="title">Namen & Begriffe korrigieren</span></div>
+                <div class="body">
+                    <p class="fine" style="margin:0 0 6px">Falsch geschrieben</p>
+                    <div class="line" style="width:40%; background:var(--surface-2); height:34px; border-radius:9px; display:flex; align-items:center; padding:0 12px; color:var(--dim)">
+                        <span class="swap" style="font-size:15px"><span class="old">Professor Maier</span></span>
+                    </div>
+                    <p class="fine" style="margin:14px 0 6px">Richtig</p>
+                    <div class="line" style="width:40%; background:var(--brand-soft); height:34px; border-radius:9px; display:flex; align-items:center; padding:0 12px">
+                        <span class="swap" style="font-size:15px"><span class="new">Professor Meyer</span></span>
+                    </div>
+                    <p class="fine" style="margin:16px 0 0">Gilt für Titel, Notiz und Transkript – und wandert ins
+                        Wörterbuch, damit Whisper es beim nächsten Mal gleich richtig hört.</p>
+                </div>
+            </div>
+        </div>
+        <div class="reveal">
+            <p class="eyebrow">Namen & Begriffe</p>
+            <h2>Einen Namen einmal richtigstellen.<br><span class="dim">Nicht in jeder Aufnahme.</span></h2>
+            <p class="lead">Namen von Dozentinnen und Dozenten, Modultitel, Fachbegriffe: Trag sie ins Wörterbuch ein,
+                dann gibt Earnote sie Whisper und der KI mit, bevor daraus ein Fehler wird. Pro Bereich oder für alles.</p>
+        </div>
+    </div>
 </section>
-</div>
 
-<div class="wrap">
+<section id="privacy">
+    <div class="wrap">
+        <div class="band reveal">
+            <p class="eyebrow">Datenschutz</p>
+            <h2>Nichts verlässt deinen Mac.</h2>
+            <p class="lead">Die Transkription läuft lokal mit Whisper. Die Notizen schreibt ein Sprachmodell, das
+                Earnote einmal lädt und danach auf deinem Gerät ausführt – ohne Konto, ohne API-Schlüssel, auch offline.</p>
+            <div class="cols">
+                <div><h3>Dein Ton bleibt da</h3><p>Aufnahmen, Transkripte und Notizen liegen in deinem Benutzerordner und werden nirgendwohin synchronisiert.</p></div>
+                <div><h3>Keine Telemetrie</h3><p>Keine Analyse, keine Absturzmeldungen, kein Server, der zu Earnote gehört.</p></div>
+                <div><h3>Cloud nur, wenn du willst</h3><p>Du kannst Claude, OpenAI, Gemini oder einen eigenen Server wählen – die App sagt deutlich, wenn Text den Mac verlässt.</p></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section>
+    <div class="wrap">
+        <p class="eyebrow reveal">Und sonst</p>
+        <h2 class="reveal">Kleinigkeiten, die zusammen viel ausmachen.</h2>
+        <div class="tiles" style="margin-top:32px">
+            <div class="tile reveal"><span class="ico">📄</span><h3>Lernzettel als PDF</h3>
+                <p>Notiz drucken oder als sauberes PDF sichern – mit Überschriften, Stichpunkten und Aufgaben als Kästchen.</p></div>
+            <div class="tile reveal"><span class="ico">🔎</span><h3>In Aufnahmen suchen</h3>
+                <p>Einen Begriff in allen Transkripten finden, zur Stelle springen, nachhören.</p></div>
+            <div class="tile reveal"><span class="ico">📞</span><h3>Merkt deine Calls</h3>
+                <p>Zoom, Teams, Meet: Earnote fragt, ob es mitschreiben soll, und hört am Ende des Calls von selbst auf.</p></div>
+            <div class="tile reveal"><span class="ico">🗂</span><h3>Bereiche mit eigenem Stil</h3>
+                <p>Jedes Fach und jeder Kunde bekommt eigene Farbe, eigene Anweisung an die KI und eigene Exportziele.</p></div>
+            <div class="tile reveal"><span class="ico">📤</span><h3>Legt Notizen dort ab, wo du arbeitest</h3>
+                <p>Notion, Obsidian, Apple Notizen, Bear, Craft oder einfach ein Markdown-Ordner.</p></div>
+            <div class="tile reveal"><span class="ico">🤫</span><h3>Stille bleibt still</h3>
+                <p>Earnote filtert die Sätze heraus, die Whisper sich in Pausen ausdenkt, statt sie aufzuschreiben.</p></div>
+        </div>
+    </div>
+</section>
+
+<section>
+    <div class="wrap">
+        <p class="eyebrow reveal">In der App</p>
+        <h2 class="reveal">Gebaut wie eine Mac-App.</h2>
+        <div class="shots" style="margin-top:30px">
+            <figure class="reveal"><img src="assets/shot-settings-de.png" alt="Einstellungen von Earnote">
+                <figcaption>Native Einstellungen – keine Webseite in einem Fenster.</figcaption></figure>
+            <figure class="reveal"><img src="assets/shot-dark-de.png" alt="Earnote im dunklen Modus mit Abspielleiste">
+                <figcaption>Hell und dunkel, mit der Abspielleiste unter jeder Notiz.</figcaption></figure>
+        </div>
+    </div>
+</section>
+
+<section id="faq">
+    <div class="wrap">
+        <p class="eyebrow reveal">Fragen</p>
+        <h2 class="reveal">Gut zu wissen.</h2>
+        <dl class="faq reveal">
+            <dt>Ist das wirklich kostenlos?</dt>
+            <dd>Ja. Kostenlos, quelloffen unter der MIT-Lizenz, kein Konto, keine bezahlte Version. Ein Studentenprojekt, kein Geschäft.</dd>
+
+            <dt>Wie schnell ist es?</dt>
+            <dd>Auf einem MacBook Air M1 ist eine 60-Minuten-Vorlesung in etwa fünf Minuten transkribiert – und weil
+                Earnote schon während der Aufnahme mitschreibt, ist die Notiz meist wenige Minuten nach dem Stoppen fertig.</dd>
+
+            <dt>Was brauche ich dafür?</dt>
+            <dd>macOS 15 oder neuer auf Apple Silicon und ungefähr 8 GB Arbeitsspeicher. Beim ersten Start lädt Earnote
+                das Sprachmodell (ca. 1,6 GB) und die lokale KI (ca. 2,3 GB) – einmalig, und es sagt dir, was es gerade tut.</dd>
+
+            <dt>Klappt das mit Zoom, Teams und Meet?</dt>
+            <dd>Ja. Earnote nimmt den Ton vom Mac zusammen mit deinem Mikrofon auf, damit alle im Call im Transkript landen.</dd>
+
+            <dt>Welche Sprachen?</dt>
+            <dd>Die Oberfläche richtet sich nach deinem Mac: Deutsch oder Englisch. Aufnahmen lassen sich in vielen
+                Sprachen transkribieren, und die Sprache der Notizen wählst du getrennt.</dd>
+
+            <dt>Darf ich das überhaupt aufnehmen?</dt>
+            <dd>Frag vorher die Leute im Raum – in Deutschland gilt § 201 StGB für vertrauliche Gespräche. Earnote zeigt
+                vor jeder Aufnahme einen Hinweis; die Verantwortung liegt bei dir.</dd>
+
+            <dt>Warum nicht im App Store?</dt>
+            <dd>Die Sandbox dort würde beim Aufnehmen des Systemtons und beim Ablegen der Notizen in anderen Apps stören.
+                Der Download hier ist von Apple signiert und beglaubigt und öffnet sich mit einem Doppelklick.</dd>
+        </dl>
+    </div>
+</section>
+
+<section style="padding-top:0">
+    <div class="wrap" style="text-align:center">
+        <h2 class="reveal">Die nächste Vorlesung kommt bestimmt.</h2>
+        <p class="lead reveal" style="margin: 0 auto 26px">26 MB, signiert und beglaubigt. Installieren, Mikrofon erlauben, fertig.</p>
+        <div class="cta reveal">
+            <a class="btn" href="https://github.com/louiskl/Earnote/releases/latest/download/Earnote.dmg">↓ Für macOS laden</a>
+        </div>
+    </div>
+</section>
+
 <footer>
-    <nav>
-        <a href="https://github.com/louiskl/Earnote">GitHub</a>
-        <a href="https://github.com/louiskl/Earnote/releases">Versionen</a>
-        <a href="ROADMAP.md">Roadmap</a>
-        <a href="BETA.md">Für Tester</a>
-        <a href="DATENSCHUTZ.md">Datenschutz</a>
-        <a href="index.html">English</a>
-    </nav>
-    <p>Earnote ist quelloffen unter der MIT-Lizenz. Gebaut von einem Studenten, der keine Lust mehr hatte,
-        alles mitzutippen.<br>
-    <!-- TODO vor dem Launch: Impressum nach § 5 TMG mit Name und Anschrift ergänzen. -->
-    Impressum: wird vor dem Launch ergänzt.</p>
+    <div class="wrap">
+        <div class="links">
+            <a href="https://github.com/louiskl/Earnote">GitHub</a>
+            <a href="https://github.com/louiskl/Earnote/releases">Versionen</a>
+            <a href="ROADMAP.md">Roadmap</a>
+            <a href="BETA.md">Beta-Anleitung</a>
+            <a href="DATENSCHUTZ.md">Datenschutz im Detail</a>
+            <a href="index.html">English</a>
+        </div>
+        <p>Earnote ist quelloffen unter der MIT-Lizenz. Gebaut von einem Studenten, der keine Lust mehr hatte mitzutippen.<br>
+        <!-- TODO vor dem Launch: Impressum nach § 5 TMG mit Name und Anschrift ergänzen. -->
+        Impressum: wird vor dem Start ergänzt.</p>
+    </div>
 </footer>
-</div>
+
+<script>
+// Einblenden beim Scrollen – ein paar Zeilen, keine Bibliothek.
+const io = new IntersectionObserver((entries) => {
+    for (const e of entries) {
+        if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+    }
+}, { rootMargin: '0px 0px -8% 0px' });
+document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+</script>
 
 </body>
 </html>

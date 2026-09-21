@@ -242,8 +242,9 @@ public struct AppSettings: Codable, Hashable, Sendable {
         microphoneDeviceName = try? c.decodeIfPresent(String.self, forKey: .microphoneDeviceName)
     }
 
-    public static let languages: [(code: String, name: String)] = [
-        ("de", "Deutsch"), ("en", "Englisch"), ("fr", "Französisch"), ("es", "Spanisch"),
-        ("it", "Italienisch"), ("nl", "Niederländisch"), ("pl", "Polnisch"), ("tr", "Türkisch"), ("auto", "Automatisch erkennen"),
-    ]
+    /// Namen kommen vom System, damit sie in jeder Oberflächensprache stimmen.
+    public static let languages: [(code: String, name: String)] =
+        ["de", "en", "fr", "es", "it", "nl", "pl", "tr"].map {
+            (code: $0, name: Locale.current.localizedString(forLanguageCode: $0)?.localizedCapitalized ?? $0)
+        } + [(code: "auto", name: t("Automatisch erkennen"))]
 }
