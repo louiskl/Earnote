@@ -98,29 +98,42 @@ final class AppEnvironment {
     private func addDemoLibraryIfRequested() async {
         guard ProcessInfo.processInfo.environment["EARNOTE_DEMO_LIBRARY"] != nil,
               (try? await libraryRepository.recordings())?.isEmpty == true else { return }
-        var rec = Recording(title: "Analysis II – Eigenwerte", categoryID: library.categories.first?.id,
+        // Auf Englisch gestartet? Dann auch englische Beispieldaten – sonst passen die Bildschirmfotos nicht.
+        let english = Locale.preferredLanguages.first?.hasPrefix("en") == true
+        var rec = Recording(title: english ? "Linear Algebra – Eigenvalues" : "Analysis II – Eigenwerte",
+                            categoryID: library.categories.first?.id,
                             startedAt: Date().addingTimeInterval(-5_400))
         rec.endedAt = rec.startedAt.addingTimeInterval(5_100)
         rec.status = .done
         try? await libraryRepository.insertRecording(rec)
         try? await libraryRepository.saveTranscript(
-            Transcript(segments: [TranscriptSegment(start: 0, end: 6, text: "Heute sprechen wir über Eigenwerte, sagt Professor Maier."),
-                                  TranscriptSegment(start: 6, end: 14, text: "Die Klausur findet am 12. Februar statt.")],
+            Transcript(segments: english
+                       ? [TranscriptSegment(start: 0, end: 6, text: "Today we talk about eigenvalues, says Professor Meyer."),
+                          TranscriptSegment(start: 6, end: 14, text: "The exam takes place on 12 February.")]
+                       : [TranscriptSegment(start: 0, end: 6, text: "Heute sprechen wir über Eigenwerte, sagt Professor Maier."),
+                          TranscriptSegment(start: 6, end: 14, text: "Die Klausur findet am 12. Februar statt.")],
                        engine: "Whisper large-v3"), for: rec.id)
-        try? await libraryRepository.saveNote(
-            Summary(title: "Eigenwerte und Eigenvektoren",
-                    markdown: "In der Vorlesung ging es um Eigenwerte, ihre Berechnung über das charakteristische "
-                        + "Polynom und die Bedeutung für Diagonalisierbarkeit.\n\n## Rechenweg\n- Charakteristisches "
-                        + "Polynom aufstellen\n- Nullstellen bestimmen\n- Eigenräume berechnen\n\n## Aufgaben\n"
-                        + "- [ ] Übungsblatt 4 bis Freitag rechnen\n- [ ] Klausurtermin am 12. Februar notieren",
-                    taskCount: 2, provider: "Lokale KI"), for: rec.id)
+        let note = english
+            ? Summary(title: "Eigenvalues and eigenvectors",
+                      markdown: "The lecture covered eigenvalues, how to compute them via the characteristic "
+                          + "polynomial, and why they matter for diagonalisability.\n\n## How to compute them\n"
+                          + "- Set up the characteristic polynomial\n- Find its roots\n- Work out the eigenspaces\n\n"
+                          + "## Tasks\n- [ ] Work through problem sheet 4 by Friday\n- [ ] Note the exam date: 12 February",
+                      taskCount: 2, provider: "Local AI")
+            : Summary(title: "Eigenwerte und Eigenvektoren",
+                      markdown: "In der Vorlesung ging es um Eigenwerte, ihre Berechnung über das charakteristische "
+                          + "Polynom und die Bedeutung für Diagonalisierbarkeit.\n\n## Rechenweg\n- Charakteristisches "
+                          + "Polynom aufstellen\n- Nullstellen bestimmen\n- Eigenräume berechnen\n\n## Aufgaben\n"
+                          + "- [ ] Übungsblatt 4 bis Freitag rechnen\n- [ ] Klausurtermin am 12. Februar notieren",
+                      taskCount: 2, provider: "Lokale KI")
+        try? await libraryRepository.saveNote(note, for: rec.id)
         // Nur Debug: eine Audiodatei zum Anhören unterschieben (EARNOTE_DEMO_AUDIO=<Pfad>)
         if let path = ProcessInfo.processInfo.environment["EARNOTE_DEMO_AUDIO"] {
             audio.createFolder(for: rec.id)
             try? FileManager.default.copyItem(at: URL(fileURLWithPath: path), to: audio.mixURL(for: rec.id))
         }
         try? await libraryRepository.setExports([
-            ExportResult(destinationID: MarkdownDestination.id, destinationName: "Markdown-Ordner", success: true,
+            ExportResult(destinationID: MarkdownDestination.id, destinationName: "Markdown", success: true,
                          message: "Exportiert", url: "file:///tmp/Analysis.md"),
         ], for: rec.id)
         try? await libraryRepository.insertGlossaryTerm(GlossaryTerm(term: "Professor Meyer", variants: ["Maier", "Mayer"]))

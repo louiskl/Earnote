@@ -1,0 +1,88 @@
+/* Eine Seite, keine Bibliotheken, kein Tracking. Systemschriften, hell und dunkel. */
+:root {
+    color-scheme: light dark;
+    --brand: #E8453B;
+    --bg: #ffffff;
+    --bg-soft: #f6f6f7;
+    --text: #1d1d1f;
+    --text-dim: #5f6066;
+    --line: rgba(0, 0, 0, 0.1);
+    --radius: 14px;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --brand: #FF6A5E;
+        --bg: #131315;
+        --bg-soft: #1c1c1f;
+        --text: #f2f2f4;
+        --text-dim: #a2a3aa;
+        --line: rgba(255, 255, 255, 0.12);
+    }
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 17px/1.6 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+}
+
+.wrap { max-width: 960px; margin: 0 auto; padding: 0 24px; }
+
+header.top {
+    display: flex; align-items: center; gap: 16px;
+    padding: 20px 0; border-bottom: 1px solid var(--line);
+}
+header.top .name { font-weight: 600; display: flex; align-items: center; gap: 10px; }
+header.top .name img { width: 28px; height: 28px; }
+header.top nav { margin-left: auto; display: flex; gap: 20px; font-size: 15px; }
+
+a { color: var(--brand); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+.hero { padding: 72px 0 8px; text-align: center; }
+.hero img.icon { width: 96px; height: 96px; }
+.hero h1 { font-size: 44px; line-height: 1.1; margin: 20px 0 12px; letter-spacing: -0.02em; }
+.hero p.claim { font-size: 20px; color: var(--text-dim); margin: 0 auto 28px; max-width: 620px; }
+
+.buttons { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.button {
+    display: inline-block; padding: 12px 22px; border-radius: 10px;
+    background: var(--brand); color: #fff; font-weight: 600; font-size: 16px;
+}
+.button:hover { text-decoration: none; filter: brightness(1.05); }
+.button.secondary { background: var(--bg-soft); color: var(--text); border: 1px solid var(--line); }
+.small { font-size: 14px; color: var(--text-dim); margin-top: 14px; }
+
+.shot { margin: 48px 0 8px; }
+.shot img {
+    width: 100%; height: auto; border-radius: var(--radius);
+    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.18);
+}
+
+section { padding: 56px 0; border-top: 1px solid var(--line); }
+section:first-of-type { border-top: 0; }
+h2 { font-size: 28px; letter-spacing: -0.01em; margin: 0 0 24px; }
+h3 { font-size: 18px; margin: 0 0 6px; }
+
+.grid { display: grid; gap: 28px; grid-template-columns: repeat(2, 1fr); }
+.grid p { margin: 0; color: var(--text-dim); }
+
+.card { background: var(--bg-soft); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; }
+
+dl.faq dt { font-weight: 600; margin-top: 20px; }
+dl.faq dd { margin: 6px 0 0; color: var(--text-dim); }
+
+footer { border-top: 1px solid var(--line); padding: 32px 0 60px; color: var(--text-dim); font-size: 15px; }
+footer nav { display: flex; gap: 18px; flex-wrap: wrap; margin-bottom: 12px; }
+
+@media (max-width: 700px) {
+    .hero { padding-top: 48px; }
+    .hero h1 { font-size: 34px; }
+    .hero p.claim { font-size: 18px; }
+    .grid { grid-template-columns: 1fr; }
+}
