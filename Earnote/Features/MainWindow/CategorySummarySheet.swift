@@ -66,8 +66,7 @@ struct CategorySummarySheet: View {
                             .foregroundStyle(.secondary)
                     }
                 } footer: {
-                    Text("Die KI liest die fertigen Notizen dieses Bereichs und schreibt daraus eine Übersicht "
-                         + "mit Themen, rotem Faden und Prüfungshinweisen. Sie landet als eigener Eintrag hier.")
+                    Text("Die KI liest die fertigen Notizen dieses Bereichs und schreibt daraus eine Übersicht mit Themen, rotem Faden und Prüfungshinweisen. Sie landet als eigener Eintrag hier.")
                 }
                 Section {
                     TextField("Zusätzliche Anweisung (optional)", text: $instruction, axis: .vertical)

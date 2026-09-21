@@ -10,8 +10,7 @@ struct GlossarySettings: View {
         Form {
             Section {
                 if library.glossary.isEmpty {
-                    Text("Noch keine Begriffe. Trag Namen von Dozierenden, Fachbegriffe oder Abkürzungen ein, "
-                         + "die \(AppInfo.name) falsch schreibt.")
+                    Text("Noch keine Begriffe. Trag Namen von Dozierenden, Fachbegriffe oder Abkürzungen ein, die \(AppInfo.name) falsch schreibt.")
                         .foregroundStyle(.secondary)
                 }
                 ForEach(library.glossary) { term in
@@ -20,8 +19,7 @@ struct GlossarySettings: View {
             } header: {
                 Text("Namen und Fachbegriffe")
             } footer: {
-                Text("Die Begriffe gehen als Hinweis in die Spracherkennung und in die KI. "
-                     + "„Oft falsch erkannt als“ hilft zusätzlich beim Korrigieren fertiger Notizen.")
+                Text("Die Begriffe gehen als Hinweis in die Spracherkennung und in die KI. „Oft falsch erkannt als“ hilft zusätzlich beim Korrigieren fertiger Notizen.")
             }
             Section {
                 Button("Begriff hinzufügen") { library.addGlossaryTerm(GlossaryTerm(term: "")) }

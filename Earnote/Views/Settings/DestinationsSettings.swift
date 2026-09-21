@@ -76,8 +76,7 @@ private struct DestinationSetup: View {
                       prompt: MarkdownDestination.defaultFolder.path, message: "Ordner für Markdown-Dateien")
         case RemindersDestination.id:
             TextField("Liste (leer = je Bereich eine eigene)", text: $settings.remindersList)
-            Text("Beim ersten Export fragt macOS nach Zugriff auf Erinnerungen – bitte erlauben. "
-                 + "Apps wie Structured lesen diese Listen mit, dort tauchen die Aufgaben also auch auf.")
+            Text("Beim ersten Export fragt macOS nach Zugriff auf Erinnerungen – bitte erlauben. Apps wie Structured lesen diese Listen mit, dort tauchen die Aufgaben also auch auf.")
                 .font(.callout).foregroundStyle(.secondary)
         case ThingsDestination.id:
             TextField("Bereich in Things (leer = wie der Bereich in \(AppInfo.name))", text: $settings.thingsList)

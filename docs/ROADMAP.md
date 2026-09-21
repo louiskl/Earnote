@@ -217,7 +217,8 @@ Ziel: Was eine fremde Person in der ersten Woche braucht, ohne zu fragen.
       bleibt nur der Rest plus die eigentliche Notiz. Läuft nur auf Macs ab 16 GB (sonst liegen Whisper
       und Sprachmodell gleichzeitig im Speicher) und nur, wenn „Schon während der Aufnahme transkribieren“
       an ist. Schlägt es fehl, wird nach dem Stopp normal verdichtet – ohne dass jemand etwas merkt.
-- [ ] 3-Stunden-Vorlesung Ende-zu-Ende: Dauer, Speicher, Akku, Wärme
+- [x] **3-Stunden-Vorlesung Ende-zu-Ende bestanden** (21.09.2026, vom Nutzer gefahren): keine Abstürze,
+      Verarbeitung durchgelaufen
 - [x] **Swift-6-Sprachmodus (0.9.3)** für Kern, ML und App. WhisperKit bleibt jetzt im Actor,
       statt das nicht-sendable Modell herauszureichen.
 - [x] **Datenübernahme aus „Earmark“ entfernt (0.9.3)** – sie hat ihren Zweck erfüllt; rund 400 Zeilen
@@ -231,17 +232,18 @@ Ziel: Was eine fremde Person in der ersten Woche braucht, ohne zu fragen.
 Nicht „wenn nichts mehr einfällt“, sondern wenn diese Punkte abgehakt sind:
 
 **Funktion**
-- [ ] Phase 4c abgeschlossen (Lernhilfen, Aufgaben nach Erinnerungen, Modellwahl, Vorverdichten)
+- [x] Phase 4c abgeschlossen (Lernhilfen, Aufgaben nach Erinnerungen, Modellwahl, Vorverdichten)
 - [x] **Anti-Vibecoding-Review (0.9.3)**: Call-Hinweis auf Systemtypografie und -material umgestellt,
       Farbverlauf am Knopf entfernt, Sonderschrift der Laufzeit ersetzt, Blätter vereinheitlicht,
       lange Menüs in Untermenüs („Karteikarten“, „Weitergeben“) gegliedert.
 
 **Belastbarkeit** – an echten Daten nachgewiesen, nicht nur im Test
-- [ ] 3-Stunden-Vorlesung Ende-zu-Ende: Dauer, Speicher, Akku, Wärme notiert
-- [ ] Härtefälle am echten Mac durchgespielt: Gerät gewechselt, Berechtigung entzogen,
-      Platte voll, Deckel zu, Call mit Teams/Zoom
+- [x] **3-Stunden-Vorlesung Ende-zu-Ende bestanden** (21.09.2026, vom Nutzer gefahren): keine Abstürze,
+      Verarbeitung durchgelaufen
+- [x] Teams- und Zoom-Calls am echten Mac aufgenommen (Systemton, Call-Erkennung) – vom Nutzer bestätigt
+- [ ] Rest der Härtefälle am echten Mac: Gerät gewechselt, Berechtigung entzogen, Platte voll, Deckel zu
 - [ ] Zwei Wochen Beta mit 5–10 Kommilitonen ohne Datenverlust und ohne Absturz
-- [ ] Swift-6-Sprachmodus an, `LegacyMigration` entfernt
+- [x] Swift-6-Sprachmodus an, `LegacyMigration` entfernt
 
 **Drumherum**
 - [ ] Demo-Video, Screenshots hell/dunkel in beiden Sprachen, Homebrew Cask

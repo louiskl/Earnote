@@ -184,12 +184,14 @@ private struct ExportTarget: Identifiable {
     }
 
     var stateText: String {
-        guard isActive else { return "ausgeschaltet" }
+        guard isActive else { return String(localized: "ausgeschaltet") }
         switch state {
-        case .success: return "exportiert"
-        case .skipped: return "übersprungen"
-        case .failed: return "fehlgeschlagen"
-        case nil: return setupProblem == nil ? "noch nicht exportiert" : "nicht eingerichtet"
+        case .success: return String(localized: "exportiert")
+        case .skipped: return String(localized: "übersprungen")
+        case .failed: return String(localized: "fehlgeschlagen")
+        case nil: return setupProblem == nil
+            ? String(localized: "noch nicht exportiert")
+            : String(localized: "nicht eingerichtet")
         }
     }
 }

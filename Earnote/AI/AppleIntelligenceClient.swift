@@ -10,10 +10,10 @@ struct AppleIntelligenceClient: StructuredNotesClient {
         case .available: return nil
         case .unavailable(let reason):
             switch reason {
-            case .deviceNotEligible: return "Dieser Mac unterstützt Apple Intelligence nicht."
-            case .appleIntelligenceNotEnabled: return "Apple Intelligence ist in den Systemeinstellungen nicht aktiviert."
-            case .modelNotReady: return "Das Apple-Modell wird noch geladen. Bitte später erneut versuchen."
-            @unknown default: return "Apple Intelligence ist nicht verfügbar."
+            case .deviceNotEligible: return String(localized: "Dieser Mac unterstützt Apple Intelligence nicht.")
+            case .appleIntelligenceNotEnabled: return String(localized: "Apple Intelligence ist in den Systemeinstellungen nicht aktiviert.")
+            case .modelNotReady: return String(localized: "Das Apple-Modell wird noch geladen. Bitte später erneut versuchen.")
+            @unknown default: return String(localized: "Apple Intelligence ist nicht verfügbar.")
             }
         }
     }

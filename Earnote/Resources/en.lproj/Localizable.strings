@@ -1041,3 +1041,42 @@
 "Erzeugen" = "Create";
 "Als Anki-Datei sichern …" = "Save as an Anki file …";
 "Weitergeben" = "Pass on";
+
+/* Einrichtungsassistent – Kopfzeilen und Knöpfe */
+"Willkommen bei %@" = "Welcome to %@";
+"Wofür nutzt du %@?" = "What will you use %@ for?";
+"Kurz ein paar Freigaben" = "A few permissions";
+"Wer schreibt deine Notizen?" = "Who writes your notes?";
+"Alles bereit" = "All set";
+"Deine Vorlesungen, Meetings und Calls – automatisch als Notizen, privat auf deinem Mac." = "Your lectures, meetings and calls — turned into notes automatically, privately on your Mac.";
+"Daraus werden deine Bereiche. Du kannst sie jederzeit ändern." = "These become your areas. You can change them at any time.";
+"Damit %@ aufnehmen und dich benachrichtigen kann." = "So %@ can record and notify you.";
+"%@ bringt eine eigene KI mit, die komplett auf deinem Mac läuft." = "%@ comes with its own AI that runs entirely on your Mac.";
+"Die Spracherkennung läuft immer lokal. Die Voreinstellung passt für die meisten." = "Speech recognition always runs locally. The default works for most people.";
+"%@ wartet ab jetzt oben in der Menüleiste auf dich." = "From now on %@ waits for you up in the menu bar.";
+"Los geht’s" = "Get started";
+"%@ öffnen" = "Open %@";
+"Weiter" = "Continue";
+
+/* Export-Status im Inspector */
+"ausgeschaltet" = "off";
+"exportiert" = "exported";
+"übersprungen" = "skipped";
+"fehlgeschlagen" = "failed";
+"noch nicht exportiert" = "not exported yet";
+"nicht eingerichtet" = "not set up";
+
+/* Apple Intelligence */
+"Dieser Mac unterstützt Apple Intelligence nicht." = "This Mac does not support Apple Intelligence.";
+"Apple Intelligence ist in den Systemeinstellungen nicht aktiviert." = "Apple Intelligence is not enabled in System Settings.";
+"Das Apple-Modell wird noch geladen. Bitte später erneut versuchen." = "The Apple model is still loading. Please try again later.";
+"Apple Intelligence ist nicht verfügbar." = "Apple Intelligence is not available.";
+
+/* Texte, die vorher aus zwei Teilen zusammengesetzt waren und deshalb nie übersetzt wurden */
+"%@ hört zu, schreibt mit und macht daraus Notizen mit Aufgaben – während du dich aufs Zuhören konzentrierst." = "%@ listens, writes along and turns it into notes with tasks — while you concentrate on listening.";
+"Andere KI-Anbieter – Apple Intelligence, Claude, ChatGPT, eigene Server – findest du später in den Einstellungen unter „KI“." = "Other AI providers — Apple Intelligence, Claude, ChatGPT, your own server — are in Settings › AI later on.";
+"Du kannst den Assistenten schließen und sofort aufnehmen. Die erste Notiz kommt, sobald alles fertig geladen ist." = "You can close the assistant and start recording right away. The first note comes as soon as everything has finished downloading.";
+"Die Begriffe gehen als Hinweis in die Spracherkennung und in die KI. „Oft falsch erkannt als“ hilft zusätzlich beim Korrigieren fertiger Notizen." = "The terms are handed to speech recognition and to the AI. “Often misheard as” additionally helps when correcting finished notes.";
+"Noch keine Begriffe. Trag Namen von Dozierenden, Fachbegriffe oder Abkürzungen ein, die %@ falsch schreibt." = "No terms yet. Add names of lecturers, technical terms or abbreviations that %@ gets wrong.";
+"Die Notiz ist dann kurz nach dem Ende fertig statt erst nach einer langen Rechenzeit. Kostet währenddessen etwas Akku – am Netzteil merkst du nichts davon." = "The note is then ready shortly after you stop instead of after a long wait. Costs a little battery while it runs — on power you will not notice.";
+"Fragt bei GitHub nach der neuesten Version. Das ist der einzige Netzzugriff von %@, solange du keine Cloud-KI verwendest – Aufnahmen und Notizen bleiben in jedem Fall auf dem Mac." = "Asks GitHub for the latest version. That is the only network access %@ makes as long as you do not use a cloud AI — recordings and notes stay on your Mac either way.";

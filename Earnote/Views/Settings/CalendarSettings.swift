@@ -75,8 +75,7 @@ struct CalendarSettings: View {
             } header: {
                 Text("Diese Kalender zählen")
             } footer: {
-                Text("Ohne Auswahl zählen alle. Schalte den Arbeitskalender ab, wenn „Arbeit“ nicht "
-                     + "als Titel auftauchen soll.")
+                Text("Ohne Auswahl zählen alle. Schalte den Arbeitskalender ab, wenn „Arbeit“ nicht als Titel auftauchen soll.")
             }
         }
     }

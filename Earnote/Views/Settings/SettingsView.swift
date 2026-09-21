@@ -40,8 +40,7 @@ struct GeneralSettings: View {
             Section {
                 Toggle("Einmal am Tag nach Updates suchen", isOn: $library.settings.checkForUpdates)
             } footer: {
-                Text("Fragt bei GitHub nach der neuesten Version. Das ist der einzige Netzzugriff von \(AppInfo.name), "
-                     + "solange du keine Cloud-KI verwendest – Aufnahmen und Notizen bleiben in jedem Fall auf dem Mac.")
+                Text("Fragt bei GitHub nach der neuesten Version. Das ist der einzige Netzzugriff von \(AppInfo.name), solange du keine Cloud-KI verwendest – Aufnahmen und Notizen bleiben in jedem Fall auf dem Mac.")
             }
             Section("Start") {
                 Toggle("\(AppInfo.name) beim Start des Macs automatisch öffnen", isOn: $launchAtLogin)
@@ -88,16 +87,14 @@ struct RecordingSettings: View {
             Section {
                 Toggle("Schon während der Aufnahme transkribieren", isOn: $library.settings.transcribeWhileRecording)
             } footer: {
-                Text("Die Notiz ist dann kurz nach dem Ende fertig statt erst nach einer langen Rechenzeit. "
-                     + "Kostet währenddessen etwas Akku – am Netzteil merkst du nichts davon.")
+                Text("Die Notiz ist dann kurz nach dem Ende fertig statt erst nach einer langen Rechenzeit. Kostet währenddessen etwas Akku – am Netzteil merkst du nichts davon.")
             }
             Section {
                 Toggle("Aufnahme mit \(GlobalShortcut.display) aus jeder App starten und stoppen",
                        isOn: $library.settings.globalShortcut)
                     .onChange(of: library.settings.globalShortcut) { _, on in GlobalShortcut.apply(enabled: on) }
             } footer: {
-                Text("Das Kürzel wirkt auch, wenn \(AppInfo.name) im Hintergrund ist – etwa mitten in der Vorlesung "
-                     + "oder im Call. Belegt eine andere App dasselbe Kürzel, gewinnt die andere App.")
+                Text("Das Kürzel wirkt auch, wenn \(AppInfo.name) im Hintergrund ist – etwa mitten in der Vorlesung oder im Call. Belegt eine andere App dasselbe Kürzel, gewinnt die andere App.")
             }
             CalendarSettings()
             Section("Calls") {

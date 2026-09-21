@@ -13,23 +13,23 @@ struct OnboardingView: View {
 
         var title: String {
             switch self {
-            case .welcome: return "Willkommen bei \(AppInfo.name)"
-            case .categories: return "Wofür nutzt du \(AppInfo.name)?"
-            case .permissions: return "Kurz ein paar Freigaben"
-            case .ai: return "Wer schreibt deine Notizen?"
-            case .transcription: return "Spracherkennung"
-            case .done: return "Alles bereit"
+            case .welcome: return String(localized: "Willkommen bei \(AppInfo.name)")
+            case .categories: return String(localized: "Wofür nutzt du \(AppInfo.name)?")
+            case .permissions: return String(localized: "Kurz ein paar Freigaben")
+            case .ai: return String(localized: "Wer schreibt deine Notizen?")
+            case .transcription: return String(localized: "Spracherkennung")
+            case .done: return String(localized: "Alles bereit")
             }
         }
 
         var subtitle: String {
             switch self {
-            case .welcome: return "Deine Vorlesungen, Meetings und Calls – automatisch als Notizen, privat auf deinem Mac."
-            case .categories: return "Daraus werden deine Bereiche. Du kannst sie jederzeit ändern."
-            case .permissions: return "Damit \(AppInfo.name) aufnehmen und dich benachrichtigen kann."
-            case .ai: return "\(AppInfo.name) bringt eine eigene KI mit, die komplett auf deinem Mac läuft."
-            case .transcription: return "Die Spracherkennung läuft immer lokal. Die Voreinstellung passt für die meisten."
-            case .done: return "\(AppInfo.name) wartet ab jetzt oben in der Menüleiste auf dich."
+            case .welcome: return String(localized: "Deine Vorlesungen, Meetings und Calls – automatisch als Notizen, privat auf deinem Mac.")
+            case .categories: return String(localized: "Daraus werden deine Bereiche. Du kannst sie jederzeit ändern.")
+            case .permissions: return String(localized: "Damit \(AppInfo.name) aufnehmen und dich benachrichtigen kann.")
+            case .ai: return String(localized: "\(AppInfo.name) bringt eine eigene KI mit, die komplett auf deinem Mac läuft.")
+            case .transcription: return String(localized: "Die Spracherkennung läuft immer lokal. Die Voreinstellung passt für die meisten.")
+            case .done: return String(localized: "\(AppInfo.name) wartet ab jetzt oben in der Menüleiste auf dich.")
             }
         }
     }
@@ -91,9 +91,9 @@ struct OnboardingView: View {
 
     private var primaryTitle: String {
         switch step {
-        case .welcome: return "Los geht’s"
-        case .done: return "\(AppInfo.name) öffnen"
-        default: return "Weiter"
+        case .welcome: return String(localized: "Los geht’s")
+        case .done: return String(localized: "\(AppInfo.name) öffnen")
+        default: return String(localized: "Weiter")
         }
     }
 
@@ -142,8 +142,7 @@ private struct WelcomeStep: View {
                 Image(nsImage: NSApp.applicationIconImage)
                     .resizable().frame(width: 72, height: 72)
                     .accessibilityHidden(true)
-                Text("\(AppInfo.name) hört zu, schreibt mit und macht daraus Notizen mit Aufgaben – "
-                     + "während du dich aufs Zuhören konzentrierst.")
+                Text("\(AppInfo.name) hört zu, schreibt mit und macht daraus Notizen mit Aufgaben – während du dich aufs Zuhören konzentrierst.")
                     .fixedSize(horizontal: false, vertical: true)
             }
             VStack(alignment: .leading, spacing: 10) {
@@ -165,8 +164,7 @@ private struct AIStep: View {
         Form {
             LocalModelSection()
             Section {
-                Text("Andere KI-Anbieter – Apple Intelligence, Claude, ChatGPT, eigene Server – "
-                     + "findest du später in den Einstellungen unter „KI“.")
+                Text("Andere KI-Anbieter – Apple Intelligence, Claude, ChatGPT, eigene Server – findest du später in den Einstellungen unter „KI“.")
                     .foregroundStyle(.secondary)
             }
         }
@@ -191,8 +189,7 @@ private struct DoneStep: View {
                 Section("Läuft noch im Hintergrund") {
                     ModelStatusRow()
                         .listRowInsets(EdgeInsets())
-                    Text("Du kannst den Assistenten schließen und sofort aufnehmen. Die erste Notiz kommt, "
-                         + "sobald alles fertig geladen ist.")
+                    Text("Du kannst den Assistenten schließen und sofort aufnehmen. Die erste Notiz kommt, sobald alles fertig geladen ist.")
                         .font(.callout).foregroundStyle(.secondary)
                 }
             }

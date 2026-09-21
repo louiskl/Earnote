@@ -102,7 +102,8 @@ enum MainWindowFormat {
 
     /// Dauer gut lesbar und nicht mit einer Uhrzeit zu verwechseln: „48 Sek.“, „36 Min.“, „1 Std., 28 Min.“
     static func duration(_ seconds: TimeInterval) -> String {
-        if seconds < 60 { return "\(Int(seconds)) Sek." }
+        // Einheiten kommen vom System, damit „Sek.“ in der englischen Oberfläche „sec“ heißt
+        if seconds < 60 { return Duration.seconds(seconds).formatted(.units(allowed: [.seconds], width: .abbreviated)) }
         return Duration.seconds(seconds).formatted(.units(allowed: [.hours, .minutes], width: .abbreviated))
     }
 
