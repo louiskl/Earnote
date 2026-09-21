@@ -22,9 +22,6 @@ struct EarnoteApp: App {
         } else if Self.isTestHost {
             environment = AppEnvironment.forTestHost()
         } else {
-            // Muss vor allem anderen laufen: Stores, Storage und Log würden sonst schon im neuen,
-            // leeren Datenordner lesen oder ihn anlegen, bevor die alten Daten übernommen sind.
-            LegacyMigration.runIfNeeded()
             environment = AppEnvironment()
         }
         self.environment = environment

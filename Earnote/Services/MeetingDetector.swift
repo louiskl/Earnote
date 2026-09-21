@@ -85,8 +85,8 @@ final class MeetingDetector: ObservableObject {
             let processPID = (try? process.read(kAudioProcessPropertyPID, default: pid_t(0))) ?? 0
             if processPID == pid { continue }
             guard let bundle = process.readString(kAudioProcessPropertyBundleID), !bundle.isEmpty else { continue }
-            // Eigene App (auch unter dem früheren Namen) nicht als Call werten
-            if bundle.hasPrefix(AppInfo.bundleIdentifier) || bundle.hasPrefix(AppInfo.legacyBundleIdentifier) { continue }
+            // Die eigene App nicht als Call werten
+            if bundle.hasPrefix(AppInfo.bundleIdentifier) { continue }
             if let match = knownApps.first(where: { bundle.hasPrefix($0.prefix) }) {
                 names.append(match.name)
             }

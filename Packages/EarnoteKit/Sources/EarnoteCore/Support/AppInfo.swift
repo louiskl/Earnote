@@ -13,10 +13,4 @@ public enum AppInfo {
 
     /// Öffentliches Repository – Quellcode, Fehlermeldungen und die Update-Datei für Sparkle.
     public static let repository = URL(string: "https://github.com/louiskl/Earnote")!
-
-    // MARK: Frühere Werte (bis Version 0.1.1 hieß die App „Earmark“) – nur für die Datenübernahme
-
-    public static let legacyBundleIdentifier = "app.earmark.Earmark"
-    public static let legacySupportFolderName = "Earmark"
-    public static let legacyKeychainService = "app.earmark.secrets"
 }

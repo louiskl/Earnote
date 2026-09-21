@@ -162,7 +162,7 @@ Ziel: Was eine fremde Person in der ersten Woche braucht, ohne zu fragen.
       Vorlagen, Ziele). Der Projektgenerator bindet jede weitere Sprache automatisch ein.
 - [x] **Erster Start ohne Internet (0.9.2)**: vor jedem Modell-Download wird geprüft, ob überhaupt ein Netz
       da ist – sonst steht sofort „Keine Internetverbindung“ mit „Erneut laden“ statt eines stummen Wartens
-- [ ] Anti-Vibecoding-Review über alle neuen Ansichten (Guidelines Abschnitt 28) → Phase 4c
+- [x] Anti-Vibecoding-Review über alle neuen Ansichten (Guidelines Abschnitt 28) – siehe Phase 4c
 
 **Alltag**
 - [x] **Kalender-Anbindung (0.9.2)**: Läuft ein Termin, heißt die Aufnahme wie er (Einstellungen › Aufnahme,
@@ -195,7 +195,8 @@ Ziel: Was eine fremde Person in der ersten Woche braucht, ohne zu fragen.
 - [x] **Formeln bleiben stehen (0.9.3)**: Ein einzelnes Sternchen ist in Markdown ein Kursiv-Zeichen –
       aus „A*v = λ*v“ wurde beim Anzeigen „Av = λv“. Jetzt wird es geschützt (fett und Code bleiben
       unberührt), und die KI wird angewiesen, Formeln in Code-Zeichen zu setzen.
-- [ ] **Meetings**: Kurzprotokoll (nur Ergebnisse und Aufgaben) als eigene Fassung
+- [x] **Kurzprotokoll (0.9.3)**: „Kurzprotokoll kopieren“ und „Kurzprotokoll als Mail …“ –
+      Titel, Kurzfassung, Ergebnisse und Aufgaben, ohne Themenblöcke und Transkript.
 - [x] **Einfach erklärt (0.9.3)**: Schalter in Einstellungen › KI – kurze Sätze, alltägliche Wörter,
       Fachbegriffe werden beim ersten Mal erklärt
 - [x] **Als Mail weiterschicken (0.9.3)**: öffnet einen Mail-Entwurf mit Titel und Notiz (geschickt wird nichts)
@@ -216,7 +217,11 @@ Ziel: Was eine fremde Person in der ersten Woche braucht, ohne zu fragen.
       und Sprachmodell gleichzeitig im Speicher) und nur, wenn „Schon während der Aufnahme transkribieren“
       an ist. Schlägt es fehl, wird nach dem Stopp normal verdichtet – ohne dass jemand etwas merkt.
 - [ ] 3-Stunden-Vorlesung Ende-zu-Ende: Dauer, Speicher, Akku, Wärme
-- [ ] Swift-6-Sprachmodus, `LegacyMigration` (Earmark → Earnote) entfernen
+- [x] **Swift-6-Sprachmodus (0.9.3)** für Kern, ML und App. WhisperKit bleibt jetzt im Actor,
+      statt das nicht-sendable Modell herauszureichen.
+- [x] **Datenübernahme aus „Earmark“ entfernt (0.9.3)** – sie hat ihren Zweck erfüllt; rund 400 Zeilen
+      weniger, die niemand mehr braucht. Wer noch einen Earmark-Ordner hat, muss vor dem Update
+      auf 0.9.3 einmal eine ältere Version starten.
 
 ---
 
@@ -226,7 +231,9 @@ Nicht „wenn nichts mehr einfällt“, sondern wenn diese Punkte abgehakt sind:
 
 **Funktion**
 - [ ] Phase 4c abgeschlossen (Lernhilfen, Aufgaben nach Erinnerungen, Modellwahl, Vorverdichten)
-- [ ] Anti-Vibecoding-Review über alle Ansichten (Guidelines Abschnitt 28)
+- [x] **Anti-Vibecoding-Review (0.9.3)**: Call-Hinweis auf Systemtypografie und -material umgestellt,
+      Farbverlauf am Knopf entfernt, Sonderschrift der Laufzeit ersetzt, Blätter vereinheitlicht,
+      lange Menüs in Untermenüs („Karteikarten“, „Weitergeben“) gegliedert.
 
 **Belastbarkeit** – an echten Daten nachgewiesen, nicht nur im Test
 - [ ] 3-Stunden-Vorlesung Ende-zu-Ende: Dauer, Speicher, Akku, Wärme notiert

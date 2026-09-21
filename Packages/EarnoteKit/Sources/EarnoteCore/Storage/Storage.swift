@@ -17,15 +17,8 @@ public struct Storage: Sendable {
         return Storage(root: url)
     }()
 
-    /// Nach einem fehlgeschlagenen Umzug weiter die alten Daten verwenden. Sonst würde der
-    /// App-Start einen leeren Zielordner anlegen und den erneuten Umzug beim nächsten Start blockieren.
     public static func supportRoot(in base: URL, defaults: UserDefaults) -> URL {
-        let new = base.appendingPathComponent(AppInfo.supportFolderName, isDirectory: true)
-        let old = base.appendingPathComponent(AppInfo.legacySupportFolderName, isDirectory: true)
-        if defaults.integer(forKey: "legacyMigrationVersion") < 1,
-           !FileManager.default.fileExists(atPath: new.path),
-           FileManager.default.fileExists(atPath: old.path) { return old }
-        return new
+        base.appendingPathComponent(AppInfo.supportFolderName, isDirectory: true)
     }
 
     /// Freier Platz auf dem Laufwerk des Datenordners (Bytes; nil = unbekannt)

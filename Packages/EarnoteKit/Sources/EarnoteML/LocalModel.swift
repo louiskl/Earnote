@@ -62,14 +62,8 @@ public final class LocalModelManager: ObservableObject {
     nonisolated private static func completeMarker(_ model: LocalModelInfo) -> URL {
         folder(model).appendingPathComponent(".complete")
     }
-    /// Name der Markierung vor der Umbenennung der App (wird bei der Datenübernahme umbenannt)
-    nonisolated private static func legacyCompleteMarker(_ model: LocalModelInfo) -> URL {
-        folder(model).appendingPathComponent(".earmark-complete")
-    }
-
     nonisolated public static func isInstalled(_ model: LocalModelInfo) -> Bool {
         FileManager.default.fileExists(atPath: completeMarker(model).path)
-            || FileManager.default.fileExists(atPath: legacyCompleteMarker(model).path)
     }
 
     nonisolated public static var installed: Bool { isInstalled(current) }
