@@ -182,10 +182,15 @@ Ziel: Was eine fremde Person in der ersten Woche braucht, ohne zu fragen.
 ## Phase 4c – Letzter Schliff vor 1.0 (0.9.3)
 
 **Zielgruppen schärfen**
-- [ ] **Studium**: Karteikarten aus der Notiz (Anki-CSV und Apple-Karteikarten), Semester-Zusammenfassung
-      über mehrere Vorlesungen eines Bereichs, Formeln im Lernzettel nicht zerschießen
-- [ ] **Meetings**: Aufgaben nach Apple Erinnerungen (und optional Things/Todoist), Entwurf für die
-      Follow-up-Mail, Kurzprotokoll zum Weiterschicken
+- [x] **Karteikarten (0.9.3)**: Die KI schreibt Frage-Antwort-Karten als Abschnitt in die Notiz
+      („Frage :: Antwort“), dadurch im Editor änderbar und ohne eigenes Datenmodell.
+      „Karteikarten sichern (Anki) …“ schreibt eine CSV, die Anki direkt importiert.
+- [x] **Aufgaben nach Apple Erinnerungen, Things und Todoist (0.9.3)**: je Bereich eine eigene Liste
+      bzw. ein Projekt; Structured liest die Erinnerungslisten mit, eine eigene Anbindung braucht es nicht.
+- [x] **Logseq (0.9.3)**: Seite im Graphen als Aufzählung mit Eigenschaften und TODO-Blöcken
+- [ ] **Studium**: Semester-Zusammenfassung über mehrere Vorlesungen eines Bereichs,
+      Formeln im Lernzettel nicht zerschießen
+- [ ] **Meetings**: Entwurf für die Follow-up-Mail, Kurzprotokoll zum Weiterschicken
 - [ ] **Schule**: einfachere Sprache in den Notizen (Schalter „einfach erklärt“), kleinere Modelle für
       ältere Macs
 
@@ -279,7 +284,7 @@ heute für iOS – das bleibt die Eintrittskarte, und der iOS-Build läuft bei j
 
 ## Später / Ideen
 - Echte Sprechererkennung (Sprecher 1/2/3) statt „Ich / Andere“
-- Weitere Ziele: Google Docs, OneNote, Logseq, Anytype, Webhooks; Notion-Anmeldung ohne Token
+- Weitere Ziele: Google Docs, OneNote, Anytype, Webhooks; Notion-Anmeldung ohne Token
 - Öffentlicher Link zum Teilen einer Notiz
 - Ältere iPads ohne M-Chip (über den Mac oder einen eigenen API-Schlüssel)
 - Echo-Unterdrückung bei Lautsprecher-Calls

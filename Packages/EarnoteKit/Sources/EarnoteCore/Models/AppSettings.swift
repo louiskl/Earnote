@@ -150,6 +150,12 @@ public struct DestinationSettings: Codable, Hashable, Sendable {
     public var craftSpaceID: String = ""
     // Apple Erinnerungen: leer = je Bereich eine eigene Liste
     public var remindersList: String = ""
+    // Logseq
+    public var logseqGraphPath: String = ""
+    // Todoist: leer = je Bereich ein eigenes Projekt
+    public var todoistProject: String = ""
+    // Things
+    public var thingsList: String = ""
 
     public init() {}
 
@@ -168,6 +174,9 @@ public struct DestinationSettings: Codable, Hashable, Sendable {
         bearTags = (try? c.decodeIfPresent(String.self, forKey: .bearTags)) ?? d.bearTags
         craftSpaceID = (try? c.decodeIfPresent(String.self, forKey: .craftSpaceID)) ?? d.craftSpaceID
         remindersList = (try? c.decodeIfPresent(String.self, forKey: .remindersList)) ?? d.remindersList
+        logseqGraphPath = (try? c.decodeIfPresent(String.self, forKey: .logseqGraphPath)) ?? d.logseqGraphPath
+        todoistProject = (try? c.decodeIfPresent(String.self, forKey: .todoistProject)) ?? d.todoistProject
+        thingsList = (try? c.decodeIfPresent(String.self, forKey: .thingsList)) ?? d.thingsList
     }
 }
 

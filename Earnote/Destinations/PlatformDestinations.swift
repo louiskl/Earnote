@@ -19,7 +19,10 @@ struct AppDestinations: DestinationProvider {
             DestinationInfo(id: CraftDestination.id, name: "Craft", symbol: "doc.richtext.fill",
                             detail: "Neues Dokument in einem Craft-Space."),
             DestinationInfo(id: RemindersDestination.id, name: "Apple Erinnerungen", symbol: "checklist",
-                            detail: "Offene Aufgaben aus der Notiz, je Bereich eine eigene Liste."),
+                            detail: "Offene Aufgaben aus der Notiz, je Bereich eine eigene Liste. "
+                                  + "Apps wie Structured lesen diese Listen mit."),
+            DestinationInfo(id: ThingsDestination.id, name: "Things", symbol: "checkmark.square",
+                            detail: "Offene Aufgaben als Projekt in Things, je Aufnahme eines."),
         ]
     }
 
@@ -29,6 +32,7 @@ struct AppDestinations: DestinationProvider {
         case BearDestination.id: return BearDestination()
         case CraftDestination.id: return CraftDestination()
         case RemindersDestination.id: return RemindersDestination()
+        case ThingsDestination.id: return ThingsDestination()
         default: return core.make(id)
         }
     }
@@ -39,6 +43,10 @@ struct AppDestinations: DestinationProvider {
             if s.craftSpaceID.isEmpty { return String(localized: "Craft-Space-ID fehlt") }
         case BearDestination.id:
             if NSWorkspace.shared.urlForApplication(withBundleIdentifier: "net.shinyfrog.bear") == nil { return String(localized: "Bear ist nicht installiert") }
+        case ThingsDestination.id:
+            if NSWorkspace.shared.urlForApplication(withBundleIdentifier: "com.culturedcode.ThingsMac") == nil {
+                return String(localized: "Things ist nicht installiert")
+            }
         default:
             return core.setupProblem(id, s)
         }
@@ -135,6 +143,31 @@ struct CraftDestination: Destination {
         guard let url = comps.url else { throw LLMError(message: "Craft-Link konnte nicht erstellt werden") }
         let ok = await MainActor.run { NSWorkspace.shared.open(url) }
         if !ok { throw LLMError(message: "Craft konnte nicht geöffnet werden") }
+        return nil
+    }
+}
+
+/// Aufgaben aus der Notiz als Projekt in Things – ein Projekt je Aufnahme, damit die Aufgaben
+/// zusammenbleiben. Things nimmt sie über sein dokumentiertes URL-Schema entgegen.
+struct ThingsDestination: Destination {
+    static let id = "things"
+
+    func export(_ p: ExportPayload) async throws -> String? {
+        let tasks = NoteMarkdown.openTasks(p.summary?.markdown ?? "")
+        guard !tasks.isEmpty else { return nil }
+        var comps = URLComponents(string: "things:///add-project")!
+        var items = [
+            URLQueryItem(name: "title", value: p.title),
+            URLQueryItem(name: "notes", value: MarkdownDocument.metaLine(p)),
+            URLQueryItem(name: "to-dos", value: tasks.joined(separator: "\n")),
+            URLQueryItem(name: "reveal", value: "false"),
+        ]
+        let area = p.settings.thingsList.isEmpty ? p.category?.name : p.settings.thingsList
+        if let area, !area.isEmpty { items.append(URLQueryItem(name: "area", value: area)) }
+        comps.queryItems = items
+        guard let url = comps.url else { throw LLMError(message: String(localized: "Things-Link konnte nicht erstellt werden")) }
+        let ok = await MainActor.run { NSWorkspace.shared.open(url) }
+        if !ok { throw LLMError(message: String(localized: "Things konnte nicht geöffnet werden")) }
         return nil
     }
 }

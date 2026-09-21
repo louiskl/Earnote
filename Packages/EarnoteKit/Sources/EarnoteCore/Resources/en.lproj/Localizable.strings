@@ -90,3 +90,13 @@
 "Du machst Karteikarten zum Lernen aus einer Mitschrift.\nAntworte ausschließlich mit Zeilen der Form: Frage :: Antwort\nKeine Nummerierung, keine Überschriften, keine Einleitung.\nJede Frage fragt genau eine Sache ab, die Antwort passt in ein bis zwei Sätze.\nFrage nach Begriffen, Zusammenhängen und Rechenwegen – nicht nach Nebensächlichkeiten\nwie Terminen oder Organisatorischem.\n" = "You write flashcards for studying from a set of lecture notes.\nAnswer only with lines in the form: Question :: Answer\nNo numbering, no headings, no introduction.\nEach question asks exactly one thing; the answer fits in one or two sentences.\nAsk about terms, connections and how to compute things — not about side matters\nsuch as dates or organisational details.\n";
 "Sprache der Karten: %@" = "Language of the cards: %@";
 "Mach höchstens %lld Karteikarten aus diesem Material:" = "Make at most %lld flashcards from this material:";
+"Logseq" = "Logseq";
+"Seite in deinem Graphen, als Aufzählung mit Eigenschaften und TODOs." = "A page in your graph, as bullets with properties and TODOs.";
+"Todoist" = "Todoist";
+"Offene Aufgaben aus der Notiz, je Bereich ein eigenes Projekt." = "Open tasks from the note, one project per area.";
+"Logseq-Graph nicht ausgewählt" = "No Logseq graph selected";
+"Logseq-Graph noch nicht ausgewählt" = "No Logseq graph selected yet";
+"Todoist-Schlüssel fehlt" = "Todoist key is missing";
+"Todoist-Schlüssel wird nicht akzeptiert" = "Todoist key was rejected";
+"Aus „%@“" = "From “%@”";
+"Transkript" = "Transcript";

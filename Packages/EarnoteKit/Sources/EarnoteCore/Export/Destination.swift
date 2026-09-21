@@ -73,6 +73,10 @@ public struct CoreDestinations: DestinationProvider {
                             detail: t("Markdown-Notiz mit Eigenschaften in deinem Vault.")),
             DestinationInfo(id: MarkdownDestination.id, name: t("Markdown-Ordner"), symbol: "folder.fill",
                             detail: t("Eine .md-Datei pro Aufnahme – ideal für Backups, iCloud Drive oder andere Apps.")),
+            DestinationInfo(id: LogseqDestination.id, name: t("Logseq"), symbol: "list.bullet.indent",
+                            detail: t("Seite in deinem Graphen, als Aufzählung mit Eigenschaften und TODOs.")),
+            DestinationInfo(id: TodoistDestination.id, name: t("Todoist"), symbol: "checkmark.circle.fill",
+                            detail: t("Offene Aufgaben aus der Notiz, je Bereich ein eigenes Projekt.")),
         ]
     }
 
@@ -81,6 +85,8 @@ public struct CoreDestinations: DestinationProvider {
         case NotionDestination.id: return NotionDestination()
         case ObsidianDestination.id: return ObsidianDestination()
         case MarkdownDestination.id: return MarkdownDestination()
+        case LogseqDestination.id: return LogseqDestination()
+        case TodoistDestination.id: return TodoistDestination()
         default: return nil
         }
     }
@@ -92,6 +98,10 @@ public struct CoreDestinations: DestinationProvider {
             if s.notionDatabaseID.isEmpty { return t("Notion-Datenbank noch nicht angelegt") }
         case ObsidianDestination.id:
             if s.obsidianVaultPath.isEmpty { return t("Obsidian-Vault nicht ausgewählt") }
+        case LogseqDestination.id:
+            if s.logseqGraphPath.isEmpty { return t("Logseq-Graph nicht ausgewählt") }
+        case TodoistDestination.id:
+            if Keychain.todoistToken?.isEmpty ?? true { return t("Todoist-Schlüssel fehlt") }
         default: break
         }
         return nil

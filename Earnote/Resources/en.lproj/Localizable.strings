@@ -970,9 +970,9 @@
 
 /* Apple Erinnerungen */
 "Apple Erinnerungen" = "Apple Reminders";
-"Offene Aufgaben aus der Notiz, je Bereich eine eigene Liste." = "Open tasks from the note, one list per area.";
+"Offene Aufgaben aus der Notiz, je Bereich eine eigene Liste. Apps wie Structured lesen diese Listen mit." = "Open tasks from the note, one list per area. Apps such as Structured read those lists too.";
 "Liste (leer = je Bereich eine eigene)" = "List (empty = one per area)";
-"Beim ersten Export fragt macOS nach Zugriff auf Erinnerungen – bitte erlauben." = "On the first export macOS asks for access to Reminders — please allow it.";
+"Beim ersten Export fragt macOS nach Zugriff auf Erinnerungen – bitte erlauben. Apps wie Structured lesen diese Listen mit, dort tauchen die Aufgaben also auch auf." = "On the first export macOS asks for access to Reminders — please allow it. Apps such as Structured read those lists, so the tasks show up there as well.";
 "Zugriff auf Erinnerungen nicht erlaubt" = "Access to Reminders not allowed";
 "Keine Liste für Erinnerungen gefunden" = "No list for reminders found";
 "Aus „%@“ · %@" = "From “%@” · %@";
@@ -989,3 +989,17 @@
 "Diese Notiz hat noch keine Karteikarten. Erzeuge sie zuerst." = "This note has no flashcards yet. Create them first.";
 "In Anki über „Datei › Importieren“ öffnen – erste Spalte Frage, zweite Antwort." = "Open in Anki via File › Import — first column question, second answer.";
 "Karteikarten sichern: %@" = "Saving flashcards: %@";
+
+/* Things, Logseq, Todoist */
+"Things" = "Things";
+"Offene Aufgaben als Projekt in Things, je Aufnahme eines." = "Open tasks as a project in Things, one per recording.";
+"Things ist nicht installiert" = "Things is not installed";
+"Things-Link konnte nicht erstellt werden" = "Could not build the Things link";
+"Things konnte nicht geöffnet werden" = "Could not open Things";
+"Bereich in Things (leer = wie der Bereich in %@)" = "Area in Things (empty = same as the area in %@)";
+"Graph" = "Graph";
+"Kein Graph gewählt" = "No graph selected";
+"Wähle den Ordner deines Logseq-Graphen" = "Pick the folder of your Logseq graph";
+"Die Seite landet im Unterordner „pages“ – Aufgaben werden zu TODO-Blöcken." = "The page lands in the “pages” subfolder — tasks become TODO blocks.";
+"Projekt (leer = je Bereich ein eigenes)" = "Project (empty = one per area)";
+"Schlüssel in den Todoist-Einstellungen holen …" = "Get the key in your Todoist settings …";

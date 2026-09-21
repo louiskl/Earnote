@@ -76,8 +76,18 @@ private struct DestinationSetup: View {
                       prompt: MarkdownDestination.defaultFolder.path, message: "Ordner für Markdown-Dateien")
         case RemindersDestination.id:
             TextField("Liste (leer = je Bereich eine eigene)", text: $settings.remindersList)
-            Text("Beim ersten Export fragt macOS nach Zugriff auf Erinnerungen – bitte erlauben.")
+            Text("Beim ersten Export fragt macOS nach Zugriff auf Erinnerungen – bitte erlauben. "
+                 + "Apps wie Structured lesen diese Listen mit, dort tauchen die Aufgaben also auch auf.")
                 .font(.callout).foregroundStyle(.secondary)
+        case ThingsDestination.id:
+            TextField("Bereich in Things (leer = wie der Bereich in \(AppInfo.name))", text: $settings.thingsList)
+        case LogseqDestination.id:
+            FolderRow(title: "Graph", path: $settings.logseqGraphPath, prompt: "Kein Graph gewählt",
+                      message: "Wähle den Ordner deines Logseq-Graphen")
+            Text("Die Seite landet im Unterordner „pages“ – Aufgaben werden zu TODO-Blöcken.")
+                .font(.callout).foregroundStyle(.secondary)
+        case TodoistDestination.id:
+            TodoistSetup(settings: $settings)
         case AppleNotesDestination.id:
             TextField("Ordner in Apple Notizen", text: $settings.appleNotesFolder)
             Text("Beim ersten Export fragt macOS, ob \(AppInfo.name) Notizen steuern darf – bitte erlauben.")
@@ -180,5 +190,20 @@ private struct NotionSetup: View {
         } catch {
             status = error.localizedDescription
         }
+    }
+}
+
+/// Todoist: Schlüssel im Schlüsselbund, Projekt optional
+private struct TodoistSetup: View {
+    @Binding var settings: DestinationSettings
+    @State private var token = Keychain.todoistToken ?? ""
+
+    var body: some View {
+        SecureField("API-Schlüssel", text: $token)
+            .onChange(of: token) { _, new in Keychain.todoistToken = new }
+        TextField("Projekt (leer = je Bereich ein eigenes)", text: $settings.todoistProject)
+        Link("Schlüssel in den Todoist-Einstellungen holen …",
+             destination: URL(string: "https://app.todoist.com/app/settings/integrations/developer")!)
+            .font(.callout)
     }
 }

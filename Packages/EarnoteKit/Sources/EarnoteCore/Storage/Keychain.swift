@@ -40,4 +40,9 @@ public enum Keychain {
         get { get("notion.token") }
         set { set(newValue, for: "notion.token") }
     }
+
+    public static var todoistToken: String? {
+        get { get("todoist.token") }
+        set { set(newValue, for: "todoist.token") }
+    }
 }

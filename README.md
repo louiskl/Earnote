@@ -28,7 +28,7 @@ AI meeting notes are great, but usually tied to one app and a monthly subscripti
 
 - **where the transcription runs**: always locally (Apple Speech on macOS 26 or Whisper via WhisperKit)
 - **which AI writes the notes**: by default its own on-device model (one download, then private, free and offline), or Apple Intelligence, Ollama, LM Studio, Claude, OpenAI, Gemini, Mistral, any OpenAI‑compatible server, or your existing Claude Code / Codex subscription
-- **where the notes end up**: Notion, Obsidian, Apple Notes, a Markdown folder, Bear, Craft
+- **where the notes end up**: Notion, Obsidian, Logseq, Apple Notes, a Markdown folder, Bear, Craft — and tasks into Reminders, Things or Todoist
 
 ### Features
 
@@ -49,6 +49,8 @@ AI meeting notes are great, but usually tied to one app and a monthly subscripti
 | ⌨️ **Global shortcut** | ⌃⌥⌘R starts and stops a recording from any app. |
 | 📅 **Calendar** | The running event gives the recording its name. You pick which calendars count. |
 | 📄 **PDF & print** | Save a note as a clean study sheet or print it (⌘P). |
+| 🃏 **Flashcards** | The AI turns a lecture into question/answer cards inside the note — export them as CSV for Anki. |
+| ✅ **Tasks where you keep them** | Open tasks go to Apple Reminders (one list per area, so Structured picks them up), Things or Todoist. |
 
 ### Language
 
@@ -101,7 +103,7 @@ PRs are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) and the [roadmap](docs/R
 - **Call-Erkennung** mit Pop-up („Zoom erkannt – aufnehmen?“), automatisches Stoppen am Ende des Calls
 - **Lokale Transkription** mit Apple-Spracherkennung (ab macOS 26) oder Whisper
 - **Zusammenfassung** mit der eingebauten lokalen KI, die komplett auf deinem Mac läuft (privat, kostenlos, offline) – oder wahlweise mit Apple Intelligence, Ollama, LM Studio, Claude, OpenAI, Gemini, Mistral oder über ein bestehendes Claude-Code- bzw. Codex-Abo
-- **Ablage** in Notion, Obsidian, Apple Notizen, einem Markdown-Ordner, Bear oder Craft
+- **Ablage** in Notion, Obsidian, Logseq, Apple Notizen, einem Markdown-Ordner, Bear oder Craft
 - **Eigene Kategorien** mit eigenen Anweisungen für die Zusammenfassung (z. B. Vorlesung mit Prüfungshinweisen und Lernzettel)
 - **Sprecher-Unterscheidung** in „Ich“ und „Andere“
 - **Einrichtungsassistent** und Bedienung über die Menüleiste, ganz ohne Terminal
@@ -110,6 +112,8 @@ PRs are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) and the [roadmap](docs/R
 - **Globales Tastenkürzel** ⌃⌥⌘R: Aufnahme aus jeder App starten und stoppen
 - **Kalender**: Läuft ein Termin, heißt die Aufnahme wie er – welche Kalender zählen, wählst du selbst
 - **Lernzettel als PDF** sichern oder drucken (⌘P)
+- **Karteikarten**: Die KI macht Frage-Antwort-Karten aus der Vorlesung, Export als CSV für Anki
+- **Aufgaben** wandern nach Apple Erinnerungen (je Bereich eine Liste, damit Structured sie mitliest), Things oder Todoist
 
 **Installation:** `Earnote.dmg` unter [Releases](../../releases) herunterladen, öffnen und Earnote in den Programme-Ordner ziehen. Die App ist von Apple notarisiert und startet mit einem Doppelklick – ohne Umweg über die Systemeinstellungen. Earnote schaut einmal am Tag nach, ob es eine neuere Version gibt, und zeigt dann einen Hinweis mit Download-Link – installiert wird nie von allein.
 
