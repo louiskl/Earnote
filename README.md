@@ -12,6 +12,11 @@
 </p>
 
 <p align="center">
+  <b><a href="https://louiskl.github.io/Earnote/">earnote website</a></b> ·
+  <a href="https://github.com/louiskl/Earnote/releases/latest/download/Earnote.dmg">download</a>
+</p>
+
+<p align="center">
   <a href="#deutsch">🇩🇪 Deutsch</a> · <a href="#english">🇬🇧 English</a>
 </p>
 

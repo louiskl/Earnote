@@ -188,9 +188,11 @@ Ziel: Was eine fremde Person in der ersten Woche braucht, ohne zu fragen.
 - [ ] Impressum und Datenschutzerklärung für die Website (die App-Seite steht in `docs/DATENSCHUTZ.md`)
 
 **Website** (Hauptweg zum Download)
-- [ ] Eine Seite, statisch, über GitHub Pages aus diesem Repository – kostenlos und sofort online
-- [ ] Inhalt: Was es macht · Screenshot/Video · Download-Knopf (neuestes Release) · „bleibt auf deinem Mac“ ·
-      Voraussetzungen · FAQ · Link zu GitHub
+- [x] **Steht: [louiskl.github.io/Earnote](https://louiskl.github.io/Earnote/)** – statisch über GitHub Pages
+      aus `docs/`, zweisprachig (`index.html` englisch, `de.html` deutsch), ohne Framework und ohne Tracking
+- [x] Inhalt: Was es macht · Screenshot in der jeweiligen Sprache · Download-Knopf auf das neueste Release ·
+      „bleibt auf deinem Mac“ · Voraussetzungen · FAQ · Link zu GitHub
+- [ ] **Impressum nach § 5 TMG** (Name und Anschrift) – im Quelltext beider Seiten als TODO markiert
 - [ ] Demo-Video (30–60 s): aufnehmen, Notiz erscheint, Lernzettel als PDF – für Website, Product Hunt, Social
 - [ ] Screenshots in Hell und Dunkel, deutsch und englisch
 
