@@ -25,6 +25,8 @@ struct AISettings: View {
                     Divider()
                     ForEach(AIProviderKind.allCases.filter { $0 != .localModel }) { Text($0.label).tag($0) }
                 }
+                Toggle("Einfach erklärt", isOn: $library.settings.ai.simpleNotes)
+                    .help("Kurze Sätze, alltägliche Wörter, Fachbegriffe werden erklärt.")
                 Picker("Sprache der Notizen", selection: $library.settings.ai.summaryLanguage) {
                     // Der gespeicherte Wert bleibt deutsch (er geht so an die KI), übersetzt wird nur die Anzeige.
                     ForEach(Self.summaryLanguages, id: \.self) { Text(LocalizedStringKey($0)).tag($0) }

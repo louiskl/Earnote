@@ -82,6 +82,8 @@ struct EarnoteCommands: Commands {
                       || id.map { library.makingFlashcards.contains($0) } == true)
             Button("Karteikarten sichern (Anki) …") { if let id { FlashcardExport.save(id, library: library) } }
                 .disabled(recording?.summaryTitle == nil)
+            Button("Als Mail weiterschicken …") { if let id { FollowUpMail.compose(id, library: library) } }
+                .disabled(recording?.summaryTitle == nil)
             Divider()
             Button("Als PDF sichern …") { if let id { NoteDocument.savePDF(id, library: library) } }
                 .disabled(recording?.summaryTitle == nil)

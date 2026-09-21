@@ -161,6 +161,8 @@ struct RecordingActionItems: View {
         .disabled(!hasNote || busy || library.makingFlashcards.contains(recordingID))
         Button("Karteikarten sichern (Anki) …") { FlashcardExport.save(recordingID, library: library) }
             .disabled(!hasNote)
+        Button("Als Mail weiterschicken …") { FollowUpMail.compose(recordingID, library: library) }
+            .disabled(!hasNote)
         Divider()
         Button("Als PDF sichern …") { NoteDocument.savePDF(recordingID, library: library) }
             .disabled(!hasNote)

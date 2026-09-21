@@ -51,6 +51,8 @@ AI meeting notes are great, but usually tied to one app and a monthly subscripti
 | 📄 **PDF & print** | Save a note as a clean study sheet or print it (⌘P). |
 | 🃏 **Flashcards** | The AI turns a lecture into question/answer cards inside the note — export them as CSV for Anki. |
 | ✅ **Tasks where you keep them** | Open tasks go to Apple Reminders (one list per area, so Structured picks them up), Things or Todoist. |
+| 🧒 **Explain it simply** | A switch that makes the AI write short sentences and explain technical terms — for school and for anyone new to a subject. |
+| ✉️ **Follow-up email** | Opens a draft with the note, ready to send to everyone in the meeting. |
 
 ### Language
 
@@ -114,6 +116,8 @@ PRs are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) and the [roadmap](docs/R
 - **Lernzettel als PDF** sichern oder drucken (⌘P)
 - **Karteikarten**: Die KI macht Frage-Antwort-Karten aus der Vorlesung, Export als CSV für Anki
 - **Aufgaben** wandern nach Apple Erinnerungen (je Bereich eine Liste, damit Structured sie mitliest), Things oder Todoist
+- **„Einfach erklärt“**: Schalter für kurze Sätze und erklärte Fachbegriffe – für Schule und fachfremde Themen
+- **Follow-up-Mail**: öffnet einen Entwurf mit der Notiz, verschickt wird nichts von allein
 
 **Installation:** `Earnote.dmg` unter [Releases](../../releases) herunterladen, öffnen und Earnote in den Programme-Ordner ziehen. Die App ist von Apple notarisiert und startet mit einem Doppelklick – ohne Umweg über die Systemeinstellungen. Earnote schaut einmal am Tag nach, ob es eine neuere Version gibt, und zeigt dann einen Hinweis mit Download-Link – installiert wird nie von allein.
 

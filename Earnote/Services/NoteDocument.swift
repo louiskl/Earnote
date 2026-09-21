@@ -233,3 +233,35 @@ enum FlashcardExport {
         }
     }
 }
+
+/// Kurzprotokoll zum Weiterschicken: öffnet einen Mail-Entwurf mit Titel und Notiz.
+/// Geschickt wird nichts – der Entwurf steht im Mailprogramm und wartet auf den Nutzer.
+@MainActor
+enum FollowUpMail {
+    /// Mehr passt in einen mailto-Link nicht zuverlässig hinein
+    static let maxLength = 4_000
+
+    static func compose(_ recordingID: UUID, library: LibraryStore) {
+        Task {
+            guard let recording = library.recording(recordingID),
+                  let note = await library.summary(recordingID) else {
+                library.lastError = String(localized: "Für diese Aufnahme gibt es noch keine Notiz.")
+                return
+            }
+            let subject = recording.displayTitle
+            var body = NoteMarkdown.shareText(title: subject, markdown: note.markdown)
+            if body.count > maxLength {
+                body = String(body.prefix(maxLength)) + "\n\n" + String(localized: "… (gekürzt)")
+            }
+            var comps = URLComponents(string: "mailto:")!
+            comps.queryItems = [URLQueryItem(name: "subject", value: subject),
+                                URLQueryItem(name: "body", value: body)]
+            // mailto verträgt kein „+“ als Leerzeichen – sonst steht es im Entwurf
+            let link = comps.url?.absoluteString.replacingOccurrences(of: "+", with: "%2B")
+            guard let link, let url = URL(string: link), NSWorkspace.shared.open(url) else {
+                library.lastError = String(localized: "Der Mail-Entwurf konnte nicht geöffnet werden.")
+                return
+            }
+        }
+    }
+}

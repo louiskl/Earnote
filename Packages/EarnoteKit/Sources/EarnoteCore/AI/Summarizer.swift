@@ -177,10 +177,12 @@ public struct SummaryContext: Sendable {
     public var glossary: [GlossaryTerm]
     /// Einmalige Anweisung des Nutzers für genau diesen Durchgang („Neu zusammenfassen“)
     public var extraInstructions: String
+    /// Einfache Sprache statt Fachsprache
+    public var simpleLanguage = false
 
     public init(category: RecordingCategory?, titleHint: String, sourceApp: String?, date: Date,
                 duration: TimeInterval, hasSpeakers: Bool, language: String,
-                glossary: [GlossaryTerm] = [], extraInstructions: String = "") {
+                glossary: [GlossaryTerm] = [], extraInstructions: String = "", simpleLanguage: Bool = false) {
         self.category = category
         self.titleHint = titleHint
         self.sourceApp = sourceApp
@@ -190,6 +192,7 @@ public struct SummaryContext: Sendable {
         self.language = language
         self.glossary = glossary
         self.extraInstructions = extraInstructions
+        self.simpleLanguage = simpleLanguage
     }
 }
 
@@ -347,6 +350,15 @@ public struct Summarizer: Sendable {
         - Das Transkript wurde automatisch erstellt und enthält Hörfehler. Offensichtlich falsch erkannte Wörter, Namen und \
         Fachbegriffe korrigierst du stillschweigend. Ist das Transkript in einer anderen Sprache, übersetze sinngemäß.
         """
+        if c.simpleLanguage {
+            s += """
+
+            Einfach erklärt
+            - Schreibe so, dass es eine Schülerin in der 8. Klasse versteht: kurze Sätze, alltägliche Wörter.
+            - Fachbegriffe dürfen vorkommen, aber jeder wird beim ersten Mal in einem Halbsatz erklärt.
+            - Erkläre den Zusammenhang, statt ihn vorauszusetzen. Lieber ein Satz mehr als ein Fremdwort.
+            """
+        }
         if c.hasSpeakers {
             s += """
 

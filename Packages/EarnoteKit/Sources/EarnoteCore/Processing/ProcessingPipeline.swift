@@ -79,7 +79,8 @@ public struct ProcessingPipeline: Sendable {
                                              date: rec.startedAt, duration: rec.duration,
                                              hasSpeakers: settings.speakerLabels && transcript.segments.contains { $0.speaker != nil },
                                              language: settings.ai.summaryLanguage,
-                                             glossary: glossary, extraInstructions: extraInstructions)
+                                             glossary: glossary, extraInstructions: extraInstructions,
+                                             simpleLanguage: settings.ai.simpleNotes)
                 let started = Date()
                 let s = try await summarizer.summarize(transcript: text, context: context) { p in
                     events.progress(id, Self.map(p, to: summarySpan))

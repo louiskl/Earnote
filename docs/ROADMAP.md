@@ -190,9 +190,11 @@ Ziel: Was eine fremde Person in der ersten Woche braucht, ohne zu fragen.
 - [x] **Logseq (0.9.3)**: Seite im Graphen als Aufzählung mit Eigenschaften und TODO-Blöcken
 - [ ] **Studium**: Semester-Zusammenfassung über mehrere Vorlesungen eines Bereichs,
       Formeln im Lernzettel nicht zerschießen
-- [ ] **Meetings**: Entwurf für die Follow-up-Mail, Kurzprotokoll zum Weiterschicken
-- [ ] **Schule**: einfachere Sprache in den Notizen (Schalter „einfach erklärt“), kleinere Modelle für
-      ältere Macs
+- [ ] **Meetings**: Kurzprotokoll (nur Ergebnisse und Aufgaben) als eigene Fassung
+- [x] **Einfach erklärt (0.9.3)**: Schalter in Einstellungen › KI – kurze Sätze, alltägliche Wörter,
+      Fachbegriffe werden beim ersten Mal erklärt
+- [x] **Als Mail weiterschicken (0.9.3)**: öffnet einen Mail-Entwurf mit Titel und Notiz (geschickt wird nichts)
+- [ ] **Schule**: kleinere Modelle für ältere Macs
 
 **Qualität und Modelle**
 - [ ] Modellvergleich mit den echten Vorlesungen: Qwen3 4B / 8B, Gemma 3 4B – Lernzettel nebeneinander

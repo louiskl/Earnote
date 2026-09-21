@@ -111,6 +111,8 @@ public struct AIConfig: Codable, Hashable, Sendable {
     public var model: String = ""
     public var baseURL: String = ""
     public var summaryLanguage: String = "Deutsch"
+    /// Notizen in einfacher Sprache – für Schule und alle, denen Fachsprache im Weg steht
+    public var simpleNotes: Bool = false
 
     public init() {}
 
@@ -124,6 +126,7 @@ public struct AIConfig: Codable, Hashable, Sendable {
         model = (try? c.decodeIfPresent(String.self, forKey: .model)) ?? d.model
         baseURL = (try? c.decodeIfPresent(String.self, forKey: .baseURL)) ?? d.baseURL
         summaryLanguage = (try? c.decodeIfPresent(String.self, forKey: .summaryLanguage)) ?? d.summaryLanguage
+        simpleNotes = (try? c.decodeIfPresent(Bool.self, forKey: .simpleNotes)) ?? d.simpleNotes
     }
 
     public var effectiveModel: String { model.isEmpty ? provider.defaultModel : model }
