@@ -210,7 +210,11 @@ Ziel: Was eine fremde Person in der ersten Woche braucht, ohne zu fragen.
       (bis 16 GB Qwen3 4B, darüber Qwen2.5 7B). Ein bereits geladenes Modell geht der Empfehlung vor –
       ein Update zwingt niemanden zu einem neuen Download.
 - [ ] Modellvergleich an echten Vorlesungen: Lernzettel der Modelle nebeneinander bewerten
-- [ ] Notiz beschleunigen: Vorverdichten schon während der Aufnahme, sobald das Transkript lang ist
+- [x] **Vorverdichten während der Aufnahme (0.9.3)**: Sobald wieder ein Block von ~20 000 Zeichen
+      (grob 25 Minuten) transkribiert ist, verdichtet die KI ihn schon zu Arbeitsnotizen. Nach dem Stopp
+      bleibt nur der Rest plus die eigentliche Notiz. Läuft nur auf Macs ab 16 GB (sonst liegen Whisper
+      und Sprachmodell gleichzeitig im Speicher) und nur, wenn „Schon während der Aufnahme transkribieren“
+      an ist. Schlägt es fehl, wird nach dem Stopp normal verdichtet – ohne dass jemand etwas merkt.
 - [ ] 3-Stunden-Vorlesung Ende-zu-Ende: Dauer, Speicher, Akku, Wärme
 - [ ] Swift-6-Sprachmodus, `LegacyMigration` (Earmark → Earnote) entfernen
 

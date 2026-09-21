@@ -37,8 +37,10 @@ final class AppEnvironment {
         let libraryRepository = SwiftDataLibraryRepository(modelContainer: container)
         let audio = FileAudioStore(storage: storage)
         let llm = LLMFactory(platform: PlatformLLMClients())
+        let precondensed = PreCondensedStore()
         let pipeline = ProcessingPipeline(library: libraryRepository, audio: audio, transcribers: PlatformTranscribers(), llm: llm,
-                                          destinations: AppDestinations(), notify: { Notifier.send($0, $1) })
+                                          destinations: AppDestinations(), precondensed: precondensed,
+                                          notify: { Notifier.send($0, $1) })
         let queue = ProcessingQueue(pipeline: pipeline) {
             // Nichts mehr zu tun: geladene Modelle aus dem Speicher nehmen
             Task {
@@ -53,7 +55,8 @@ final class AppEnvironment {
         queue.library = library
         AudioInputDevices.removeLeftoversFromEarlierRuns()
         let recorder = RecordingController(library: library, detector: MeetingDetector(), audioInputs: AudioInputDevices(),
-                                           transcribers: PlatformTranscribers(), notify: { Notifier.send($0, $1) })
+                                           transcribers: PlatformTranscribers(), llm: llm, precondensed: precondensed,
+                                           notify: { Notifier.send($0, $1) })
         let appState = AppState(library: library, recorder: recorder, llm: llm)
 
         library.willDelete = { [weak recorder] id in recorder?.endIfActive(id) }

@@ -42,6 +42,11 @@ public actor LiveTranscription {
     /// Ist unterwegs etwas schiefgegangen, wird nach dem Stopp normal von vorn transkribiert.
     public var hasFailed: Bool { failed }
 
+    /// Das Transkript, so weit es fertig ist – Grundlage fürs Vorverdichten. Es wächst nur hinten.
+    public var textSoFar: String {
+        Transcript(segments: segments, engine: transcriber.engineName).formatted(includeSpeakers: false)
+    }
+
     /// Transkribiert den nächsten Abschnitt, wenn genug neuer Ton da ist. Sonst passiert nichts.
     public func advance() async {
         guard !failed, !running else { return }

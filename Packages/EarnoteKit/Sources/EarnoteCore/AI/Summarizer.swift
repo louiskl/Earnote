@@ -209,7 +209,7 @@ public struct Summarizer: Sendable {
         self.providerName = providerName
     }
 
-    public func summarize(transcript: String, context: SummaryContext,
+    public func summarize(transcript: String, context: SummaryContext, precondensed: PreCondensed? = nil,
                           progress: @escaping @Sendable (Double) -> Void) async throws -> Summary {
         let tracker = MonotonicProgress(progress)
         var material = transcript
@@ -217,9 +217,24 @@ public struct Summarizer: Sendable {
         var limit = chunkCharacters
         let words = Self.spokenWordCount(transcript)
 
+        // Während der Aufnahme schon verdichtet: Dann fehlt nur noch der Rest seit dem letzten Block.
+        if let precondensed, !precondensed.notes.isEmpty {
+            let tail = precondensed.tail.trimmingCharacters(in: .whitespacesAndNewlines)
+            var parts = [precondensed.notes]
+            if tail.count > 500 {
+                parts.append(try await condense(chunk: tail, part: 0, of: 0, context: context))
+            } else if !tail.isEmpty {
+                parts.append(tail)
+            }
+            material = parts.joined(separator: "\n\n")
+            isNotes = true
+            tracker.set(0.6)
+            Log.info("Zusammenfassung baut auf vorverdichtetem Material auf (\(material.count) Zeichen)")
+        }
+
         // Verdichtungsrunden laufen bis 80 %. Wie viele Runden nötig sind, steht vorher nicht fest –
         // deshalb bekommt jede Runde drei Viertel des noch freien Bereichs.
-        var roundStart = 0.0
+        var roundStart = isNotes ? 0.6 : 0.0
         var round = 0
         while true {
             if material.count > limit, round < 4 {
@@ -254,23 +269,26 @@ public struct Summarizer: Sendable {
         var notes: [String] = []
         for (i, chunk) in chunks.enumerated() {
             try Task.checkCancellation()
-            notes.append(try await condenseChunk(chunk, part: i + 1, of: chunks.count, context: context))
+            notes.append(try await condense(chunk: chunk, part: i + 1, of: chunks.count, context: context))
             progress(i + 1, chunks.count)
         }
         return notes.joined(separator: "\n\n")
     }
 
-    /// Passt ein Abschnitt trotzdem nicht ins Kontextfenster, wird nur dieser Abschnitt halbiert.
-    private func condenseChunk(_ chunk: String, part: Int, of total: Int,
-                               context: SummaryContext) async throws -> String {
+    /// Eine einzelne Verdichtungsstufe – auch das Vorverdichten während der Aufnahme benutzt sie,
+    /// damit beide Wege dieselben Notizen erzeugen. `total` 0 heißt: Anzahl noch unbekannt.
+    /// Passt ein Abschnitt nicht ins Kontextfenster, wird nur dieser Abschnitt halbiert.
+    public func condense(chunk: String, part: Int, of total: Int,
+                         context: SummaryContext) async throws -> String {
         do {
+            let position = total > 0 ? t("Teil \(part) von \(total):") : t("Teil \(part):")
             return try await client.complete(system: mapSystem(context),
-                                             prompt: "Teil \(part) von \(total):\n\n\(chunk)")
+                                             prompt: "\(position)\n\n\(chunk)")
         } catch is ContextWindowExceeded where chunk.count > 1_500 {
             let halves = Self.split(chunk, max: chunk.count / 2 + 1)
             var notes: [String] = []
             for half in halves {
-                notes.append(try await condenseChunk(half, part: part, of: total, context: context))
+                notes.append(try await condense(chunk: half, part: part, of: total, context: context))
             }
             return notes.joined(separator: "\n\n")
         }

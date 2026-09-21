@@ -63,6 +63,10 @@ final class RecordingController {
     @ObservationIgnored private var liveTranscriber: AnyObject?
     /// Transkribiert schon während der Aufnahme abschnittsweise mit (siehe `LiveTranscription`)
     @ObservationIgnored private var chunked: LiveTranscription?
+    /// Verdichtet das Transkript schon während der Aufnahme (siehe `LiveCondenser`)
+    @ObservationIgnored private var condenser: LiveCondenser?
+    @ObservationIgnored private let llm: LLMFactory
+    @ObservationIgnored private let precondensed: PreCondensedStore
     @ObservationIgnored private var chunkLoop: Task<Void, Never>?
     @ObservationIgnored private var recordingStartedByCall = false
     /// Hinweis „gewähltes Mikrofon nicht verbunden“ nur einmal je Gerät und App-Start
@@ -78,11 +82,15 @@ final class RecordingController {
     var activeRecording: Recording? { activeRecordingID.flatMap(library.recording) }
 
     init(library: LibraryStore, detector: MeetingDetector, audioInputs: AudioInputDevices,
-         transcribers: any TranscriberProvider, notify: @escaping (String, String) -> Void) {
+         transcribers: any TranscriberProvider, llm: LLMFactory = LLMFactory(),
+         precondensed: PreCondensedStore = PreCondensedStore(),
+         notify: @escaping (String, String) -> Void) {
         self.library = library
         self.detector = detector
         self.audioInputs = audioInputs
         self.transcribers = transcribers
+        self.llm = llm
+        self.precondensed = precondensed
         self.notify = notify
         detector.onCallStarted = { [weak self] app in self?.callStarted(app) }
         detector.onCallEnded = { [weak self] app in self?.callEnded(app) }
@@ -238,11 +246,18 @@ final class RecordingController {
             library.enqueue(id)
             return
         }
+        let condenser = self.condenser
+        self.condenser = nil
+        let precondensed = self.precondensed
         // Während der Aufnahme lief schon fast alles; jetzt fehlt nur noch der letzte Abschnitt.
         Task { @MainActor in
             if let transcript = await worker.finish() {
                 await library.saveTranscript(id, transcript)
                 Log.info("Transkript war beim Stopp schon fertig (\(transcript.segments.count) Abschnitte)")
+                if let condenser, let ready = await condenser.finish(fullText: transcript.formatted(includeSpeakers: false)) {
+                    await precondensed.set(ready, for: id)
+                    Log.info("Vorverdichtet übergeben: \(ready.notes.count) Zeichen Notizen, \(ready.tail.count) Zeichen Rest")
+                }
             }
             library.enqueue(id)
         }
@@ -276,11 +291,15 @@ final class RecordingController {
                                                audio: library.audio, transcriber: transcriber)
                 guard activeRecordingID == recording.id else { return }
                 chunked = worker
+                let condenser = makeCondenser(for: recording, settings: settings)
+                self.condenser = condenser
                 chunkLoop = Task.detached(priority: .utility) {
                     while !Task.isCancelled {
                         try? await Task.sleep(nanoseconds: 30_000_000_000)
                         guard !Task.isCancelled else { return }
                         await worker.advance()
+                        // Verdichten erst nach dem Transkribieren: Der Text von eben zählt schon mit.
+                        if let condenser { await condenser.advance(fullText: await worker.textSoFar) }
                     }
                 }
                 Log.info("Transkribiere schon während der Aufnahme")
@@ -289,6 +308,27 @@ final class RecordingController {
                 Log.info("Kein Mitschreiben während der Aufnahme: \(error.localizedDescription)")
             }
         }
+    }
+
+    /// Verdichtet das Transkript schon während der Aufnahme – dann ist die Notiz nach dem Stopp
+    /// viel schneller fertig. Nur auf Macs mit genug Arbeitsspeicher: Sonst liegen Whisper und das
+    /// Sprachmodell gleichzeitig im Speicher und der Mac lagert aus.
+    private func makeCondenser(for recording: Recording, settings: AppSettings) -> LiveCondenser? {
+        guard DeviceCapabilities.memoryGB >= 15.5 else { return nil }
+        guard let client = (try? llm.make(settings.ai)) ?? nil else { return nil }
+        let category = library.category(recording.categoryID)
+        let context = SummaryContext(category: category, titleHint: recording.hasAutoTitle ? "" : recording.title,
+                                     sourceApp: recording.sourceApp, date: recording.startedAt,
+                                     duration: recording.duration, hasSpeakers: false,
+                                     language: settings.ai.summaryLanguage,
+                                     glossary: Glossary.forCategory(recording.categoryID, in: library.glossary),
+                                     simpleLanguage: settings.ai.simpleNotes)
+        let summarizer = Summarizer(client: client, chunkCharacters: settings.ai.provider.chunkCharacters,
+                                    providerName: settings.ai.provider.label)
+        // Ein Block sind grob 25 Minuten Vorlesung – kleiner lohnt den Modellstart nicht,
+        // größer wäre am Ende wieder zu viel auf einmal.
+        return LiveCondenser(summarizer: summarizer, context: context,
+                             blockCharacters: min(settings.ai.provider.chunkCharacters, 20_000))
     }
 
     /// Läuft während der Aufnahme mit und zeigt an, was gerade gesprochen wird.
@@ -336,6 +376,7 @@ final class RecordingController {
         chunkLoop?.cancel()
         chunkLoop = nil
         chunked = nil
+        condenser = nil
         session?.stop()
         session = nil
         activeRecordingID = nil

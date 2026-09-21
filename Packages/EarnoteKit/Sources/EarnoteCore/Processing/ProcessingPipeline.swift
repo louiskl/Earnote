@@ -28,14 +28,18 @@ public struct ProcessingPipeline: Sendable {
     public let destinations: any DestinationProvider
     /// Mitteilung an die Nutzerin / den Nutzer (Titel, Text)
     public let notify: @Sendable (String, String) -> Void
+    /// Was während der Aufnahme schon verdichtet wurde (siehe `LiveCondenser`)
+    public let precondensed: PreCondensedStore
 
     public init(library: any LibraryRepository, audio: any AudioStore, transcribers: any TranscriberProvider, llm: LLMFactory,
-                destinations: any DestinationProvider, notify: @escaping @Sendable (String, String) -> Void) {
+                destinations: any DestinationProvider, precondensed: PreCondensedStore = PreCondensedStore(),
+                notify: @escaping @Sendable (String, String) -> Void) {
         self.library = library
         self.audio = audio
         self.transcribers = transcribers
         self.llm = llm
         self.destinations = destinations
+        self.precondensed = precondensed
         self.notify = notify
     }
 
@@ -82,7 +86,10 @@ public struct ProcessingPipeline: Sendable {
                                              glossary: glossary, extraInstructions: extraInstructions,
                                              simpleLanguage: settings.ai.simpleNotes)
                 let started = Date()
-                let s = try await summarizer.summarize(transcript: text, context: context) { p in
+                // Nur beim ersten Durchgang: „Neu zusammenfassen“ soll frisch rechnen.
+                let ready = extraInstructions.isEmpty ? await precondensed.take(id) : nil
+                let s = try await summarizer.summarize(transcript: text, context: context,
+                                                       precondensed: ready) { p in
                     events.progress(id, Self.map(p, to: summarySpan))
                 }
                 Self.logDuration("Notiz (\(settings.ai.provider.label), \(text.count) Zeichen Transkript)", since: started)
