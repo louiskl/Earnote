@@ -155,3 +155,32 @@ final class PeriodSummaryTests: XCTestCase {
         XCTAssertTrue(system.contains("Prüfungshinweise"))
     }
 }
+
+/// Formeln dürfen beim Anzeigen nicht verschwinden: „A*v“ wurde vorher zu „Av“.
+final class MathProtectionTests: XCTestCase {
+    private func rendered(_ text: String) -> String {
+        let source = NoteMarkdown.protectingMath(text)
+        let parsed = (try? AttributedString(markdown: source,
+                                            options: .init(interpretedSyntax: .inlineOnlyPreservingWhitespace)))
+            ?? AttributedString(text)
+        return String(parsed.characters)
+    }
+
+    func testMultiplicationSurvives() {
+        XCTAssertEqual(rendered("A*v = λ*v für v_1 und v_2"), "A*v = λ*v für v_1 und v_2")
+        XCTAssertEqual(rendered("2*3*4 = 24"), "2*3*4 = 24")
+    }
+
+    func testBoldStillWorks() {
+        XCTAssertEqual(rendered("Das ist **wichtig**"), "Das ist wichtig")
+        XCTAssertEqual(rendered("**Satz von Cayley-Hamilton**: p(A) = 0"), "Satz von Cayley-Hamilton: p(A) = 0")
+    }
+
+    func testCodeSpansAreLeftAlone() {
+        XCTAssertEqual(rendered("Die Formel `a*b + c*d` gilt"), "Die Formel a*b + c*d gilt")
+    }
+
+    func testTextWithoutStarsIsUntouched() {
+        XCTAssertEqual(NoteMarkdown.protectingMath("Ganz normaler Text"), "Ganz normaler Text")
+    }
+}

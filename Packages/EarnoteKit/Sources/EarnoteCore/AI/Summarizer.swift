@@ -342,6 +342,7 @@ public struct Summarizer: Sendable {
         Keine Wertungen, keine eigene Meinung, keine Ratschläge.
         - Klare, vollständige Sätze, wo es um Zusammenhänge geht; knappe Stichpunkte für Aufzählungen.
         - Wörtliche Zitate nur, wenn die genaue Formulierung wichtig ist.
+        - Formeln, Variablen und Rechenwege in Code-Zeichen setzen: `A·v = λ·v`. So bleiben sie unverändert.
 
         Genauigkeit
         - Nur, was im Material steht. Nichts ergänzen oder erfinden; Unsicheres mit "(unklar)" kennzeichnen oder weglassen.

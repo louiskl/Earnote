@@ -103,6 +103,37 @@ public enum NoteMarkdown {
         }
     }
 
+    /// Schützt Formeln vor der Markdown-Deutung. „A*v = λ*v“ wäre sonst „Av = λv“:
+    /// Ein einzelnes Sternchen gilt in Markdown als Kursiv-Zeichen, auch mitten im Wort.
+    /// Doppelte Sternchen (fett) und Code-Abschnitte bleiben, wie sie sind.
+    public static func protectingMath(_ text: String) -> String {
+        guard text.contains("*") else { return text }
+        var out = ""
+        var index = text.startIndex
+        var insideCode = false
+        while index < text.endIndex {
+            let character = text[index]
+            if character == "`" {
+                insideCode.toggle()
+                out.append(character)
+                index = text.index(after: index)
+                continue
+            }
+            if character == "*", !insideCode {
+                var end = index
+                while end < text.endIndex, text[end] == "*" { end = text.index(after: end) }
+                let run = text.distance(from: index, to: end)
+                // Genau ein Sternchen = Rechenzeichen, zwei = fett (das soll wirken)
+                out += run == 1 ? "\\*" : String(repeating: "*", count: run)
+                index = end
+                continue
+            }
+            out.append(character)
+            index = text.index(after: index)
+        }
+        return out
+    }
+
     /// Einen Abschnitt („## Karteikarten“) samt Inhalt herausnehmen – bis zur nächsten Überschrift
     public static func removingSection(named heading: String, from markdown: String) -> String {
         let lines = markdown.components(separatedBy: "\n")

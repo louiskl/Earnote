@@ -129,7 +129,7 @@ enum NoteDocument {
 
     /// Fett, kursiv und Code innerhalb einer Zeile – wie im Fenster, nur in Druckgrößen.
     private static func inline(_ text: String, font: NSFont, color: NSColor) -> NSAttributedString {
-        let parsed = (try? AttributedString(markdown: text,
+        let parsed = (try? AttributedString(markdown: NoteMarkdown.protectingMath(text),
                                             options: .init(interpretedSyntax: .inlineOnlyPreservingWhitespace)))
             ?? AttributedString(text)
         let result = NSMutableAttributedString(parsed)

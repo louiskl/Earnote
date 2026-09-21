@@ -192,7 +192,9 @@ Ziel: Was eine fremde Person in der ersten Woche braucht, ohne zu fragen.
       Zeitraum wählen (Monat, drei, sechs Monate, alles), optional eine eigene Anweisung. Die KI liest
       die fertigen Notizen und schreibt Überblick, Themen, roten Faden, Prüfungshinweise und offene
       Aufgaben. Die Übersicht landet als eigener Eintrag im Bereich – lesbar, druckbar, exportierbar.
-- [ ] **Studium**: Formeln im Lernzettel nicht zerschießen
+- [x] **Formeln bleiben stehen (0.9.3)**: Ein einzelnes Sternchen ist in Markdown ein Kursiv-Zeichen –
+      aus „A*v = λ*v“ wurde beim Anzeigen „Av = λv“. Jetzt wird es geschützt (fett und Code bleiben
+      unberührt), und die KI wird angewiesen, Formeln in Code-Zeichen zu setzen.
 - [ ] **Meetings**: Kurzprotokoll (nur Ergebnisse und Aufgaben) als eigene Fassung
 - [x] **Einfach erklärt (0.9.3)**: Schalter in Einstellungen › KI – kurze Sätze, alltägliche Wörter,
       Fachbegriffe werden beim ersten Mal erklärt

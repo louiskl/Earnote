@@ -72,7 +72,9 @@ enum SearchHighlight {
     static func attributed(_ text: String, query: String, inlineMarkdown: Bool = false) -> AttributedString {
         var result: AttributedString
         if inlineMarkdown {
-            result = (try? AttributedString(markdown: text, options: .init(interpretedSyntax: .inlineOnlyPreservingWhitespace)))
+            // Formeln zuerst schützen – sonst verschluckt Markdown die Rechenzeichen
+            let source = NoteMarkdown.protectingMath(text)
+            result = (try? AttributedString(markdown: source, options: .init(interpretedSyntax: .inlineOnlyPreservingWhitespace)))
                 ?? AttributedString(text)
         } else {
             result = AttributedString(text)
