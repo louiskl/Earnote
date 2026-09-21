@@ -91,6 +91,14 @@ struct RecordingSettings: View {
                 Text("Die Notiz ist dann kurz nach dem Ende fertig statt erst nach einer langen Rechenzeit. "
                      + "Kostet währenddessen etwas Akku – am Netzteil merkst du nichts davon.")
             }
+            Section {
+                Toggle("Aufnahme mit \(GlobalShortcut.display) aus jeder App starten und stoppen",
+                       isOn: $library.settings.globalShortcut)
+                    .onChange(of: library.settings.globalShortcut) { _, on in GlobalShortcut.apply(enabled: on) }
+            } footer: {
+                Text("Das Kürzel wirkt auch, wenn \(AppInfo.name) im Hintergrund ist – etwa mitten in der Vorlesung "
+                     + "oder im Call. Belegt eine andere App dasselbe Kürzel, gewinnt die andere App.")
+            }
             Section("Calls") {
                 Toggle("Calls automatisch erkennen und Aufnahme vorschlagen", isOn: $library.settings.meetingDetection)
                 Toggle("Aufnahme beenden, wenn der Call endet", isOn: $library.settings.autoStopWhenCallEnds)

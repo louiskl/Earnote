@@ -204,6 +204,8 @@ public struct AppSettings: Codable, Hashable, Sendable {
     /// Schon während der Aufnahme transkribieren – danach ist die Notiz viel schneller fertig
     public var transcribeWhileRecording = true
     public var recordSystemAudio = true
+    /// Aufnahme mit ⌃⌥⌘R aus jeder App starten und stoppen
+    public var globalShortcut = false
     public var keepAudioFiles = true
     public var showConsentReminder = true
     public var defaultCategoryID: UUID?
@@ -231,6 +233,7 @@ public struct AppSettings: Codable, Hashable, Sendable {
         speakerLabels = try c.decodeIfPresent(Bool.self, forKey: .speakerLabels) ?? d.speakerLabels
         ai = (try? c.decodeIfPresent(AIConfig.self, forKey: .ai)) ?? d.ai
         destinations = (try? c.decodeIfPresent(DestinationSettings.self, forKey: .destinations)) ?? d.destinations
+        globalShortcut = (try? c.decodeIfPresent(Bool.self, forKey: .globalShortcut)) ?? d.globalShortcut
         meetingDetection = try c.decodeIfPresent(Bool.self, forKey: .meetingDetection) ?? d.meetingDetection
         autoStopWhenCallEnds = try c.decodeIfPresent(Bool.self, forKey: .autoStopWhenCallEnds) ?? d.autoStopWhenCallEnds
         recordSystemAudio = try c.decodeIfPresent(Bool.self, forKey: .recordSystemAudio) ?? d.recordSystemAudio

@@ -165,8 +165,11 @@ Ziel: Was eine fremde Person in der ersten Woche braucht, ohne zu fragen.
 
 **Alltag**
 - [ ] **Kalender-Anbindung**: Titel, Fach und Teilnehmende aus dem laufenden Termin übernehmen
-- [ ] **Globales Tastenkürzel** zum Starten/Stoppen aus jeder App
-- [ ] Aufnahme aus der Menüleiste mit Bereichswahl in einem Klick (heute zwei)
+- [x] **Globales Tastenkürzel (0.9.2)**: ⌃⌥⌘R startet und stoppt die Aufnahme aus jeder App heraus
+      (fest vergeben, abschaltbar in Einstellungen › Aufnahme; belegt eine andere App dasselbe Kürzel,
+      steht das im Protokoll)
+- [x] Aufnahme aus der Menüleiste mit Bereichswahl: die Bereiche stehen als Liste im Menüleisten-Fenster,
+      ein Klick wählt, der nächste nimmt auf
 
 **Zielgruppen schärfen**
 - [ ] **Studium**: Karteikarten aus der Notiz (Anki-CSV und Apple-Karteikarten), Semester-Zusammenfassung

@@ -32,6 +32,16 @@ struct EarnoteApp: App {
         delegate.app = environment.appState
         let library = environment.library
         delegate.waitForPendingWrites = { await library.waitForPendingWrites() }
+        // Globales Kürzel: startet und stoppt im Standardbereich, egal welche App gerade vorn ist
+        let recorder = environment.recorder
+        delegate.toggleRecording = {
+            if recorder.isRecording {
+                recorder.stopRecording()
+            } else {
+                recorder.startRecording(category: library.category(library.settings.defaultCategoryID))
+            }
+        }
+        delegate.globalShortcutEnabled = library.settings.globalShortcut
     }
 
     /// Die App-Tests starten die App als Host. Sie darf dabei nie die echte Bibliothek öffnen oder übernehmen.
@@ -90,9 +100,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
     var app: AppState?
     /// Wartet auf noch laufende Schreibvorgänge der Bibliothek (in `EarnoteApp.init` gesetzt)
     var waitForPendingWrites: (@MainActor () async -> Void)?
+    /// Aufnahme starten/stoppen für das globale Tastenkürzel (in `EarnoteApp.init` gesetzt)
+    var toggleRecording: (@MainActor () -> Void)?
+    var globalShortcutEnabled = false
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         UNUserNotificationCenter.current().delegate = self
+        GlobalShortcut.action = { [weak self] in self?.toggleRecording?() }
+        GlobalShortcut.apply(enabled: globalShortcutEnabled)
         #if DEBUG
         // Nur für Tests: hell oder dunkel prüfen, ohne die Systemeinstellung des Nutzers zu ändern
         switch ProcessInfo.processInfo.environment["EARNOTE_APPEARANCE"] {

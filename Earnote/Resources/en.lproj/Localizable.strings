@@ -950,3 +950,7 @@
 "Notiz und Transkript" = "Note and transcript";
 "Weitersuchen" = "Find Next";
 "Rückwärts suchen" = "Find Previous";
+
+/* Globales Tastenkürzel */
+"Aufnahme mit %@ aus jeder App starten und stoppen" = "Start and stop recording from any app with %@";
+"Das Kürzel wirkt auch, wenn %@ im Hintergrund ist – etwa mitten in der Vorlesung oder im Call. Belegt eine andere App dasselbe Kürzel, gewinnt die andere App." = "The shortcut works even when %@ is in the background — in the middle of a lecture or a call. If another app uses the same shortcut, that app wins.";
