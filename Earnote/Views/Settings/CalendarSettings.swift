@@ -6,9 +6,13 @@ import SwiftUI
 struct CalendarSettings: View {
     @Environment(LibraryStore.self) private var library
 
+    /// Maßgeblich ist, was wir tatsächlich lesen können: `authorizationStatus` meldet einen frisch
+    /// erteilten Zugriff erst verzögert, gefundene Kalender sind der ehrlichere Beweis.
     @State private var calendars: [CalendarChoice] = []
     @State private var current: CalendarEvent?
-    @State private var denied = false
+    @State private var askedAndDenied = false
+
+    private var hasAccess: Bool { !calendars.isEmpty }
 
     var body: some View {
         @Bindable var library = library
@@ -17,36 +21,46 @@ struct CalendarSettings: View {
                 .onChange(of: library.settings.calendarTitles) { _, on in
                     guard on else { return }
                     Task {
-                        // Ohne Zugriff bleibt der Schalter aus, statt still nichts zu tun
-                        denied = await !CalendarTitles.requestAccess()
-                        if denied { library.settings.calendarTitles = false } else { await refresh() }
+                        // Beim Einschalten gleich fragen; klappt es nicht, steht der Knopf darunter
+                        let granted = await CalendarTitles.requestAccess()
+                        await refresh()
+                        askedAndDenied = !granted && !hasAccess
                     }
                 }
-            // Auch wenn der Zugriff später in den Systemeinstellungen entzogen wurde
-            if denied || (library.settings.calendarTitles && !CalendarTitles.isAuthorized) {
-                LabeledContent("Kalender") {
-                    Button("In den Systemeinstellungen erlauben …") { SystemSettingsLink.calendars() }
-                }
-            }
-            if library.settings.calendarTitles, CalendarTitles.isAuthorized {
+            if library.settings.calendarTitles, hasAccess {
                 LabeledContent("Gerade") {
-                    if let current {
-                        Text("\(current.title) · \(current.calendar)")
-                            .foregroundStyle(.secondary)
-                    } else {
-                        Text("Kein passender Termin")
-                            .foregroundStyle(.secondary)
+                    Group {
+                        if let current {
+                            Text("\(current.title) · \(current.calendar)")
+                        } else {
+                            Text("Kein passender Termin")
+                        }
+                    }
+                    .foregroundStyle(.secondary)
+                }
+            }
+            // Kein Zugriff (nie erteilt oder später entzogen): erst noch einmal fragen,
+            // und erst wenn das nichts bringt, in die Systemeinstellungen führen.
+            if library.settings.calendarTitles, !hasAccess {
+                LabeledContent("Kalender") {
+                    Button(askedAndDenied ? "In den Systemeinstellungen erlauben …" : "Zugriff erlauben …") {
+                        if askedAndDenied {
+                            SystemSettingsLink.calendars()
+                        } else {
+                            Task {
+                                let granted = await CalendarTitles.requestAccess()
+                                await refresh()
+                                askedAndDenied = !granted && !hasAccess
+                            }
+                        }
                     }
                 }
             }
-        } footer: {
-            Text("Läuft während der Aufnahme ein Termin, heißt die Aufnahme wie er – sonst wie der Bereich "
-                 + "mit Datum. Ganztägige Termine und lange Rahmen wie „Arbeit 9–17 Uhr“ zählen nicht.")
         }
         // Beim Öffnen der Einstellungen den Stand holen – der Termin ändert sich ja ständig
         .task { await refresh() }
 
-        if library.settings.calendarTitles, CalendarTitles.isAuthorized {
+        if library.settings.calendarTitles, hasAccess {
             Section {
                 ForEach(calendars) { calendar in
                     Toggle(isOn: binding(for: calendar)) {
@@ -82,13 +96,14 @@ struct CalendarSettings: View {
     }
 
     private func refresh() async {
-        guard library.settings.calendarTitles, CalendarTitles.isAuthorized else {
+        guard library.settings.calendarTitles else {
             calendars = []
             current = nil
             return
         }
         calendars = CalendarTitles.availableCalendars()
         current = CalendarTitles.current(in: library.settings.calendarIDs)
+        Log.info("Kalender: \(calendars.count) gefunden, Termin gerade: \(current != nil ? "ja" : "nein")")
     }
 }
 

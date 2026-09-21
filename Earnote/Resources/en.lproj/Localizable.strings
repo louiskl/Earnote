@@ -965,3 +965,5 @@
 "Ohne Auswahl zählen alle. Schalte den Arbeitskalender ab, wenn „Arbeit“ nicht als Titel auftauchen soll." = "With nothing selected, all of them count. Turn off your work calendar if you do not want “Work” as a title.";
 "Läuft während der Aufnahme ein Termin, heißt die Aufnahme wie er – sonst wie der Bereich mit Datum. Ganztägige Termine und lange Rahmen wie „Arbeit 9–17 Uhr“ zählen nicht." = "If an event is running while you record, the recording is named after it — otherwise after the area and date. All-day events and long blocks such as “Work 9–5” do not count.";
 "Die Aufnahme bekommt diesen Titel (aus „%@“)." = "The recording will get this title (from “%@”).";
+"Zugriff erlauben …" = "Allow access …";
+"%@ · %@" = "%@ · %@";

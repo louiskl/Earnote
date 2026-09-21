@@ -29,8 +29,7 @@ enum CalendarTitles {
     /// Termine, die länger dauern, sind Rahmen wie „Arbeit 9–17 Uhr“ und keine Vorlesung.
     static let longestEvent: TimeInterval = 4 * 3600
 
-    static var status: EKAuthorizationStatus { EKEventStore.authorizationStatus(for: .event) }
-    static var isAuthorized: Bool { status == .fullAccess }
+    private static var isAuthorized: Bool { EKEventStore.authorizationStatus(for: .event) == .fullAccess }
 
     /// Fragt einmalig nach Zugriff. Antwortet der Nutzer mit Nein, bleibt es dabei –
     /// der Schalter geht wieder aus und der Weg in die Systemeinstellungen steht daneben.
@@ -40,9 +39,10 @@ enum CalendarTitles {
     }
 
     /// Alle Kalender, aus denen gelesen werden könnte – für die Auswahl in den Einstellungen
+    /// Ohne Zugriff liefert EventKit eine leere Liste – daran erkennt die Oberfläche den Stand
+    /// zuverlässiger als am Status, der frisch erteilten Zugriff erst verzögert meldet.
     static func availableCalendars() -> [CalendarChoice] {
-        guard isAuthorized else { return [] }
-        return store.calendars(for: .event)
+        store.calendars(for: .event)
             .map { CalendarChoice(id: $0.calendarIdentifier, title: $0.title, source: $0.source?.title ?? "") }
             .sorted { ($0.source, $0.title) < ($1.source, $1.title) }
     }
@@ -50,7 +50,6 @@ enum CalendarTitles {
     /// Termin, der gerade läuft (oder in zehn Minuten beginnt), aus den gewählten Kalendern.
     /// Leere Auswahl heißt: alle Kalender.
     static func current(in selected: Set<String> = [], now: Date = Date()) -> CalendarEvent? {
-        guard isAuthorized else { return nil }
         let calendars = store.calendars(for: .event).filter { selected.isEmpty || selected.contains($0.calendarIdentifier) }
         guard !calendars.isEmpty else { return nil }
         let predicate = store.predicateForEvents(withStart: now.addingTimeInterval(-longestEvent),
