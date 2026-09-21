@@ -90,7 +90,33 @@ public enum NoteMarkdown {
 
     /// Offene Aufgaben (so zählt auch der Rest der App)
     public static func openTaskCount(_ markdown: String) -> Int {
-        markdown.components(separatedBy: "\n").filter { $0.trimmingCharacters(in: .whitespaces).hasPrefix("- [ ]") }.count
+        openTasks(markdown).count
+    }
+
+    /// Der Text jeder offenen Aufgabe, ohne Kästchen und Aufzählungszeichen
+    public static func openTasks(_ markdown: String) -> [String] {
+        markdown.components(separatedBy: "\n").compactMap { line in
+            let trimmed = line.trimmingCharacters(in: .whitespaces)
+            guard trimmed.hasPrefix("- [ ]") || trimmed.hasPrefix("* [ ]") else { return nil }
+            let text = trimmed.dropFirst(5).trimmingCharacters(in: .whitespaces)
+            return text.isEmpty ? nil : text
+        }
+    }
+
+    /// Einen Abschnitt („## Karteikarten“) samt Inhalt herausnehmen – bis zur nächsten Überschrift
+    public static func removingSection(named heading: String, from markdown: String) -> String {
+        let lines = markdown.components(separatedBy: "\n")
+        var out: [String] = []
+        var skipping = false
+        for line in lines {
+            let trimmed = line.trimmingCharacters(in: .whitespaces)
+            if trimmed.hasPrefix("#") {
+                let title = trimmed.drop(while: { $0 == "#" }).trimmingCharacters(in: .whitespaces)
+                skipping = title.caseInsensitiveCompare(heading) == .orderedSame
+            }
+            if !skipping { out.append(line) }
+        }
+        return out.joined(separator: "\n").trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
     /// Text zum Teilen: Titel als Überschrift, dann die Notiz

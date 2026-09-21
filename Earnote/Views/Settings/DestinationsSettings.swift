@@ -74,6 +74,10 @@ private struct DestinationSetup: View {
         case MarkdownDestination.id:
             FolderRow(title: "Ordner", path: $settings.markdownFolderPath,
                       prompt: MarkdownDestination.defaultFolder.path, message: "Ordner für Markdown-Dateien")
+        case RemindersDestination.id:
+            TextField("Liste (leer = je Bereich eine eigene)", text: $settings.remindersList)
+            Text("Beim ersten Export fragt macOS nach Zugriff auf Erinnerungen – bitte erlauben.")
+                .font(.callout).foregroundStyle(.secondary)
         case AppleNotesDestination.id:
             TextField("Ordner in Apple Notizen", text: $settings.appleNotesFolder)
             Text("Beim ersten Export fragt macOS, ob \(AppInfo.name) Notizen steuern darf – bitte erlauben.")

@@ -74,6 +74,15 @@ struct EarnoteCommands: Commands {
             Button("Erneut exportieren") { if let id { library.reexport(id) } }
                 .disabled(recording == nil || busy)
             Divider()
+            Button(id.map { library.makingFlashcards.contains($0) } == true
+                   ? "Karteikarten entstehen …" : "Karteikarten erzeugen") {
+                if let id { Task { await library.makeFlashcards(id) } }
+            }
+            .disabled(recording?.summaryTitle == nil || busy
+                      || id.map { library.makingFlashcards.contains($0) } == true)
+            Button("Karteikarten sichern (Anki) …") { if let id { FlashcardExport.save(id, library: library) } }
+                .disabled(recording?.summaryTitle == nil)
+            Divider()
             Button("Als PDF sichern …") { if let id { NoteDocument.savePDF(id, library: library) } }
                 .disabled(recording?.summaryTitle == nil)
             Button("Drucken …") { if let id { NoteDocument.printNote(id, library: library) } }

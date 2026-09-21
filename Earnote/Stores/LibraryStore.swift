@@ -30,6 +30,10 @@ final class LibraryStore: RecordingLibrary {
     @ObservationIgnored let audio: any AudioStore
     @ObservationIgnored private let settingsRepository: any SettingsRepository
     @ObservationIgnored private let queue: ProcessingQueue
+    /// Für Karteikarten: dieselbe KI wie für die Notizen
+    @ObservationIgnored let llm: LLMFactory
+    /// Aufnahmen, für die gerade Karteikarten entstehen (die Menüeinträge sind so lange aus)
+    private(set) var makingFlashcards: Set<UUID> = []
     /// Nach jeder Änderung der Einstellungen (alt, neu)
     @ObservationIgnored var onSettingsChanged: (AppSettings, AppSettings) -> Void = { _, _ in }
     /// Vor dem Löschen einer Aufnahme (z. B. eine noch laufende Aufnahme beenden)
@@ -39,11 +43,12 @@ final class LibraryStore: RecordingLibrary {
     @ObservationIgnored private var lastWrite: Task<Void, Never>?
 
     init(library: any LibraryRepository, audio: any AudioStore, settingsRepository: any SettingsRepository,
-         queue: ProcessingQueue) {
+         queue: ProcessingQueue, llm: LLMFactory = LLMFactory()) {
         self.library = library
         self.audio = audio
         self.settingsRepository = settingsRepository
         self.queue = queue
+        self.llm = llm
         settings = settingsRepository.loadSettings() ?? AppSettings()
     }
 
@@ -223,6 +228,38 @@ final class LibraryStore: RecordingLibrary {
         let library = self.library
         write("Notiz ändern") { try await library.updateNoteText(markdown, taskCount: taskCount, for: id) }
         if let i = recordings.firstIndex(where: { $0.id == id }) { recordings[i].taskCount = taskCount }
+    }
+
+    /// Karteikarten von der KI schreiben lassen und als Abschnitt an die Notiz hängen.
+    /// Sind schon welche da, werden sie ersetzt – zweimal dieselbe Frage hilft niemandem.
+    func makeFlashcards(_ id: UUID) async {
+        guard !makingFlashcards.contains(id), let recording = recording(id) else { return }
+        makingFlashcards.insert(id)
+        defer { makingFlashcards.remove(id) }
+        guard let note = await summary(id) else {
+            lastError = String(localized: "Für diese Aufnahme gibt es noch keine Notiz.")
+            return
+        }
+        do {
+            guard let client = try llm.make(settings.ai) else {
+                lastError = String(localized: "Für Karteikarten braucht es eine KI. Wähle in den Einstellungen unter „KI“ eine aus.")
+                return
+            }
+            let transcript = await self.transcript(id)?.formatted(includeSpeakers: false) ?? ""
+            let material = note.markdown + "\n\n" + transcript
+            let cards = try await Flashcards.generate(client: client, material: material,
+                                                      language: settings.ai.summaryLanguage)
+            guard !cards.isEmpty else {
+                lastError = String(localized: "Die KI hat keine Karteikarten geliefert. Versuch es noch einmal.")
+                return
+            }
+            let heading = String(localized: "Karteikarten")
+            let without = NoteMarkdown.removingSection(named: heading, from: note.markdown)
+            updateSummaryText(id, markdown: without + "\n" + Flashcards.markdownSection(cards, heading: heading))
+            Log.info("Karteikarten: \(cards.count) für „\(recording.displayTitle)“")
+        } catch {
+            lastError = String(localized: "Karteikarten: \(error.localizedDescription)")
+        }
     }
 
     /// Übernimmt ausgewählte Vorlagen und Fächer als Bereiche. Bereiche mit gleichem Namen bleiben erhalten,

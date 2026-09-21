@@ -18,6 +18,8 @@ struct AppDestinations: DestinationProvider {
                             detail: "Neue Notiz in Bear mit Tags."),
             DestinationInfo(id: CraftDestination.id, name: "Craft", symbol: "doc.richtext.fill",
                             detail: "Neues Dokument in einem Craft-Space."),
+            DestinationInfo(id: RemindersDestination.id, name: "Apple Erinnerungen", symbol: "checklist",
+                            detail: "Offene Aufgaben aus der Notiz, je Bereich eine eigene Liste."),
         ]
     }
 
@@ -26,6 +28,7 @@ struct AppDestinations: DestinationProvider {
         case AppleNotesDestination.id: return AppleNotesDestination()
         case BearDestination.id: return BearDestination()
         case CraftDestination.id: return CraftDestination()
+        case RemindersDestination.id: return RemindersDestination()
         default: return core.make(id)
         }
     }

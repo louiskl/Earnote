@@ -967,3 +967,25 @@
 "Die Aufnahme bekommt diesen Titel (aus „%@“)." = "The recording will get this title (from “%@”).";
 "Zugriff erlauben …" = "Allow access …";
 "%@ · %@" = "%@ · %@";
+
+/* Apple Erinnerungen */
+"Apple Erinnerungen" = "Apple Reminders";
+"Offene Aufgaben aus der Notiz, je Bereich eine eigene Liste." = "Open tasks from the note, one list per area.";
+"Liste (leer = je Bereich eine eigene)" = "List (empty = one per area)";
+"Beim ersten Export fragt macOS nach Zugriff auf Erinnerungen – bitte erlauben." = "On the first export macOS asks for access to Reminders — please allow it.";
+"Zugriff auf Erinnerungen nicht erlaubt" = "Access to Reminders not allowed";
+"Keine Liste für Erinnerungen gefunden" = "No list for reminders found";
+"Aus „%@“ · %@" = "From “%@” · %@";
+
+/* Karteikarten */
+"Karteikarten" = "Flashcards";
+"Karteikarten erzeugen" = "Create flashcards";
+"Karteikarten entstehen …" = "Creating flashcards …";
+"Karteikarten sichern (Anki) …" = "Save flashcards (Anki) …";
+"Für diese Aufnahme gibt es noch keine Notiz." = "There is no note for this recording yet.";
+"Für Karteikarten braucht es eine KI. Wähle in den Einstellungen unter „KI“ eine aus." = "Flashcards need an AI. Pick one under Settings › AI.";
+"Die KI hat keine Karteikarten geliefert. Versuch es noch einmal." = "The AI did not return any flashcards. Please try again.";
+"Karteikarten: %@" = "Flashcards: %@";
+"Diese Notiz hat noch keine Karteikarten. Erzeuge sie zuerst." = "This note has no flashcards yet. Create them first.";
+"In Anki über „Datei › Importieren“ öffnen – erste Spalte Frage, zweite Antwort." = "Open in Anki via File › Import — first column question, second answer.";
+"Karteikarten sichern: %@" = "Saving flashcards: %@";

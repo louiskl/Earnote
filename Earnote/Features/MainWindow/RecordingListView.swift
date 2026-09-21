@@ -155,6 +155,13 @@ struct RecordingActionItems: View {
         Button("Erneut exportieren") { library.reexport(recordingID) }
             .disabled(recording == nil || busy)
         Divider()
+        Button(library.makingFlashcards.contains(recordingID) ? "Karteikarten entstehen …" : "Karteikarten erzeugen") {
+            Task { await library.makeFlashcards(recordingID) }
+        }
+        .disabled(!hasNote || busy || library.makingFlashcards.contains(recordingID))
+        Button("Karteikarten sichern (Anki) …") { FlashcardExport.save(recordingID, library: library) }
+            .disabled(!hasNote)
+        Divider()
         Button("Als PDF sichern …") { NoteDocument.savePDF(recordingID, library: library) }
             .disabled(!hasNote)
         Button("Drucken …") { NoteDocument.printNote(recordingID, library: library) }

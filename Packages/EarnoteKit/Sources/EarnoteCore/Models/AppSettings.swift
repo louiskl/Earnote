@@ -148,6 +148,8 @@ public struct DestinationSettings: Codable, Hashable, Sendable {
     public var bearTags: String = AppInfo.name.lowercased()
     // Craft
     public var craftSpaceID: String = ""
+    // Apple Erinnerungen: leer = je Bereich eine eigene Liste
+    public var remindersList: String = ""
 
     public init() {}
 
@@ -165,6 +167,7 @@ public struct DestinationSettings: Codable, Hashable, Sendable {
         appleNotesFolder = (try? c.decodeIfPresent(String.self, forKey: .appleNotesFolder)) ?? d.appleNotesFolder
         bearTags = (try? c.decodeIfPresent(String.self, forKey: .bearTags)) ?? d.bearTags
         craftSpaceID = (try? c.decodeIfPresent(String.self, forKey: .craftSpaceID)) ?? d.craftSpaceID
+        remindersList = (try? c.decodeIfPresent(String.self, forKey: .remindersList)) ?? d.remindersList
     }
 }
 

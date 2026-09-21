@@ -194,13 +194,42 @@ enum NoteDocument {
         }
     }
 
-    private static func fileName(for title: String) -> String {
+    private static func fileName(for title: String) -> String { NoteDocument.fileName(title, extension: "pdf") }
+
+    /// Dateiname ohne Zeichen, die im Finder Ärger machen
+    static func fileName(_ title: String, extension ext: String) -> String {
         let clean = title.components(separatedBy: CharacterSet(charactersIn: "/:\\")).joined(separator: "-")
-        return (clean.isEmpty ? "Notiz" : String(clean.prefix(80))) + ".pdf"
+        return (clean.isEmpty ? String(localized: "Notiz") : String(clean.prefix(80))) + "." + ext
     }
 }
 
 private extension NSFont {
     var bold: NSFont { NSFontManager.shared.convert(self, toHaveTrait: .boldFontMask) }
     var italic: NSFont { NSFontManager.shared.convert(self, toHaveTrait: .italicFontMask) }
+}
+
+/// Karteikarten als Anki-Datei sichern (CSV: Vorderseite, Rückseite).
+@MainActor
+enum FlashcardExport {
+    static func save(_ recordingID: UUID, library: LibraryStore) {
+        Task {
+            guard let recording = library.recording(recordingID),
+                  let note = await library.summary(recordingID) else { return }
+            let cards = Flashcards.parse(note.markdown)
+            guard !cards.isEmpty else {
+                library.lastError = String(localized: "Diese Notiz hat noch keine Karteikarten. Erzeuge sie zuerst.")
+                return
+            }
+            let panel = NSSavePanel()
+            panel.allowedContentTypes = [.commaSeparatedText]
+            panel.nameFieldStringValue = NoteDocument.fileName(recording.displayTitle, extension: "csv")
+            panel.message = String(localized: "In Anki über „Datei › Importieren“ öffnen – erste Spalte Frage, zweite Antwort.")
+            guard panel.runModal() == .OK, let url = panel.url else { return }
+            do {
+                try Flashcards.csv(cards).write(to: url, atomically: true, encoding: .utf8)
+            } catch {
+                library.lastError = String(localized: "Karteikarten sichern: \(error.localizedDescription)")
+            }
+        }
+    }
 }

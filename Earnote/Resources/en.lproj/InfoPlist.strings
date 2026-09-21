@@ -10,6 +10,9 @@
 /* Privacy - Calendars Full Access Usage Description */
 "NSCalendarsFullAccessUsageDescription" = "Earnote can use the title of the event you are in as the title of the recording.";
 
+/* Privacy - Reminders Full Access Usage Description */
+"NSRemindersFullAccessUsageDescription" = "Earnote can put open tasks from your notes into Apple Reminders.";
+
 /* Privacy - Documents Folder Usage Description */
 "NSDocumentsFolderUsageDescription" = "Earnote can save notes as Markdown files in your Documents folder.";
 

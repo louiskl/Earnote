@@ -38,6 +38,8 @@
 	<string>Earnote legt deine Notizen auf Wunsch in Apple Notizen ab.</string>
 	<key>NSCalendarsFullAccessUsageDescription</key>
 	<string>Earnote übernimmt auf Wunsch den Titel des laufenden Termins als Titel der Aufnahme.</string>
+	<key>NSRemindersFullAccessUsageDescription</key>
+	<string>Earnote legt offene Aufgaben aus deinen Notizen auf Wunsch in Apple Erinnerungen ab.</string>
 	<key>NSDocumentsFolderUsageDescription</key>
 	<string>Earnote speichert Notizen auf Wunsch als Markdown-Dateien in deinem Dokumente-Ordner.</string>
 	<key>NSPrincipalClass</key>

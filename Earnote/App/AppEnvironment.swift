@@ -47,7 +47,8 @@ final class AppEnvironment {
             }
         }
         let library = LibraryStore(library: libraryRepository, audio: audio,
-                                   settingsRepository: UserDefaultsSettingsRepository(defaults: defaults), queue: queue)
+                                   settingsRepository: UserDefaultsSettingsRepository(defaults: defaults),
+                                   queue: queue, llm: llm)
         library.lastError = openError
         queue.library = library
         AudioInputDevices.removeLeftoversFromEarlierRuns()
