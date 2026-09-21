@@ -57,6 +57,12 @@ englische Oberfläche · globales Kürzel ⌃⌥⌘R · Titel aus dem Kalender �
 Aufgaben nach Apple Erinnerungen, Things und Todoist · Logseq als Ziel · Semester-Übersicht je Bereich ·
 Kurzprotokoll für Meetings · Auswahl unter sechs lokalen KI-Modellen · Vorverdichten schon während der Aufnahme.
 
+## Bitte noch auslassen
+
+Unter *Einstellungen › Allgemein* steht ein Schalter **„Bibliothek über iCloud synchronisieren"**.
+Er funktioniert, ist aber noch nicht lange genug erprobt. Lass ihn bitte aus, bis ich Entwarnung gebe –
+bei einem Fehler im Abgleich stünden Notizen auf dem Spiel.
+
 ## Fehler melden
 
 In der App: **Einstellungen › Über › „Fehler melden …“**. Das öffnet ein vorausgefülltes Issue auf GitHub –

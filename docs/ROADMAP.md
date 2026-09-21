@@ -295,8 +295,14 @@ heute für iOS – das bleibt die Eintrittskarte, und der iOS-Build läuft bei j
 2. iPhone als Begleit-App: nur aufnehmen und hochladen – kleiner Umfang, sofort nützlich
 3. iPad eigenständig mit Whisper und lokalem Modell (M-Chip)
 
-- [~] iCloud-Sync: Code vorbereitet (Schalter, Container, Rückfall). Es fehlen die Schritte im
-      Entwicklerportal – siehe „iCloud-Sync einschalten“ am Ende dieser Datei. Danach: Duplikat-Bereinigung und Sync-Status
+- [x] **iCloud-Sync läuft (22.09.2026 nachgewiesen)**: Container, Berechtigungen und Profil stehen,
+      das Schema ist in Production. Zwei Bibliotheken auf demselben Mac gleichen sich ab – eine leere
+      Bibliothek bekam Aufnahme und Notiz aus der Cloud. Schalter bleibt vorerst als „in Erprobung“
+      gekennzeichnet und aus der Beta-Empfehlung heraus.
+- [x] **Sync-Status**: Einstellungen › Allgemein zeigt „Wird verbunden … / Gleicht ab … / Aktuell (Uhrzeit)“
+      bzw. den Fehlertext; jedes Ereignis steht auch im Protokoll.
+- [ ] Zwei Wochen Dauerlauf auf zwei Macs (Duplikate, Konflikte, Löschungen), danach Freigabe für alle
+- [ ] Duplikat-Bereinigung: gleiche Bereichsnamen von zwei Geräten zusammenführen
 - [ ] iOS-App-Target auf demselben Kern
 - [ ] **iPad eigenständig** (M-Chip): Whisper + lokales Modell auf dem Gerät, „Increased Memory Limit“
 - [ ] **iPhone als Begleit-App**: nimmt auf, Mac verarbeitet, fertige Notiz wieder auf dem iPhone

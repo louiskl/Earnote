@@ -18,6 +18,7 @@ final class AppEnvironment {
     let appState: AppState
     /// Sucht einmal am Tag nach einer neueren Version
     let updates = AppUpdater()
+    let cloudSync = CloudSyncStatus()
 
     private let storage: Storage
     private let defaults: UserDefaults
@@ -77,6 +78,7 @@ final class AppEnvironment {
         recorder.hideCallPrompt = { FloatingPanels.shared.hideCallPrompt() }
 
         LocalModels.apply(library.settings)
+        cloudSync.start(enabled: settings.syncWithCloud)
 
         self.container = container
         self.libraryRepository = libraryRepository

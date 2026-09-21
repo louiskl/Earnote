@@ -26,6 +26,7 @@ struct SettingsView: View {
 /// Allgemein: Erscheinungsbild, Start, Speicher und der Einrichtungsassistent.
 struct GeneralSettings: View {
     @Environment(LibraryStore.self) private var library
+    @Environment(CloudSyncStatus.self) private var cloudSync
     @State private var launchAtLogin = LoginItem.isEnabled
 
     var body: some View {
@@ -44,8 +45,11 @@ struct GeneralSettings: View {
             }
             Section {
                 Toggle("Bibliothek über iCloud synchronisieren", isOn: $library.settings.syncWithCloud)
+                if library.settings.syncWithCloud {
+                    LabeledContent("Stand") { Text(cloudSync.text).foregroundStyle(.secondary) }
+                }
             } footer: {
-                Text("Aufnahmedaten, Transkripte, Notizen, Bereiche und Wörterbuch stehen dann auf allen Macs mit derselben Apple-ID. Die Audiodateien bleiben immer lokal. Gilt ab dem nächsten Start von \(AppInfo.name).")
+                Text("Noch in Erprobung. Aufnahmedaten, Transkripte, Notizen, Bereiche und Wörterbuch stehen dann auf allen Macs mit derselben Apple-ID. Die Audiodateien bleiben immer lokal. Gilt ab dem nächsten Start von \(AppInfo.name).")
             }
             Section("Start") {
                 Toggle("\(AppInfo.name) beim Start des Macs automatisch öffnen", isOn: $launchAtLogin)
