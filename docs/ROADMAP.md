@@ -159,7 +159,8 @@ Ziel: Was eine fremde Person in der ersten Woche braucht, ohne zu fragen.
 - [x] **Englische Oberfläche (0.9.1)**: Deutsch steht im Quelltext und bleibt Standard, Englisch liegt als
       `en.lproj/Localizable.strings` daneben – 316 Texte der App und 79 aus dem Kern (Status, Fehlermeldungen,
       Vorlagen, Ziele). Der Projektgenerator bindet jede weitere Sprache automatisch ein.
-- [ ] Erster Start ohne Internet: verständliche Meldung statt hängendem Download
+- [x] **Erster Start ohne Internet (0.9.2)**: vor jedem Modell-Download wird geprüft, ob überhaupt ein Netz
+      da ist – sonst steht sofort „Keine Internetverbindung“ mit „Erneut laden“ statt eines stummen Wartens
 - [ ] Anti-Vibecoding-Review über alle neuen Ansichten (Guidelines Abschnitt 28)
 
 **Alltag**

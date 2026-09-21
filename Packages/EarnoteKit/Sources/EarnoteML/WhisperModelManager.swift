@@ -105,6 +105,12 @@ public final class WhisperModelManager: ObservableObject {
         downloadProgress = 0
         lastError = nil
         defer { downloading = nil }
+        // Ohne Netz hängt der Download sonst minutenlang, ohne etwas zu sagen
+        guard await Reachability.isOnline() else {
+            lastError = Reachability.offlineMessage
+            Log.error(lastError!)
+            return false
+        }
         if available.isEmpty { await refreshAvailable() }
         do {
             let variant = resolve(model)

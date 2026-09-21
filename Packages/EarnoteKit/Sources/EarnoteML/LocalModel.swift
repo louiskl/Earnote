@@ -81,6 +81,12 @@ public final class LocalModelManager: ObservableObject {
         lastError = nil
         downloadTask = Task {
             defer { isDownloading = false; downloadTask = nil }
+            // Ohne Netz hängt der Download sonst minutenlang, ohne etwas zu sagen
+            guard await Reachability.isOnline() else {
+                lastError = Reachability.offlineMessage
+                Log.error("Lokales Modell: keine Internetverbindung")
+                return
+            }
             do {
                 guard let repo = Repo.ID(rawValue: Self.standard.repository) else { return }
                 try FileManager.default.createDirectory(at: Self.folder, withIntermediateDirectories: true)
