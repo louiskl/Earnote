@@ -4,6 +4,9 @@ import Foundation
 /// Jede bringt passende Hinweise für die KI mit – man muss nichts selbst formulieren.
 public struct CategoryTemplate: Identifiable, Hashable, Sendable {
     public enum Group: String, CaseIterable, Identifiable, Sendable {
+        /// Übersetzter Name der Gruppe (der Rohwert bleibt Deutsch, weil er gespeichert wird)
+        public var label: String { t(String.LocalizationValue(rawValue)) }
+
         case work = "Arbeit"
         case study = "Studium & Schule"
         case personal = "Privat"
@@ -26,43 +29,43 @@ public struct CategoryTemplate: Identifiable, Hashable, Sendable {
     public var supportsSubjects: Bool { id == "lecture" }
 
     public static let all: [CategoryTemplate] = [
-        CategoryTemplate(id: "meeting", group: .work, emoji: "💼", name: "Meeting",
-                         detail: "Teammeetings, Jour fixe, Abstimmungen", colorHex: "#4F7CFF",
+        CategoryTemplate(id: "meeting", group: .work, emoji: "💼", name: t("Meeting"),
+                         detail: t("Teammeetings, Jour fixe, Abstimmungen"), colorHex: "#4F7CFF",
                          instructions: RecordingCategory.defaults[0].instructions),
-        CategoryTemplate(id: "oneonone", group: .work, emoji: "👥", name: "1:1-Gespräch",
-                         detail: "Mitarbeitergespräche, Feedback, Coaching", colorHex: "#06B6D4",
+        CategoryTemplate(id: "oneonone", group: .work, emoji: "👥", name: t("1:1-Gespräch"),
+                         detail: t("Mitarbeitergespräche, Feedback, Coaching"), colorHex: "#06B6D4",
                          instructions: "Halte vertraulich und sachlich fest, welche Themen, Anliegen und Vereinbarungen besprochen wurden. Achte auf Entwicklungsziele und Feedback."),
-        CategoryTemplate(id: "client", group: .work, emoji: "🤝", name: "Kundengespräch",
-                         detail: "Sales, Beratung, Anforderungen", colorHex: "#10B981",
+        CategoryTemplate(id: "client", group: .work, emoji: "🤝", name: t("Kundengespräch"),
+                         detail: t("Sales, Beratung, Anforderungen"), colorHex: "#10B981",
                          instructions: RecordingCategory.defaults[2].instructions),
-        CategoryTemplate(id: "interview", group: .work, emoji: "🎙️", name: "Interview",
-                         detail: "Bewerbungsgespräche, Nutzer-Interviews, Recherche", colorHex: "#F59E0B",
+        CategoryTemplate(id: "interview", group: .work, emoji: "🎙️", name: t("Interview"),
+                         detail: t("Bewerbungsgespräche, Nutzer-Interviews, Recherche"), colorHex: "#F59E0B",
                          instructions: RecordingCategory.defaults[3].instructions),
-        CategoryTemplate(id: "brainstorm", group: .work, emoji: "💡", name: "Brainstorming",
-                         detail: "Ideen, Workshops, Konzepte", colorHex: "#EC4899",
+        CategoryTemplate(id: "brainstorm", group: .work, emoji: "💡", name: t("Brainstorming"),
+                         detail: t("Ideen, Workshops, Konzepte"), colorHex: "#EC4899",
                          instructions: "Sammle alle Ideen und Vorschläge mit ihren Argumenten. Gruppiere ähnliche Ideen und halte fest, welche weiterverfolgt werden sollen."),
-        CategoryTemplate(id: "call", group: .work, emoji: "📞", name: "Telefonat",
-                         detail: "Kurze Calls und Rückrufe", colorHex: "#64748B",
+        CategoryTemplate(id: "call", group: .work, emoji: "📞", name: t("Telefonat"),
+                         detail: t("Kurze Calls und Rückrufe"), colorHex: "#64748B",
                          instructions: "Meist kurz: Halte fest, mit wem worüber gesprochen wurde, was vereinbart ist und was als Nächstes zu tun ist."),
 
-        CategoryTemplate(id: "lecture", group: .study, emoji: "🎓", name: "Vorlesung",
-                         detail: "Pro Fach oder Modul ein eigener Bereich", colorHex: "#8B5CF6",
+        CategoryTemplate(id: "lecture", group: .study, emoji: "🎓", name: t("Vorlesung"),
+                         detail: t("Pro Fach oder Modul ein eigener Bereich"), colorHex: "#8B5CF6",
                          instructions: RecordingCategory.defaults[1].instructions),
-        CategoryTemplate(id: "seminar", group: .study, emoji: "🧪", name: "Seminar & Übung",
-                         detail: "Diskussionen, Übungsaufgaben, Referate", colorHex: "#06B6D4",
+        CategoryTemplate(id: "seminar", group: .study, emoji: "🧪", name: t("Seminar & Übung"),
+                         detail: t("Diskussionen, Übungsaufgaben, Referate"), colorHex: "#06B6D4",
                          instructions: "Halte die besprochenen Aufgaben, Lösungswege und Diskussionsbeiträge verständlich fest. Markiere Abgaben und Termine."),
-        CategoryTemplate(id: "studygroup", group: .study, emoji: "📚", name: "Lerngruppe",
-                         detail: "Gemeinsam lernen und wiederholen", colorHex: "#10B981",
+        CategoryTemplate(id: "studygroup", group: .study, emoji: "📚", name: t("Lerngruppe"),
+                         detail: t("Gemeinsam lernen und wiederholen"), colorHex: "#10B981",
                          instructions: "Fasse die erklärten Inhalte so zusammen, dass man damit lernen kann. Halte offene Fragen und Aufgabenverteilungen fest."),
 
-        CategoryTemplate(id: "memo", group: .personal, emoji: "💭", name: "Sprachnotiz",
-                         detail: "Gedanken, To-dos, Ideen unterwegs", colorHex: "#64748B",
+        CategoryTemplate(id: "memo", group: .personal, emoji: "💭", name: t("Sprachnotiz"),
+                         detail: t("Gedanken, To-dos, Ideen unterwegs"), colorHex: "#64748B",
                          instructions: RecordingCategory.defaults[4].instructions),
-        CategoryTemplate(id: "doctor", group: .personal, emoji: "🩺", name: "Arzttermin",
-                         detail: "Befunde, Empfehlungen, Medikamente", colorHex: "#FF5A4E",
+        CategoryTemplate(id: "doctor", group: .personal, emoji: "🩺", name: t("Arzttermin"),
+                         detail: t("Befunde, Empfehlungen, Medikamente"), colorHex: "#FF5A4E",
                          instructions: "Halte Befunde, Empfehlungen, Medikamente mit Dosierung und nächste Termine genau fest. Nichts interpretieren oder ergänzen."),
-        CategoryTemplate(id: "media", group: .personal, emoji: "🎧", name: "Podcast & Video",
-                         detail: "Wissen aus Videos und Podcasts festhalten", colorHex: "#EC4899",
+        CategoryTemplate(id: "media", group: .personal, emoji: "🎧", name: t("Podcast & Video"),
+                         detail: t("Wissen aus Videos und Podcasts festhalten"), colorHex: "#EC4899",
                          instructions: "Gib die wichtigsten Aussagen, Tipps und Beispiele wieder. Es gibt hier in der Regel keine Aufgaben oder Entscheidungen."),
     ]
 

@@ -67,12 +67,12 @@ public struct CoreDestinations: DestinationProvider {
 
     public var all: [DestinationInfo] {
         [
-            DestinationInfo(id: NotionDestination.id, name: "Notion", symbol: "square.stack.3d.up.fill",
-                            detail: "Neue Seite in einer Notion-Datenbank mit Kategorie, Datum und Aufgaben."),
-            DestinationInfo(id: ObsidianDestination.id, name: "Obsidian", symbol: "diamond.fill",
-                            detail: "Markdown-Notiz mit Eigenschaften in deinem Vault."),
-            DestinationInfo(id: MarkdownDestination.id, name: "Markdown-Ordner", symbol: "folder.fill",
-                            detail: "Eine .md-Datei pro Aufnahme – ideal für Backups, iCloud Drive oder andere Apps."),
+            DestinationInfo(id: NotionDestination.id, name: t("Notion"), symbol: "square.stack.3d.up.fill",
+                            detail: t("Neue Seite in einer Notion-Datenbank mit Kategorie, Datum und Aufgaben.")),
+            DestinationInfo(id: ObsidianDestination.id, name: t("Obsidian"), symbol: "diamond.fill",
+                            detail: t("Markdown-Notiz mit Eigenschaften in deinem Vault.")),
+            DestinationInfo(id: MarkdownDestination.id, name: t("Markdown-Ordner"), symbol: "folder.fill",
+                            detail: t("Eine .md-Datei pro Aufnahme – ideal für Backups, iCloud Drive oder andere Apps.")),
         ]
     }
 

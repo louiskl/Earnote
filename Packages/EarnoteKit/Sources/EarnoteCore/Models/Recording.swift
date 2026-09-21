@@ -5,13 +5,13 @@ public enum RecordingStatus: String, Codable, Sendable {
 
     public var label: String {
         switch self {
-        case .recording: return "Aufnahme läuft"
-        case .queued: return "Wartet"
-        case .transcribing: return "Wird transkribiert"
-        case .summarizing: return "Wird zusammengefasst"
-        case .exporting: return "Wird exportiert"
-        case .done: return "Fertig"
-        case .failed: return "Fehler"
+        case .recording: return t("Aufnahme läuft")
+        case .queued: return t("Wartet")
+        case .transcribing: return t("Wird transkribiert")
+        case .summarizing: return t("Wird zusammengefasst")
+        case .exporting: return t("Wird exportiert")
+        case .done: return t("Fertig")
+        case .failed: return t("Fehler")
         }
     }
     public var isBusy: Bool { [RecordingStatus.queued, .transcribing, .summarizing, .exporting].contains(self) }

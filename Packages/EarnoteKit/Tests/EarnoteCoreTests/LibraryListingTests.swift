@@ -60,7 +60,10 @@ final class LibraryListingTests: XCTestCase {
 
     func testGroupedByDay() {
         let sections = LibraryListing.groupedByDay(sample.shuffled(), now: now, calendar: calendar)
-        XCTAssertEqual(sections.map(\.title), ["Heute", "Gestern", "Freitag, 11. September", "Mittwoch, 13. August 2025"])
+        // „Heute“ und „Gestern“ sind übersetzt – geprüft wird die Gruppierung, nicht der Wortlaut.
+        XCTAssertEqual(sections.count, 4)
+        XCTAssertNotEqual(sections[0].title, sections[1].title)
+        XCTAssertEqual(sections.map(\.title).suffix(2), ["Freitag, 11. September", "Mittwoch, 13. August 2025"])
         XCTAssertEqual(sections[0].items.map(\.title), ["Heute Mittag", "Heute früh"], "Innerhalb des Tages neueste zuerst")
         XCTAssertTrue(LibraryListing.groupedByDay([Recording](), now: now, calendar: calendar).isEmpty)
     }

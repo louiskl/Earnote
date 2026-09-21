@@ -131,17 +131,17 @@ public enum MicrophoneEvent: Equatable, Sendable {
         case .permissionDenied:
             return "\(AppInfo.name) hat keinen Zugriff auf das Mikrofon. Bitte in den Systemeinstellungen erlauben."
         case .noDevices:
-            return "Es ist kein Mikrofon verfügbar. Schließ ein Mikrofon an und versuche es erneut."
+            return t("Es ist kein Mikrofon verfügbar. Schließ ein Mikrofon an und versuche es erneut.")
         case .allFailed:
-            return "Kein Mikrofon hat reagiert. Steck das Mikrofon kurz ab und wieder an oder wähle in den Einstellungen unter „Aufnahme“ ein anderes."
+            return t("Kein Mikrofon hat reagiert. Steck das Mikrofon kurz ab und wieder an oder wähle in den Einstellungen unter „Aufnahme“ ein anderes.")
         case .preferredMissing(let preferred, let used):
-            return "Das gewählte Mikrofon „\(preferred)“ ist nicht verbunden. Die Aufnahme läuft über den Systemstandard „\(used)“."
+            return t("Das gewählte Mikrofon „\(preferred)“ ist nicht verbunden. Die Aufnahme läuft über den Systemstandard „\(used)“.")
         case .fellBack(let failed, let used):
-            return "Das Mikrofon „\(failed)“ hat nicht reagiert. Die Aufnahme läuft über „\(used)“."
+            return t("Das Mikrofon „\(failed)“ hat nicht reagiert. Die Aufnahme läuft über „\(used)“.")
         case .switchedDuringRecording(let lost, let used):
-            return "Das Mikrofon „\(lost)“ ist nicht mehr verfügbar. Die Aufnahme läuft über „\(used)“ weiter."
+            return t("Das Mikrofon „\(lost)“ ist nicht mehr verfügbar. Die Aufnahme läuft über „\(used)“ weiter.")
         case .lostWithoutReplacement(let lost):
-            return "Das Mikrofon „\(lost)“ ist nicht mehr verfügbar und es gibt kein anderes. Schließ ein Mikrofon an – die Aufnahme geht dann weiter."
+            return t("Das Mikrofon „\(lost)“ ist nicht mehr verfügbar und es gibt kein anderes. Schließ ein Mikrofon an – die Aufnahme geht dann weiter.")
         }
     }
 }

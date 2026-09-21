@@ -1,0 +1,933 @@
+/* No comment provided by engineer. */
+" " = " ";
+
+/* No comment provided by engineer. */
+"%@  %@" = "%@  %@";
+
+/* No comment provided by engineer. */
+"%@ · %@" = "%@ · %@";
+
+/* No comment provided by engineer. */
+"%@ (nicht verbunden)" = "%@ (not connected)";
+
+/* No comment provided by engineer. */
+"%@ %@" = "%@ %@";
+
+/* No comment provided by engineer. */
+"%@ beim Start des Macs automatisch öffnen" = "Open %@ automatically when the Mac starts";
+
+/* No comment provided by engineer. */
+"%@ darf das Mikrofon noch nicht verwenden." = "%@ isn’t allowed to use the microphone yet.";
+
+/* No comment provided by engineer. */
+"%@ erkennt anhand von Mikrofon und Systemton, wer gerade spricht." = "%@ tells speakers apart by comparing microphone and system audio.";
+
+/* No comment provided by engineer. */
+"%@-Call erkannt" = "%@ call detected";
+
+/* No comment provided by engineer. */
+"%@, %lld" = "%@, %lld";
+
+/* No comment provided by engineer. */
+"%@, %lld Aufnahmen" = "%@, %lld recordings";
+
+/* No comment provided by engineer. */
+"%@: %@" = "%@: %@";
+
+/* No comment provided by engineer. */
+"%@. %@" = "%@. %@";
+
+/* No comment provided by engineer. */
+"%lld %%" = "%lld %%";
+
+/* No comment provided by engineer. */
+"%lld Fundstellen" = "%lld matches";
+
+/* No comment provided by engineer. */
+"%lld Prozent" = "%lld percent";
+
+/* No comment provided by engineer. */
+"⇧⌘R startet und stoppt, ⇧⌘P pausiert." = "⇧⌘R starts and stops, ⇧⌘P pauses.";
+
+/* No comment provided by engineer. */
+"1. Auf notion.so eine interne Integration anlegen (z. B. „%@“)." = "1. Create an internal integration on notion.so (for example “%@”).";
+
+/* No comment provided by engineer. */
+"2. Das „Internal Integration Secret“ unten einsetzen." = "2. Paste the internal integration secret below.";
+
+/* No comment provided by engineer. */
+"3. In Notion die Seite öffnen, unter der die Datenbank entstehen soll: „•••“ › „Verbindungen“ › deine Integration hinzufügen." = "3. In Notion, open the page the database should live under: “•••” › “Connections” › add your integration.";
+
+/* No comment provided by engineer. */
+"4. Den Link dieser Seite unten einsetzen." = "4. Paste the link to that page below.";
+
+/* No comment provided by engineer. */
+"15 Sekunden vor" = "Forward 15 seconds";
+
+/* No comment provided by engineer. */
+"15 Sekunden vor (⌥→)" = "Forward 15 seconds (⌥→)";
+
+/* No comment provided by engineer. */
+"15 Sekunden zurück" = "Back 15 seconds";
+
+/* No comment provided by engineer. */
+"15 Sekunden zurück (⌥←)" = "Back 15 seconds (⌥←)";
+
+/* No comment provided by engineer. */
+"Ab %@ anhören" = "Play from %@";
+
+/* No comment provided by engineer. */
+"Ab dieser Stelle anhören" = "Play from here";
+
+/* No comment provided by engineer. */
+"Abbrechen" = "Cancel";
+
+/* No comment provided by engineer. */
+"Abspielen (⌥Leertaste)" = "Play (⌥Space)";
+
+/* No comment provided by engineer. */
+"Aktuell – erneut suchen" = "Up to date – check again";
+
+/* No comment provided by engineer. */
+"Alle Bereiche" = "All areas";
+
+/* No comment provided by engineer. */
+"Alle Freigaben lassen sich jederzeit in den Systemeinstellungen ändern." = "You can change any of these permissions later in System Settings.";
+
+/* No comment provided by engineer. */
+"Alle Ziele erneut exportieren" = "Export to all destinations again";
+
+/* No comment provided by engineer. */
+"Alles zugeordnet" = "Everything is filed";
+
+/* No comment provided by engineer. */
+"Allgemein" = "General";
+
+/* No comment provided by engineer. */
+"Als PDF sichern …" = "Save as PDF…";
+
+/* No comment provided by engineer. */
+"Anlegen" = "Create";
+
+/* No comment provided by engineer. */
+"Ansicht" = "View";
+
+/* No comment provided by engineer. */
+"API-Schlüssel" = "API key";
+
+/* No comment provided by engineer. */
+"API-Schlüssel erstellen" = "Create an API key";
+
+/* No comment provided by engineer. */
+"Apple Intelligence ist bereit." = "Apple Intelligence is ready.";
+
+/* No comment provided by engineer. */
+"Auch neu transkribieren" = "Transcribe again as well";
+
+/* No comment provided by engineer. */
+"Audio" = "Audio";
+
+/* No comment provided by engineer. */
+"Audio dieser Aufnahme löschen?" = "Delete the audio of this recording?";
+
+/* No comment provided by engineer. */
+"Audio löschen" = "Delete audio";
+
+/* No comment provided by engineer. */
+"Audio löschen …" = "Delete audio…";
+
+/* No comment provided by engineer. */
+"Audio, Transkript und Notiz werden entfernt. Das lässt sich nicht rückgängig machen." = "Audio, transcript and note will be removed. This can’t be undone.";
+
+/* No comment provided by engineer. */
+"Audiodatei importieren …" = "Import audio file…";
+
+/* No comment provided by engineer. */
+"Audiodateien nach der Verarbeitung behalten" = "Keep audio files after processing";
+
+/* No comment provided by engineer. */
+"Auf KI-Fassung zurücksetzen" = "Restore the AI version";
+
+/* No comment provided by engineer. */
+"Auf Wunsch zusätzlich in Notion, Obsidian, Apple Notizen und mehr" = "Optionally also in Notion, Obsidian, Apple Notes and more";
+
+/* No comment provided by engineer. */
+"Aufgaben aus deinen Notizen erscheinen hier, bis sie abgehakt sind." = "Tasks from your notes show up here until you tick them off.";
+
+/* No comment provided by engineer. */
+"Aufnahme" = "Recording";
+
+/* No comment provided by engineer. */
+"Aufnahme anhören" = "Play recording";
+
+/* No comment provided by engineer. */
+"Aufnahme beenden, wenn der Call endet" = "Stop recording when the call ends";
+
+/* No comment provided by engineer. */
+"Aufnahme fortsetzen (⇧⌘P)" = "Resume recording (⇧⌘P)";
+
+/* No comment provided by engineer. */
+"Aufnahme läuft" = "Recording";
+
+/* No comment provided by engineer. */
+"Aufnahme löschen …" = "Delete recording…";
+
+/* No comment provided by engineer. */
+"Aufnahme nicht gefunden" = "Recording not found";
+
+/* No comment provided by engineer. */
+"Aufnahme pausieren (⇧⌘P)" = "Pause recording (⇧⌘P)";
+
+/* No comment provided by engineer. */
+"Aufnahme starten" = "Start recording";
+
+/* No comment provided by engineer. */
+"Aufnahme starten (⇧⌘R)" = "Start recording (⇧⌘R)";
+
+/* No comment provided by engineer. */
+"Aufnahme stoppen" = "Stop recording";
+
+/* No comment provided by engineer. */
+"Aufnahme stoppen (⇧⌘R)" = "Stop recording (⇧⌘R)";
+
+/* No comment provided by engineer. */
+"Aufnahme verwerfen …" = "Discard recording…";
+
+/* No comment provided by engineer. */
+"Aufnahme verwerfen?" = "Discard the recording?";
+
+/* No comment provided by engineer. */
+"Aufnehmen" = "Record";
+
+/* No comment provided by engineer. */
+"Aufnehmen in" = "Record into";
+
+/* No comment provided by engineer. */
+"Auswählen" = "Choose";
+
+/* No comment provided by engineer. */
+"Bearbeiten …" = "Edit…";
+
+/* No comment provided by engineer. */
+"Beenden" = "Quit";
+
+/* No comment provided by engineer. */
+"Begriff" = "Term";
+
+/* No comment provided by engineer. */
+"Begriff „%@“ entfernen" = "Remove “%@”";
+
+/* No comment provided by engineer. */
+"Begriff entfernen" = "Remove term";
+
+/* No comment provided by engineer. */
+"Begriff hinzufügen" = "Add term";
+
+/* No comment provided by engineer. */
+"Behaltene Aufnahmen lassen sich später neu transkribieren. Eine Stunde braucht 250–600 MB." = "Keeping the audio lets you transcribe again later. One hour needs 250–600 MB.";
+
+/* No comment provided by engineer. */
+"Beim ersten Export fragt macOS, ob %@ Notizen steuern darf – bitte erlauben." = "On the first export macOS asks whether %@ may control Notes – please allow it.";
+
+/* No comment provided by engineer. */
+"Benötigt macOS 26." = "Requires macOS 26.";
+
+/* No comment provided by engineer. */
+"Berechtigungen" = "Permissions";
+
+/* No comment provided by engineer. */
+"Bereich" = "Area";
+
+/* No comment provided by engineer. */
+"Bereich „%@“ löschen?" = "Delete the area “%@”?";
+
+/* No comment provided by engineer. */
+"Bereich löschen" = "Delete area";
+
+/* No comment provided by engineer. */
+"Bereiche" = "Areas";
+
+/* No comment provided by engineer. */
+"Bereit" = "Ready";
+
+/* No comment provided by engineer. */
+"Bibliothek" = "Library";
+
+/* No comment provided by engineer. */
+"Bitte hole vor jeder Aufnahme das Einverständnis aller Beteiligten ein." = "Please get everyone’s consent before you record.";
+
+/* No comment provided by engineer. */
+"Calls" = "Calls";
+
+/* No comment provided by engineer. */
+"Calls automatisch erkennen und Aufnahme vorschlagen" = "Detect calls and offer to record";
+
+/* No comment provided by engineer. */
+"Dann kennt %@ den Begriff bei künftigen Aufnahmen und schreibt ihn gleich richtig." = "Then %@ knows the term in future recordings and spells it correctly right away.";
+
+/* No comment provided by engineer. */
+"Datenbank „%@“" = "Database “%@”";
+
+/* No comment provided by engineer. */
+"Datenbank anlegen" = "Create database";
+
+/* No comment provided by engineer. */
+"Datenordner öffnen" = "Open data folder";
+
+/* No comment provided by engineer. */
+"Datenschutz-Einstellungen von macOS öffnen" = "Open macOS privacy settings";
+
+/* No comment provided by engineer. */
+"Datum" = "Date";
+
+/* No comment provided by engineer. */
+"Dauer" = "Length";
+
+/* No comment provided by engineer. */
+"Dauert länger, hilft aber, wenn das Transkript viele Fehler hat." = "Takes longer, but helps when the transcript has many errors.";
+
+/* No comment provided by engineer. */
+"Deine Fächer" = "Your subjects";
+
+/* No comment provided by engineer. */
+"Der Bereich bestimmt, worauf die KI achtet." = "The area decides what the AI pays attention to.";
+
+/* No comment provided by engineer. */
+"Diagnose kopieren" = "Copy diagnostics";
+
+/* No comment provided by engineer. */
+"Diagnose kopiert" = "Diagnostics copied";
+
+/* No comment provided by engineer. */
+"Die Audiodatei wurde bereits gelöscht." = "The audio file has already been deleted.";
+
+/* No comment provided by engineer. */
+"Die Aufnahmen bleiben erhalten." = "The recordings are kept.";
+
+/* No comment provided by engineer. */
+"Die Ersetzung gilt für Titel, Notiz und Transkript dieser Aufnahme. Groß- und Kleinschreibung ist egal." = "The replacement applies to the title, note and transcript of this recording. Capitalisation doesn’t matter.";
+
+/* No comment provided by engineer. */
+"Die laufende Aufnahme wird beendet und nicht gespeichert." = "The running recording will stop and won’t be saved.";
+
+/* No comment provided by engineer. */
+"Die Space-ID findest du in Craft mit einem Rechtsklick auf ein Dokument › „Kopieren als“ › „Deeplink“ (Wert von spaceId=…)." = "In Craft, right-click a document › “Copy as” › “Deeplink” – the space ID is the spaceId= value.";
+
+/* No comment provided by engineer. */
+"Dieses Mikrofon reagiert gerade nicht. Steck es kurz ab und wieder an oder wähle ein anderes." = "This microphone isn’t responding. Unplug and reconnect it, or pick another one.";
+
+/* No comment provided by engineer. */
+"Drucken …" = "Print…";
+
+/* No comment provided by engineer. */
+"Eine Fundstelle" = "One match";
+
+/* No comment provided by engineer. */
+"Eingebaute KI" = "Built-in AI";
+
+/* No comment provided by engineer. */
+"Einmal am Tag nach Updates suchen" = "Check for updates once a day";
+
+/* No comment provided by engineer. */
+"Einmalig: danach startet die erste Aufnahme ohne Wartezeit." = "One time only – after this the first recording starts without waiting.";
+
+/* No comment provided by engineer. */
+"Einrichten …" = "Set up…";
+
+/* No comment provided by engineer. */
+"Einrichtung" = "Setup";
+
+/* No comment provided by engineer. */
+"Einrichtungsassistent erneut starten" = "Run the setup assistant again";
+
+/* No comment provided by engineer. */
+"Einstellungen …" = "Settings…";
+
+/* No comment provided by engineer. */
+"Einstellungen öffnen" = "Open settings";
+
+/* No comment provided by engineer. */
+"Entfernen" = "Remove";
+
+/* No comment provided by engineer. */
+"Erlauben …" = "Allow…";
+
+/* No comment provided by engineer. */
+"erledigt" = "done";
+
+/* No comment provided by engineer. */
+"Erneut" = "Again";
+
+/* No comment provided by engineer. */
+"Erneut exportieren" = "Export again";
+
+/* No comment provided by engineer. */
+"Erneut laden" = "Download again";
+
+/* No comment provided by engineer. */
+"Erneut versuchen" = "Try again";
+
+/* No comment provided by engineer. */
+"Erscheinungsbild" = "Appearance";
+
+/* No comment provided by engineer. */
+"Ersetzen" = "Replace";
+
+/* No comment provided by engineer. */
+"Erster Bereich" = "First area";
+
+/* No comment provided by engineer. */
+"Export" = "Export";
+
+/* No comment provided by engineer. */
+"Exportieren" = "Export";
+
+/* No comment provided by engineer. */
+"Falsch geschrieben" = "Spelled wrong";
+
+/* No comment provided by engineer. */
+"Farbe" = "Colour";
+
+/* No comment provided by engineer. */
+"Farbe %@" = "Colour %@";
+
+/* No comment provided by engineer. */
+"Fehler melden …" = "Report a problem…";
+
+/* No comment provided by engineer. */
+"Fenster beim Start zeigen" = "Show the window at launch";
+
+/* No comment provided by engineer. */
+"Fortschritt" = "Progress";
+
+/* No comment provided by engineer. */
+"Fortsetzen" = "Resume";
+
+/* No comment provided by engineer. */
+"Für diese Aufnahme gibt es kein Transkript." = "There’s no transcript for this recording.";
+
+/* No comment provided by engineer. */
+"Für diese Aufnahme gibt es noch keine Notiz." = "There’s no note for this recording yet.";
+
+/* No comment provided by engineer. */
+"Für diesen Mac vorbereiten" = "Prepare for this Mac";
+
+/* No comment provided by engineer. */
+"gefunden" = "found";
+
+/* No comment provided by engineer. */
+"Gibt %@ Speicherplatz frei." = "Frees up %@.";
+
+/* No comment provided by engineer. */
+"Gilt für" = "Applies to";
+
+/* No comment provided by engineer. */
+"Gilt nur für diesen Durchgang. Dauerhafte Hinweise gehören in den Bereich." = "Applies to this run only. Permanent instructions belong to the area.";
+
+/* No comment provided by engineer. */
+"Gut zu wissen" = "Good to know";
+
+/* No comment provided by engineer. */
+"Hauptfenster öffnen" = "Open main window";
+
+/* No comment provided by engineer. */
+"Hinweis" = "Note";
+
+/* No comment provided by engineer. */
+"Hinweis zum Einverständnis anzeigen" = "Show the consent reminder";
+
+/* No comment provided by engineer. */
+"Hinzufügen" = "Add";
+
+/* No comment provided by engineer. */
+"Im Finder zeigen" = "Show in Finder";
+
+/* No comment provided by engineer. */
+"In der Menüleiste startest du eine Aufnahme mit einem Klick." = "From the menu bar you start a recording with one click.";
+
+/* No comment provided by engineer. */
+"In macOS eingebaut: schnell und ohne Download. Die Sprachdaten lädt macOS selbst." = "Built into macOS: fast and no download. macOS fetches the language data itself.";
+
+/* No comment provided by engineer. */
+"In Notion öffnen" = "Open in Notion";
+
+/* No comment provided by engineer. */
+"Info" = "Info";
+
+/* No comment provided by engineer. */
+"Ins Wörterbuch aufnehmen" = "Add to the dictionary";
+
+/* No comment provided by engineer. */
+"Inspector" = "Inspector";
+
+/* No comment provided by engineer. */
+"Inspector ausblenden" = "Hide inspector";
+
+/* No comment provided by engineer. */
+"Inspector ein- oder ausblenden (⌥⌘I)" = "Show or hide the inspector (⌥⌘I)";
+
+/* No comment provided by engineer. */
+"Inspector einblenden" = "Show inspector";
+
+/* No comment provided by engineer. */
+"Installieren" = "Install";
+
+/* No comment provided by engineer. */
+"Integration Secret (ntn_…)" = "Integration secret (ntn_…)";
+
+/* No comment provided by engineer. */
+"Integrationen in Notion öffnen" = "Open integrations in Notion";
+
+/* No comment provided by engineer. */
+"Jede Aufnahme gehört zu einem Bereich." = "Every recording belongs to an area.";
+
+/* No comment provided by engineer. */
+"Jedes Fach bekommt einen eigenen Bereich. Du kannst das auch leer lassen und später ergänzen." = "Every subject becomes its own area. You can leave this empty and add them later.";
+
+/* No comment provided by engineer. */
+"Kein Transkript" = "No transcript";
+
+/* No comment provided by engineer. */
+"Kein Ziel eingeschaltet – die Notizen bleiben in %@." = "No destination is on – the notes stay in %@.";
+
+/* No comment provided by engineer. */
+"Keine Aufnahme ausgewählt" = "No recording selected";
+
+/* No comment provided by engineer. */
+"Keine Auswahl" = "Nothing selected";
+
+/* No comment provided by engineer. */
+"Keine Notiz" = "No note";
+
+/* No comment provided by engineer. */
+"Keine offenen Aufgaben" = "No open tasks";
+
+/* No comment provided by engineer. */
+"Keine Probleme" = "No problems";
+
+/* No comment provided by engineer. */
+"KI" = "AI";
+
+/* No comment provided by engineer. */
+"KI für die Notizen" = "AI for the notes";
+
+/* No comment provided by engineer. */
+"Kostenlose, quelloffene Notizen für Vorlesungen, Meetings und Calls.\nLokal transkribiert – deine Aufnahmen bleiben auf deinem Mac." = "Free, open-source notes for lectures, meetings and calls.\nTranscribed locally – your recordings stay on your Mac.";
+
+/* No comment provided by engineer. */
+"Laden" = "Download";
+
+/* No comment provided by engineer. */
+"Laden, in den Programme-Ordner ziehen, fertig." = "Download it, drag it into Applications, done.";
+
+/* No comment provided by engineer. */
+"Lass den Deckel offen – zugeklappt schläft der Mac und die Verarbeitung pausiert." = "Keep the lid open – closed, the Mac sleeps and processing pauses.";
+
+/* No comment provided by engineer. */
+"Läuft noch im Hintergrund" = "Still running in the background";
+
+/* No comment provided by engineer. */
+"Laufzeit %@" = "Elapsed %@";
+
+/* No comment provided by engineer. */
+"Link der Notion-Seite" = "Link to the Notion page";
+
+/* No comment provided by engineer. */
+"Lokale KI (empfohlen)" = "Local AI (recommended)";
+
+/* No comment provided by engineer. */
+"Löschen" = "Delete";
+
+/* No comment provided by engineer. */
+"Löschen …" = "Delete…";
+
+/* No comment provided by engineer. */
+"Maier, Mayer – durch Komma getrennt" = "Maier, Mayer – separated by commas";
+
+/* No comment provided by engineer. */
+"Mikrofon" = "Microphone";
+
+/* No comment provided by engineer. */
+"Mikrofon für Aufnahmen" = "Microphone for recordings";
+
+/* No comment provided by engineer. */
+"Mikrofon wählen" = "Choose microphone";
+
+/* No comment provided by engineer. */
+"Mikrofon: %@" = "Microphone: %@";
+
+/* No comment provided by engineer. */
+"MIT-Lizenz" = "MIT licence";
+
+/* No comment provided by engineer. */
+"Mitschreiben" = "Take notes";
+
+/* No comment provided by engineer. */
+"Mitschrift" = "Live text";
+
+/* No comment provided by engineer. */
+"Modell" = "Model";
+
+/* No comment provided by engineer. */
+"Nach Updates suchen" = "Check for updates";
+
+/* No comment provided by engineer. */
+"Name" = "Name";
+
+/* No comment provided by engineer. */
+"Name des Bereichs" = "Name of the area";
+
+/* No comment provided by engineer. */
+"Namen & Begriffe korrigieren …" = "Fix names and terms…";
+
+/* No comment provided by engineer. */
+"Namen und Fachbegriffe" = "Names and technical terms";
+
+/* No comment provided by engineer. */
+"Neu transkribieren" = "Transcribe again";
+
+/* No comment provided by engineer. */
+"Neu zusammenfassen" = "Summarise again";
+
+/* No comment provided by engineer. */
+"Neu zusammenfassen …" = "Summarise again…";
+
+/* No comment provided by engineer. */
+"Neuen Bereich anlegen (⇧⌘N)" = "Create a new area (⇧⌘N)";
+
+/* No comment provided by engineer. */
+"Neuer Bereich" = "New area";
+
+/* No comment provided by engineer. */
+"nicht gefunden" = "not found";
+
+/* No comment provided by engineer. */
+"Nicht jetzt" = "Not now";
+
+/* No comment provided by engineer. */
+"Nichts ausgewählt: %@ nutzt alle eingeschalteten Ziele." = "Nothing selected: %@ uses every destination that is on.";
+
+/* No comment provided by engineer. */
+"Nimmt auch die anderen Teilnehmer in Zoom, Teams und Meet auf." = "Also records the other participants in Zoom, Teams and Meet.";
+
+/* No comment provided by engineer. */
+"Nimmt Mikrofon und den Ton aus Zoom, Teams und Meet auf" = "Records the microphone and the audio from Zoom, Teams and Meet";
+
+/* No comment provided by engineer. */
+"Noch keine Aufnahmen" = "No recordings yet";
+
+/* No comment provided by engineer. */
+"Noch keine Aufnahmen in diesem Bereich" = "No recordings in this area yet";
+
+/* No comment provided by engineer. */
+"Notiz" = "Note";
+
+/* No comment provided by engineer. */
+"Notiz (⌘1) oder Transkript (⌘2)" = "Note (⌘1) or transcript (⌘2)";
+
+/* No comment provided by engineer. */
+"Notiz bearbeiten" = "Edit note";
+
+/* No comment provided by engineer. */
+"Notiz erstellt mit" = "Note written by";
+
+/* No comment provided by engineer. */
+"Notiz mit Kurzfassung, Themen und Aufgaben zum Abhaken" = "A note with a summary, topics and tasks to tick off";
+
+/* No comment provided by engineer. */
+"Notiz teilen" = "Share note";
+
+/* No comment provided by engineer. */
+"Notizen ablegen in" = "File notes in";
+
+/* No comment provided by engineer. */
+"offen" = "open";
+
+/* No comment provided by engineer. */
+"Öffnen" = "Open";
+
+/* No comment provided by engineer. */
+"Oft falsch erkannt als" = "Often misheard as";
+
+/* No comment provided by engineer. */
+"Ohne Bereich" = "No area";
+
+/* No comment provided by engineer. */
+"Ohne Ziel bleiben die Notizen einfach in %@." = "Without a destination the notes simply stay in %@.";
+
+/* No comment provided by engineer. */
+"OK" = "OK";
+
+/* No comment provided by engineer. */
+"Optional, z. B. „Prüfungsrelevante Formeln hervorheben“. Gute Notizen gibt es auch ohne." = "Optional, for example “highlight exam-relevant formulas”. Good notes happen without it, too.";
+
+/* No comment provided by engineer. */
+"Ordner in Apple Notizen" = "Folder in Apple Notes";
+
+/* No comment provided by engineer. */
+"Pause" = "Pause";
+
+/* No comment provided by engineer. */
+"Pause (⌥Leertaste)" = "Pause (⌥Space)";
+
+/* No comment provided by engineer. */
+"Pausiert" = "Paused";
+
+/* No comment provided by engineer. */
+"Pegel" = "Level";
+
+/* No comment provided by engineer. */
+"Pegel des Mikrofons" = "Microphone level";
+
+/* No comment provided by engineer. */
+"Position in der Aufnahme" = "Position in the recording";
+
+/* No comment provided by engineer. */
+"Problem" = "Problem";
+
+/* No comment provided by engineer. */
+"Protokoll öffnen" = "Open log";
+
+/* No comment provided by engineer. */
+"Protokoll zeigen" = "Show log";
+
+/* No comment provided by engineer. */
+"Quellcode auf GitHub" = "Source code on GitHub";
+
+/* No comment provided by engineer. */
+"Quelle" = "Source";
+
+/* No comment provided by engineer. */
+"Richtig" = "Correct";
+
+/* No comment provided by engineer. */
+"Schließen" = "Close";
+
+/* No comment provided by engineer. */
+"Schon während der Aufnahme transkribieren" = "Transcribe while recording";
+
+/* No comment provided by engineer. */
+"Schritt %lld von %lld" = "Step %lld of %lld";
+
+/* No comment provided by engineer. */
+"Server-Adresse" = "Server address";
+
+/* No comment provided by engineer. */
+"Sichern" = "Save";
+
+/* No comment provided by engineer. */
+"Sobald ein Call beginnt, fragt %@ von selbst nach." = "When a call starts, %@ asks by itself.";
+
+/* No comment provided by engineer. */
+"Sobald jemand spricht, erscheint hier die Mitschrift." = "As soon as someone speaks, the text appears here.";
+
+/* No comment provided by engineer. */
+"Soll %@ mitschreiben?" = "Should %@ take notes?";
+
+/* No comment provided by engineer. */
+"Space-ID" = "Space ID";
+
+/* No comment provided by engineer. */
+"Speicher" = "Storage";
+
+/* No comment provided by engineer. */
+"Speichern" = "Save";
+
+/* No comment provided by engineer. */
+"Sprache" = "Language";
+
+/* No comment provided by engineer. */
+"Sprache der Aufnahmen" = "Language of the recordings";
+
+/* No comment provided by engineer. */
+"Sprache der Notizen" = "Language of the notes";
+
+/* No comment provided by engineer. */
+"Spracherkennung" = "Speech recognition";
+
+/* No comment provided by engineer. */
+"Sprecher unterscheiden („Ich“ und „Andere“)" = "Tell speakers apart (“Me” and “Others”)";
+
+/* No comment provided by engineer. */
+"Sprich kurz, um das Mikrofon zu testen." = "Say something to test the microphone.";
+
+/* No comment provided by engineer. */
+"Standard-Bereich" = "Default area";
+
+/* No comment provided by engineer. */
+"Start" = "Launch";
+
+/* No comment provided by engineer. */
+"Starte eine mit ⇧⌘R oder ziehe eine Audiodatei hierher." = "Start one with ⇧⌘R or drag an audio file here.";
+
+/* No comment provided by engineer. */
+"Status" = "Status";
+
+/* No comment provided by engineer. */
+"Stopp" = "Stop";
+
+/* No comment provided by engineer. */
+"Stopp %@" = "Stop %@";
+
+/* No comment provided by engineer. */
+"Suchen" = "Find";
+
+/* No comment provided by engineer. */
+"Systemstandard (%@)" = "System default (%@)";
+
+/* No comment provided by engineer. */
+"Systemton mitaufnehmen" = "Record system audio too";
+
+/* No comment provided by engineer. */
+"Tags (durch Komma getrennt)" = "Tags (separated by commas)";
+
+/* No comment provided by engineer. */
+"Teilen" = "Share";
+
+/* No comment provided by engineer. */
+"Teilen …" = "Share…";
+
+/* No comment provided by engineer. */
+"Teilen ist möglich, sobald es eine Notiz gibt" = "Sharing works as soon as there is a note";
+
+/* No comment provided by engineer. */
+"Testen" = "Test";
+
+/* No comment provided by engineer. */
+"Titel" = "Title";
+
+/* No comment provided by engineer. */
+"Titel, Notizen, Transkripte" = "Titles, notes, transcripts";
+
+/* No comment provided by engineer. */
+"Transkript" = "Transcript";
+
+/* No comment provided by engineer. */
+"Transkript und Notiz bleiben erhalten. Neu transkribieren ist danach nicht mehr möglich." = "Transcript and note are kept. Transcribing again won’t be possible afterwards.";
+
+/* No comment provided by engineer. */
+"Transkript wird geladen …" = "Loading transcript…";
+
+/* No comment provided by engineer. */
+"Transkription" = "Transcription";
+
+/* No comment provided by engineer. */
+"Transkription und KI laufen auf deinem Mac – nichts geht in die Cloud" = "Transcription and AI run on your Mac – nothing goes to the cloud";
+
+/* No comment provided by engineer. */
+"Trennen" = "Disconnect";
+
+/* No comment provided by engineer. */
+"Über" = "About";
+
+/* No comment provided by engineer. */
+"Überschrift: ## · Aufgabe: - [ ]" = "Heading: ## · Task: - [ ]";
+
+/* No comment provided by engineer. */
+"Umbenennen" = "Rename";
+
+/* No comment provided by engineer. */
+"Unterordner im Vault" = "Subfolder in the vault";
+
+/* No comment provided by engineer. */
+"Verarbeitung" = "Processing";
+
+/* No comment provided by engineer. */
+"Verarbeitung fehlgeschlagen" = "Processing failed";
+
+/* No comment provided by engineer. */
+"Verbindung" = "Connection";
+
+/* No comment provided by engineer. */
+"Verbunden" = "Connected";
+
+/* No comment provided by engineer. */
+"Version %@" = "Version %@";
+
+/* No comment provided by engineer. */
+"Version %@ ist da" = "Version %@ is out";
+
+/* No comment provided by engineer. */
+"Version %@ laden" = "Download version %@";
+
+/* No comment provided by engineer. */
+"Verwerfen" = "Discard";
+
+/* No comment provided by engineer. */
+"Vollständiges Transkript mitexportieren" = "Export the full transcript as well";
+
+/* No comment provided by engineer. */
+"Wähle in der Liste eine Aufnahme aus." = "Pick a recording from the list.";
+
+/* No comment provided by engineer. */
+"Wähle, welches Mikrofon %@ verwendet" = "Choose which microphone %@ uses";
+
+/* No comment provided by engineer. */
+"Wählen …" = "Choose…";
+
+/* No comment provided by engineer. */
+"Während einer Aufnahme gesperrt" = "Locked while recording";
+
+/* No comment provided by engineer. */
+"Während einer Aufnahme lässt sich das Mikrofon nicht wechseln." = "You can’t switch microphones while recording.";
+
+/* No comment provided by engineer. */
+"Weitere Aktionen" = "More actions";
+
+/* No comment provided by engineer. */
+"Whisper läuft lokal auf deinem Mac. Sehr genau, auch bei Fachbegriffen – einmaliger Download." = "Whisper runs locally on your Mac. Very accurate, even with technical terms – one download.";
+
+/* No comment provided by engineer. */
+"Whisper-Modell" = "Whisper model";
+
+/* No comment provided by engineer. */
+"Wird für deinen Mac vorbereitet – das kann einige Minuten dauern." = "Being prepared for your Mac – this can take a few minutes.";
+
+/* No comment provided by engineer. */
+"Wohin %@ fertige Notizen legt" = "Where %@ files finished notes";
+
+/* No comment provided by engineer. */
+"Worauf soll die KI achten?" = "What should the AI pay attention to?";
+
+/* No comment provided by engineer. */
+"Wörterbuch" = "Dictionary";
+
+/* No comment provided by engineer. */
+"z. B. Kürzer fassen, Formeln hervorheben" = "e.g. keep it shorter, highlight formulas";
+
+/* No comment provided by engineer. */
+"z. B. Mathe II" = "e.g. Maths II";
+
+/* No comment provided by engineer. */
+"z. B. Mathe II, Statistik" = "e.g. Maths II, Statistics";
+
+/* No comment provided by engineer. */
+"z. B. Professor Maier" = "e.g. Professor Maier";
+
+/* No comment provided by engineer. */
+"z. B. Professor Meyer" = "e.g. Professor Meyer";
+
+/* No comment provided by engineer. */
+"Zeichen" = "Symbol";
+
+/* No comment provided by engineer. */
+"Ziele" = "Destinations";
+
+/* No comment provided by engineer. */
+"Ziele einrichten …" = "Set up destinations…";
+
+/* No comment provided by engineer. */
+"Zurück" = "Back";
+
+/* No comment provided by engineer. */
+"Zusammenfassungen sind ausgeschaltet. Wähle in den Einstellungen unter „KI“, wer die Notizen schreibt." = "Summaries are turned off. In Settings › AI, choose who writes the notes.";
+
+/* No comment provided by engineer. */
+"Zusätzliche Anweisung" = "Extra instruction";
+
+
+"Alle Aufnahmen" = "All recordings";
+
+"Offene Aufgaben" = "Open tasks";
+
+"Probleme" = "Problems";

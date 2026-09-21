@@ -1,0 +1,21 @@
+/* Bundle display name */
+"CFBundleDisplayName" = "Earnote";
+
+/* Bundle name */
+"CFBundleName" = "Earnote";
+
+/* Privacy - AppleEvents Sending Usage Description */
+"NSAppleEventsUsageDescription" = "Earnote can file your notes in Apple Notes.";
+
+/* Privacy - Documents Folder Usage Description */
+"NSDocumentsFolderUsageDescription" = "Earnote can save notes as Markdown files in your Documents folder.";
+
+/* Copyright (human-readable) */
+"NSHumanReadableCopyright" = "Open Source · MIT License";
+
+/* Privacy - Microphone Usage Description */
+"NSMicrophoneUsageDescription" = "Earnote records your voice in meetings, calls and lectures to transcribe it on your Mac.";
+
+/* Privacy - Speech Recognition Usage Description */
+"NSSpeechRecognitionUsageDescription" = "Earnote uses Apple speech recognition to transcribe recordings on your Mac.";
+

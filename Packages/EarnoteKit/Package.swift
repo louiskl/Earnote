@@ -7,6 +7,7 @@ import PackageDescription
 // - EarnoteML: EarnoteCore + WhisperKit/MLX (lokale Transkription und lokales Sprachmodell).
 let package = Package(
     name: "EarnoteKit",
+    defaultLocalization: "de",
     platforms: [.macOS(.v15), .iOS("26.0")],
     products: [
         .library(name: "EarnoteCore", targets: ["EarnoteCore"]),
@@ -19,7 +20,8 @@ let package = Package(
         .package(url: "https://github.com/huggingface/swift-transformers", from: "1.3.0"),
     ],
     targets: [
-        .target(name: "EarnoteCore"),
+        // Deutsch steht im Code, weitere Sprachen liegen unter Sources/EarnoteCore/Resources/<sprache>.lproj
+        .target(name: "EarnoteCore", resources: [.process("Resources")]),
         .target(
             name: "EarnoteML",
             dependencies: [

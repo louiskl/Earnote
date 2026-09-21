@@ -128,9 +128,9 @@ public enum LibraryListing {
 
     public static func dayTitle(_ day: Date, now: Date = Date(), calendar: Calendar = .current,
                                 locale: Locale = Locale(identifier: "de_DE")) -> String {
-        if calendar.isDate(day, inSameDayAs: now) { return "Heute" }
+        if calendar.isDate(day, inSameDayAs: now) { return t("Heute") }
         if let yesterday = calendar.date(byAdding: .day, value: -1, to: now), calendar.isDate(day, inSameDayAs: yesterday) {
-            return "Gestern"
+            return t("Gestern")
         }
         let formatter = DateFormatter()
         formatter.locale = locale

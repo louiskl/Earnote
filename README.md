@@ -41,6 +41,11 @@ AI meeting notes are great, but usually tied to one app and a monthly subscripti
 | 🔝 **Menu bar** | Start, pause or stop recordings, see live levels and recent notes. |
 | 📥 **Import** | Drag any audio file into the window to transcribe it. |
 
+### Language
+
+The interface follows your Mac: English or German. Notes are written in the language you choose under
+*Settings › AI*, independent of the interface.
+
 ### Requirements
 
 - macOS 15 or later on Apple Silicon (Intel works but is slow and can't run the local AI)

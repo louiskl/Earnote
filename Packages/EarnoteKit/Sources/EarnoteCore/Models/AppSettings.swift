@@ -5,8 +5,8 @@ public enum TranscriptionEngineKind: String, Codable, CaseIterable, Identifiable
     public var id: String { rawValue }
     public var label: String {
         switch self {
-        case .apple: return "Apple Spracherkennung (macOS 26+)"
-        case .whisperKit: return "Whisper (lokal, WhisperKit)"
+        case .apple: return t("Apple Spracherkennung (macOS 26+)")
+        case .whisperKit: return t("Whisper (lokal, WhisperKit)")
         }
     }
 }
@@ -17,35 +17,35 @@ public enum AIProviderKind: String, Codable, CaseIterable, Identifiable, Sendabl
 
     public var label: String {
         switch self {
-        case .localModel: return "Lokale KI"
-        case .appleIntelligence: return "Apple Intelligence"
-        case .ollama: return "Ollama"
-        case .lmStudio: return "LM Studio"
-        case .anthropic: return "Claude (API)"
-        case .openAI: return "OpenAI / ChatGPT (API)"
-        case .gemini: return "Google Gemini (API)"
-        case .mistral: return "Mistral (API)"
-        case .openAICompatible: return "OpenAI-kompatibel (eigener Server)"
-        case .claudeCode: return "Claude Code (dein Claude-Abo)"
-        case .codex: return "Codex CLI (dein ChatGPT-Abo)"
-        case .none: return "Keine Zusammenfassung"
+        case .localModel: return t("Lokale KI")
+        case .appleIntelligence: return t("Apple Intelligence")
+        case .ollama: return t("Ollama")
+        case .lmStudio: return t("LM Studio")
+        case .anthropic: return t("Claude (API)")
+        case .openAI: return t("OpenAI / ChatGPT (API)")
+        case .gemini: return t("Google Gemini (API)")
+        case .mistral: return t("Mistral (API)")
+        case .openAICompatible: return t("OpenAI-kompatibel (eigener Server)")
+        case .claudeCode: return t("Claude Code (dein Claude-Abo)")
+        case .codex: return t("Codex CLI (dein ChatGPT-Abo)")
+        case .none: return t("Keine Zusammenfassung")
         }
     }
 
     public var subtitle: String {
         switch self {
-        case .localModel: return "Läuft komplett auf deinem Mac. Kostenlos, ohne Konto, auch offline – und nichts aus deinen Meetings verlässt das Gerät."
-        case .appleIntelligence: return "Kostenlos, lokal auf deinem Mac. Ab macOS 26 mit Apple Intelligence. Einfachere Notizen als die lokale KI."
-        case .ollama: return "Kostenlos & lokal. Benötigt die Ollama-App."
-        case .lmStudio: return "Kostenlos & lokal. Benötigt LM Studio mit aktiviertem Server."
-        case .anthropic: return "Sehr gute Qualität. Benötigt einen API-Schlüssel (nutzungsbasiert)."
-        case .openAI: return "Benötigt einen API-Schlüssel von platform.openai.com."
-        case .gemini: return "Benötigt einen API-Schlüssel von aistudio.google.com (kostenloses Kontingent)."
-        case .mistral: return "Europäischer Anbieter. Benötigt einen API-Schlüssel."
-        case .openAICompatible: return "Jeder Dienst mit OpenAI-kompatibler Schnittstelle (z. B. Groq, OpenRouter)."
-        case .claudeCode: return "Nutzt die installierte Claude-Code-App und dein bestehendes Abo."
-        case .codex: return "Nutzt die installierte Codex-CLI und dein bestehendes ChatGPT-Abo."
-        case .none: return "Nur Transkript speichern."
+        case .localModel: return t("Läuft komplett auf deinem Mac. Kostenlos, ohne Konto, auch offline – und nichts aus deinen Meetings verlässt das Gerät.")
+        case .appleIntelligence: return t("Kostenlos, lokal auf deinem Mac. Ab macOS 26 mit Apple Intelligence. Einfachere Notizen als die lokale KI.")
+        case .ollama: return t("Kostenlos & lokal. Benötigt die Ollama-App.")
+        case .lmStudio: return t("Kostenlos & lokal. Benötigt LM Studio mit aktiviertem Server.")
+        case .anthropic: return t("Sehr gute Qualität. Benötigt einen API-Schlüssel (nutzungsbasiert).")
+        case .openAI: return t("Benötigt einen API-Schlüssel von platform.openai.com.")
+        case .gemini: return t("Benötigt einen API-Schlüssel von aistudio.google.com (kostenloses Kontingent).")
+        case .mistral: return t("Europäischer Anbieter. Benötigt einen API-Schlüssel.")
+        case .openAICompatible: return t("Jeder Dienst mit OpenAI-kompatibler Schnittstelle (z. B. Groq, OpenRouter).")
+        case .claudeCode: return t("Nutzt die installierte Claude-Code-App und dein bestehendes Abo.")
+        case .codex: return t("Nutzt die installierte Codex-CLI und dein bestehendes ChatGPT-Abo.")
+        case .none: return t("Nur Transkript speichern.")
         }
     }
 
@@ -174,9 +174,9 @@ public enum AppearanceChoice: String, Codable, CaseIterable, Identifiable, Senda
     public var id: String { rawValue }
     public var label: String {
         switch self {
-        case .system: return "System"
-        case .light: return "Hell"
-        case .dark: return "Dunkel"
+        case .system: return t("System")
+        case .light: return t("Hell")
+        case .dark: return t("Dunkel")
         }
     }
     public var symbol: String {

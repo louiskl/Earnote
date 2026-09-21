@@ -18,10 +18,10 @@ public enum TranscriptionError: LocalizedError, Sendable {
 
     public var errorDescription: String? {
         switch self {
-        case .modelMissing: return "Kein Whisper-Modell geladen. Bitte in den Einstellungen unter „Transkription“ ein Modell herunterladen."
-        case .unsupportedLanguage(let l): return "Die Sprache „\(l)“ wird von dieser Transkription nicht unterstützt."
+        case .modelMissing: return t("Kein Whisper-Modell geladen. Bitte in den Einstellungen unter „Transkription“ ein Modell herunterladen.")
+        case .unsupportedLanguage(let l): return t("Die Sprache „\(l)“ wird von dieser Transkription nicht unterstützt.")
         case .unavailable(let why): return why
-        case .noSpeech: return "In der Aufnahme wurde keine Sprache erkannt. Ist das richtige Mikrofon ausgewählt?"
+        case .noSpeech: return t("In der Aufnahme wurde keine Sprache erkannt. Ist das richtige Mikrofon ausgewählt?")
         }
     }
 }

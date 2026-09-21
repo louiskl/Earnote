@@ -90,14 +90,15 @@ struct SidebarView: View {
 }
 
 private struct LibraryRow: View {
-    let title: String
+    /// `LocalizedStringKey`, damit die Namen der Bibliothek mitübersetzt werden
+    let title: LocalizedStringKey
     let systemImage: String
     let count: Int
 
     var body: some View {
         Label(title, systemImage: systemImage)
             .badge(count)
-            .accessibilityLabel("\(title), \(count)")
+            .accessibilityLabel(Text(title) + Text(", \(count)"))
     }
 }
 

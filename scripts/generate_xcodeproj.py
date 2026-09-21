@@ -86,10 +86,39 @@ assets_path = "Resources/Assets.xcassets"
 ASSETS_BUILD = uid("build", assets_path)
 add(ASSETS_BUILD, f'{{isa = PBXBuildFile; fileRef = {file_refs[assets_path]}; }};')
 
+# Übersetzungen: Deutsch steht im Code, jede weitere Sprache liegt als <sprache>.lproj/*.strings daneben.
+# Xcode braucht dafür je Datei eine „Variantengruppe“ mit den Sprachen als Kindern.
+LOCALIZED_BUILDS = []
+localized_groups = []
+resources_dir = pathlib.Path(SRC) / "Resources"
+languages = sorted(d.name[: -len(".lproj")] for d in resources_dir.iterdir()
+                   if d.is_dir() and d.name.endswith(".lproj"))
+for table in ["Localizable.strings", "InfoPlist.strings"]:
+    children = []
+    for language in languages:
+        rel = f"{language}.lproj/{table}"
+        if not (resources_dir / rel).exists():
+            continue
+        ref = uid("locfile", rel)
+        # Pfad vom Projektordner aus, weil die Variantengruppe nicht unter der Gruppe „Earnote“ hängt
+        add(ref, f'{{isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = {language}; '
+                 f'path = "Earnote/Resources/{rel}"; sourceTree = "<group>"; }};')
+        children.append(ref)
+    if not children:
+        continue
+    group = uid("locgroup", table)
+    add(group, "{isa = PBXVariantGroup; children = (" + "".join(f"{c}, " for c in children)
+        + f"); name = {table}; sourceTree = \"<group>\"; }};")
+    build = uid("build", table)
+    add(build, f'{{isa = PBXBuildFile; fileRef = {group}; }};')
+    LOCALIZED_BUILDS.append(build)
+    localized_groups.append(group)
+
 SOURCES = uid("phase", "sources")
 add(SOURCES, "{isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (" + "".join(f"{b}, " for b in build_files) + "); runOnlyForDeploymentPostprocessing = 0; };")
 RESOURCES = uid("phase", "resources")
-add(RESOURCES, f"{{isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = ({ASSETS_BUILD}, ); runOnlyForDeploymentPostprocessing = 0; }};")
+add(RESOURCES, f"{{isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = ({ASSETS_BUILD}, "
+    + "".join(f"{b}, " for b in LOCALIZED_BUILDS) + "); runOnlyForDeploymentPostprocessing = 0; };")
 FRAMEWORKS = uid("phase", "frameworks")
 add(FRAMEWORKS, f"{{isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (" + "".join(f"{b}, " for b in PKG_BUILDS) + f"); runOnlyForDeploymentPostprocessing = 0; }};")
 
@@ -113,7 +142,7 @@ common_target = {
     "INFOPLIST_FILE": "Earnote/Resources/Info.plist",
     "LD_RUNPATH_SEARCH_PATHS": "$(inherited) @executable_path/../Frameworks",
     "MACOSX_DEPLOYMENT_TARGET": "15.0",
-    "MARKETING_VERSION": "0.9.0",
+    "MARKETING_VERSION": "0.9.1",
     "PRODUCT_BUNDLE_IDENTIFIER": "app.earnote.Earnote",
     "PRODUCT_NAME": "$(TARGET_NAME)",
     "SWIFT_EMIT_LOC_STRINGS": "YES",

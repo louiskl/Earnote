@@ -154,8 +154,9 @@ Ziel: Was eine fremde Person in der ersten Woche braucht, ohne zu fragen.
 - [ ] Vorwärts/rückwärts durch die Fundstellen der Suche (⌘G)
 
 **Für alle verständlich**
-- [ ] **Englische Oberfläche** (String Catalog, Deutsch bleibt Standard) – ohne Englisch fällt beim Launch
-      der halbe Markt weg (Reddit, Product Hunt, Hacker News sind englischsprachig)
+- [x] **Englische Oberfläche (0.9.1)**: Deutsch steht im Quelltext und bleibt Standard, Englisch liegt als
+      `en.lproj/Localizable.strings` daneben – 316 Texte der App und 79 aus dem Kern (Status, Fehlermeldungen,
+      Vorlagen, Ziele). Der Projektgenerator bindet jede weitere Sprache automatisch ein.
 - [ ] Erster Start ohne Internet: verständliche Meldung statt hängendem Download
 - [ ] Anti-Vibecoding-Review über alle neuen Ansichten (Guidelines Abschnitt 28)
 

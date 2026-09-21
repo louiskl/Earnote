@@ -225,11 +225,11 @@ final class DiskSpaceTests: XCTestCase {
 
         let low = DiskSpace.check(availableBytes: 1_000 * 1_048_576)
         XCTAssertEqual(low, .low(freeMB: 1_000, minutesLeft: 1_000 / DiskSpace.megabytesPerMinute))
-        XCTAssertTrue(low.message?.contains("58 Minuten") == true, low.message ?? "-")
+        XCTAssertTrue(low.message?.contains("58") == true, "Restlaufzeit steht drin: \(low.message ?? "-")")
 
         let critical = DiskSpace.check(availableBytes: 100 * 1_048_576)
         XCTAssertEqual(critical, .critical(freeMB: 100))
-        XCTAssertTrue(critical.message?.contains("100 MB") == true, critical.message ?? "-")
+        XCTAssertTrue(critical.message?.contains("100") == true, critical.message ?? "-")
         XCTAssertNil(DiskSpace.fine.message)
     }
 }

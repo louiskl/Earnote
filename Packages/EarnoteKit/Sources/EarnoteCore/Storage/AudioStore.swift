@@ -27,11 +27,9 @@ public enum DiskSpace: Sendable, Equatable {
         case .fine:
             return nil
         case .low(let freeMB, let minutesLeft):
-            return "Nur noch \(freeMB) MB frei – das reicht für etwa \(minutesLeft) Minuten Aufnahme. "
-                + "Mach etwas Platz, sonst bricht die Aufnahme vorzeitig ab."
+            return t("Nur noch \(freeMB) MB frei – das reicht für etwa \(minutesLeft) Minuten Aufnahme. Mach etwas Platz, sonst bricht die Aufnahme vorzeitig ab.")
         case .critical(let freeMB):
-            return "Zu wenig Speicherplatz: nur noch \(freeMB) MB frei. "
-                + "Lösche etwas (oder alte Aufnahmen in \(AppInfo.name)) und starte die Aufnahme neu."
+            return t("Zu wenig Speicherplatz: nur noch \(freeMB) MB frei. Lösche etwas (oder alte Aufnahmen in \(AppInfo.name)) und starte die Aufnahme neu.")
         }
     }
 }

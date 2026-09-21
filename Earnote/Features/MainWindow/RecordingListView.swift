@@ -98,11 +98,12 @@ struct RecordingListView: View {
 
     private var title: String {
         switch filter {
-        case .all: return "Alle Aufnahmen"
-        case .openTasks: return "Offene Aufgaben"
-        case .uncategorized: return "Ohne Bereich"
-        case .problems: return "Probleme"
-        case .category(let id): return categories.first { $0.id == id }?.name ?? "Bereich"
+        case .all: return String(localized: "Alle Aufnahmen")
+        case .openTasks: return String(localized: "Offene Aufgaben")
+        case .uncategorized: return String(localized: "Ohne Bereich")
+        case .problems: return String(localized: "Probleme")
+        // Der Name eines Bereichs kommt vom Nutzer und wird nicht übersetzt
+        case .category(let id): return categories.first { $0.id == id }?.name ?? String(localized: "Bereich")
         }
     }
 
