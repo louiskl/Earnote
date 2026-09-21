@@ -32,13 +32,13 @@ if [[ -f "$PROFILE" ]]; then
     echo "▸ Profil gefunden – baue mit iCloud-Berechtigung"
 fi
 
-SIGN_ARGS=(CODE_SIGN_IDENTITY="-" CODE_SIGN_STYLE=Manual DEVELOPMENT_TEAM="" CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO
-           CODE_SIGN_ENTITLEMENTS="$ENTITLEMENTS")
+# Die Berechtigungen kommen aus dem Projekt; mit iCloud-Profil wird die fertige App unten neu
+# signiert. Als Build-Einstellung würde der Pfad für jedes Paket-Ziel mitgelten und dort ins Leere zeigen.
+SIGN_ARGS=(CODE_SIGN_IDENTITY="-" CODE_SIGN_STYLE=Manual DEVELOPMENT_TEAM="" CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO)
 if [[ -n "${DEVELOPER_ID:-}" ]]; then
     TEAM_ID="$(sed -E 's/.*\(([A-Z0-9]+)\)$/\1/' <<<"$DEVELOPER_ID")"
     SIGN_ARGS=(CODE_SIGN_IDENTITY="$DEVELOPER_ID" CODE_SIGN_STYLE=Manual DEVELOPMENT_TEAM="$TEAM_ID"
-               CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO CODE_SIGN_ENTITLEMENTS="$ENTITLEMENTS"
-               OTHER_CODE_SIGN_FLAGS="--timestamp --options runtime")
+               CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO OTHER_CODE_SIGN_FLAGS="--timestamp --options runtime")
     echo "▸ Signiere mit: $DEVELOPER_ID"
 else
     echo "▸ Kein DEVELOPER_ID gesetzt – signiere ad-hoc"
