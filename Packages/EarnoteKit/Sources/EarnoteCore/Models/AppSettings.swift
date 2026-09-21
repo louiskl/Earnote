@@ -206,6 +206,8 @@ public struct AppSettings: Codable, Hashable, Sendable {
     public var recordSystemAudio = true
     /// Aufnahme mit ⌃⌥⌘R aus jeder App starten und stoppen
     public var globalShortcut = false
+    /// Titel des laufenden Kalendertermins als Titel der Aufnahme übernehmen
+    public var calendarTitles = false
     public var keepAudioFiles = true
     public var showConsentReminder = true
     public var defaultCategoryID: UUID?
@@ -234,6 +236,7 @@ public struct AppSettings: Codable, Hashable, Sendable {
         ai = (try? c.decodeIfPresent(AIConfig.self, forKey: .ai)) ?? d.ai
         destinations = (try? c.decodeIfPresent(DestinationSettings.self, forKey: .destinations)) ?? d.destinations
         globalShortcut = (try? c.decodeIfPresent(Bool.self, forKey: .globalShortcut)) ?? d.globalShortcut
+        calendarTitles = (try? c.decodeIfPresent(Bool.self, forKey: .calendarTitles)) ?? d.calendarTitles
         meetingDetection = try c.decodeIfPresent(Bool.self, forKey: .meetingDetection) ?? d.meetingDetection
         autoStopWhenCallEnds = try c.decodeIfPresent(Bool.self, forKey: .autoStopWhenCallEnds) ?? d.autoStopWhenCallEnds
         recordSystemAudio = try c.decodeIfPresent(Bool.self, forKey: .recordSystemAudio) ?? d.recordSystemAudio

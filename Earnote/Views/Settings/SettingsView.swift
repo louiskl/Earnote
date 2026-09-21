@@ -99,6 +99,24 @@ struct RecordingSettings: View {
                 Text("Das Kürzel wirkt auch, wenn \(AppInfo.name) im Hintergrund ist – etwa mitten in der Vorlesung "
                      + "oder im Call. Belegt eine andere App dasselbe Kürzel, gewinnt die andere App.")
             }
+            Section {
+                Toggle("Titel aus dem Kalender übernehmen", isOn: $library.settings.calendarTitles)
+                    .onChange(of: library.settings.calendarTitles) { _, on in
+                        guard on else { return }
+                        Task {
+                            // Ohne Zugriff bleibt der Schalter aus, statt still nichts zu tun
+                            if await !CalendarTitles.requestAccess() { library.settings.calendarTitles = false }
+                        }
+                    }
+                if library.settings.calendarTitles, !CalendarTitles.isAuthorized {
+                    LabeledContent("Kalender") {
+                        Button("In den Systemeinstellungen erlauben …") { SystemSettingsLink.calendars() }
+                    }
+                }
+            } footer: {
+                Text("Läuft während der Aufnahme ein Termin, heißt die Aufnahme wie er – sonst wie der Bereich "
+                     + "mit Datum. \(AppInfo.name) liest nur den Titel des laufenden Termins.")
+            }
             Section("Calls") {
                 Toggle("Calls automatisch erkennen und Aufnahme vorschlagen", isOn: $library.settings.meetingDetection)
                 Toggle("Aufnahme beenden, wenn der Call endet", isOn: $library.settings.autoStopWhenCallEnds)

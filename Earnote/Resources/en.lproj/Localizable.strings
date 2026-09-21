@@ -954,3 +954,9 @@
 /* Globales Tastenkürzel */
 "Aufnahme mit %@ aus jeder App starten und stoppen" = "Start and stop recording from any app with %@";
 "Das Kürzel wirkt auch, wenn %@ im Hintergrund ist – etwa mitten in der Vorlesung oder im Call. Belegt eine andere App dasselbe Kürzel, gewinnt die andere App." = "The shortcut works even when %@ is in the background — in the middle of a lecture or a call. If another app uses the same shortcut, that app wins.";
+
+/* Kalender */
+"Titel aus dem Kalender übernehmen" = "Use the title from the calendar";
+"Kalender" = "Calendar";
+"In den Systemeinstellungen erlauben …" = "Allow in System Settings …";
+"Läuft während der Aufnahme ein Termin, heißt die Aufnahme wie er – sonst wie der Bereich mit Datum. %@ liest nur den Titel des laufenden Termins." = "If an event is running while you record, the recording is named after it — otherwise after the area and date. %@ only reads the title of the current event.";

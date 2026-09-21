@@ -36,6 +36,8 @@
 	<string>Earnote nutzt die Apple-Spracherkennung, um Aufnahmen auf deinem Mac zu transkribieren.</string>
 	<key>NSAppleEventsUsageDescription</key>
 	<string>Earnote legt deine Notizen auf Wunsch in Apple Notizen ab.</string>
+	<key>NSCalendarsFullAccessUsageDescription</key>
+	<string>Earnote übernimmt auf Wunsch den Titel des laufenden Termins als Titel der Aufnahme.</string>
 	<key>NSDocumentsFolderUsageDescription</key>
 	<string>Earnote speichert Notizen auf Wunsch als Markdown-Dateien in deinem Dokumente-Ordner.</string>
 	<key>NSPrincipalClass</key>

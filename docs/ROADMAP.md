@@ -164,7 +164,10 @@ Ziel: Was eine fremde Person in der ersten Woche braucht, ohne zu fragen.
 - [ ] Anti-Vibecoding-Review über alle neuen Ansichten (Guidelines Abschnitt 28)
 
 **Alltag**
-- [ ] **Kalender-Anbindung**: Titel, Fach und Teilnehmende aus dem laufenden Termin übernehmen
+- [x] **Kalender-Anbindung (0.9.2)**: Läuft ein Termin, heißt die Aufnahme wie er (Einstellungen › Aufnahme,
+      fragt beim Einschalten nach Zugriff). Ganztägige, abgesagte und beendete Termine zählen nicht;
+      bei mehreren gewinnt der kürzeste. Teilnehmende zu übernehmen kommt später – der Titel ist das,
+      wonach man sucht.
 - [x] **Globales Tastenkürzel (0.9.2)**: ⌃⌥⌘R startet und stoppt die Aufnahme aus jeder App heraus
       (fest vergeben, abschaltbar in Einstellungen › Aufnahme; belegt eine andere App dasselbe Kürzel,
       steht das im Protokoll)

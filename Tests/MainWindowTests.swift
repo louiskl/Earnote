@@ -1,4 +1,5 @@
 import EarnoteCore
+import EventKit
 import PDFKit
 import XCTest
 @testable import Earnote
@@ -27,6 +28,35 @@ final class MainWindowTests: XCTestCase {
         // Der Name kommt vom System und heißt je nach Oberflächensprache „Deutsch“ oder „German“
         XCTAssertEqual(MainWindowFormat.language("de"), Locale.current.localizedString(forLanguageCode: "de")?.localizedCapitalized)
         XCTAssertEqual(MainWindowFormat.language("xx"), "xx")
+    }
+
+    /// Welcher Termin gibt den Titel? Ohne Kalenderzugriff prüfbar, weil die Auswahl für sich steht.
+    @MainActor
+    func testCalendarPicksTheShortestRunningEvent() {
+        let store = EKEventStore()
+        let now = Date()
+        func event(_ title: String, from: TimeInterval, to: TimeInterval, allDay: Bool = false) -> EKEvent {
+            let event = EKEvent(eventStore: store)
+            event.title = title
+            event.startDate = now.addingTimeInterval(from)
+            event.endDate = now.addingTimeInterval(to)
+            event.isAllDay = allDay
+            return event
+        }
+        let events = [
+            event("Semesterferien", from: -3600, to: 3600, allDay: true),
+            event("Uni-Tag", from: -3 * 3600, to: 3 * 3600),
+            event("Analysis II", from: -600, to: 3000),
+            event("Mittagessen", from: 3 * 3600, to: 4 * 3600),
+            event("Schon vorbei", from: -7200, to: -60),
+        ]
+        XCTAssertEqual(CalendarTitles.pick(from: events, now: now), "Analysis II")
+        XCTAssertNil(CalendarTitles.pick(from: [events[0], events[4]], now: now),
+                     "ganztägig und vorbei zählen beide nicht")
+        // Ein Termin, der in fünf Minuten beginnt, zählt schon (man startet vorher)
+        XCTAssertEqual(CalendarTitles.pick(from: [event("Lineare Algebra", from: 300, to: 3600)], now: now),
+                       "Lineare Algebra")
+        XCTAssertNil(CalendarTitles.pick(from: [event("Erst in einer Stunde", from: 3600, to: 7200)], now: now))
     }
 
     @MainActor

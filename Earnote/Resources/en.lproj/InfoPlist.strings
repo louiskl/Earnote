@@ -7,6 +7,9 @@
 /* Privacy - AppleEvents Sending Usage Description */
 "NSAppleEventsUsageDescription" = "Earnote can file your notes in Apple Notes.";
 
+/* Privacy - Calendars Full Access Usage Description */
+"NSCalendarsFullAccessUsageDescription" = "Earnote can use the title of the event you are in as the title of the recording.";
+
 /* Privacy - Documents Folder Usage Description */
 "NSDocumentsFolderUsageDescription" = "Earnote can save notes as Markdown files in your Documents folder.";
 

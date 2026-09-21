@@ -38,6 +38,7 @@ enum SystemSettingsLink {
     static func microphone() { open("Privacy_Microphone") }
     static func systemAudio() { open("Privacy_AudioCapture") }
     static func automation() { open("Privacy_Automation") }
+    static func calendars() { open("Privacy_Calendars") }
     static func notifications() {
         if let url = URL(string: "x-apple.systempreferences:com.apple.Notifications-Settings.extension") {
             NSWorkspace.shared.open(url)

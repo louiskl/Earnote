@@ -119,7 +119,11 @@ final class RecordingController {
             df.locale = Locale(identifier: "de_DE")
             df.dateFormat = "d. MMM, HH:mm"
             let cat = category ?? library.category(settings.defaultCategoryID) ?? library.categories.first
-            let name = title.isEmpty ? "\(cat?.name ?? "Aufnahme") – \(df.string(from: Date()))" : title
+            // Läuft gerade ein Termin, heißt die Aufnahme wie er – das ist der Titel, den man sucht.
+            let fromCalendar = settings.calendarTitles ? CalendarTitles.currentTitle() : nil
+            let name = title.isEmpty
+                ? (fromCalendar ?? "\(cat?.name ?? "Aufnahme") – \(df.string(from: Date()))")
+                : title
             var rec = Recording(title: name, categoryID: cat?.id, sourceApp: sourceApp)
             rec.language = settings.language
             rec.isTitleCustom = !Recording.looksAutomatic(name)
