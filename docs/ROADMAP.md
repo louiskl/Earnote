@@ -1,6 +1,6 @@
 # Earnote – Roadmap
 
-> Stand: 19.09.2026 · gepflegt vom Architekten · Versionen sind Arbeitsstände, öffentlich wird erst 1.0.
+> Stand: 21.09.2026 · gepflegt vom Architekten · Versionen sind Arbeitsstände, öffentlich wird erst 1.0.
 > Beta läuft: [Releases](https://github.com/louiskl/Earnote/releases) · [Anleitung für Tester](BETA.md)
 > Leitlinien: [DESIGN_GUIDELINES.md](DESIGN_GUIDELINES.md) · Aufbau: [ARCHITECTURE.md](ARCHITECTURE.md)
 
@@ -20,7 +20,8 @@
 | 3a–3g | Notiz bearbeiten, Begriffe korrigieren & Wörterbuch, PDF-Lernzettel, Suche im Transkript, saubere Transkripte, Export je Ziel | 0.7.2–0.7.5 | ✅ fertig |
 | 3h | Schneller fertig: Transkription läuft schon während der Aufnahme | 0.8.0 | ✅ fertig |
 | 4a | Härtefälle, öffentliches Repository, Beta-Auslieferung, Sprecherlabels nur bei Calls | 0.8.1–0.8.5 | ✅ fertig |
-| **4b** | **Reif für andere: Audio anhören, englische Oberfläche, Kalender, Modellwahl** | 0.9 | ▶ **läuft** |
+| 4b | Reif für andere: Player, englische Oberfläche, Nebeneinander, Suche, Kürzel, Kalender | 0.9.0–0.9.2 | ✅ fertig |
+| **4c** | **Letzter Schliff: Lernhilfen, Aufgaben, Modellwahl, Dauerlauf, Review** | 0.9.3 | ▶ **als Nächstes** |
 | 5 | Launch: Website, Demo-Video, Homebrew, Beta mit Kommilitonen, Markenrecherche | 1.0 RC | geplant |
 | 🚀 | **Launch Earnote 1.0 für Mac** | 1.0 | |
 | 6 | iPad eigenständig, iPhone als Begleit-App, iCloud-Sync | 1.1 | nach Launch |
@@ -143,7 +144,7 @@ Vorher: Architekturvorschlag nach Guidelines Abschnitt 20, vom Nutzer abgesegnet
 **≈ 12× Echtzeit** (60 Min. Ton in 5 Min.), die Notiz der lokalen KI braucht 6–7 Minuten. Die gefühlte
 Stunde Wartezeit kam vom zugeklappten Deckel, nicht von der Rechenleistung.
 
-## Phase 4b – Reif für andere (0.9)
+## ✅ Phase 4b – Reif für andere (0.9.0–0.9.2)
 Ziel: Was eine fremde Person in der ersten Woche braucht, ohne zu fragen.
 
 **Anhören und finden**
@@ -161,7 +162,7 @@ Ziel: Was eine fremde Person in der ersten Woche braucht, ohne zu fragen.
       Vorlagen, Ziele). Der Projektgenerator bindet jede weitere Sprache automatisch ein.
 - [x] **Erster Start ohne Internet (0.9.2)**: vor jedem Modell-Download wird geprüft, ob überhaupt ein Netz
       da ist – sonst steht sofort „Keine Internetverbindung“ mit „Erneut laden“ statt eines stummen Wartens
-- [ ] Anti-Vibecoding-Review über alle neuen Ansichten (Guidelines Abschnitt 28)
+- [ ] Anti-Vibecoding-Review über alle neuen Ansichten (Guidelines Abschnitt 28) → Phase 4c
 
 **Alltag**
 - [x] **Kalender-Anbindung (0.9.2)**: Läuft ein Termin, heißt die Aufnahme wie er (Einstellungen › Aufnahme,
@@ -175,6 +176,10 @@ Ziel: Was eine fremde Person in der ersten Woche braucht, ohne zu fragen.
       steht das im Protokoll)
 - [x] Aufnahme aus der Menüleiste mit Bereichswahl: die Bereiche stehen als Liste im Menüleisten-Fenster,
       ein Klick wählt, der nächste nimmt auf
+
+---
+
+## Phase 4c – Letzter Schliff vor 1.0 (0.9.3)
 
 **Zielgruppen schärfen**
 - [ ] **Studium**: Karteikarten aus der Notiz (Anki-CSV und Apple-Karteikarten), Semester-Zusammenfassung
@@ -190,6 +195,31 @@ Ziel: Was eine fremde Person in der ersten Woche braucht, ohne zu fragen.
 - [ ] Notiz beschleunigen: Vorverdichten schon während der Aufnahme, sobald das Transkript lang ist
 - [ ] 3-Stunden-Vorlesung Ende-zu-Ende: Dauer, Speicher, Akku, Wärme
 - [ ] Swift-6-Sprachmodus, `LegacyMigration` (Earmark → Earnote) entfernen
+
+---
+
+## Wann ist die Mac-App fertig? (Abnahme für 1.0)
+
+Nicht „wenn nichts mehr einfällt“, sondern wenn diese Punkte abgehakt sind:
+
+**Funktion**
+- [ ] Phase 4c abgeschlossen (Lernhilfen, Aufgaben nach Erinnerungen, Modellwahl, Vorverdichten)
+- [ ] Anti-Vibecoding-Review über alle Ansichten (Guidelines Abschnitt 28)
+
+**Belastbarkeit** – an echten Daten nachgewiesen, nicht nur im Test
+- [ ] 3-Stunden-Vorlesung Ende-zu-Ende: Dauer, Speicher, Akku, Wärme notiert
+- [ ] Härtefälle am echten Mac durchgespielt: Gerät gewechselt, Berechtigung entzogen,
+      Platte voll, Deckel zu, Call mit Teams/Zoom
+- [ ] Zwei Wochen Beta mit 5–10 Kommilitonen ohne Datenverlust und ohne Absturz
+- [ ] Swift-6-Sprachmodus an, `LegacyMigration` entfernt
+
+**Drumherum**
+- [ ] Demo-Video, Screenshots hell/dunkel in beiden Sprachen, Homebrew Cask
+- [ ] Markenrecherche Earnote abgeschlossen (liegt beim Nutzer)
+
+Erst wenn alle drei Blöcke stehen, wird aus 0.9.x die 1.0 – und erst danach beginnt Phase 6.
+
+---
 
 ## Phase 5 – Launch (1.0 RC → 1.0)
 
@@ -219,6 +249,16 @@ Ziel: Was eine fremde Person in der ersten Woche braucht, ohne zu fragen.
 - [ ] Rückmeldungen einarbeiten, danach 1.0
 
 ## Phase 6 – iPad & iPhone (1.1)
+
+**Warum erst nach 1.0:** iCloud-Sync und eine zweite Oberfläche verdoppeln die Fehlerfläche. Solange die
+Mac-App noch täglich wächst, würde jede Änderung zweimal anfallen. Der Kern (`EarnoteCore`) baut schon
+heute für iOS – das bleibt die Eintrittskarte, und der iOS-Build läuft bei jeder Änderung mit.
+
+**Reihenfolge, wenn es losgeht**
+1. iCloud-Sync auf dem Mac einschalten und zwei Wochen allein damit laufen (Duplikate, Konflikte, Status)
+2. iPhone als Begleit-App: nur aufnehmen und hochladen – kleiner Umfang, sofort nützlich
+3. iPad eigenständig mit Whisper und lokalem Modell (M-Chip)
+
 - [ ] iCloud-Sync einschalten (CloudKit), Duplikat-Bereinigung, Sync-Status
 - [ ] iOS-App-Target auf demselben Kern
 - [ ] **iPad eigenständig** (M-Chip): Whisper + lokales Modell auf dem Gerät, „Increased Memory Limit“
@@ -251,11 +291,12 @@ Ziel: Was eine fremde Person in der ersten Woche braucht, ohne zu fragen.
 
 | Frage | Empfehlung | Fällig bis |
 |---|---|---|
-| Launch-Termin | Beta ab sofort mit Kommilitonen, Launch Ende Oktober zum Semesterstart – nur wenn die Beta keine groben Fehler zeigt; sonst Anfang Januar vor der Klausurenphase | nach Phase 4b |
+| Launch-Termin | Beta ab sofort mit Kommilitonen, Launch Ende Oktober zum Semesterstart – nur wenn die Beta keine groben Fehler zeigt; sonst Anfang Januar vor der Klausurenphase | nach Phase 4c |
+| Start von iPad/iPhone | **Nach 1.0.** Vorher nur weiter darauf achten, dass der Kern iOS-tauglich bleibt (Build läuft mit) | nach 1.0 |
 | Mac App Store | **Vorerst nein.** Direkt-Download plus Homebrew deckt die Zielgruppe ab; die Sandbox würde Systemton und Export einschränken. Nach 1.0 neu bewerten | nach 1.0 |
-| Englische Oberfläche | **Ja, vor dem Launch.** Ohne Englisch fällt der größte Teil der Launch-Kanäle weg | Phase 4b |
+| ~~Englische Oberfläche~~ | erledigt in 0.9.1 | ✅ |
 | Sparkle (automatische Updates) | Erst bei nennenswerter Nutzerzahl; bis dahin reicht der Hinweis mit Download-Link | nach 1.0 |
-| Lokales Standardmodell | nach dem Modellvergleich mit echten Vorlesungen | Phase 4b |
+| Lokales Standardmodell | nach dem Modellvergleich mit echten Vorlesungen | Phase 4c |
 | Domain | erst nach der Markenrecherche kaufen | vor Phase 5 |
 
 ## Erledigte Entscheidungen (Auszug)

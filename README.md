@@ -4,8 +4,6 @@
 
 <h1 align="center">Earnote</h1>
 
-<p align="center"><sub>früher „Earmark“</sub></p>
-
 <p align="center">
   <b>Free, open-source AI meeting notes for macOS.</b><br>
   Records meetings, calls and lectures, transcribes them <i>on your Mac</i> and writes structured notes into Notion, Obsidian, Apple Notes and more.
@@ -45,6 +43,12 @@ AI meeting notes are great, but usually tied to one app and a monthly subscripti
 | ⏸ **Pause & resume** | Pause a recording for off-the-record moments (⇧⌘P). Nothing is saved while paused. |
 | 🔝 **Menu bar** | Start, pause or stop recordings, see live levels and recent notes. |
 | 📥 **Import** | Drag any audio file into the window to transcribe it. |
+| ▶️ **Player** | A slim bar under every note: play, ±15 s, and every timestamp in the note and transcript jumps to that moment. |
+| 🪟 **Note and transcript side by side** | ⌘3 shows both; the transcript follows along while the audio plays. |
+| 🔎 **Search** | Find a term in all transcripts, jump through the matches with ⌘G. |
+| ⌨️ **Global shortcut** | ⌃⌥⌘R starts and stops a recording from any app. |
+| 📅 **Calendar** | The running event gives the recording its name. You pick which calendars count. |
+| 📄 **PDF & print** | Save a note as a clean study sheet or print it (⌘P). |
 
 ### Language
 
@@ -101,6 +105,11 @@ PRs are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) and the [roadmap](docs/R
 - **Eigene Kategorien** mit eigenen Anweisungen für die Zusammenfassung (z. B. Vorlesung mit Prüfungshinweisen und Lernzettel)
 - **Sprecher-Unterscheidung** in „Ich“ und „Andere“
 - **Einrichtungsassistent** und Bedienung über die Menüleiste, ganz ohne Terminal
+- **Abspielleiste** unter jeder Notiz: jede Zeitmarke springt an ihre Stelle, Notiz und Transkript auf Wunsch nebeneinander (⌘3)
+- **Suche** über alle Transkripte, mit ⌘G durch die Fundstellen
+- **Globales Tastenkürzel** ⌃⌥⌘R: Aufnahme aus jeder App starten und stoppen
+- **Kalender**: Läuft ein Termin, heißt die Aufnahme wie er – welche Kalender zählen, wählst du selbst
+- **Lernzettel als PDF** sichern oder drucken (⌘P)
 
 **Installation:** `Earnote.dmg` unter [Releases](../../releases) herunterladen, öffnen und Earnote in den Programme-Ordner ziehen. Die App ist von Apple notarisiert und startet mit einem Doppelklick – ohne Umweg über die Systemeinstellungen. Earnote schaut einmal am Tag nach, ob es eine neuere Version gibt, und zeigt dann einen Hinweis mit Download-Link – installiert wird nie von allein.
 
