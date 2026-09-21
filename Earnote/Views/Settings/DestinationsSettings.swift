@@ -135,7 +135,7 @@ private struct NotionSetup: View {
     @Binding var settings: DestinationSettings
     @Environment(LibraryStore.self) private var library
 
-    @State private var token = Keychain.notionToken ?? ""
+    @State private var token = ""
     @State private var pageLink = ""
     @State private var status: String?
     @State private var busy = false
@@ -166,6 +166,7 @@ private struct NotionSetup: View {
             }
             .font(.callout)
             SecureField("Integration Secret (ntn_…)", text: $token)
+                .onAppear { if token.isEmpty { token = Keychain.notionToken ?? "" } }
             TextField("Link der Notion-Seite", text: $pageLink)
             HStack {
                 Button("Datenbank anlegen") { Task { await connect() } }
@@ -196,11 +197,15 @@ private struct NotionSetup: View {
 /// Todoist: Schlüssel im Schlüsselbund, Projekt optional
 private struct TodoistSetup: View {
     @Binding var settings: DestinationSettings
-    @State private var token = Keychain.todoistToken ?? ""
+    @State private var token = ""
 
     var body: some View {
         SecureField("API-Schlüssel", text: $token)
-            .onChange(of: token) { _, new in Keychain.todoistToken = new }
+            .onAppear { token = Keychain.todoistToken ?? "" }
+            .onChange(of: token) { _, new in
+                guard !new.isEmpty else { return }
+                Keychain.todoistToken = new
+            }
         TextField("Projekt (leer = je Bereich ein eigenes)", text: $settings.todoistProject)
         Link("Schlüssel in den Todoist-Einstellungen holen …",
              destination: URL(string: "https://app.todoist.com/app/settings/integrations/developer")!)

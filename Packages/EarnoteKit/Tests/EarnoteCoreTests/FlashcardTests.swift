@@ -80,3 +80,35 @@ final class LogseqDocumentTests: XCTestCase {
         }
     }
 }
+
+/// Der Schlüsselbund darf nicht bei jedem Neuzeichnen gefragt werden – sonst fragt macOS
+/// den Nutzer immer wieder nach dem Passwort des Schlüsselbunds.
+final class KeychainCacheTests: XCTestCase {
+    private let key = "test.token"
+
+    override func setUp() {
+        super.setUp()
+        Keychain.set(nil, for: key)
+        Keychain.forgetCachedValues()
+    }
+
+    override func tearDown() {
+        Keychain.set(nil, for: key)
+        super.tearDown()
+    }
+
+    func testValueSurvivesAndPresenceIsKnownWithoutReading() {
+        XCTAssertFalse(Keychain.hasValue(for: key))
+        Keychain.set("  geheim  ", for: key)
+        XCTAssertEqual(Keychain.get(key), "geheim", "Leerzeichen am Rand gehören nicht zum Schlüssel")
+        XCTAssertTrue(Keychain.hasValue(for: key))
+
+        // Nach dem Leeren des Zwischenspeichers weiß der Vermerk weiterhin Bescheid
+        Keychain.forgetCachedValues()
+        XCTAssertTrue(Keychain.hasValue(for: key))
+
+        Keychain.set("", for: key)
+        XCTAssertNil(Keychain.get(key))
+        XCTAssertFalse(Keychain.hasValue(for: key), "ein leerer Schlüssel zählt als keiner")
+    }
+}

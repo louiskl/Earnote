@@ -50,9 +50,11 @@ struct AISettings: View {
             }
         }
         .formStyle(.grouped)
-        .onAppear { apiKey = Keychain.apiKey(for: provider) ?? "" }
+        // Nur Anbieter mit Schlüssel im Schlüsselbund nachsehen – jede Abfrage kann einen
+        // Passwort-Dialog auslösen, und die eingebaute KI braucht gar keinen Schlüssel.
+        .onAppear { apiKey = provider.needsAPIKey ? (Keychain.apiKey(for: provider) ?? "") : "" }
         .onChange(of: provider) { _, new in
-            apiKey = Keychain.apiKey(for: new) ?? ""
+            apiKey = new.needsAPIKey ? (Keychain.apiKey(for: new) ?? "") : ""
             library.settings.ai.model = ""
             library.settings.ai.baseURL = ""
             knownModels = []

@@ -94,14 +94,14 @@ public struct CoreDestinations: DestinationProvider {
     public func setupProblem(_ id: String, _ s: DestinationSettings) -> String? {
         switch id {
         case NotionDestination.id:
-            if Keychain.notionToken?.isEmpty ?? true { return t("Notion-Schlüssel fehlt") }
+            if !Keychain.hasValue(for: "notion.token") { return t("Notion-Schlüssel fehlt") }
             if s.notionDatabaseID.isEmpty { return t("Notion-Datenbank noch nicht angelegt") }
         case ObsidianDestination.id:
             if s.obsidianVaultPath.isEmpty { return t("Obsidian-Vault nicht ausgewählt") }
         case LogseqDestination.id:
             if s.logseqGraphPath.isEmpty { return t("Logseq-Graph nicht ausgewählt") }
         case TodoistDestination.id:
-            if Keychain.todoistToken?.isEmpty ?? true { return t("Todoist-Schlüssel fehlt") }
+            if !Keychain.hasValue(for: "todoist.token") { return t("Todoist-Schlüssel fehlt") }
         default: break
         }
         return nil
