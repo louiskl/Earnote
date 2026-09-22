@@ -106,6 +106,12 @@ public final class LocalModelManager: ObservableObject {
                 Log.error("Lokales Modell: keine Internetverbindung")
                 return
             }
+            if let tooLittle = DiskSpace.blocksDownload(ofGigabytes: model.sizeGB,
+                                                        availableBytes: Storage.standard.availableBytes) {
+                lastError = tooLittle
+                Log.error("Lokales Modell: zu wenig Speicherplatz für \(model.sizeText)")
+                return
+            }
             do {
                 guard let repo = Repo.ID(rawValue: model.id) else { return }
                 let folder = Self.folder(model)
@@ -134,7 +140,8 @@ public final class LocalModelManager: ObservableObject {
             } catch is CancellationError {
                 Log.info("Download des lokalen Modells abgebrochen")
             } catch {
-                lastError = "Download fehlgeschlagen: \(error.localizedDescription)"
+                // Der technische Wortlaut gehört ins Protokoll, nicht in die Oberfläche
+                lastError = String(localized: "Der Download ist fehlgeschlagen. Prüfe die Internetverbindung und versuch es noch einmal.")
                 Log.error("Lokales Modell: \(error.localizedDescription)")
             }
         }

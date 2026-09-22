@@ -21,6 +21,17 @@ public final class WhisperModelManager: ObservableObject {
         ModelInfo(id: "base", title: "Base", detail: t("Sehr schnell, einfache Qualität · ca. 0,15 GB")),
     ]
 
+    /// Ungefähre Größe je Modell in GB – für die Platzprüfung vor dem Download
+    public static func sizeGB(of model: String) -> Double {
+        switch model {
+        case "large-v3-v20240930_turbo": return 1.6
+        case "large-v3-v20240930_626MB": return 0.6
+        case "small": return 0.5
+        case "base": return 0.15
+        default: return 1.6
+        }
+    }
+
     @Published public var downloading: String?
     @Published public var downloadProgress: Double = 0
     @Published public var lastError: String?
@@ -111,6 +122,12 @@ public final class WhisperModelManager: ObservableObject {
             Log.error(lastError!)
             return false
         }
+        if let tooLittle = DiskSpace.blocksDownload(ofGigabytes: Self.sizeGB(of: model),
+                                                    availableBytes: Storage.standard.availableBytes) {
+            lastError = tooLittle
+            Log.error("Whisper-Modell: zu wenig Speicherplatz für \(model)")
+            return false
+        }
         if available.isEmpty { await refreshAvailable() }
         do {
             let variant = resolve(model)
@@ -129,9 +146,8 @@ public final class WhisperModelManager: ObservableObject {
             return false
         } catch {
             removePartialDownload(of: model)
-            lastError = "Download fehlgeschlagen: \(error.localizedDescription). "
-                + "Prüfe die Internetverbindung und versuche es erneut."
-            Log.error(lastError!)
+            lastError = String(localized: "Der Download ist fehlgeschlagen. Prüfe die Internetverbindung und versuch es noch einmal.")
+            Log.error("Whisper-Modell: \(error.localizedDescription)")
             return false
         }
     }

@@ -269,3 +269,21 @@ final class TimeFormatTests: XCTestCase {
         XCTAssertEqual(TimeFormat.seconds(TimeFormat.clock(845)), 845, "Hin und zurück ergibt dasselbe")
     }
 }
+
+/// Vor einem mehrere Gigabyte großen Modell-Download muss klar sein, ob der Platz reicht –
+/// sonst bricht er nach Minuten mit einer technischen Meldung ab.
+final class DownloadSpaceTests: XCTestCase {
+    func testBlocksWhenTheDiskIsTooFull() {
+        let gb = Int64(1_073_741_824)
+        XCTAssertNil(DiskSpace.blocksDownload(ofGigabytes: 2.3, availableBytes: 20 * gb))
+        XCTAssertNil(DiskSpace.blocksDownload(ofGigabytes: 2.3, availableBytes: nil),
+                     "Unbekannter Platz darf nicht blockieren")
+
+        let message = DiskSpace.blocksDownload(ofGigabytes: 2.3, availableBytes: 2 * gb)
+        XCTAssertNotNil(message, "2 GB frei reichen für ein 2,3-GB-Modell nicht")
+        XCTAssertTrue(message?.contains("2,3") == true || message?.contains("2.3") == true, message ?? "-")
+
+        XCTAssertNotNil(DiskSpace.blocksDownload(ofGigabytes: 1.6, availableBytes: 2 * gb),
+                        "Ein Gigabyte Luft gehört obendrauf")
+    }
+}

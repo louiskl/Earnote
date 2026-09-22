@@ -21,6 +21,20 @@ public enum DiskSpace: Sendable, Equatable {
         return .fine
     }
 
+    /// Reicht der Platz für einen Download dieser Größe? Gibt einen verständlichen Satz zurück,
+    /// wenn nicht – sonst nil. Ein Gigabyte Luft bleibt übrig, damit das System nicht am Limit steht.
+    ///
+    /// Ohne diese Prüfung bricht ein Modell-Download nach vielen Minuten mit einer technischen
+    /// Fehlermeldung ab, und das ist beim allerersten Start genau der Moment, in dem Leute aufgeben.
+    public static func blocksDownload(ofGigabytes needed: Double, availableBytes: Int64?) -> String? {
+        guard let availableBytes else { return nil }
+        let neededBytes = Int64((needed + 1.0) * 1_073_741_824)
+        guard availableBytes < neededBytes else { return nil }
+        let freeGB = String(format: "%.1f", Double(availableBytes) / 1_073_741_824)
+        let neededGB = String(format: "%.1f", needed)
+        return t("Dafür fehlt der Platz: Das Modell braucht etwa \(neededGB) GB, frei sind nur \(freeGB) GB. Mach Platz auf der Festplatte und versuch es noch einmal.")
+    }
+
     /// Verständlicher Satz für die Oberfläche (nil, wenn alles in Ordnung ist)
     public var message: String? {
         switch self {
