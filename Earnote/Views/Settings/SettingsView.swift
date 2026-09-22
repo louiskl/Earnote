@@ -32,6 +32,12 @@ struct GeneralSettings: View {
     var body: some View {
         @Bindable var library = library
         Form {
+            if !library.managed.isEmpty {
+                Section {
+                    Label("Einige Einstellungen gibt deine Organisation vor.", systemImage: "building.2")
+                        .foregroundStyle(.secondary)
+                }
+            }
             Section {
                 Picker("Erscheinungsbild", selection: $library.settings.appearance) {
                     ForEach(AppearanceChoice.allCases) { Text($0.label).tag($0) }
@@ -40,11 +46,13 @@ struct GeneralSettings: View {
             }
             Section {
                 Toggle("Einmal am Tag nach Updates suchen", isOn: $library.settings.checkForUpdates)
+                    .lockedByOrganization(library.managed.isLocked(.checkForUpdates))
             } footer: {
                 Text("Fragt bei GitHub nach der neuesten Version. Das ist der einzige Netzzugriff von \(AppInfo.name), solange du keine Cloud-KI verwendest – Aufnahmen und Notizen bleiben in jedem Fall auf dem Mac.")
             }
             Section {
                 Toggle("Bibliothek über iCloud synchronisieren", isOn: $library.settings.syncWithCloud)
+                    .lockedByOrganization(library.managed.isLocked(.syncWithCloud))
                 if library.settings.syncWithCloud {
                     LabeledContent("Stand") { Text(cloudSync.text).foregroundStyle(.secondary) }
                 }
@@ -58,6 +66,7 @@ struct GeneralSettings: View {
             }
             Section {
                 Toggle("Audiodateien nach der Verarbeitung behalten", isOn: $library.settings.keepAudioFiles)
+                    .lockedByOrganization(library.managed.isLocked(.keepAudioFiles))
                 StorageCleanupRow()
             } header: {
                 Text("Speicher")
@@ -76,6 +85,18 @@ struct GeneralSettings: View {
             }
         }
         .formStyle(.grouped)
+    }
+}
+
+extension View {
+    /// Von der Organisation per Konfigurationsprofil vorgegeben: ausgegraut, mit Erklärung beim Darüberfahren
+    @ViewBuilder
+    func lockedByOrganization(_ locked: Bool) -> some View {
+        if locked {
+            disabled(true).help("Von deiner Organisation vorgegeben")
+        } else {
+            self
+        }
     }
 }
 
@@ -118,6 +139,7 @@ struct RecordingSettings: View {
                     ForEach(library.categories) { Text("\($0.displayEmoji)  \($0.name)").tag(Optional($0.id)) }
                 }
                 Toggle("Hinweis zum Einverständnis anzeigen", isOn: $library.settings.showConsentReminder)
+                    .lockedByOrganization(library.managed.isLocked(.showConsentReminder))
             } footer: {
                 Text("Bitte hole vor jeder Aufnahme das Einverständnis aller Beteiligten ein.")
             }

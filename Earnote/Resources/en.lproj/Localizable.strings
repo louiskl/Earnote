@@ -1119,3 +1119,6 @@
 "%@: Aufnahme wird verarbeitet" = "%@: processing a recording";
 "%@: bereit zum Aufnehmen" = "%@: ready to record";
 "Abspielen" = "Play";
+"Einige Einstellungen gibt deine Organisation vor." = "Some settings are set by your organization.";
+"Von deiner Organisation vorgegeben" = "Set by your organization";
+"Deine Organisation erlaubt nur KI, die auf dem Mac bleibt." = "Your organization only allows AI that stays on the Mac.";

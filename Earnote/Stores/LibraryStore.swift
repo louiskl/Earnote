@@ -32,6 +32,8 @@ final class LibraryStore: RecordingLibrary {
     @ObservationIgnored private let queue: ProcessingQueue
     /// Für Karteikarten: dieselbe KI wie für die Notizen
     @ObservationIgnored let llm: LLMFactory
+    /// Vorgaben der Organisation (Konfigurationsprofil); die Einstellungen sperren die betroffenen Schalter
+    @ObservationIgnored let managed: ManagedSettings
     /// Aufnahmen, für die gerade Karteikarten entstehen (die Menüeinträge sind so lange aus)
     private(set) var makingFlashcards: Set<UUID> = []
     /// Läuft gerade eine Bereichs-Übersicht? (nur eine auf einmal – sie belegt die KI)
@@ -45,13 +47,14 @@ final class LibraryStore: RecordingLibrary {
     @ObservationIgnored private var lastWrite: Task<Void, Never>?
 
     init(library: any LibraryRepository, audio: any AudioStore, settingsRepository: any SettingsRepository,
-         queue: ProcessingQueue, llm: LLMFactory = LLMFactory()) {
+         queue: ProcessingQueue, llm: LLMFactory = LLMFactory(), managed: ManagedSettings = ManagedSettings()) {
         self.library = library
         self.audio = audio
         self.settingsRepository = settingsRepository
         self.queue = queue
         self.llm = llm
-        settings = settingsRepository.loadSettings() ?? AppSettings()
+        self.managed = managed
+        settings = managed.apply(to: settingsRepository.loadSettings() ?? AppSettings())
     }
 
     /// Lädt Bereiche und Aufnahmen aus der Bibliothek (nach der Übernahme alter Daten).

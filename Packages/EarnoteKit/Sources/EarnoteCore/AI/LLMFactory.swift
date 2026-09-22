@@ -11,14 +11,19 @@ public protocol LLMClientProvider: Sendable {
 public struct LLMFactory: Sendable {
     public var platform: (any LLMClientProvider)?
     public var apiKey: @Sendable (AIProviderKind) -> String?
+    /// Vorgaben der Organisation: Ist Cloud-KI gesperrt, entsteht hier kein Client dafür – egal, woher die Anfrage kommt.
+    public var managed: ManagedSettings
 
     public init(platform: (any LLMClientProvider)? = nil,
-                apiKey: @escaping @Sendable (AIProviderKind) -> String? = { Keychain.apiKey(for: $0) }) {
+                apiKey: @escaping @Sendable (AIProviderKind) -> String? = { Keychain.apiKey(for: $0) },
+                managed: ManagedSettings = ManagedSettings()) {
         self.platform = platform
         self.apiKey = apiKey
+        self.managed = managed
     }
 
     public func make(_ config: AIConfig) throws -> (any LLMClient)? {
+        guard managed.allows(config.provider) else { throw LLMError(message: Self.blockedMessage(config.provider)) }
         switch config.provider {
         case .none:
             return nil
@@ -52,6 +57,7 @@ public struct LLMFactory: Sendable {
 
     /// Verfügbare Modelle beim Anbieter abfragen (für die Auswahlliste).
     public func listModels(_ config: AIConfig) async throws -> [String] {
+        guard managed.allows(config.provider) else { throw LLMError(message: Self.blockedMessage(config.provider)) }
         let key = apiKey(config.provider) ?? ""
         switch config.provider {
         case .ollama:
@@ -72,5 +78,9 @@ public struct LLMFactory: Sendable {
         default:
             return []
         }
+    }
+
+    static func blockedMessage(_ provider: AIProviderKind) -> String {
+        t("„\(provider.label)“ ist von deiner Organisation gesperrt, weil das Transkript dafür den Mac verlassen würde. Wähle in den Einstellungen unter „KI“ die lokale KI.")
     }
 }
