@@ -58,6 +58,7 @@ struct MenuBarView: View {
                 LiveSummary(meter: recorder.meter, isPaused: recorder.isPaused,
                             categoryName: activeCategoryName)
                     .tint(activeCategory?.tint ?? .accentColor)
+                    .environment(\.categoryTint, activeCategory?.tint ?? .accentColor)
             } else {
                 categoryPicker
                 MicrophoneChoiceMenu(maxNameLength: 26)
@@ -205,7 +206,7 @@ private struct LiveSummary: View {
     @ObservedObject var meter: LiveMeter
     let isPaused: Bool
     let categoryName: String?
-    @Environment(RecordingController.self) private var recorder
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
@@ -217,10 +218,9 @@ private struct LiveSummary: View {
                 Text(TimeFormat.duration(meter.elapsed))
                     .font(.title3.monospacedDigit())
             }
-            Gauge(value: MainWindowFormat.level(max(meter.mic, meter.system))) { EmptyView() }
-                .gaugeStyle(.linearCapacity)
-                .opacity(isPaused ? 0.4 : 1)
-                .accessibilityLabel("Pegel")
+            // Dieselbe Wellenform wie im Hauptfenster; sie meldet sich selbst als Pegel-Zuschauer an und ab
+            StageWaveform(meter: meter, isPaused: isPaused, reduceMotion: reduceMotion, isVisible: true)
+                .frame(height: 32)
             if let categoryName {
                 Text(categoryName)
                     .truncationMode(.middle)
@@ -228,8 +228,5 @@ private struct LiveSummary: View {
                     .foregroundStyle(.secondary)
             }
         }
-        // Den Pegel nur auffrischen, solange das Fenster der Menüleiste offen ist
-        .onAppear { recorder.showsLevels(true) }
-        .onDisappear { recorder.showsLevels(false) }
     }
 }
