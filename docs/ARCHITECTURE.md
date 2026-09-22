@@ -1,7 +1,8 @@
 # Architektur
 
-Stand: Phase 1b. Die Logik liegt in einem lokalen Swift Package, die Mac-App ist eine dünne Hülle darum.
-Die Bibliothek liegt in SwiftData (iCloud-tauglich, Sync noch aus), Audio als lokale Dateien. Mindestversion: macOS 15, iOS 26.
+Stand: 0.9.5. Die Logik liegt in einem lokalen Swift Package, die Mac-App ist eine dünne Hülle darum.
+Die Bibliothek liegt in SwiftData und kann über iCloud (CloudKit) synchronisiert werden – abschaltbar, standardmäßig aus;
+Audio bleibt in jedem Fall als lokale Datei liegen. Mindestversion: macOS 15, iOS 26. Swift-6-Sprachmodus.
 
 ## Module und erlaubte Abhängigkeiten
 
@@ -13,8 +14,8 @@ Earnote (Mac-App)  ──►  EarnoteML  ──►  EarnoteCore
 | Modul | Darf verwenden | Enthält |
 |---|---|---|
 | **EarnoteCore** (`Packages/EarnoteKit/Sources/EarnoteCore`) | Foundation, AVFoundation, Security, OSLog, Observation, SwiftData. **Kein** AppKit/UIKit/SwiftUI, keine Core-Audio-HAL-APIs, keine Drittanbieter-Pakete | Modelle (`Recording`, `Transcript`, `RecordingCategory`, `AppSettings` …), KI-Clients für Netzwerk-Anbieter, `Summarizer`, `LLMFactory`, `Transcriber`-Protokoll, `TranscriptCleanup`, Audio-Dateien (`ResamplingReader`, `AudioMixer`, `EnergyEnvelope`), Export (Markdown, Obsidian, Notion), `Storage`, `Log`, `Keychain`, Datenmodell der Bibliothek (`Library…`), `LibraryRepository`, `AudioStore`, `FileLibraryImporter`, `ProcessingPipeline`, `ProcessingQueue`, `DeviceCapabilities` |
-| **EarnoteML** (`Packages/EarnoteKit/Sources/EarnoteML`) | EarnoteCore, WhisperKit, mlx-swift-lm, swift-transformers, swift-huggingface. Kein SwiftUI | `WhisperModelManager`, `WhisperKitCache`, `WhisperTranscriber`, `LocalModelManager`, `LocalLLMCache`, `LocalLLMClient`, Tokenizer-Brücke |
-| **Earnote** (App-Target) | alles | Aufnahme (Mikrofon, Systemton, Live-Mitschrift), Call-Erkennung, Apple Intelligence, CLI-Clients, Apple Notizen/Bear/Craft, Mitteilungen, Stores, `AppEnvironment`, Views, `LegacyMigration` |
+| **EarnoteML** (`Packages/EarnoteKit/Sources/EarnoteML`) | EarnoteCore, WhisperKit, mlx-swift-lm, swift-transformers, swift-huggingface. Kein SwiftUI | `WhisperModelManager`, `WhisperKitCache` (hält WhisperKit im Actor – der Typ ist nicht `Sendable`), `WhisperTranscriber`, `LocalModelCatalog` (sechs wählbare Modelle), `LocalModelManager`, `LocalLLMCache`, `LocalLLMClient`, Tokenizer-Brücke |
+| **Earnote** (App-Target) | alles, dazu Sparkle | Aufnahme (Mikrofon, Systemton, Live-Mitschrift), Call-Erkennung, Apple Intelligence, CLI-Clients, Ziele mit Plattformbezug (Apple Notizen/Erinnerungen/Things/Bear/Craft), Mitteilungen, Stores, `AppEnvironment`, Views, `AppUpdater` (Sparkle), `CloudSyncStatus`, `GlobalShortcut`, `CalendarTitles` |
 
 Plattform- und ML-Code wird über Protokolle aus EarnoteCore eingehängt:
 `LLMClientProvider` (lokales Modell, Apple Intelligence, Claude Code, Codex), `TranscriberProvider` (Whisper, Apple-Spracherkennung), `DestinationProvider` (zusätzliche Exportziele).
@@ -28,8 +29,11 @@ Plattform- und ML-Code wird über Protokolle aus EarnoteCore eingehängt:
 | Audiodateien | lokale Dateien, nie synchronisiert | `AudioStore` |
 | Laufende Aufnahme, Pause, Pegel, Live-Mitschrift | Anwendungsdienst | `RecordingController` (`@MainActor @Observable`, App); Pegel und Live-Text in eigenen `ObservableObject`s, damit nur deren Anzeigen neu zeichnen |
 | Warteschlange, laufende Verarbeitung, Fortschritt | Anwendungsdienst, nur im Speicher | `ProcessingQueue` (`@MainActor @Observable`, Core); der Fortschritt existiert nur im Speicher und wird nie gespeichert |
-| Auswahl, Bereichsfilter, Notiz/Transkript, Inspector | Fensterzustand | `@SceneStorage` im `MainWindow` – jedes Fenster hat seinen eigenen Stand (`LibraryStore.selection` wird nur noch von den alten Views benutzt) |
+| Auswahl, Bereichsfilter, Notiz/Transkript, Inspector | Fensterzustand | `@SceneStorage` im `MainWindow` – jedes Fenster hat seinen eigenen Stand  |
 | Download-Zustand der Modelle | Anwendungsdienst | `WhisperModelManager.shared`, `LocalModelManager.shared` (bestehende Singletons, vorerst belassen) |
+| Vorverdichtetes Material einer laufenden Aufnahme | nur im Speicher, bis die Warteschlange es abholt | `PreCondensedStore` (Actor, von `AppEnvironment` an Recorder und Pipeline übergeben) |
+| Stand des iCloud-Abgleichs | Anwendungsdienst, nur im Speicher | `CloudSyncStatus` wertet `NSPersistentCloudKitContainer.eventChangedNotification` aus |
+| Updates | Anwendungsdienst | `AppUpdater` um Sparkles `SPUStandardUpdaterController`; Appcast unter `docs/appcast.xml`, EdDSA-signiert |
 
 `AppEnvironment` erzeugt beim Start einmal Repositories, Provider, Pipeline, Warteschlange und Stores und verdrahtet sie
 (z. B. „Einstellung geändert → Call-Erkennung umschalten / Zusammenfassung mit neuem Anbieter neu starten“).
@@ -55,7 +59,7 @@ Beim Beenden wartet der `AppDelegate` über `LibraryStore.waitForPendingWrites()
    Ordner der Aufnahme (`AudioStore`). Einstellungen liegen unverändert als JSON unter `settings` in UserDefaults.
    Löschen einer Aufnahme entfernt den Datensatz (mit Transkript, Notiz, Exporten) und den Audio-Ordner.
 
-## Datenmodell (Phase 1b)
+## Datenmodell
 
 Gespeichert wird mit **SwiftData** in `Application Support/Earnote/Library.store`. Der `ModelContainer` entsteht einmal in
 `AppEnvironment`; alle Zugriffe laufen über den Actor `SwiftDataLibraryRepository` (`@ModelActor`). Das Schema ist versioniert
@@ -70,12 +74,15 @@ Gespeichert wird mit **SwiftData** in `Application Support/Earnote/Library.store
 | `LibraryGlossaryTerm` | `id`, Begriff, Hörfehler-Varianten, Notiz (noch ungenutzt) | `category` (nil = überall) |
 | `LibraryExport` | Ziel, `stateRaw` (success/skipped/failed), Meldung, Link, Datum | `recording` (Inverse) |
 
-**Synchronisierbar (später iCloud):** alles oben. **Lokal:** Audiodateien (`AudioStore`, `Recordings/<id>/`) und Einstellungen
-(UserDefaults). iCloud-Sync ist vorbereitet, aber aus (`cloudKitDatabase: .none`), bis ein Apple-Entwicklerkonto existiert.
+**Synchronisiert (iCloud, wenn eingeschaltet):** alles oben, in der privaten Datenbank des Nutzers
+(Container `iCloud.app.earnote.Earnote`). **Immer lokal:** Audiodateien (`AudioStore`, `Recordings/<id>/`) und Einstellungen
+(UserDefaults). Der Schalter steht in Einstellungen › Allgemein und wirkt ab dem nächsten Start; fehlt die Berechtigung,
+öffnet `LibraryContainer.make` den Speicher ohne CloudKit weiter, statt die Bibliothek gar nicht zu öffnen.
 
 **CloudKit-Regeln für jedes Modell:** jedes Attribut optional oder mit Standardwert · keine eindeutigen Attribute · jede Beziehung
 optional mit expliziter Inverse, keine `.deny`-Regel · Enums als String-Rohwert · große Daten mit `.externalStorage` ·
-eigene stabile `id: UUID`. Ein Test (`LibrarySchemaTests`) prüft das über die Schema-API.
+eigene stabile `id: UUID` bei allem, was die App selbst adressiert (Aufnahme, Bereich, Wörterbuch – Transkript, Notiz und
+Export hängen an genau einer Aufnahme und brauchen keine). `CloudKitSchemaTests` prüft diese Regeln über die Schema-API.
 
 **Snapshot-Prinzip:** `@Model`-Objekte verlassen nie den Actor des Repositorys. Pipeline, Stores und Views arbeiten mit den
 Werttypen `Recording`, `Transcript`, `Summary`, `RecordingCategory`, `ExportResult`, `GlossaryTerm`; die Modelle haben dafür
@@ -125,7 +132,23 @@ Regeln: Views lesen die Bibliothek direkt über `@Query` auf dem gemeinsamen `Mo
 ## Tests
 
 - `EarnoteCoreTests`: `cd Packages/EarnoteKit && swift test --test-product EarnoteKitPackageTests` – schnell, mit Fakes und temporären Ordnern, ohne WhisperKit/MLX.
-- App-Tests (`Tests/`): Datenübernahme aus „Earmark“ und Whisper-Modellauswahl (`Phase0Tests`), Formathilfen des Hauptfensters (`MainWindowTests`).
+- App-Tests (`Tests/`): Whisper-Modellauswahl (`WhisperSelectionTests`), Formathilfen und Suchzähler des Hauptfensters
+  sowie die Terminauswahl des Kalenders (`MainWindowTests`), Katalog und Vorauswahl der lokalen Modelle
+  (`LocalModelCatalogTests`), Lernzettel als PDF (`NoteDocumentTests`), Bereiche im `LibraryStore`
+  (`LibraryStoreCategoryTests`): `xcodebuild test -project Earnote.xcodeproj -scheme Earnote -destination 'platform=macOS'`.
+
+## Selbstaktualisierung, iCloud und Hintergrundarbeit
+
+- **Updates:** `AppUpdater` kapselt Sparkles `SPUStandardUpdaterController`. Die Update-Datei (`docs/appcast.xml`) wird
+  von `scripts/build_release.sh` erzeugt und mit einem EdDSA-Schlüssel signiert (privat im Schlüsselbund, öffentlich in
+  der `Info.plist`); ausgeliefert über GitHub Pages. Sparkle vergleicht die Buildnummer, die der Projektgenerator aus
+  der Version ableitet (0.9.5 → 905).
+- **iCloud:** `LibraryContainer.make(url:syncsWithCloud:)` entscheidet beim Start; `CloudSyncStatus` zeigt den Stand.
+  Die Signatur braucht dafür `Earnote-iCloud.entitlements` und ein Developer-ID-Profil unter `scripts/` – beides
+  schaltet sich im Release-Skript von selbst zu, wenn das Profil da ist.
+- **Vorverdichten:** `LiveCondenser` (Core) verdichtet während der Aufnahme fertige Blöcke des Transkripts mit derselben
+  Stufe wie die Warteschlange (`Summarizer.condense`). Das Ergebnis liegt im `PreCondensedStore`, bis die Pipeline es
+  abholt; fehlt es, läuft alles wie bisher.
 
 ## Nächste Schritte
 
@@ -135,4 +158,6 @@ Regeln: Views lesen die Bibliothek direkt über `@Query` auf dem gemeinsamen `Mo
 - **Phase 3a/3b erledigt:** Notiz bearbeiten und zurücksetzen (`LibraryRepository.restoreGeneratedNote`), Korrekturen
   (`correctTerm` über Titel, Notiz und Transkript) und das Wörterbuch (`Glossary`, `TermCorrection`). Die Pipeline gibt
   die Begriffe an Spracherkennung (`Transcriber.transcribe(hints:)`) und KI (`SummaryContext.glossary`) weiter.
-- **Später – iCloud:** mit Entwicklerkonto `cloudKitDatabase` einschalten; Audio bleibt lokal.
+- **iCloud erledigt (0.9.5):** Container, Berechtigungen, Profil und Schema stehen; der Abgleich ist zwischen zwei
+  Bibliotheken nachgewiesen. Offen: zwei Wochen Dauerlauf auf zwei Macs und das Zusammenführen doppelter Bereiche.
+- **Offen:** iPad und iPhone (Phase 6) auf demselben Kern – `EarnoteCore` baut bei jeder Änderung gegen iOS mit.
