@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <b><a href="https://louiskl.github.io/Earnote/">earnote website</a></b> ·
+  <b><a href="https://earnote.dev/">earnote website</a></b> ·
   <a href="https://github.com/louiskl/Earnote/releases/latest/download/Earnote.dmg">download</a>
 </p>
 

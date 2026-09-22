@@ -14,7 +14,7 @@ public enum AppInfo {
     /// Öffentliches Repository – Quellcode, Fehlermeldungen und die Update-Datei für Sparkle.
     public static let repository = URL(string: "https://github.com/louiskl/Earnote")!
     /// Projektseite, Anleitung und Datenschutzhinweise (Hilfe-Menü)
-    public static let website = URL(string: "https://louiskl.github.io/Earnote/")!
+    public static let website = URL(string: "https://earnote.dev/")!
     public static let betaGuide = URL(string: "https://github.com/louiskl/Earnote/blob/main/docs/BETA.md")!
     public static let privacyPage = URL(string: "https://github.com/louiskl/Earnote/blob/main/docs/DATENSCHUTZ.md")!
 }

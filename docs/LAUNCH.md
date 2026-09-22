@@ -30,7 +30,7 @@ Kurznachricht, WhatsApp oder Signal:
 > Ich hab eine Mac-App gebaut, die Vorlesungen aufnimmt und dir danach die Mitschrift schreibt –
 > komplett auf dem Rechner, ohne Konto und kostenlos. Würdest du die zwei Wochen benutzen und mir
 > sagen, was nervt? Installation: `brew install --cask louiskl/earnote/earnote` oder
-> https://louiskl.github.io/Earnote/
+> https://earnote.dev/
 
 Dazu die [Anleitung für Tester](BETA.md) schicken. Mehr braucht es nicht.
 
@@ -51,7 +51,7 @@ Dazu die [Anleitung für Tester](BETA.md) schicken. Mehr braucht es nicht.
 > für alle, die mitschreiben und gleichzeitig zuhören müssen, und für internationale Studierende,
 > die dem Tempo nicht immer folgen können.
 >
-> Seite: https://louiskl.github.io/Earnote/
+> Seite: https://earnote.dev/
 > Quelltext: https://github.com/louiskl/Earnote
 >
 > Wenn ihr es in den Newsletter oder auf Instagram nehmen mögt, freue ich mich. Ich stelle es auch
@@ -86,7 +86,7 @@ nennen (Mac mit Apple Silicon), sonst gibt es Enttäuschung.
 >
 > Requirements: macOS 15, Apple Silicon. Free, MIT licensed, signed and notarised.
 >
-> https://louiskl.github.io/Earnote/
+> https://earnote.dev/
 >
 > Happy to answer anything – and I'd genuinely like to hear what breaks for you.
 
@@ -106,7 +106,7 @@ antworten. Beste Zeit: Dienstag bis Donnerstag, vormittags US-Zeit.
 >
 > Voraussetzung ist leider ein Mac mit M-Chip (macOS 15+), weil Transkription und KI lokal rechnen.
 >
-> https://louiskl.github.io/Earnote/
+> https://earnote.dev/
 >
 > **Ein Hinweis, der mir wichtig ist:** Vorlesungen aufzunehmen ist nicht überall erlaubt. Frag
 > vorher die dozierende Person – die App blendet vor jeder Aufnahme einen Hinweis dazu ein.

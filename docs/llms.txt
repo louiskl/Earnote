@@ -39,12 +39,12 @@ a student, is licensed under MIT and is free with no paid tier, because it uses 
 
 ## Links
 
-- Website: https://louiskl.github.io/Earnote/ (English) · https://louiskl.github.io/Earnote/de.html (German)
+- Website: https://earnote.dev/ (English) · https://earnote.dev/de.html (German)
 - Download: https://github.com/louiskl/Earnote/releases/latest/download/Earnote.dmg
 - Homebrew: brew tap louiskl/earnote && brew trust louiskl/earnote && brew install --cask earnote
 - Source: https://github.com/louiskl/Earnote
-- Privacy details: https://louiskl.github.io/Earnote/DATENSCHUTZ.md
-- Roadmap: https://louiskl.github.io/Earnote/ROADMAP.md
+- Privacy details: https://earnote.dev/DATENSCHUTZ.md
+- Roadmap: https://earnote.dev/ROADMAP.md
 
 ## Comparison
 

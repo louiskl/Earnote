@@ -319,7 +319,7 @@ Alles aus echten Abstürzen des Nutzers, nicht aus Tests. Jeder Punkt wurde am G
 - [x] Impressum und Datenschutzhinweis für die Website (`docs/impressum.html`, verlinkt aus beiden Sprachen)
 
 **Website** (Hauptweg zum Download)
-- [x] **Steht: [louiskl.github.io/Earnote](https://louiskl.github.io/Earnote/)** – statisch über GitHub Pages
+- [x] **Steht: [louiskl.github.io/Earnote](https://earnote.dev/)** – statisch über GitHub Pages
       aus `docs/`, zweisprachig (`index.html` englisch, `de.html` deutsch), ohne Framework und ohne Tracking
 - [x] Inhalt: Was es macht · Screenshot in der jeweiligen Sprache · Download-Knopf auf das neueste Release ·
       „bleibt auf deinem Mac“ · Voraussetzungen · FAQ · Link zu GitHub

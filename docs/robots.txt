@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://louiskl.github.io/Earnote/sitemap.xml
+Sitemap: https://earnote.dev/sitemap.xml

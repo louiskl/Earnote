@@ -135,7 +135,7 @@ if [[ -n "$SPARKLE_BIN" ]]; then
     cp "$DMG" "$APPCAST_DIR/Earnote-$VERSION.dmg"
     "$SPARKLE_BIN" \
         --download-url-prefix "https://github.com/louiskl/Earnote/releases/download/v$VERSION/" \
-        --link "https://louiskl.github.io/Earnote/" \
+        --link "https://earnote.dev/" \
         --full-release-notes-url "https://github.com/louiskl/Earnote/releases" \
         -o "$ROOT/docs/appcast.xml" "$APPCAST_DIR"
     # Die Datei im Release heißt immer Earnote.dmg – in der Update-Datei muss derselbe Name stehen.
