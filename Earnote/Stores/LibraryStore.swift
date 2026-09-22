@@ -264,6 +264,25 @@ final class LibraryStore: RecordingLibrary {
         }
     }
 
+    /// Wie viel Platz die Audiodateien belegen
+    var audioBytes: Int64 { audio.usedBytes }
+
+    /// Audiodateien alter Aufnahmen löschen. Notizen und Transkripte bleiben – nur der Ton geht,
+    /// und der ist nach der Verarbeitung nur noch zum Nachhören da.
+    /// Gibt zurück, wie viele Aufnahmen betroffen waren.
+    @discardableResult
+    func deleteAudio(olderThan date: Date) -> Int {
+        let old = recordings.filter { $0.startedAt < date && $0.status == .done && hasAudio($0.id) }
+        for recording in old { deleteAudio(recording.id) }
+        if !old.isEmpty { Log.info("Audio gelöscht: \(old.count) Aufnahmen vor \(date.formatted(date: .abbreviated, time: .omitted))") }
+        return old.count
+    }
+
+    /// Wie viele Aufnahmen betroffen wären (für die Rückfrage, bevor gelöscht wird)
+    func recordingsWithAudio(olderThan date: Date) -> Int {
+        recordings.filter { $0.startedAt < date && $0.status == .done && hasAudio($0.id) }.count
+    }
+
     /// Übersicht über mehrere Aufnahmen eines Bereichs („Semester-Zusammenfassung“).
     /// Sie landet als eigener Eintrag in der Bibliothek – dadurch lässt sie sich lesen, bearbeiten,
     /// drucken, exportieren und durchsuchen wie jede andere Notiz.

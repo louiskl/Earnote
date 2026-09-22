@@ -58,20 +58,21 @@ Anlass: Das USB-Mikrofon der Webcam hing, jede Aufnahme brach mit „avfaudio-Fe
 - [x] Verständliche Fehlermeldungen ohne Fehlernummern; Diagnose im Log
 - [x] Sicherheitsregeln für Tests mit echten Daten in `CLAUDE.md`
 
-## Phase 2a/2b – Natives Mac-Hauptfenster (0.6)
-Vorher: Architekturvorschlag nach Guidelines Abschnitt 20, vom Nutzer abgesegnet.
-- [ ] Stabiles Gerüst: `NavigationSplitView` (Seitenleiste → Aufnahmeliste → Notiz) + **Inspector**
-- [ ] Seitenleiste als echte Source List: Bibliothek (Alle, Offene Aufgaben, Probleme, Ohne Bereich) und Bereiche
-- [ ] Aufnahmeliste kompakt, Detail zeigt Notiz und Transkript, Inspector zeigt Bereich, Datum, Dauer, Quelle, Modell, Export-Status
-- [ ] Echte **Toolbar** (Aufnehmen/Stopp, Pause, Teilen, Inspector), **Menübefehle** und **Tastenkürzel**, Kontextmenüs
-- [ ] `.searchable` über Titel, Notizen und Transkripte
-- [ ] Views lesen direkt per `@Query`; `LibraryStore` schreibt nur noch; Fassade `AppState` entfällt
-- [ ] Auswahl als Fensterzustand; mehrere Fenster möglich
-- [ ] Einstellungen als native `Form`; Einrichtungsassistent überarbeitet
-- [ ] Menüleisten-App und Call-Pop-up aufgeräumt
-- [ ] Eigenes Design-System, Karten und Verläufe entfernt
-- [ ] Leer-, Lade- und Fehlerzustände; schmale und breite Fenster; Dark Mode; VoiceOver; Tastaturbedienung
-- [ ] Anti-Vibecoding-Review (Guidelines Abschnitt 28)
+## ✅ Phase 2a/2b – Natives Mac-Hauptfenster (0.6, 0.7)
+- [x] Stabiles Gerüst: `NavigationSplitView` (Seitenleiste → Aufnahmeliste → Notiz) + **Inspector**
+- [x] Seitenleiste als echte Source List: Bibliothek (Alle, Offene Aufgaben, Probleme, Ohne Bereich) und Bereiche
+- [x] Aufnahmeliste kompakt, Detail zeigt Notiz und Transkript, Inspector zeigt Bereich, Datum, Dauer, Quelle, Modell, Export-Status
+- [x] Echte **Toolbar** (Aufnehmen/Stopp, Pause, Teilen, Inspector), **Menübefehle** und **Tastenkürzel**, Kontextmenüs
+- [x] `.searchable` über Titel, Notizen und Transkripte
+- [x] Views lesen direkt per `@Query`; `LibraryStore` schreibt nur noch
+- [ ] Rest der Fassade `AppState`: nur noch Menüleiste und Call-Hinweis hängen daran (`EarnoteApp`,
+      `AppEnvironment`, `MenuBarView`, `FloatingPanels`) – entfällt, wenn beide auf die Stores umgestellt sind
+- [x] Auswahl als Fensterzustand; mehrere Fenster möglich
+- [x] Einstellungen als native `Form`; Einrichtungsassistent überarbeitet
+- [x] Menüleisten-App und Call-Pop-up aufgeräumt (Call-Hinweis zuletzt in 0.9.3)
+- [x] Eigenes Design-System, Karten und Verläufe entfernt (übrig: `Support/Brand.swift`)
+- [x] Leer-, Lade- und Fehlerzustände; schmale und breite Fenster; Dark Mode; Tastaturbedienung
+- [x] Anti-Vibecoding-Review (Guidelines Abschnitt 28) – zuletzt in 0.9.3
 
 ## ✅ Phase 2c – Einstellungen und Assistent nativ (0.7.1)
 - [x] Einstellungen als Szene mit sieben Tabs, jeder ein `Form` mit `.formStyle(.grouped)`; neuer Tab „Aufnahme“
@@ -119,7 +120,8 @@ Vorher: Architekturvorschlag nach Guidelines Abschnitt 20, vom Nutzer abgesegnet
 - [x] Schalter „Schon während der Aufnahme transkribieren“ (Einstellungen › Aufnahme)
 - [x] Hinweis während der Verarbeitung: zugeklappter Mac schläft und pausiert sie
 - [ ] Vom Nutzer zu prüfen: Wie viel schneller ist eine 90-Minuten-Vorlesung wirklich fertig?
-- [ ] Offen: faster-whisper geprüft und verworfen (CTranslate2 hat kein Metal, läuft auf dem Mac nur auf der CPU)
+- [x] faster-whisper geprüft und verworfen: CTranslate2 hat kein Metal-Backend und liefe auf dem Mac
+      nur auf der CPU – langsamer als WhisperKit, dazu mit Python-Abhängigkeit
 
 **3g Export (0.7.5)**
 - [x] Export-Status pro Ziel im Inspector – auch für Ziele, in die noch nie exportiert wurde
@@ -201,7 +203,7 @@ Ziel: Was eine fremde Person in der ersten Woche braucht, ohne zu fragen.
 - [x] **Einfach erklärt (0.9.3)**: Schalter in Einstellungen › KI – kurze Sätze, alltägliche Wörter,
       Fachbegriffe werden beim ersten Mal erklärt
 - [x] **Als Mail weiterschicken (0.9.3)**: öffnet einen Mail-Entwurf mit Titel und Notiz (geschickt wird nichts)
-- [ ] **Schule**: kleinere Modelle für ältere Macs
+- [x] **Schule**: kleinere Modelle für ältere Macs – Qwen3 1.7B (1 GB) steht in der Modellauswahl
 
 **Qualität und Modelle**
 - [x] **Modellauswahl (0.9.3)**: sechs lokale Modelle von Qwen3 1.7B (1 GB, alte Macs) bis
@@ -246,19 +248,31 @@ Nicht „wenn nichts mehr einfällt“, sondern wenn diese Punkte abgehakt sind:
 - [x] Swift-6-Sprachmodus an, `LegacyMigration` entfernt
 
 **Drumherum**
-- [ ] Demo-Video, Screenshots hell/dunkel in beiden Sprachen, Homebrew Cask
+- [x] Screenshots hell/dunkel in beiden Sprachen (Website, Stand 0.9.3) und Homebrew-Tap
+- [ ] Demo-Video
 - [ ] Markenrecherche Earnote abgeschlossen (liegt beim Nutzer)
 
 Erst wenn alle drei Blöcke stehen, wird aus 0.9.x die 1.0 – und erst danach beginnt Phase 6.
 
 ---
 
+---
+
+## Phase 4d – Feinschliff nach der Beta-Auslieferung (0.9.5)
+- [x] **Hilfe-Menü**: Apples Platzhalter „Earnote-Hilfe“ führte ins Leere. Jetzt: Projektseite,
+      Anleitung für Tester, Fehler melden, Datenschutz, Quelltext.
+- [x] **Speicher aufräumen**: Einstellungen › Allgemein zeigt, wie viel die Audiodateien belegen,
+      und löscht auf Wunsch den Ton alter Aufnahmen (älter als ein Monat, drei Monate oder alles).
+      Notizen und Transkripte bleiben. Ein Semester Vorlesungen sind sonst schnell 30 GB.
+- [ ] Notiz-Fundstellen auch mit ⌘G durchblättern (heute nur im Transkript)
+- [ ] Rest der Fassade `AppState` auflösen (Menüleiste und Call-Hinweis auf die Stores umstellen)
+
 ## Phase 5 – Launch (1.0 RC → 1.0)
 
 **Name & Recht** (liegt beim Nutzer)
 - [ ] Markenrecherche Earnote (DPMA, EUIPO, USPTO; Klassen 9 und 42)
 - [ ] Domain sichern (earnote.app o. ä.), Instagram-/TikTok-Namen sichern
-- [ ] Impressum und Datenschutzerklärung für die Website (die App-Seite steht in `docs/DATENSCHUTZ.md`)
+- [x] Impressum und Datenschutzhinweis für die Website (`docs/impressum.html`, verlinkt aus beiden Sprachen)
 
 **Website** (Hauptweg zum Download)
 - [x] **Steht: [louiskl.github.io/Earnote](https://louiskl.github.io/Earnote/)** – statisch über GitHub Pages

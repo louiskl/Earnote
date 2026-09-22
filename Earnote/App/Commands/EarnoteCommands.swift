@@ -1,3 +1,4 @@
+import AppKit
 import EarnoteCore
 import SwiftUI
 
@@ -129,6 +130,17 @@ struct EarnoteCommands: Commands {
             Button("Rückwärts suchen") { window?.search?.previous() }
                 .keyboardShortcut("g", modifiers: [.command, .shift])
                 .disabled(window?.search == nil)
+        }
+
+        // Apples Platzhalter „Earnote-Hilfe“ führt ins Leere – hier stehen die Wege, die es wirklich gibt.
+        CommandGroup(replacing: .help) {
+            Button("Earnote-Hilfe") { NSWorkspace.shared.open(AppInfo.website) }
+            Button("Anleitung für Beta-Tester") { NSWorkspace.shared.open(AppInfo.betaGuide) }
+            Divider()
+            Button("Fehler melden …") { NSWorkspace.shared.open(Diagnostics.issueURL()) }
+            Button("Datenschutz") { NSWorkspace.shared.open(AppInfo.privacyPage) }
+            Divider()
+            Button("Quelltext auf GitHub") { NSWorkspace.shared.open(AppInfo.repository) }
         }
 
         CommandGroup(before: .sidebar) {

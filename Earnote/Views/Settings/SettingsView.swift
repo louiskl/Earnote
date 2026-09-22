@@ -58,6 +58,7 @@ struct GeneralSettings: View {
             }
             Section {
                 Toggle("Audiodateien nach der Verarbeitung behalten", isOn: $library.settings.keepAudioFiles)
+                StorageCleanupRow()
             } header: {
                 Text("Speicher")
             } footer: {
@@ -214,5 +215,65 @@ struct AboutSettings: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .padding(24)
+    }
+}
+
+/// Wie viel Platz die Audiodateien belegen – und der kurze Weg, alte davon loszuwerden.
+/// Notizen und Transkripte bleiben dabei immer erhalten.
+private struct StorageCleanupRow: View {
+    @Environment(LibraryStore.self) private var library
+
+    @State private var bytes: Int64 = 0
+    @State private var pending: Period?
+
+    private enum Period: Int, Identifiable, CaseIterable {
+        case months3 = 90, month = 30, all = 0
+        var id: Int { rawValue }
+
+        var label: LocalizedStringKey {
+            switch self {
+            case .months3: return "Älter als drei Monate"
+            case .month: return "Älter als ein Monat"
+            case .all: return "Alle Audiodateien"
+            }
+        }
+
+        var date: Date {
+            rawValue == 0 ? .distantFuture : Calendar.current.date(byAdding: .day, value: -rawValue, to: Date()) ?? Date()
+        }
+    }
+
+    var body: some View {
+        LabeledContent("Audiodateien") {
+            HStack {
+                Text(bytes > 0 ? bytes.formatted(.byteCount(style: .file)) : "–")
+                    .foregroundStyle(.secondary)
+                Menu("Aufräumen …") {
+                    ForEach(Period.allCases) { period in
+                        Button(period.label) { pending = period }
+                    }
+                }
+                .fixedSize()
+                .disabled(bytes == 0)
+            }
+        }
+        .task { bytes = library.audioBytes }
+        .confirmationDialog(pending.map { confirmTitle($0) } ?? "",
+                            isPresented: Binding(get: { pending != nil }, set: { if !$0 { pending = nil } })) {
+            Button("Audio löschen", role: .destructive) {
+                if let pending { library.deleteAudio(olderThan: pending.date) }
+                pending = nil
+                bytes = library.audioBytes
+            }
+        } message: {
+            Text("Notizen und Transkripte bleiben erhalten. Nur das Nachhören und das erneute Transkribieren fallen weg.")
+        }
+    }
+
+    private func confirmTitle(_ period: Period) -> String {
+        let count = library.recordingsWithAudio(olderThan: period.date)
+        return count == 1
+            ? String(localized: "Audio von einer Aufnahme löschen?")
+            : String(localized: "Audio von \(count) Aufnahmen löschen?")
     }
 }

@@ -55,6 +55,8 @@ public protocol AudioStore: Sendable {
     func playbackURL(for recording: Recording) -> URL?
     /// Löscht den ganzen Ordner der Aufnahme
     func deleteFolder(for id: UUID)
+    /// Belegter Platz aller Audiodateien in Bytes – für die Aufräumhilfe in den Einstellungen
+    var usedBytes: Int64 { get }
 }
 
 /// Audio als Dateien unter `<Datenordner>/Recordings/<id>/`
@@ -68,6 +70,19 @@ public struct FileAudioStore: AudioStore {
     }
 
     private var fm: FileManager { .default }
+
+    /// Summiert die Dateien unter `Recordings/`. Ein Ordnerdurchlauf, keine Buchführung nebenher –
+    /// die Einstellungen fragen selten, und so kann die Zahl nie falsch werden.
+    public var usedBytes: Int64 {
+        let root = storage.recordingsDir
+        guard let files = FileManager.default.enumerator(at: root, includingPropertiesForKeys: [.fileSizeKey],
+                                                         options: [.skipsHiddenFiles]) else { return 0 }
+        var total: Int64 = 0
+        for case let url as URL in files {
+            total += Int64((try? url.resourceValues(forKeys: [.fileSizeKey]).fileSize) ?? 0)
+        }
+        return total
+    }
 
     public func folderURL(for id: UUID) -> URL { storage.folder(for: id) }
     public func createFolder(for id: UUID) { storage.createFolder(for: id) }

@@ -231,3 +231,32 @@ final class ShortMinutesTests: XCTestCase {
         XCTAssertFalse(minutes.contains("##"), "ohne Ergebnisse und Aufgaben keine leeren Überschriften")
     }
 }
+
+/// Die Aufräumhilfe in den Einstellungen zeigt, wie viel Platz die Audiodateien belegen.
+final class AudioStorageTests: XCTestCase {
+    private var folder: URL!
+
+    override func setUpWithError() throws {
+        folder = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+    }
+
+    override func tearDownWithError() throws {
+        try? FileManager.default.removeItem(at: folder)
+    }
+
+    func testUsedBytesCountsEveryAudioFileAndNothingElse() throws {
+        let store = FileAudioStore(storage: Storage(root: folder))
+        XCTAssertEqual(store.usedBytes, 0, "ohne Aufnahmen ist nichts belegt")
+
+        let id = UUID()
+        store.createFolder(for: id)
+        try Data(repeating: 7, count: 5_000).write(to: store.micURL(for: id))
+        try Data(repeating: 7, count: 3_000).write(to: store.systemURL(for: id))
+        XCTAssertEqual(store.usedBytes, 8_000)
+
+        // Was außerhalb von „Recordings“ liegt (Modelle, Datenbank), zählt nicht mit
+        try Data(repeating: 1, count: 9_000).write(to: folder.appendingPathComponent("Library.store"))
+        XCTAssertEqual(store.usedBytes, 8_000)
+    }
+}

@@ -1093,3 +1093,19 @@
 "Senden" = "Sending";
 "Abgleich" = "Sync";
 "Noch in Erprobung. Aufnahmedaten, Transkripte, Notizen, Bereiche und Wörterbuch stehen dann auf allen Macs mit derselben Apple-ID. Die Audiodateien bleiben immer lokal. Gilt ab dem nächsten Start von %@." = "Still being tested. Recording data, transcripts, notes, areas and the dictionary are then on every Mac with the same Apple ID. Audio files always stay local. Takes effect the next time %@ starts.";
+
+/* Hilfe-Menü */
+"Earnote-Hilfe" = "Earnote Help";
+"Anleitung für Beta-Tester" = "Guide for beta testers";
+"Datenschutz" = "Privacy";
+"Quelltext auf GitHub" = "Source on GitHub";
+
+/* Speicher aufräumen */
+"Audiodateien" = "Audio files";
+"Aufräumen …" = "Clean up …";
+"Älter als drei Monate" = "Older than three months";
+"Älter als ein Monat" = "Older than one month";
+"Alle Audiodateien" = "All audio files";
+"Audio von einer Aufnahme löschen?" = "Delete audio of one recording?";
+"Audio von %lld Aufnahmen löschen?" = "Delete audio of %lld recordings?";
+"Notizen und Transkripte bleiben erhalten. Nur das Nachhören und das erneute Transkribieren fallen weg." = "Notes and transcripts stay. Only listening back and re-transcribing go away.";

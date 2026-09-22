@@ -54,6 +54,7 @@ AI meeting notes are great, but usually tied to one app and a monthly subscripti
 | 📚 **Semester overview** | One overview across every lecture of a subject: topics, the thread between them, exam hints. |
 | 🧠 **Pick your local model** | Six on-device models from 1 GB to 17 GB — Earnote preselects the one that fits your Mac's memory. |
 | 🧒 **Explain it simply** | A switch that makes the AI write short sentences and explain technical terms — for school and for anyone new to a subject. |
+| 🧹 **Storage cleanup** | See what the audio files take up and drop the sound of old recordings — notes and transcripts stay. |
 | ✉️ **Follow-up email** | Opens a draft with the note, ready to send to everyone in the meeting. |
 
 ### Language
@@ -127,6 +128,7 @@ PRs are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) and the [roadmap](docs/R
 - **Semester-Zusammenfassung**: eine Übersicht über alle Vorlesungen eines Fachs – Themen, roter Faden, Prüfungshinweise
 - **Modellwahl**: sechs lokale Modelle (1–17 GB); „Automatisch“ nimmt das passende für deinen Mac
 - **„Einfach erklärt“**: Schalter für kurze Sätze und erklärte Fachbegriffe – für Schule und fachfremde Themen
+- **Speicher aufräumen**: zeigt, was die Audiodateien belegen, und löscht den Ton alter Aufnahmen – Notizen bleiben
 - **Follow-up-Mail**: öffnet einen Entwurf mit der Notiz, verschickt wird nichts von allein
 
 **Installation mit Homebrew:** `brew tap louiskl/earnote && brew trust louiskl/earnote && brew install --cask earnote`
