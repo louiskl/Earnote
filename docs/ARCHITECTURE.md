@@ -79,6 +79,11 @@ Gespeichert wird mit **SwiftData** in `Application Support/Earnote/Library.store
 (Container `iCloud.app.earnote.Earnote`). **Immer lokal:** Audiodateien (`AudioStore`, `Recordings/<id>/`) und Einstellungen
 (UserDefaults). Der Schalter steht in Einstellungen › Allgemein und wirkt ab dem nächsten Start; fehlt die Berechtigung,
 öffnet `LibraryContainer.make` den Speicher ohne CloudKit weiter, statt die Bibliothek gar nicht zu öffnen.
+**Doppelte nach dem Abgleich:** CloudKit kennt keine eindeutigen Attribute, also legen zwei Macs dieselben
+Standardbereiche zweimal an. Nach dem Start und nach jedem Empfang (`CloudSyncStatus.onImportFinished`) ruft
+`LibraryStore.mergeSyncDuplicates` `LibraryRepository.mergeDuplicates` auf: gleiche ID oder gleicher Name
+(`LibraryMerge.key`) wird ein Bereich, Aufnahmen und Wörterbuch wandern mit. Der Überlebende ist auf jedem Gerät
+derselbe (ältester, dann kleinste ID), sonst löschten sich die Geräte gegenseitig die Bereiche.
 
 **CloudKit-Regeln für jedes Modell:** jedes Attribut optional oder mit Standardwert · keine eindeutigen Attribute · jede Beziehung
 optional mit expliziter Inverse, keine `.deny`-Regel · Enums als String-Rohwert · große Daten mit `.externalStorage` ·

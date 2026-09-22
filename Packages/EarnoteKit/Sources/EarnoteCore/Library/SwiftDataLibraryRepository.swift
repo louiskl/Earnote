@@ -271,6 +271,51 @@ public actor SwiftDataLibraryRepository: LibraryRepository {
         try modelContext.save()
     }
 
+    // MARK: Doppelte nach dem Abgleich
+
+    public func mergeDuplicates() throws -> LibraryMergeReport {
+        var report = LibraryMergeReport()
+        let categories = try modelContext.fetch(FetchDescriptor<LibraryCategory>())
+        var obsolete: [LibraryCategory] = []
+        for group in LibraryMerge.groups(categories, id: \.id, name: \.name) {
+            guard let keep = LibraryMerge.survivor(group, createdAt: \.createdAt, id: \.id) else { continue }
+            for duplicate in group where duplicate !== keep {
+                for recording in duplicate.recordings ?? [] { recording.category = keep }
+                for term in duplicate.glossary ?? [] { term.category = keep }
+                if keep.instructions.isEmpty { keep.instructions = duplicate.instructions }
+                if duplicate.id != keep.id { report.categoryReplacements[duplicate.id] = keep.id }
+                obsolete.append(duplicate)
+            }
+        }
+        if !obsolete.isEmpty {
+            // Erst das Umhängen speichern, dann löschen: Das Wörterbuch hängt mit „cascade“ am Bereich
+            try modelContext.save()
+            for duplicate in obsolete { modelContext.delete(duplicate) }
+            try modelContext.save()
+        }
+
+        // Wörterbuch: derselbe Begriff im selben Bereich (auch erst durch das Zusammenlegen oben)
+        let terms = try modelContext.fetch(FetchDescriptor<LibraryGlossaryTerm>())
+        let termGroups = LibraryMerge.groups(terms, id: \.id) { term in
+            term.term.isEmpty ? "" : "\(term.category?.id.uuidString ?? "-")|\(term.term)"
+        }
+        for group in termGroups {
+            // Einträge haben kein Anlagedatum – die kleinste ID entscheidet, auf jedem Gerät gleich
+            guard let keep = LibraryMerge.survivor(group, createdAt: { _ in .distantPast }, id: \.id) else { continue }
+            // Feste Reihenfolge, damit jedes Gerät dieselben Schreibweisen behält
+            let others = group.filter { $0 !== keep }.sorted { $0.id.uuidString < $1.id.uuidString }
+            keep.variants = LibraryMerge.union(([keep] + others).map(\.variants))
+            if keep.note?.isEmpty ?? true { keep.note = others.lazy.compactMap(\.note).first { !$0.isEmpty } }
+            for duplicate in others {
+                modelContext.delete(duplicate)
+                report.removedGlossaryTerms += 1
+            }
+        }
+
+        if modelContext.hasChanges { try modelContext.save() }
+        return report
+    }
+
     // MARK: Wörterbuch
 
     public func glossaryTerms() throws -> [GlossaryTerm] {
