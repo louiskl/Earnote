@@ -459,8 +459,7 @@ final class RecordingController {
                 notify("Wenig Speicherplatz", message)
             }
         case .critical:
-            let message = "Die Aufnahme wurde beendet, weil der Speicherplatz ausgeht. Das bisher Aufgenommene "
-                + "wird ganz normal verarbeitet."
+            let message = String(localized: "Die Aufnahme wurde beendet, weil der Speicherplatz ausgeht. Das bisher Aufgenommene wird ganz normal verarbeitet.")
             Log.error("Aufnahme wegen Speicherplatz beendet")
             stopRecording()
             lastError = message

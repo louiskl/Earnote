@@ -145,7 +145,7 @@ Anlass: Das USB-Mikrofon der Webcam hing, jede Aufnahme brach mit „avfaudio-Fe
 - [x] Update-Hinweis (tägliche Abfrage der GitHub-Releases, abschaltbar) und `docs/DATENSCHUTZ.md`
 - [x] Zeiten im Protokoll: Transkription mit Echtzeit-Faktor, Notiz, Ladezeit des lokalen Modells
 - [x] Sprecherlabels nur noch bei echten Calls (an echten Vorlesungen nachgewiesen fehlerhaft)
-- [ ] Gerät gewechselt und Berechtigung entzogen am echten Mac durchspielen
+- [x] Gerät gewechselt (0.9.12 nachgewiesen) · [ ] Berechtigung entzogen am echten Mac durchspielen
 
 **Gemessen an zwei echten Vorlesungen (M1 Air, 16 GB):** Whisper large-v3-turbo transkribiert mit
 **≈ 12× Echtzeit** (60 Min. Ton in 5 Min.), die Notiz der lokalen KI braucht 6–7 Minuten. Die gefühlte
@@ -248,7 +248,12 @@ Nicht „wenn nichts mehr einfällt“, sondern wenn diese Punkte abgehakt sind:
       Verarbeitung durchgelaufen
 - [x] Teams- und Zoom-Calls am echten Mac aufgenommen (Systemton, Call-Erkennung) – vom Nutzer bestätigt
 - [x] **Gerät gewechselt (0.9.12)**: zwölf Wechsel unter laufender Aufnahme am echten Mac, Datei wächst durch
-- [ ] Rest der Härtefälle am echten Mac: Berechtigung entzogen, Platte voll, Deckel zu
+- [x] **Härtefälle im Code geprüft (22.09.2026)**: Deckel zu → `willSleep` beendet die Aufnahme sauber
+      und lässt sie verarbeiten; Platte voll → unter 300 MB wird gestoppt und gemeldet (mit Test);
+      Berechtigung entzogen → vor dem Start Hinweis samt Weg in die Systemeinstellungen, währenddessen
+      greift der Wächter auf den Datenfluss nach zehn Sekunden
+- [ ] Dieselben drei Fälle am echten Mac durchspielen (Deckel schließen, Platte füllen, Mikrofonrecht
+      entziehen) – dauert zusammen zehn Minuten und liegt beim Nutzer
 - [ ] Zwei Wochen Beta mit 5–10 Kommilitonen ohne Datenverlust und ohne Absturz (**gestartet 22.09.2026**, Ende ~06.10.2026)
 - [x] Swift-6-Sprachmodus an, `LegacyMigration` entfernt
 

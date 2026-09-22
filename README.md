@@ -18,6 +18,17 @@
   <a href="#deutsch">🇩🇪 Deutsch</a> · <a href="#english">🇬🇧 English</a>
 </p>
 
+<p align="center">
+  <img src="https://img.shields.io/badge/macOS-15%2B-black?logo=apple" alt="macOS 15+">
+  <img src="https://img.shields.io/badge/Apple%20Silicon-required-black?logo=apple" alt="Apple Silicon">
+  <img src="https://img.shields.io/badge/licence-MIT-blue" alt="MIT licence">
+  <img src="https://img.shields.io/badge/price-free-brightgreen" alt="Free">
+</p>
+
+<p align="center">
+  <img src="docs/assets/screenshot-en.png" width="820" alt="Earnote showing a lecture note with tasks and flashcards next to the recording list">
+</p>
+
 ---
 
 ## English
@@ -64,7 +75,7 @@ The interface follows your Mac: English or German. Notes are written in the lang
 
 ### Requirements
 
-- macOS 15 or later on Apple Silicon (Intel works but is slow and can't run the local AI)
+- macOS 15 or later on **Apple Silicon** (M1 or newer). Intel Macs are not supported – transcription and the local AI need the Neural Engine.
 - About 2.3 GB of free space for the local AI model, 8 GB RAM or more
 - macOS 26 or later for Apple Speech and Apple Intelligence
 
@@ -99,6 +110,12 @@ To build the downloadable `dist/Earnote.dmg`, run `./scripts/build_release.sh`. 
 - API keys are stored in the macOS Keychain.
 
 > ⚖️ **Recording other people may require their consent** (in Germany, for example, § 201 StGB applies). Always ask first. Earnote shows a reminder.
+
+### Status
+
+Earnote is in **beta** (0.9.13): it works and is used daily, and it gets better every week. If something
+breaks, [tell me](https://github.com/louiskl/Earnote/issues/new/choose) – that is exactly what this phase
+is for. Version 1.0 follows after two weeks of testing with real lectures.
 
 ### Contributing
 

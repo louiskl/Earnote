@@ -7,8 +7,10 @@ public struct CategoryTemplate: Identifiable, Hashable, Sendable {
         /// Übersetzter Name der Gruppe (der Rohwert bleibt Deutsch, weil er gespeichert wird)
         public var label: String { t(String.LocalizationValue(rawValue)) }
 
-        case work = "Arbeit"
+        // Reihenfolge ist die Reihenfolge im Einrichtungsassistenten: Studierende sind die Zielgruppe,
+        // also steht ihr Fall oben – sonst scrollen sie an sechs Arbeitsvorlagen vorbei.
         case study = "Studium & Schule"
+        case work = "Arbeit"
         case personal = "Privat"
         public var id: String { rawValue }
     }
@@ -70,7 +72,7 @@ public struct CategoryTemplate: Identifiable, Hashable, Sendable {
     ]
 
     /// Vorausgewählt für Neue: deckt die häufigsten Fälle ab, ohne zu überladen.
-    public static let suggested: Set<String> = ["meeting", "memo"]
+    public static let suggested: Set<String> = ["lecture", "memo"]
 
     /// Emojis und Farben, die Fächer nacheinander bekommen – so sind sie in der Seitenleiste sofort unterscheidbar.
     public static let subjectEmojis = ["📐", "📊", "🧬", "⚖️", "💻", "🌍", "📖", "🧮", "🧪", "🎨", "🏛️", "🔬"]
