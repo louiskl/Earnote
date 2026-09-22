@@ -254,7 +254,7 @@ Nicht „wenn nichts mehr einfällt“, sondern wenn diese Punkte abgehakt sind:
 
 **Drumherum**
 - [x] Screenshots hell/dunkel in beiden Sprachen (Website, Stand 0.9.3) und Homebrew-Tap
-- [ ] Demo-Video
+- [ ] Demo-Video ([Drehbuch](VIDEO.md) liegt bereit)
 - [ ] Markenrecherche Earnote abgeschlossen (liegt beim Nutzer)
 
 Erst wenn alle drei Blöcke stehen, wird aus 0.9.x die 1.0 – und erst danach beginnt Phase 6.
@@ -325,7 +325,7 @@ Alles aus echten Abstürzen des Nutzers, nicht aus Tests. Jeder Punkt wurde am G
 - [x] Inhalt: Was es macht · Screenshot in der jeweiligen Sprache · Download-Knopf auf das neueste Release ·
       „bleibt auf deinem Mac“ · Voraussetzungen · FAQ · Link zu GitHub
 - [x] **Impressum nach § 5 TMG** als eigene Seite (`impressum.html`), aus beiden Sprachen verlinkt
-- [ ] Demo-Video (30–60 s): aufnehmen, Notiz erscheint, Lernzettel als PDF – für Website, Product Hunt, Social
+- [ ] Demo-Video (30–60 s) – Drehbuch und Anleitung liegen bereit: [VIDEO.md](VIDEO.md)
 - [ ] Screenshots in Hell und Dunkel, deutsch und englisch
 
 **Verteilung**

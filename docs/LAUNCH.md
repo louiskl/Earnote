@@ -287,6 +287,11 @@ Beitrag ein gutes Ergebnis. Das ist kein Misserfolg, das ist der Schnitt.
 
 ## 8. Demo-Video (30–60 Sekunden)
 
+> **Ausführliche Anleitung: [VIDEO.md](VIDEO.md)** – Takes, Screen-Studio-Einstellungen, Schnitt,
+> Untertitel, Exportformate je Plattform und die fünf häufigsten Fehler. Die folgende Tabelle ist
+> nur die Kurzfassung.
+
+
 Ohne Sprecher, nur Bild und ein, zwei Einblendungen. Bildschirmaufnahme in 1440 × 900, hell.
 
 | Sek. | Bild | Einblendung |
