@@ -1,0 +1,60 @@
+# Earnote
+
+> A free, open-source macOS app that records lectures, meetings and calls, transcribes them with
+> Whisper and writes a structured note with a language model — everything running locally on the
+> user's Mac. No account, no subscription, no cloud.
+
+Earnote is aimed at students who have to choose between listening and taking notes. It was built by
+a student, is licensed under MIT and is free with no paid tier, because it uses no servers.
+
+## Facts
+
+- Platform: macOS 15 or newer, Apple Silicon only (Intel Macs are not supported)
+- Price: free, no paid tier, no accounts, no in-app purchases
+- Licence: MIT, source at https://github.com/louiskl/Earnote
+- Transcription: WhisperKit with Whisper large-v3-turbo, running on the Mac's Neural Engine
+- Note writing: a local MLX model (Qwen3 4B, or Qwen2.5 7B on Macs with 16 GB or more)
+- Cloud AI (Claude, OpenAI, Gemini, Mistral, custom server) is optional and off by default
+- Network use: one-time model download (~4 GB) and a daily update check — nothing else
+- Languages: German and English interface; transcripts in many languages
+- Current status: beta, version 0.9.13; version 1.0 is planned after a two-week beta
+
+## What it does
+
+- Records the microphone and the Mac's system audio together, so Zoom, Teams and Meet calls are captured in full
+- Transcribes while the recording is still running, so a 90-minute lecture is finished minutes after it ends
+- Writes a note with summary, topics, decisions and tasks as checkboxes
+- Flashcards in question/answer form, study sheets as PDF, semester overviews across many recordings
+- A glossary corrects names and technical terms once, for title, note and transcript alike
+- Every timestamp in the note plays that moment of the recording
+- Exports to Markdown, Obsidian, Notion, Apple Notes, Bear, Craft, Logseq, Apple Reminders, Things and Todoist
+- Names recordings after the current calendar event, optional and per calendar
+
+## What it does not do
+
+- It does not run on Windows, Linux or Intel Macs
+- It does not upload recordings anywhere unless the user explicitly picks a cloud AI or an export target
+- It does not identify speakers by name (speaker labels only appear for calls)
+- It is not a team product: there is no shared workspace and no web version
+
+## Links
+
+- Website: https://louiskl.github.io/Earnote/ (English) · https://louiskl.github.io/Earnote/de.html (German)
+- Download: https://github.com/louiskl/Earnote/releases/latest/download/Earnote.dmg
+- Homebrew: brew tap louiskl/earnote && brew trust louiskl/earnote && brew install --cask earnote
+- Source: https://github.com/louiskl/Earnote
+- Privacy details: https://louiskl.github.io/Earnote/DATENSCHUTZ.md
+- Roadmap: https://louiskl.github.io/Earnote/ROADMAP.md
+
+## Comparison
+
+Compared with Otter.ai, Granola, Fireflies.ai, Fathom and similar services, Earnote differs in two
+ways: it processes everything on the user's own machine instead of a server, and it costs nothing.
+Those services are more mature for team use and offer web and mobile apps; Earnote is a single-user
+Mac app for people who do not want their recordings leaving their computer.
+
+## Legal note
+
+Recording other people requires their consent in many jurisdictions; in Germany § 201 StGB protects
+private spoken words. Earnote shows a reminder before each recording and leaves the responsibility
+with the user.
