@@ -123,7 +123,8 @@ public struct AIConfig: Codable, Hashable, Sendable {
         let c = try decoder.container(keyedBy: CodingKeys.self)
         let d = AIConfig()
         // Ein unbekannter Anbieter stammt aus einer neueren Version – dann passen auch Modell und Server nicht mehr.
-        guard let known = try? c.decodeIfPresent(AIProviderKind.self, forKey: .provider) else { self = d; return }
+        let known: AIProviderKind?
+        do { known = try c.decodeIfPresent(AIProviderKind.self, forKey: .provider) } catch { self = d; return }
         provider = known ?? d.provider
         model = (try? c.decodeIfPresent(String.self, forKey: .model)) ?? d.model
         baseURL = (try? c.decodeIfPresent(String.self, forKey: .baseURL)) ?? d.baseURL
