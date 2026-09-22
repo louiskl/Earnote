@@ -18,6 +18,8 @@ final class CloudSyncStatus {
     }
 
     private(set) var state: State = .off
+    /// Nach jedem fehlerfreien Empfang von Änderungen aus iCloud
+    @ObservationIgnored var onImportFinished: () -> Void = {}
 
     @ObservationIgnored private var observer: (any NSObjectProtocol)?
 
@@ -32,6 +34,7 @@ final class CloudSyncStatus {
                 guard let event = notification.userInfo?[NSPersistentCloudKitContainer.eventNotificationUserInfoKey]
                         as? NSPersistentCloudKitContainer.Event else { return }
                 let kind: String
+                let isImport = event.type == .import
                 switch event.type {
                 case .setup: kind = String(localized: "Einrichtung")
                 case .import: kind = String(localized: "Empfangen")
@@ -40,11 +43,11 @@ final class CloudSyncStatus {
                 }
                 let message = event.error.map(Self.describe)
                 let ended = event.endDate
-                MainActor.assumeIsolated { self?.handle(kind: kind, error: message, ended: ended) }
+                MainActor.assumeIsolated { self?.handle(kind: kind, error: message, ended: ended, isImport: isImport) }
             }
     }
 
-    private func handle(kind: String, error: (text: String, log: String)?, ended: Date?) {
+    private func handle(kind: String, error: (text: String, log: String)?, ended: Date?, isImport: Bool) {
         if let error {
             state = .failed(error.text)
             Log.error("iCloud \(kind): \(error.log)")
@@ -56,6 +59,7 @@ final class CloudSyncStatus {
         }
         state = .idle(ended)
         Log.info("iCloud \(kind) fertig")
+        if isImport { onImportFinished() }
     }
 
     /// CloudKit verpackt den eigentlichen Grund in `partialErrorsByItemID`. Ohne das Auspacken steht

@@ -38,15 +38,22 @@ public struct RecordingCategory: Identifiable, Codable, Hashable, Sendable {
         "building.2.fill": "🏢", "leaf.fill": "🌿", "gamecontroller.fill": "🎮",
     ]
 
+    /// Feste IDs für die Standardbereiche: Richten zwei Macs Earnote ein, legt jeder sie an – mit gleicher ID
+    /// erkennt der iCloud-Abgleich sie als dieselben, auch wenn einer inzwischen umbenannt wurde.
+    /// (Ältere Installationen haben zufällige IDs; dort greift der Name, siehe `LibraryMerge`.)
+    static func defaultID(_ number: Int) -> UUID {
+        UUID(uuidString: String(format: "EA7E0000-0000-4000-8000-%012ld", number))!
+    }
+
     public static let defaults: [RecordingCategory] = [
         RecordingCategory(
-            name: "Meeting", emoji: "💼", symbol: "person.3.fill", colorHex: "#4F7CFF",
+            id: defaultID(1), name: "Meeting", emoji: "💼", symbol: "person.3.fill", colorHex: "#4F7CFF",
             instructions: """
             Achte besonders darauf, wer welche Position vertreten hat, was entschieden wurde, \
             wer was bis wann erledigt und was noch offen ist.
             """),
         RecordingCategory(
-            name: "Vorlesung", emoji: "🎓", symbol: "graduationcap.fill", colorHex: "#9B5CFF",
+            id: defaultID(2), name: "Vorlesung", emoji: "🎓", symbol: "graduationcap.fill", colorHex: "#9B5CFF",
             instructions: """
             Die Notizen sollen zum Lernen taugen: Erkläre Kernaussagen und Zusammenhänge verständlich, \
             halte Begriffe mit Definitionen, Formeln, Beispiele und Quellen fest. Markiere alles, was als \
@@ -54,19 +61,19 @@ public struct RecordingCategory: Identifiable, Codable, Hashable, Sendable {
             "## Zum Wiederholen" mit den wichtigsten Punkten.
             """),
         RecordingCategory(
-            name: "Kundengespräch", emoji: "🤝", symbol: "briefcase.fill", colorHex: "#16A34A",
+            id: defaultID(3), name: "Kundengespräch", emoji: "🤝", symbol: "briefcase.fill", colorHex: "#16A34A",
             instructions: """
             Achte besonders auf Anliegen und Anforderungen des Kunden, Rahmenbedingungen wie Budget und Zeitplan, \
             Zusagen beider Seiten und die nächsten Schritte.
             """),
         RecordingCategory(
-            name: "Interview", emoji: "🎙️", symbol: "mic.fill", colorHex: "#F59E0B",
+            id: defaultID(4), name: "Interview", emoji: "🎙️", symbol: "mic.fill", colorHex: "#F59E0B",
             instructions: """
             Gib die Sicht der befragten Person möglichst genau wieder. Übernimm prägnante oder wichtige \
             Aussagen als wörtliche Zitate mit Zeitmarke.
             """),
         RecordingCategory(
-            name: "Notiz", emoji: "💭", symbol: "note.text", colorHex: "#64748B",
+            id: defaultID(5), name: "Notiz", emoji: "💭", symbol: "note.text", colorHex: "#64748B",
             instructions: """
             Meist eine kurze Sprachnotiz: Halte die Gedanken knapp in eigenen Worten fest, Aufgaben als Checkliste.
             """),

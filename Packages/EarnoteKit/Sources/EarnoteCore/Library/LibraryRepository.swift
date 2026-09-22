@@ -72,6 +72,11 @@ public protocol LibraryRepository: Sendable {
     /// (Groß-/Kleinschreibung, Akzente und Umlaut-Umschreibungen egal; siehe `SearchText`)
     func searchRecordingIDs(matching query: String) async throws -> Set<UUID>
 
+    // MARK: iCloud-Abgleich
+    /// Führt Bereiche mit derselben ID oder demselben Namen zusammen (Aufnahmen und Wörterbuch wandern mit)
+    /// und danach doppelte Wörterbuch-Einträge. Auf jedem Gerät bleibt derselbe Eintrag stehen.
+    func mergeDuplicates() async throws -> LibraryMergeReport
+
     // MARK: Übernahme
     /// Speichert mehrere Aufnahmen in einem Schritt; bereits vorhandene IDs werden übersprungen.
     /// Liefert die Anzahl der neu angelegten Aufnahmen.

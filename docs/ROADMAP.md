@@ -377,7 +377,11 @@ heute für iOS – das bleibt die Eintrittskarte, und der iOS-Build läuft bei j
 - [x] **Sync-Status**: Einstellungen › Allgemein zeigt „Wird verbunden … / Gleicht ab … / Aktuell (Uhrzeit)“
       bzw. den Fehlertext; jedes Ereignis steht auch im Protokoll.
 - [ ] Zwei Wochen Dauerlauf auf zwei Macs (Duplikate, Konflikte, Löschungen), danach Freigabe für alle
-- [ ] Duplikat-Bereinigung: gleiche Bereichsnamen von zwei Geräten zusammenführen
+- [x] **Duplikat-Bereinigung (22.09.2026)**: Nach jedem Empfang aus iCloud führt Earnote Bereiche mit
+      gleichem Namen oder gleicher ID zusammen; Aufnahmen und Wörterbuch wandern mit, doppelte
+      Wörterbuch-Einträge werden vereint. Beide Macs behalten denselben Bereich (der älteste, bei
+      Gleichstand die kleinste ID) – sonst löschte jeder den des anderen. Standardbereiche haben jetzt
+      feste IDs. Läuft nur mit eingeschaltetem Sync. Am echten Mac-Paar noch nachzuweisen.
 - [ ] iOS-App-Target auf demselben Kern
 - [ ] **iPad eigenständig** (M-Chip): Whisper + lokales Modell auf dem Gerät, „Increased Memory Limit“
 - [ ] **iPhone als Begleit-App**: nimmt auf, Mac verarbeitet, fertige Notiz wieder auf dem iPhone

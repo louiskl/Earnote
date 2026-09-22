@@ -81,6 +81,7 @@ final class AppEnvironment {
         recorder.hideCallPrompt = { FloatingPanels.shared.hideCallPrompt() }
 
         LocalModels.apply(library.settings)
+        cloudSync.onImportFinished = { [weak library] in Task { await library?.mergeSyncDuplicates() } }
         cloudSync.start(enabled: settings.syncWithCloud)
 
         self.container = container
@@ -131,6 +132,7 @@ final class AppEnvironment {
                                            audio: audio, defaults: defaults)
         _ = await Task.detached(priority: .userInitiated) { await importer.runIfNeeded() }.value
         await library.load()
+        await library.mergeSyncDuplicates()
         #if DEBUG
         await addDemoLibraryIfRequested()
         #endif

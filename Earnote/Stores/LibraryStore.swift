@@ -77,6 +77,24 @@ final class LibraryStore: RecordingLibrary {
         isLoaded = true
     }
 
+    /// iCloud: Bereiche und Wörterbuch-Einträge, die nach dem Abgleich doppelt dastehen, zusammenführen
+    /// und neu laden. Läuft nur mit eingeschaltetem Sync – lokal angelegte gleichnamige Bereiche bleiben.
+    func mergeSyncDuplicates() async {
+        guard settings.syncWithCloud else { return }
+        await lastWrite?.value
+        do {
+            let report = try await library.mergeDuplicates()
+            guard !report.isEmpty else { return }
+            Log.info(report.summary)
+            if let id = settings.defaultCategoryID, let replacement = report.categoryReplacements[id] {
+                settings.defaultCategoryID = replacement
+            }
+            await load()
+        } catch {
+            Log.error("Doppelte zusammenführen: \(error.localizedDescription)")
+        }
+    }
+
     // MARK: Speichern
 
     /// Schreibt der Reihe nach; Fehler landen im Protokoll.
