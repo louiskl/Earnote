@@ -11,6 +11,17 @@ public enum NoteBlock: Equatable, Sendable, Identifiable {
     case task(id: Int, text: String, isDone: Bool, line: Int)
     case quote(id: Int, text: String)
 
+    /// Der reine Text des Blocks – für Suche und Zählung der Fundstellen
+    public var plainText: String {
+        switch self {
+        case .paragraph(_, let text), .bullet(_, let text, _), .numbered(_, _, let text, _),
+             .task(_, let text, _, _), .quote(_, let text):
+            return text
+        case .heading(_, _, let text, let timestamp):
+            return timestamp.map { "\(text) \($0)" } ?? text
+        }
+    }
+
     public var id: Int {
         switch self {
         case .paragraph(let id, _), .heading(let id, _, _, _), .bullet(let id, _, _), .numbered(let id, _, _, _),

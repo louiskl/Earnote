@@ -264,7 +264,8 @@ Erst wenn alle drei Blöcke stehen, wird aus 0.9.x die 1.0 – und erst danach b
 - [x] **Speicher aufräumen**: Einstellungen › Allgemein zeigt, wie viel die Audiodateien belegen,
       und löscht auf Wunsch den Ton alter Aufnahmen (älter als ein Monat, drei Monate oder alles).
       Notizen und Transkripte bleiben. Ein Semester Vorlesungen sind sonst schnell 30 GB.
-- [ ] Notiz-Fundstellen auch mit ⌘G durchblättern (heute nur im Transkript)
+- [x] **Notiz-Fundstellen mit ⌘G**: Die Suche blättert jetzt auch durch die Notiz, nicht nur durch
+      das Transkript. Stehen beide nebeneinander, führt das Transkript den Zähler.
 - [ ] Rest der Fassade `AppState` auflösen (Menüleiste und Call-Hinweis auf die Stores umstellen)
 
 ## Phase 5 – Launch (1.0 RC → 1.0)

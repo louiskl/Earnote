@@ -260,3 +260,31 @@ final class AudioStorageTests: XCTestCase {
         XCTAssertEqual(store.usedBytes, 8_000)
     }
 }
+
+/// ⌘G braucht je Fundstelle einen Eintrag – dafür muss jeder Block seinen reinen Text kennen.
+final class NoteBlockTextTests: XCTestCase {
+    func testEveryBlockKindReportsItsText() {
+        let markdown = """
+        # Titel
+
+        Ein Absatz über Eigenwerte.
+
+        ## Rechenweg [00:12:30]
+
+        - Polynom aufstellen
+        1. Erster Schritt
+        - [ ] Übungsblatt rechnen
+        > Zitat aus der Vorlesung
+        """
+        let blocks = NoteMarkdown.blocks(markdown)
+        let texts = blocks.map(\.plainText)
+        XCTAssertTrue(texts.contains { $0.contains("Eigenwerte") })
+        XCTAssertTrue(texts.contains { $0.contains("Rechenweg") && $0.contains("00:12:30") },
+                      "die Zeitmarke gehört zur Überschrift und ist auffindbar")
+        XCTAssertTrue(texts.contains("Polynom aufstellen"))
+        XCTAssertTrue(texts.contains("Erster Schritt"))
+        XCTAssertTrue(texts.contains("Übungsblatt rechnen"))
+        XCTAssertTrue(texts.contains("Zitat aus der Vorlesung"))
+        XCTAssertFalse(texts.contains { $0.contains("- [ ]") }, "Kästchen und Aufzählungszeichen zählen nicht zum Text")
+    }
+}

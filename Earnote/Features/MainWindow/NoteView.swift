@@ -11,9 +11,13 @@ struct NoteView: View {
     let onEditStarted: () -> Void
     /// Laufende Suche: Fundstellen in der Notiz hervorheben
     var searchText = ""
+    /// Blättern durch die Fundstellen (⌘G) – nil, wenn das Transkript daneben steht und blättert
+    var cursor: SearchCursor?
 
     /// Gerade abgehakter Stand, bis die Bibliothek ihn gespeichert zurückmeldet (verhindert Flackern)
     @State private var pendingMarkdown: String?
+    /// Zu jeder Fundstelle der Block, in dem sie steht – in der Reihenfolge der Notiz
+    @State private var hits: [Int] = []
     /// Der Editor gehört dieser Ansicht – Abbrechen und Sichern wirken damit sofort, egal was außen passiert.
     @State private var editing = false
 
@@ -27,6 +31,28 @@ struct NoteView: View {
             }
     }
 
+    /// Neue Suche oder geänderte Notiz: Fundstellen zählen und zur ersten springen.
+    /// Je Fundstelle ein Eintrag, damit ⌘G und die Zählung dasselbe meinen – wie im Transkript.
+    private func updateHits(in markdown: String, _ proxy: ScrollViewProxy) {
+        guard cursor != nil else { return }
+        guard !SearchText.normalized(searchText).isEmpty else {
+            hits = []
+            cursor?.reset(count: 0)
+            return
+        }
+        hits = NoteMarkdown.blocks(markdown).flatMap { block in
+            Array(repeating: block.id, count: SearchText.ranges(in: block.plainText, query: searchText).count)
+        }
+        cursor?.reset(count: hits.count)
+        scrollToHit(proxy)
+    }
+
+    private func scrollToHit(_ proxy: ScrollViewProxy) {
+        let index = cursor?.index ?? 0
+        guard hits.indices.contains(index) else { return }
+        withAnimation(.easeInOut(duration: 0.2)) { proxy.scrollTo(hits[index], anchor: .top) }
+    }
+
     @ViewBuilder private var content: some View {
         if let note = recording.note {
             let markdown = pendingMarkdown ?? note.markdown
@@ -38,24 +64,31 @@ struct NoteView: View {
                     library.updateSummaryText(recording.id, markdown: edited)
                 }
             } else {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 10) {
-                    DetailHeader(recording: recording)
-                        .padding(.bottom, 6)
-                    if recording.isBusy || recording.status == .failed {
-                        StatusLine(recording: recording)
-                    }
-                    ForEach(NoteMarkdown.blocks(markdown)) { block in
-                        NoteBlockView(block: block, searchText: searchText) { line in
-                            guard let updated = NoteMarkdown.togglingTask(in: markdown, line: line) else { return }
-                            pendingMarkdown = updated
-                            library.updateSummaryText(recording.id, markdown: updated)
+            ScrollViewReader { proxy in
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 10) {
+                        DetailHeader(recording: recording)
+                            .padding(.bottom, 6)
+                        if recording.isBusy || recording.status == .failed {
+                            StatusLine(recording: recording)
+                        }
+                        ForEach(NoteMarkdown.blocks(markdown)) { block in
+                            NoteBlockView(block: block, searchText: searchText) { line in
+                                guard let updated = NoteMarkdown.togglingTask(in: markdown, line: line) else { return }
+                                pendingMarkdown = updated
+                                library.updateSummaryText(recording.id, markdown: updated)
+                            }
+                            .id(block.id)
                         }
                     }
+                    .frame(maxWidth: 720, alignment: .leading)
+                    .padding(24)
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
-                .frame(maxWidth: 720, alignment: .leading)
-                .padding(24)
-                .frame(maxWidth: .infinity, alignment: .leading)
+                .onChange(of: searchText, initial: true) { _, _ in updateHits(in: markdown, proxy) }
+                .onChange(of: markdown) { _, text in updateHits(in: text, proxy) }
+                // Weitersuchen (⌘G) zählt im Menü hoch, hier wird gescrollt
+                .onChange(of: cursor?.index) { _, _ in scrollToHit(proxy) }
             }
             .onChange(of: note.markdown) { _, stored in
                 if stored == pendingMarkdown { pendingMarkdown = nil }
