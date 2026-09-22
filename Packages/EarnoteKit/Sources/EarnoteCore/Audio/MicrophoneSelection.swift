@@ -125,6 +125,8 @@ public enum MicrophoneEvent: Equatable, Sendable {
     case switchedDuringRecording(lost: String, used: String)
     /// Gerät ist während der Aufnahme verschwunden und es gibt keinen Ersatz
     case lostWithoutReplacement(lost: String)
+    /// Bluetooth-Kopfhörer im Telefonmodus: nimmt auf, aber in schlechter Qualität
+    case telephoneQuality(name: String, kilohertz: Int)
 
     public var message: String {
         switch self {
@@ -140,6 +142,8 @@ public enum MicrophoneEvent: Equatable, Sendable {
             return t("Das Mikrofon „\(failed)“ hat nicht reagiert. Die Aufnahme läuft über „\(used)“.")
         case .switchedDuringRecording(let lost, let used):
             return t("Das Mikrofon „\(lost)“ ist nicht mehr verfügbar. Die Aufnahme läuft über „\(used)“ weiter.")
+        case .telephoneQuality(let name, let kilohertz):
+            return t("„\(name)“ nimmt gerade in Telefonqualität auf (\(kilohertz) kHz), weil es gleichzeitig Ton ausgibt. Für eine gute Mitschrift wähle in den Einstellungen unter „Aufnahme“ das eingebaute Mikrofon.")
         case .lostWithoutReplacement(let lost):
             return t("Das Mikrofon „\(lost)“ ist nicht mehr verfügbar und es gibt kein anderes. Schließ ein Mikrofon an – die Aufnahme geht dann weiter.")
         }

@@ -14,6 +14,7 @@ objects = {}
 def add(key, body):
     objects[key] = body
 
+# Quelldateien der App: Swift plus die eine Objective-C-Datei, die AVFoundation-Ausnahmen abfängt
 swift_files, groups = [], {}
 for dirpath, dirnames, filenames in os.walk(SRC):
     dirnames.sort()
@@ -31,11 +32,12 @@ for dirpath, dirnames, filenames in os.walk(SRC):
         if f.startswith("."):
             continue
         groups[rel]["files"].append(f)
-        if f.endswith(".swift"):
+        if f.endswith(".swift") or f.endswith(".m"):
             swift_files.append(os.path.normpath(os.path.join(rel, f)))
 
 def ftype(name):
     return {"swift": "sourcecode.swift", "plist": "text.plist.xml", "entitlements": "text.plist.entitlements",
+            "m": "sourcecode.c.objc", "h": "sourcecode.c.h",
             "xcassets": "folder.assetcatalog"}.get(name.rsplit(".", 1)[-1], "text")
 
 file_refs = {}
@@ -154,7 +156,7 @@ APP_ENTITLEMENTS = ("Earnote/Resources/Earnote-iCloud-Development.entitlements" 
 # Die Version der App steht nur hier. Sparkle vergleicht Fassungen an der Buildnummer
 # (CFBundleVersion), nicht am Namen – sie muss also mit jeder Fassung wachsen, sonst bietet die
 # App ein Update nie an. Aus „0.9.4“ wird 904.
-MARKETING_VERSION = "0.9.12"
+MARKETING_VERSION = "0.9.13"
 _parts = (MARKETING_VERSION.split(".") + ["0", "0"])[:3]
 BUILD_NUMBER = str(int(_parts[0]) * 10_000 + int(_parts[1]) * 100 + int(_parts[2]))
 
@@ -169,6 +171,8 @@ common_target = {
     "ENABLE_HARDENED_RUNTIME": "YES",
     "GENERATE_INFOPLIST_FILE": "NO",
     "INFOPLIST_FILE": "Earnote/Resources/Info.plist",
+    "SWIFT_OBJC_BRIDGING_HEADER": "Earnote/Earnote-Bridging-Header.h",
+    "USER_HEADER_SEARCH_PATHS": "$(SRCROOT)/Earnote/Audio",
     "LD_RUNPATH_SEARCH_PATHS": "$(inherited) @executable_path/../Frameworks",
     "MACOSX_DEPLOYMENT_TARGET": "15.0",
     "MARKETING_VERSION": MARKETING_VERSION,
@@ -234,6 +238,9 @@ test_settings = {
     "GENERATE_INFOPLIST_FILE": "YES", "SWIFT_VERSION": "6.0", "CODE_SIGN_IDENTITY": "-",
     "CODE_SIGN_STYLE": "Manual", "TEST_HOST": "$(BUILT_PRODUCTS_DIR)/Earnote.app/Contents/MacOS/Earnote",
     "BUNDLE_LOADER": "$(TEST_HOST)", "LD_RUNPATH_SEARCH_PATHS": "$(inherited) @loader_path/../Frameworks @executable_path/../Frameworks",
+    # damit der Test den Obj-C-Ausnahmefänger der App sieht
+    "SWIFT_OBJC_BRIDGING_HEADER": "Earnote/Earnote-Bridging-Header.h",
+    "USER_HEADER_SEARCH_PATHS": "$(SRCROOT)/Earnote/Audio",
 }
 for name in ("Debug", "Release"):
     add(uid("test-config", name), "{isa = XCBuildConfiguration; buildSettings = " + settings_block(test_settings) + f"; name = {name}; }};")

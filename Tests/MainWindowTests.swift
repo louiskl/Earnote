@@ -130,3 +130,25 @@ final class NoteDocumentTests: XCTestCase {
         XCTAssertTrue(document.string?.contains("Übungsblatt rechnen") == true, "Der Text steht im PDF")
     }
 }
+
+/// Der Fänger aus `AudioExceptions.m` ist die Notbremse gegen eine ganze Fehlerklasse:
+/// AVFoundation meldet Audiofehler als `NSException`, und jede ungefangene beendet die App.
+final class AudioExceptionTests: XCTestCase {
+    func testFängtObjCAusnahme() {
+        var error: NSError?
+        let ok = EarnoteCatchException({
+            NSException(name: .invalidArgumentException, reason: "Testfall", userInfo: nil).raise()
+        }, &error)
+        XCTAssertFalse(ok, "Die Ausnahme muss als Fehler zurückkommen, nicht die App beenden")
+        XCTAssertEqual(error?.localizedDescription, "Testfall")
+    }
+
+    func testLässtFehlerfreienAufrufDurch() {
+        var error: NSError?
+        var lief = false
+        let ok = EarnoteCatchException({ lief = true }, &error)
+        XCTAssertTrue(ok)
+        XCTAssertTrue(lief)
+        XCTAssertNil(error)
+    }
+}

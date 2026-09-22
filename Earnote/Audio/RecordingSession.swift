@@ -30,6 +30,8 @@ final class RecordingSession {
     var micLevel: Float { mic.level }
     var systemLevel: Float { tap?.level ?? 0 }
     var isPaused: Bool { mic.isPaused }
+    /// Wann zuletzt Ton vom Mikrofon ankam (für den Wächter in `RecordingController`)
+    var lastMicBufferAt: Date? { mic.lastBufferAt }
     /// Gerät, über das gerade aufgenommen wird
     var microphone: AudioInputDeviceInfo? { mic.device }
 

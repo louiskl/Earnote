@@ -18,6 +18,18 @@ final class MicRecorder {
         }
     }
 
+    /// Führt einen Audio-Aufruf aus, der eine Obj-C-Ausnahme werfen kann (siehe `AudioExceptions.h`),
+    /// und macht daraus einen Swift-Fehler – statt die App zu beenden.
+    private func withoutCrashing(_ what: String, _ body: () -> Void) throws {
+        var raised: NSError?
+        guard EarnoteCatchException(body, &raised) else {
+            let reason = raised?.localizedDescription ?? "unbekannt"
+            Log.error("Audio-Ausnahme bei \(what): \(reason)")
+            throw NSError(domain: AppInfo.name, code: 5,
+                          userInfo: [NSLocalizedDescriptionKey: "\(what) ist fehlgeschlagen (\(reason))"])
+        }
+    }
+
     private var engine: AVAudioEngine?
     private var file: AVAudioFile?
     private var fileURL: URL?
@@ -27,6 +39,11 @@ final class MicRecorder {
     private var devicesListener: AudioObjectPropertyListenerBlock?
     private var tapFormat: AVAudioFormat?
     private let lock = NSLock()
+    /// Wann zuletzt ein Puffer ankam. Bleibt das aus, liefert das Mikrofon nichts mehr –
+    /// unabhängig davon, was der Pegel noch anzeigt.
+    private var _lastBufferAt: Date?
+    /// Hinweis auf Telefonqualität nur einmal je Aufnahme
+    private var toldAboutQuality = false
     private var _level: Float = 0
     private var _paused = false
     /// Gerät verloren, noch kein Ersatz gefunden – beim nächsten Geräte-Ereignis erneut versuchen
@@ -41,12 +58,28 @@ final class MicRecorder {
     /// Wird zusätzlich mit jedem Mikrofonpuffer aufgerufen (Live-Mitschrift).
     var onAudio: ((AVAudioPCMBuffer) -> Void)?
     /// Hinweise an die Nutzerin / den Nutzer (auf dem Hauptthread)
-    var onEvent: ((MicrophoneEvent) -> Void)?
+    /// Meldungen ans Fenster. Beim Start steht der Empfänger noch nicht – deshalb werden Hinweise,
+    /// die schon beim ersten Start anfallen, gemerkt und nachgereicht, sobald jemand zuhört.
+    var onEvent: ((MicrophoneEvent) -> Void)? {
+        didSet {
+            guard onEvent != nil, !pendingEvents.isEmpty else { return }
+            let pending = pendingEvents
+            pendingEvents = []
+            pending.forEach { onEvent?($0) }
+        }
+    }
+    private var pendingEvents: [MicrophoneEvent] = []
+
+    private func report(_ event: MicrophoneEvent) {
+        if let onEvent { onEvent(event) } else { pendingEvents.append(event) }
+    }
     /// Ersatzgeräte in Reihenfolge, wenn das laufende Gerät ausfällt (verlorene UID wird übergeben)
     var replacements: ((String) -> [AudioInputDeviceInfo])?
 
     var level: Float { lock.lock(); defer { lock.unlock() }; return _level }
     var isPaused: Bool { lock.lock(); defer { lock.unlock() }; return _paused }
+    /// Wann der letzte Puffer ankam (nil: seit dem Start noch keiner)
+    var lastBufferAt: Date? { lock.lock(); defer { lock.unlock() }; return _lastBufferAt }
 
     static var permission: AVAuthorizationStatus { AVCaptureDevice.authorizationStatus(for: .audio) }
 
@@ -125,7 +158,16 @@ final class MicRecorder {
         }
         self.engine = engine
         self.device = device
+        lock.lock(); _lastBufferAt = Date(); lock.unlock()
         waitingForDevice = false
+        // Bluetooth-Kopfhörer fallen auf 16 oder 24 kHz, sobald sie gleichzeitig Ton ausgeben (Call).
+        // Whisper hört dann deutlich schlechter – einmal je Aufnahme darauf hinweisen.
+        let rate = tapFormat?.sampleRate ?? 0
+        if [.bluetooth, .bluetoothLE].contains(device.transport), rate > 0, rate < 32_000, !toldAboutQuality {
+            toldAboutQuality = true
+            Log.info("Mikrofon „\(device.name)“ läuft mit \(Int(rate)) Hz (Telefonmodus)")
+            report(.telephoneQuality(name: device.name, kilohertz: Int(rate / 1000)))
+        }
         observe(engine, device: device)
     }
 
@@ -152,8 +194,10 @@ final class MicRecorder {
         // diesem Format liefert dann stumm gar nichts mehr – genau so ging bei einem Wechsel auf
         // ein anderes Mikrofon der Ton verloren. Die Umwandlung aufs Dateiformat macht ohnehin
         // `FormatConverter`, der sich auf jedes eingehende Format einstellt.
-        input.installTap(onBus: 0, bufferSize: 4096, format: nil) { [weak self] buffer, _ in
-            self?.handle(buffer)
+        try withoutCrashing("Tap anbringen") {
+            input.installTap(onBus: 0, bufferSize: 4096, format: nil) { [weak self] buffer, _ in
+                self?.handle(buffer)
+            }
         }
     }
 
@@ -189,6 +233,7 @@ final class MicRecorder {
 
     /// Räumt vollständig auf: Beobachter, Tap, Engine, Datei. Auch aus der Pause heraus.
     func stop() {
+        toldAboutQuality = false
         pendingSwitch?.cancel()
         pendingSwitch = nil
         teardownEngine()
@@ -213,6 +258,7 @@ final class MicRecorder {
         lock.lock()
         let paused = _paused, file = file, converter = converter
         lock.unlock()
+        lock.lock(); _lastBufferAt = Date(); lock.unlock()
         guard !paused, let file else { return }
         do {
             if let converted = converter?.convert(buffer) { try file.write(from: converted) }

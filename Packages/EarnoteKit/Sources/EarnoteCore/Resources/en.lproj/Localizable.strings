@@ -107,3 +107,4 @@
 "Hier sind die Mitschriften:" = "Here are the notes:";
 "Ergebnisse" = "Results";
 "Aufgaben" = "Tasks";
+"„%1$@“ nimmt gerade in Telefonqualität auf (%2$lld kHz), weil es gleichzeitig Ton ausgibt. Für eine gute Mitschrift wähle in den Einstellungen unter „Aufnahme“ das eingebaute Mikrofon." = "“%1$@” is recording in phone quality (%2$lld kHz) because it is also playing sound. For a good transcript, pick the built-in microphone in Settings › Recording.";

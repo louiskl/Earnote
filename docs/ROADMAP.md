@@ -1,6 +1,6 @@
 # Earnote – Roadmap
 
-> Stand: 22.09.2026 (0.9.12) · gepflegt vom Architekten · Versionen sind Arbeitsstände, öffentlich wird erst 1.0.
+> Stand: 22.09.2026 (0.9.13) · gepflegt vom Architekten · Versionen sind Arbeitsstände, öffentlich wird erst 1.0.
 > Beta läuft: [Releases](https://github.com/louiskl/Earnote/releases) · [Anleitung für Tester](BETA.md)
 > Leitlinien: [DESIGN_GUIDELINES.md](DESIGN_GUIDELINES.md) · Aufbau: [ARCHITECTURE.md](ARCHITECTURE.md)
 
@@ -23,7 +23,7 @@
 | 4b | Reif für andere: Player, englische Oberfläche, Nebeneinander, Suche, Kürzel, Kalender | 0.9.0–0.9.2 | ✅ fertig |
 | 4c | Lernhilfen, Aufgaben-Ziele, Modellwahl, Vorverdichten, Review, Swift 6 | 0.9.3 | ✅ fertig |
 | 4d | Feinschliff: Hilfe-Menü, Speicher aufräumen, ⌘G in der Notiz, Fassade entfernt, letzte Notizen in der Menüleiste | 0.9.6 | ✅ fertig |
-| 4e | Stabilität: Absturz im Mikrofontest, Absturz beim Aufnahmestart, Tonverlust beim Mikrofonwechsel, iCloud-Schema | 0.9.7–0.9.12 | ✅ fertig |
+| 4e | Stabilität: vier Abstürze, Tonverlust, iCloud-Schema, Wächter gegen stummes Scheitern | 0.9.7–0.9.13 | ✅ fertig |
 | **Beta** | **Zwei Wochen mit Kommilitonen, danach 1.0** | 0.9.12 | ▶ **läuft** |
 | 5 | Launch: Website, Demo-Video, Homebrew, Beta mit Kommilitonen, Markenrecherche | 1.0 RC | geplant |
 | 🚀 | **Launch Earnote 1.0 für Mac** | 1.0 | |
@@ -300,6 +300,16 @@ Alles aus echten Abstürzen des Nutzers, nicht aus Tests. Jeder Punkt wurde am G
       jedem Feld an; seit dem erneuten Deploy läuft der Abgleich.
 - [x] **Standard-Bereich „Ohne Bereich“ (0.9.8)**: Aufnahmen müssen nicht mehr in einem Bereich landen –
       neu ist das die Voreinstellung.
+
+**Vorbeugend statt reaktiv (0.9.13)** – damit diese Fehlerklassen nicht wiederkommen:
+- [x] **Obj-C-Ausnahmen werden abgefangen**: AVFoundation meldet Audiofehler als `NSException`, und jede
+      ungefangene beendet die App sofort – drei der vier Abstürze waren genau das. `AudioExceptions.m`
+      macht daraus einen normalen Fehler, den der Ersatzgerät-Weg auffängt. Mit Test abgesichert.
+- [x] **Wächter auf den Datenfluss**: Der bisherige Wächter sah auf den *Pegel* – der bleibt aber beim
+      letzten Wert stehen, wenn gar nichts mehr ankommt. Jetzt zählt, wann zuletzt wirklich ein Puffer
+      eintraf; zehn Sekunden Funkstille melden sich sofort statt gar nicht.
+- [x] **Hinweis bei Telefonqualität**: Bluetooth-Kopfhörer fallen auf 16–24 kHz, sobald sie gleichzeitig
+      Ton ausgeben. Earnote sagt das einmal je Aufnahme und nennt den besseren Weg.
 
 ## Phase 5 – Launch (1.0 RC → 1.0)
 

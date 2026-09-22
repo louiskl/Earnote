@@ -1110,3 +1110,5 @@
 "Audio von %lld Aufnahmen löschen?" = "Delete audio of %lld recordings?";
 "Notizen und Transkripte bleiben erhalten. Nur das Nachhören und das erneute Transkribieren fallen weg." = "Notes and transcripts stay. Only listening back and re-transcribing go away.";
 "Zuletzt" = "Recent";
+"Das Mikrofon liefert seit zehn Sekunden keinen Ton mehr. Prüfe die Verbindung – bei Bluetooth-Kopfhörern hilft meist, in den Einstellungen das eingebaute Mikrofon zu wählen." = "The microphone has not delivered any sound for ten seconds. Check the connection – with Bluetooth headphones it usually helps to pick the built-in microphone in Settings.";
+"Seit einer Minute ist nichts zu hören. Prüfe, ob das richtige Mikrofon gewählt ist und %@ es verwenden darf (Systemeinstellungen › Datenschutz & Sicherheit › Mikrofon)." = "Nothing has been audible for a minute. Check that the right microphone is selected and that %@ is allowed to use it (System Settings › Privacy & Security › Microphone).";

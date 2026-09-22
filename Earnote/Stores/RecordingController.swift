@@ -71,6 +71,8 @@ final class RecordingController {
     @ObservationIgnored private var recordingStartedByCall = false
     /// Hinweis „gewähltes Mikrofon nicht verbunden“ nur einmal je Gerät und App-Start
     @ObservationIgnored private var toldAboutMissingMicrophone: Set<String> = []
+    /// Wurde der Hinweis „Mikrofon liefert nichts mehr“ schon gezeigt?
+    private var toldAboutStall = false
     /// Seit wann das Mikrofon nichts mehr liefert (für den Hinweis „kein Ton“)
     @ObservationIgnored private var silentSince: Date?
     @ObservationIgnored private var toldAboutSilence = false
@@ -405,6 +407,7 @@ final class RecordingController {
                 self.meter.system = s.systemLevel
                 self.meter.elapsed = max(0, Date().timeIntervalSince(startedAt) - self.totalPaused)
                 self.watchForSilence(level: s.micLevel, isPaused: s.isPaused)
+                self.watchForStalledMicrophone(lastBufferAt: s.lastMicBufferAt, isPaused: s.isPaused)
                 self.watchDiskSpace()
             }
         }
@@ -419,11 +422,25 @@ final class RecordingController {
         silentSince = since
         guard !toldAboutSilence, Date().timeIntervalSince(since) > 60 else { return }
         toldAboutSilence = true
-        let message = "Seit einer Minute ist nichts zu hören. Prüfe, ob das richtige Mikrofon gewählt ist und "
-            + "\(AppInfo.name) es verwenden darf (Systemeinstellungen › Datenschutz & Sicherheit › Mikrofon)."
+        let message = String(localized: "Seit einer Minute ist nichts zu hören. Prüfe, ob das richtige Mikrofon gewählt ist und \(AppInfo.name) es verwenden darf (Systemeinstellungen › Datenschutz & Sicherheit › Mikrofon).")
         lastError = message
         notify("Kein Ton", message)
         Log.error("Aufnahme ohne Pegel seit 60 s")
+    }
+
+    /// Der Pegel allein genügt nicht: Liefert das Mikrofon gar nichts mehr, bleibt der letzte Wert
+    /// einfach stehen, und die Aufnahme sieht von außen heil aus, während nichts mehr in der Datei landet
+    /// (so geschehen bis 0.9.11 nach einem Gerätewechsel). Deshalb zählt hier, wann zuletzt wirklich
+    /// Ton ankam – zehn Sekunden Funkstille sind bei laufender Aufnahme immer ein Fehler.
+    private func watchForStalledMicrophone(lastBufferAt: Date?, isPaused: Bool) {
+        guard !isPaused, let lastBufferAt else { toldAboutStall = false; return }
+        guard Date().timeIntervalSince(lastBufferAt) > 10 else { toldAboutStall = false; return }
+        guard !toldAboutStall else { return }
+        toldAboutStall = true
+        let message = String(localized: "Das Mikrofon liefert seit zehn Sekunden keinen Ton mehr. Prüfe die Verbindung – bei Bluetooth-Kopfhörern hilft meist, in den Einstellungen das eingebaute Mikrofon zu wählen.")
+        lastError = message
+        notify("Kein Ton", message)
+        Log.error("Mikrofon liefert seit \(Int(Date().timeIntervalSince(lastBufferAt))) s keine Puffer mehr")
     }
 
     /// Läuft die Platte während der Aufnahme voll, wird sauber beendet – das Aufgenommene bleibt erhalten.
