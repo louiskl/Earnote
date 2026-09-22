@@ -14,17 +14,20 @@ struct PlayerBar: View {
                     Image(systemName: "gobackward.15")
                 }
                 .help("15 Sekunden zurück (⌥←)")
+                .accessibilityLabel("15 Sekunden zurück")
 
                 Button(action: player.playPause) {
                     Image(systemName: player.isPlaying ? "pause.fill" : "play.fill")
                         .frame(width: 18)
                 }
                 .help(player.isPlaying ? "Pause (⌥Leertaste)" : "Abspielen (⌥Leertaste)")
+                .accessibilityLabel(player.isPlaying ? Text("Pause") : Text("Abspielen"))
 
                 Button { player.skip(AudioPlayer.skipSeconds) } label: {
                     Image(systemName: "goforward.15")
                 }
                 .help("15 Sekunden vor (⌥→)")
+                .accessibilityLabel("15 Sekunden vor")
 
                 Text(TimeFormat.duration(player.currentTime))
                     .font(.caption.monospacedDigit())

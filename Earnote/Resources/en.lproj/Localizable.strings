@@ -1114,3 +1114,8 @@
 "Seit einer Minute ist nichts zu hören. Prüfe, ob das richtige Mikrofon gewählt ist und %@ es verwenden darf (Systemeinstellungen › Datenschutz & Sicherheit › Mikrofon)." = "Nothing has been audible for a minute. Check that the right microphone is selected and that %@ is allowed to use it (System Settings › Privacy & Security › Microphone).";
 "Die Aufnahme wurde beendet, weil der Speicherplatz ausgeht. Das bisher Aufgenommene wird ganz normal verarbeitet." = "Recording stopped because the disk is running out of space. What has been recorded so far will be processed as usual.";
 "Der Download ist fehlgeschlagen. Prüfe die Internetverbindung und versuch es noch einmal." = "The download failed. Check your internet connection and try again.";
+"%@: Aufnahme pausiert" = "%@: recording paused";
+"%@: Aufnahme läuft" = "%@: recording";
+"%@: Aufnahme wird verarbeitet" = "%@: processing a recording";
+"%@: bereit zum Aufnehmen" = "%@: ready to record";
+"Abspielen" = "Play";

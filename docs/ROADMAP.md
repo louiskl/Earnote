@@ -317,6 +317,16 @@ Alles aus echten Abstürzen des Nutzers, nicht aus Tests. Jeder Punkt wurde am G
 - [x] **Hinweis bei Telefonqualität**: Bluetooth-Kopfhörer fallen auf 16–24 kHz, sobald sie gleichzeitig
       Ton ausgeben. Earnote sagt das einmal je Aufnahme und nennt den besseren Weg.
 
+**Vor 1.0 noch geprüft**
+- [x] **Barrierefreiheit durchgegangen (22.09.2026)**: Die Oberfläche war schon gut instrumentiert –
+      Aufnahme-Bühne mit gesprochenem Zustand, Laufzeit und Mitschrift, Listenzeilen als eine Einheit,
+      Überschriften in der Notiz als Überschriften, Symbole ohne Bedeutung ausgeblendet. Zwei echte
+      Lücken geschlossen: das Symbol in der **Menüleiste** (VoiceOver las „waveform“ statt des Zustands)
+      und die drei Knöpfe der **Abspielleiste**.
+- [x] **Modell-Download prüft den Platz** und meldet Fehler verständlich statt mit URLSession-Wortlaut
+- [ ] Mit eingeschaltetem VoiceOver einmal durch die App gehen (liegt beim Nutzer – ein Durchgang
+      mit echtem Vorlesen findet Dinge, die im Quelltext nicht zu sehen sind)
+
 ## Phase 5 – Launch (1.0 RC → 1.0)
 
 **Name & Recht** (liegt beim Nutzer)

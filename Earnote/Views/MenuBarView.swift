@@ -7,15 +7,23 @@ struct MenuBarLabel: View {
     @EnvironmentObject var meter: LiveMeter
 
     var body: some View {
+        // Das Symbol in der Menüleiste ist für viele der einzige Einstieg. Ohne eigene Beschriftung
+        // liest VoiceOver den Namen des Symbols vor („waveform“) statt des Zustands.
         if recorder.isRecording {
             HStack(spacing: 4) {
                 Image(systemName: recorder.isPaused ? "pause.circle.fill" : "record.circle.fill")
                 Text(TimeFormat.duration(meter.elapsed)).monospacedDigit()
             }
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(recorder.isPaused ? Text("\(AppInfo.name): Aufnahme pausiert")
+                                                  : Text("\(AppInfo.name): Aufnahme läuft"))
+            .accessibilityValue(Text(TimeFormat.duration(meter.elapsed)))
         } else if library.recordings.contains(where: { $0.status.isBusy }) {
             Image(systemName: "waveform.badge.magnifyingglass")
+                .accessibilityLabel("\(AppInfo.name): Aufnahme wird verarbeitet")
         } else {
             Image(systemName: "waveform")
+                .accessibilityLabel("\(AppInfo.name): bereit zum Aufnehmen")
         }
     }
 }
