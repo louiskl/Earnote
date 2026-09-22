@@ -136,9 +136,10 @@ public enum MarkdownDocument {
 
     public static func metaLine(_ p: ExportPayload) -> String {
         let df = DateFormatter()
-        df.locale = Locale(identifier: "de_DE")
+        df.locale = .current
         df.dateStyle = .medium; df.timeStyle = .short
-        var parts = [df.string(from: p.recording.startedAt), "\(Int(p.recording.duration / 60)) Min."]
+        var parts = [df.string(from: p.recording.startedAt),
+                     String(localized: "\(Int(p.recording.duration / 60)) Min.")]
         if let c = p.category { parts.insert(c.name, at: 0) }
         if let app = p.recording.sourceApp { parts.append(app) }
         return parts.joined(separator: " · ")

@@ -107,7 +107,7 @@ public enum LibraryListing {
     /// Nach Tag gruppiert, neueste zuerst. Titel: „Heute“, „Gestern“, sonst Wochentag und Datum (mit Jahr, wenn nicht aktuell).
     public static func groupedByDay<Item: LibraryListable>(_ items: [Item], now: Date = Date(),
                                                            calendar: Calendar = .current,
-                                                           locale: Locale = Locale(identifier: "de_DE")) -> [LibraryDaySection<Item>] {
+                                                           locale: Locale = .current) -> [LibraryDaySection<Item>] {
         let sorted = items.sorted { $0.listStartedAt > $1.listStartedAt }
         var sections: [LibraryDaySection<Item>] = []
         var currentDay: Date?
@@ -127,7 +127,7 @@ public enum LibraryListing {
     }
 
     public static func dayTitle(_ day: Date, now: Date = Date(), calendar: Calendar = .current,
-                                locale: Locale = Locale(identifier: "de_DE")) -> String {
+                                locale: Locale = .current) -> String {
         if calendar.isDate(day, inSameDayAs: now) { return t("Heute") }
         if let yesterday = calendar.date(byAdding: .day, value: -1, to: now), calendar.isDate(day, inSameDayAs: yesterday) {
             return t("Gestern")

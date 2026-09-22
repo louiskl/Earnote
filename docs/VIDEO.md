@@ -22,18 +22,24 @@ einem Nachmittag Frust und einer Stunde Arbeit.
 
 ### Demo-Bibliothek statt echter Daten
 
-**Nimm niemals deine echte Bibliothek auf.** Darin stehen echte Vorlesungen und Namen. Für die
-Bildschirmfotos der Website haben wir einen Demo-Modus benutzt, der Bereiche und drei
-Beispielaufnahmen anlegt – denselben nimmst du fürs Video:
+**Nimm niemals deine echte Bibliothek auf.** Darin stehen echte Vorlesungen und Namen. Dafür gibt es
+eine vorbereitete Beispielbibliothek – sechs Aufnahmen über mehrere Tage, vier Bereiche, Aufgaben,
+Karteikarten, ein Teams-Meeting und eine Semester-Übersicht:
 
 ```bash
 EARNOTE_SANDBOX=~/Desktop/earnote-demo EARNOTE_DEMO_LIBRARY=1 EARNOTE_APPEARANCE=light \
   ~/Library/Developer/Xcode/DerivedData/Earnote-*/Build/Products/Debug/Earnote.app/Contents/MacOS/Earnote \
-  -AppleLanguages '(en-US)'
+  -AppleLanguages '(en-US)' -AppleLocale en_US
 ```
 
-Der Demo-Modus steckt nur im Debug-Build – sag Bescheid, dann liegt der bereit. Für Deutsch
-`(de-DE)` statt `(en-US)`.
+Für die deutsche Fassung `-AppleLanguages '(de-DE)' -AppleLocale de_DE`, für Dunkel
+`EARNOTE_APPEARANCE=dark`. Ein neuer Ordner bei `EARNOTE_SANDBOX` heißt: frische Bibliothek.
+
+**Soll im Video eine Zeitmarke angeklickt werden**, braucht die oberste Aufnahme eine Tonspur:
+`EARNOTE_DEMO_AUDIO=/Pfad/zur/aufnahme.m4a` zusätzlich setzen. Am einfachsten: vorher selbst eine
+kurze Aufnahme im Testbereich machen und deren `mix.caf` nehmen.
+
+Der Demo-Modus steckt nur im Debug-Build – der liegt bereits gebaut in DerivedData.
 
 ### Fenstergröße
 

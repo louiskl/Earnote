@@ -128,9 +128,10 @@ final class RecordingController {
                 return
             }
             let settings = library.settings
+            // Der Name folgt der Sprache des Macs, nicht fest dem Deutschen
             let df = DateFormatter()
-            df.locale = Locale(identifier: "de_DE")
-            df.dateFormat = "d. MMM, HH:mm"
+            df.locale = .current
+            df.setLocalizedDateFormatFromTemplate("dMMMHHmm")
             // Ohne Standardbereich landet die Aufnahme bewusst in keinem Bereich – sie steht dann
             // unter „Alle Aufnahmen“ und lässt sich später einsortieren.
             let cat = category ?? library.category(settings.defaultCategoryID)
