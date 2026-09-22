@@ -101,10 +101,12 @@ enum MainWindowFormat {
     static func dateAndTime(_ date: Date) -> String { date.formatted(date: .abbreviated, time: .shortened) }
 
     /// Dauer gut lesbar und nicht mit einer Uhrzeit zu verwechseln: „48 Sek.“, „36 Min.“, „1 Std., 28 Min.“
-    static func duration(_ seconds: TimeInterval) -> String {
+    static func duration(_ seconds: TimeInterval, locale: Locale = .current) -> String {
         // Einheiten kommen vom System, damit „Sek.“ in der englischen Oberfläche „sec“ heißt
-        if seconds < 60 { return Duration.seconds(seconds).formatted(.units(allowed: [.seconds], width: .abbreviated)) }
-        return Duration.seconds(seconds).formatted(.units(allowed: [.hours, .minutes], width: .abbreviated))
+        if seconds < 60 {
+            return Duration.seconds(seconds).formatted(.units(allowed: [.seconds], width: .abbreviated).locale(locale))
+        }
+        return Duration.seconds(seconds).formatted(.units(allowed: [.hours, .minutes], width: .abbreviated).locale(locale))
     }
 
     /// Name einer Sprache aus den Einstellungen („de“ → „Deutsch“)

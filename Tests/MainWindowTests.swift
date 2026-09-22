@@ -7,12 +7,14 @@ import XCTest
 /// Kleine Hilfen des neuen Hauptfensters (Phase 2a)
 final class MainWindowTests: XCTestCase {
     func testDurationIsReadableAndNotAClockTime() {
-        XCTAssertEqual(MainWindowFormat.duration(48), "48 Sek.")
-        XCTAssertEqual(MainWindowFormat.duration(0), "0 Sek.")
+        // Einheiten folgen der Sprache; fest auf Deutsch, damit der Test auch auf englischen Rechnern (CI) gilt
+        let de = Locale(identifier: "de_DE")
+        XCTAssertEqual(MainWindowFormat.duration(48, locale: de), "48 Sek.")
+        XCTAssertEqual(MainWindowFormat.duration(0, locale: de), "0 Sek.")
         // „36:00“ liest sich wie eine Uhrzeit, „36 Min.“ nicht
-        XCTAssertEqual(MainWindowFormat.duration(36 * 60), "36 Min.")
-        XCTAssertTrue(MainWindowFormat.duration(89 * 60).contains("1 Std."))
-        XCTAssertTrue(MainWindowFormat.duration(89 * 60).contains("29 Min."))
+        XCTAssertEqual(MainWindowFormat.duration(36 * 60, locale: de), "36 Min.")
+        XCTAssertTrue(MainWindowFormat.duration(89 * 60, locale: de).contains("1 Std."))
+        XCTAssertTrue(MainWindowFormat.duration(89 * 60, locale: de).contains("29 Min."))
     }
 
     func testLevelMapsQuietToZeroAndLoudToOne() {
