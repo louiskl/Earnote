@@ -1,6 +1,6 @@
 # Earnote – Roadmap
 
-> Stand: 22.09.2026 (0.9.7) · gepflegt vom Architekten · Versionen sind Arbeitsstände, öffentlich wird erst 1.0.
+> Stand: 22.09.2026 (0.9.12) · gepflegt vom Architekten · Versionen sind Arbeitsstände, öffentlich wird erst 1.0.
 > Beta läuft: [Releases](https://github.com/louiskl/Earnote/releases) · [Anleitung für Tester](BETA.md)
 > Leitlinien: [DESIGN_GUIDELINES.md](DESIGN_GUIDELINES.md) · Aufbau: [ARCHITECTURE.md](ARCHITECTURE.md)
 
@@ -23,7 +23,8 @@
 | 4b | Reif für andere: Player, englische Oberfläche, Nebeneinander, Suche, Kürzel, Kalender | 0.9.0–0.9.2 | ✅ fertig |
 | 4c | Lernhilfen, Aufgaben-Ziele, Modellwahl, Vorverdichten, Review, Swift 6 | 0.9.3 | ✅ fertig |
 | 4d | Feinschliff: Hilfe-Menü, Speicher aufräumen, ⌘G in der Notiz, Fassade entfernt, letzte Notizen in der Menüleiste | 0.9.6 | ✅ fertig |
-| **Beta** | **Zwei Wochen mit Kommilitonen, danach 1.0** | 0.9.5 | ▶ **läuft** |
+| 4e | Stabilität: Absturz im Mikrofontest, Absturz beim Aufnahmestart, Tonverlust beim Mikrofonwechsel, iCloud-Schema | 0.9.7–0.9.12 | ✅ fertig |
+| **Beta** | **Zwei Wochen mit Kommilitonen, danach 1.0** | 0.9.12 | ▶ **läuft** |
 | 5 | Launch: Website, Demo-Video, Homebrew, Beta mit Kommilitonen, Markenrecherche | 1.0 RC | geplant |
 | 🚀 | **Launch Earnote 1.0 für Mac** | 1.0 | |
 | 6 | iPad eigenständig, iPhone als Begleit-App, iCloud-Sync | 1.1 | nach Launch |
@@ -245,7 +246,8 @@ Nicht „wenn nichts mehr einfällt“, sondern wenn diese Punkte abgehakt sind:
 - [x] **3-Stunden-Vorlesung Ende-zu-Ende bestanden** (21.09.2026, vom Nutzer gefahren): keine Abstürze,
       Verarbeitung durchgelaufen
 - [x] Teams- und Zoom-Calls am echten Mac aufgenommen (Systemton, Call-Erkennung) – vom Nutzer bestätigt
-- [ ] Rest der Härtefälle am echten Mac: Gerät gewechselt, Berechtigung entzogen, Platte voll, Deckel zu
+- [x] **Gerät gewechselt (0.9.12)**: zwölf Wechsel unter laufender Aufnahme am echten Mac, Datei wächst durch
+- [ ] Rest der Härtefälle am echten Mac: Berechtigung entzogen, Platte voll, Deckel zu
 - [ ] Zwei Wochen Beta mit 5–10 Kommilitonen ohne Datenverlust und ohne Absturz
 - [x] Swift-6-Sprachmodus an, `LegacyMigration` entfernt
 
@@ -268,11 +270,36 @@ Erst wenn alle drei Blöcke stehen, wird aus 0.9.x die 1.0 – und erst danach b
       Notizen und Transkripte bleiben. Ein Semester Vorlesungen sind sonst schnell 30 GB.
 - [x] **Notiz-Fundstellen mit ⌘G**: Die Suche blättert jetzt auch durch die Notiz, nicht nur durch
       das Transkript. Stehen beide nebeneinander, führt das Transkript den Zähler.
-- [x] **Absturz im Mikrofontest behoben (0.9.7)**: Der Pegel-Block der Einstellungen erbte die
-      MainActor-Isolation; Core Audio ruft ihn auf seinem eigenen Thread auf, und Swift 6 brach dort ab.
 - [x] **Letzte Notizen in der Menüleiste (0.9.6)**: Das Menüleisten-Fenster zeigt die drei neuesten
       Aufnahmen; ein Klick öffnet sie im Hauptfenster. Die README versprach das seit Monaten.
 - [x] **Fassade `AppState` aufgelöst**: siehe Phase 2a/2b
+
+## ✅ Phase 4e – Stabilität (0.9.7–0.9.12)
+
+Alles aus echten Abstürzen des Nutzers, nicht aus Tests. Jeder Punkt wurde am Gerät nachgeprüft.
+
+- [x] **Absturz im Mikrofontest (0.9.7)**: Der Pegel-Block der Einstellungen erbte die MainActor-Isolation.
+      Core Audio ruft ihn auf seinem eigenen Thread auf, und Swift 6 bricht dort ab. `@Sendable` macht ihn
+      isolationsfrei.
+- [x] **Absturz beim Aufnahmestart (0.9.9)**: `installTap` las das Eingangsformat erneut, ohne es zu prüfen.
+      Fiel das Gerät dazwischen weg, warf AVFoundation eine Obj-C-Ausnahme, die Swift nicht fangen kann.
+- [x] **Absturz beim Gerätewechsel im Call (0.9.11)**: Der Neustart lief mitten in der
+      `AVAudioEngineConfigurationChange`-Meldung, die die Engine aus ihrem eigenen Thread verschickt,
+      während sie ihre Sperren hält. Jetzt um 0,6 s aufgeschoben – das fasst zugleich die Meldungsflut
+      zusammen, mit der Bluetooth-Kopfhörer beim Profilwechsel um sich werfen.
+- [x] **Tonverlust beim Mikrofonwechsel (0.9.12)** – der schwerste Fehler des Tages: Der Tap wurde mit dem
+      Format angebracht, das `outputFormat(forBus:)` meldete. Nach einem Gerätewechsel ist das noch das
+      Format des **alten** Geräts, und der Tap liefert danach stumm gar nichts mehr. Die Aufnahme lief
+      weiter, die Datei wuchs nicht. Gemessen: zwölf Gerätewechsel unter laufender Aufnahme – vorher blieb
+      die Datei bei 59,7 s stehen, jetzt wächst sie um 30 von 35 Sekunden weiter.
+- [x] **Unruhiges Gerät wird getauscht (0.9.12)**: Wer sich dreimal in einer Minute neu meldet, verliert
+      jedes Mal gut eine Sekunde Ton. Earnote weicht dann auf ein stabiles Mikrofon aus und sagt es.
+- [x] **iCloud-Schema vollständig (0.9.10)**: Production kannte `CD_editedAt` auf `CD_LibraryNote` nicht,
+      weil das Schema nebenbei beim Hochladen echter Daten entstand. CloudKit lehnte dadurch **jeden**
+      Export ab (CKError 12/2006). `CloudSchemaSetup` legt über `initializeCloudKitSchema` jeden Typ mit
+      jedem Feld an; seit dem erneuten Deploy läuft der Abgleich.
+- [x] **Standard-Bereich „Ohne Bereich“ (0.9.8)**: Aufnahmen müssen nicht mehr in einem Bereich landen –
+      neu ist das die Voreinstellung.
 
 ## Phase 5 – Launch (1.0 RC → 1.0)
 
