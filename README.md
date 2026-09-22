@@ -78,7 +78,7 @@ brew tap louiskl/earnote && brew trust louiskl/earnote && brew install --cask ea
 
 Or download the latest `Earnote.dmg` from [Releases](../../releases) and drag Earnote into *Applications*.
 The app is signed with an Apple Developer ID and notarized, so it opens with a double-click – no detour through System Settings.
-Earnote checks once a day whether a newer version is available and shows a hint with a download link; it never installs anything on its own.
+Earnote checks once a day for a new version, shows what changed and installs it only after you agree. The update file is cryptographically signed. You can turn the check off under *Settings › General*.
 
 ### Build from source
 
@@ -93,7 +93,7 @@ To build the downloadable `dist/Earnote.dmg`, run `./scripts/build_release.sh`. 
 
 ### Privacy
 
-- Audio and transcripts stay in `~/Library/Application Support/Earnote`.
+- Audio and transcripts stay in `~/Library/Application Support/Earnote`. Optional iCloud sync keeps notes and transcripts in *your* private iCloud database — audio never leaves the Mac.
 - With the built-in local AI (default), nothing leaves your Mac – ideal for confidential meetings. The same is true for Apple Intelligence, Ollama and LM Studio.
 - Only if you pick a cloud provider is the transcript text sent there. Earnote shows a notice when that is the case.
 - API keys are stored in the macOS Keychain.
@@ -133,7 +133,7 @@ PRs are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) and the [roadmap](docs/R
 
 **Installation mit Homebrew:** `brew tap louiskl/earnote && brew trust louiskl/earnote && brew install --cask earnote`
 
-**Installation von Hand:** `Earnote.dmg` unter [Releases](../../releases) herunterladen, öffnen und Earnote in den Programme-Ordner ziehen. Die App ist von Apple notarisiert und startet mit einem Doppelklick – ohne Umweg über die Systemeinstellungen. Earnote schaut einmal am Tag nach, ob es eine neuere Version gibt, und zeigt dann einen Hinweis mit Download-Link – installiert wird nie von allein.
+**Installation von Hand:** `Earnote.dmg` unter [Releases](../../releases) herunterladen, öffnen und Earnote in den Programme-Ordner ziehen. Die App ist von Apple notarisiert und startet mit einem Doppelklick – ohne Umweg über die Systemeinstellungen. Earnote schaut einmal am Tag nach einer neueren Version, zeigt die Änderungen und installiert sie erst nach deiner Zustimmung. Die Update-Datei ist signiert; abschalten lässt sich die Prüfung unter *Einstellungen › Allgemein*.
 
 **Fehler melden:** In der App unter *Einstellungen › Über › „Fehler melden …“* – damit ist der Bericht gleich mit Version, macOS und den letzten Protokollzeilen vorausgefüllt.
 **Selbst bauen:** `Earnote.xcodeproj` in Xcode öffnen und mit ⌘R starten.
