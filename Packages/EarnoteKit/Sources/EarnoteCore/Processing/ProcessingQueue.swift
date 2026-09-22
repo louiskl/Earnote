@@ -37,6 +37,13 @@ public final class ProcessingQueue {
     @ObservationIgnored private var instructions: [UUID: String] = [:]
     @ObservationIgnored private var task: Task<Void, Never>?
     @ObservationIgnored private var activity: NSObjectProtocol?
+    /// Solange das true liefert, beginnt keine neue Verarbeitung („erst am Netzteil“).
+    /// Eine laufende wird zu Ende gebracht.
+    @ObservationIgnored public var isHeld: @MainActor () -> Bool = { false }
+    /// Bis die Warteschlange leer ist, trotz `isHeld` arbeiten („Jetzt verarbeiten“)
+    @ObservationIgnored private var ignoresHold = false
+    /// Es wartet Arbeit, die wegen `isHeld` noch nicht beginnt
+    public private(set) var isWaitingForPower = false
 
     public init(pipeline: ProcessingPipeline, onDrain: @escaping @MainActor () -> Void = {}) {
         self.pipeline = pipeline
@@ -45,6 +52,15 @@ public final class ProcessingQueue {
 
     /// Wartende Aufnahmen in Reihenfolge (ohne die laufende)
     public var pending: [UUID] { queue }
+
+    /// Nach einer Änderung von `isHeld` (Netzteil angeschlossen, Einstellung geändert) weitermachen
+    public func resume() { processNext() }
+
+    /// Wartende Aufnahmen sofort verarbeiten, auch wenn `isHeld` noch zurückhält
+    public func processNow() {
+        ignoresHold = true
+        processNext()
+    }
 
     public func enqueue(_ id: UUID, next: Bool = false, instruction: String = "") {
         guard let library, library.recording(id) != nil else { return }
@@ -118,6 +134,15 @@ public final class ProcessingQueue {
             didDrain()
             return
         }
+        if isHeld() && !ignoresHold {
+            // Nichts beginnt; der Mac darf schlafen, bis es weitergeht
+            isWaitingForPower = true
+            if let activity { ProcessInfo.processInfo.endActivity(activity) }
+            activity = nil
+            onDrain()
+            return
+        }
+        isWaitingForPower = false
         let id = queue.removeFirst()
         processingID = id
         if activity == nil {
@@ -154,6 +179,8 @@ public final class ProcessingQueue {
     private func apply(_ id: UUID, _ change: @Sendable (inout Recording) -> Void) async { await library?.updateAndSave(id, change) }
 
     private func didDrain() {
+        isWaitingForPower = false
+        ignoresHold = false
         if let activity { ProcessInfo.processInfo.endActivity(activity) }
         activity = nil
         onDrain()

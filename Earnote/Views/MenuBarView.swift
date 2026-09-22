@@ -205,6 +205,7 @@ private struct LiveSummary: View {
     @ObservedObject var meter: LiveMeter
     let isPaused: Bool
     let categoryName: String?
+    @Environment(RecordingController.self) private var recorder
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
@@ -227,5 +228,8 @@ private struct LiveSummary: View {
                     .foregroundStyle(.secondary)
             }
         }
+        // Den Pegel nur auffrischen, solange das Fenster der Menüleiste offen ist
+        .onAppear { recorder.showsLevels(true) }
+        .onDisappear { recorder.showsLevels(false) }
     }
 }

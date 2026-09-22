@@ -59,6 +59,12 @@ final class RecordingController {
     @ObservationIgnored private var pausedAt: Date?
     @ObservationIgnored private var pausedTotal: TimeInterval = 0
     @ObservationIgnored private var meterTimer: Timer?
+    @ObservationIgnored private var meterStartedAt: Date?
+    /// Wie viele Ansichten gerade den Pegel zeigen (Wellenform, Menüleisten-Fenster). Ohne sie reicht
+    /// ein langsamer Takt für Laufzeit und Wächter, und der Pegel wird gar nicht erst weitergegeben.
+    @ObservationIgnored private var levelViewers = 0
+    /// Akku oder Netzteil – danach richtet sich, was während der Aufnahme nebenher läuft
+    @ObservationIgnored let power: PowerSource
     @ObservationIgnored private var recordingActivity: NSObjectProtocol?
     @ObservationIgnored private var liveTranscriber: AnyObject?
     /// Transkribiert schon während der Aufnahme abschnittsweise mit (siehe `LiveTranscription`)
@@ -85,7 +91,7 @@ final class RecordingController {
 
     init(library: LibraryStore, detector: MeetingDetector, audioInputs: AudioInputDevices,
          transcribers: any TranscriberProvider, llm: LLMFactory = LLMFactory(),
-         precondensed: PreCondensedStore = PreCondensedStore(),
+         precondensed: PreCondensedStore = PreCondensedStore(), power: PowerSource = PowerSource(),
          notify: @escaping (String, String) -> Void) {
         self.library = library
         self.detector = detector
@@ -93,6 +99,7 @@ final class RecordingController {
         self.transcribers = transcribers
         self.llm = llm
         self.precondensed = precondensed
+        self.power = power
         self.notify = notify
         detector.onCallStarted = { [weak self] app in self?.callStarted(app) }
         detector.onCallEnded = { [weak self] app in self?.callEnded(app) }
@@ -197,7 +204,12 @@ final class RecordingController {
             pausedTotal = 0
             recordingActivity = ProcessInfo.processInfo.beginActivity(options: .userInitiated, reason: "Aufnahme läuft")
             startMeter(startedAt: rec.startedAt)
-            startLiveTranscript(session: session, language: rec.language)
+            if wantsLivePreview {
+                startLiveTranscript(session: session, language: rec.language)
+            } else {
+                live.reset()
+                live.unavailable = Self.livePreviewOffMessage
+            }
             startChunkedTranscription(for: rec, settings: settings)
             hideCallPrompt()
             Log.info("Aufnahme gestartet: \(name) (Systemton: \(session.systemAudioActive))")
@@ -241,8 +253,9 @@ final class RecordingController {
     func stopRecording() {
         guard let id = activeRecordingID else { return }
         let paused = totalPaused
-        // Vor dem Aufräumen sichern: Der Rest des Transkripts wird gleich noch fertig gemacht.
-        let worker = chunked
+        // Vor dem Aufräumen sichern: Der Rest des Transkripts wird gleich noch fertig gemacht –
+        // außer bei „erst am Netzteil“ auf Akku: Dann wartet die ganze Aufnahme in der Warteschlange.
+        let worker = allowsTranscribingNow ? chunked : nil
         endRecordingSession()
         library.update(id) {
             $0.endedAt = Date()
@@ -301,13 +314,18 @@ final class RecordingController {
                 chunked = worker
                 let condenser = makeCondenser(for: recording, settings: settings)
                 self.condenser = condenser
-                chunkLoop = Task.detached(priority: .utility) {
+                chunkLoop = Task.detached(priority: .utility) { [weak self] in
                     while !Task.isCancelled {
                         try? await Task.sleep(nanoseconds: 30_000_000_000)
-                        guard !Task.isCancelled else { return }
+                        guard !Task.isCancelled, let self else { return }
+                        // „Erst am Netzteil“ auf Akku: Whisper läuft dann erst bei der Verarbeitung
+                        guard await self.allowsTranscribingNow else { continue }
                         await worker.advance()
                         // Verdichten erst nach dem Transkribieren: Der Text von eben zählt schon mit.
-                        if let condenser { await condenser.advance(fullText: await worker.textSoFar) }
+                        // Auf Akku ausgelassene Blöcke holt der nächste Durchgang am Netzteil nach.
+                        if let condenser, await self.allowsCondensingNow {
+                            await condenser.advance(fullText: await worker.textSoFar)
+                        }
                     }
                 }
                 Log.info("Transkribiere schon während der Aufnahme")
@@ -399,14 +417,51 @@ final class RecordingController {
         stopMeter()
     }
 
+    // MARK: Strom sparen
+
+    /// Live-Mitschrift ist nur eine Vorschau – auf Akku bleibt sie aus, außer es ist so eingestellt
+    private var wantsLivePreview: Bool { !power.savesEnergy || library.settings.livePreviewOnBattery }
+    private var allowsCondensingNow: Bool { !power.savesEnergy || library.settings.condenseOnBattery }
+    private var allowsTranscribingNow: Bool { !(power.isOnBattery && library.settings.processOnlyOnPower) }
+
+    static let livePreviewOffMessage = String(localized: "Live-Mitschrift ist im Akkubetrieb aus, das spart Strom. Die Mitschrift entsteht wie immer nach der Aufnahme.")
+
+    /// Akku/Netzteil oder die Einstellungen dazu haben sich geändert – mitten in einer Aufnahme nachziehen
+    func energyConditionsChanged() {
+        guard let session, let recording = activeRecording else { return }
+        if wantsLivePreview, liveTranscriber == nil {
+            startLiveTranscript(session: session, language: recording.language)
+        } else if !wantsLivePreview, liveTranscriber != nil {
+            // Nur die Erkennung stoppen; die Audio-Anbindung bleibt, bis die Aufnahme endet
+            stopLiveTranscript()
+            live.reset()
+            live.unavailable = Self.livePreviewOffMessage
+        }
+    }
+
+    /// Eine Ansicht zeigt den Pegel (an) oder nicht mehr (aus)
+    func showsLevels(_ shown: Bool) {
+        let before = levelViewers > 0
+        levelViewers = max(0, levelViewers + (shown ? 1 : -1))
+        if before != (levelViewers > 0), let startedAt = meterStartedAt { startMeter(startedAt: startedAt) }
+    }
+
     private func startMeter(startedAt: Date) {
         meterTimer?.invalidate()
-        meterTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] _ in
+        meterStartedAt = startedAt
+        let withLevels = levelViewers > 0
+        if !withLevels { meter.mic = 0; meter.system = 0 }
+        // Mit Pegelanzeige zehnmal pro Sekunde, sonst reicht zweimal für Laufzeit und Wächter
+        meterTimer = Timer.scheduledTimer(withTimeInterval: withLevels ? 0.1 : 0.5, repeats: true) { [weak self] _ in
             Task { @MainActor in
                 guard let self, let s = self.session else { return }
-                self.meter.mic = s.micLevel
-                self.meter.system = s.systemLevel
-                self.meter.elapsed = max(0, Date().timeIntervalSince(startedAt) - self.totalPaused)
+                if withLevels {
+                    self.meter.mic = s.micLevel
+                    self.meter.system = s.systemLevel
+                }
+                // Nur bei neuer Sekunde melden: sonst rechnet jede Laufzeit-Anzeige zehnmal pro Sekunde neu
+                let elapsed = max(0, Date().timeIntervalSince(startedAt) - self.totalPaused)
+                if elapsed.rounded(.down) != self.meter.elapsed.rounded(.down) { self.meter.elapsed = elapsed }
                 self.watchForSilence(level: s.micLevel, isPaused: s.isPaused)
                 self.watchForStalledMicrophone(lastBufferAt: s.lastMicBufferAt, isPaused: s.isPaused)
                 self.watchDiskSpace()
@@ -493,6 +548,7 @@ final class RecordingController {
     private func stopMeter() {
         meterTimer?.invalidate()
         meterTimer = nil
+        meterStartedAt = nil
         meter.mic = 0; meter.system = 0; meter.elapsed = 0
     }
 

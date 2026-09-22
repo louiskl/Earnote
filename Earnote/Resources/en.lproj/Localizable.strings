@@ -1122,3 +1122,16 @@
 "Einige Einstellungen gibt deine Organisation vor." = "Some settings are set by your organization.";
 "Von deiner Organisation vorgegeben" = "Set by your organization";
 "Deine Organisation erlaubt nur KI, die auf dem Mac bleibt." = "Your organization only allows AI that stays on the Mac.";
+"Live-Mitschrift ist im Akkubetrieb aus, das spart Strom. Die Mitschrift entsteht wie immer nach der Aufnahme." = "Live transcript is off on battery to save power. The transcript is made after the recording as usual.";
+"Akku" = "Battery";
+"Netzteil" = "Power adapter";
+"Akku, Stromsparmodus" = "Battery, Low Power Mode";
+"Netzteil, Stromsparmodus" = "Power adapter, Low Power Mode";
+"Live-Mitschrift auch im Akkubetrieb" = "Live transcript on battery too";
+"Auch im Akkubetrieb schon während der Aufnahme zusammenfassen" = "Summarize during recording on battery too";
+"Aufnahmen erst am Netzteil verarbeiten" = "Process recordings only when plugged in";
+"Im Akkubetrieb und im Stromsparmodus spart %@ Strom, wo du es nicht merkst: Die Live-Mitschrift ist nur eine Vorschau, die Mitschrift entsteht trotzdem. Mit „erst am Netzteil“ beginnt die Verarbeitung, sobald der Mac am Strom hängt – das spart am meisten, die Notiz kommt dafür später." = "On battery and in Low Power Mode, %@ saves power where you won’t notice: the live transcript is only a preview, the transcript is made anyway. With “only when plugged in”, processing starts once the Mac is connected to power – that saves the most, but the note comes later.";
+"Eine Aufnahme wartet aufs Netzteil" = "One recording is waiting for power";
+"%lld Aufnahmen warten aufs Netzteil" = "%lld recordings are waiting for power";
+"Die Verarbeitung beginnt, sobald der Mac am Strom hängt." = "Processing starts once the Mac is connected to power.";
+"Jetzt verarbeiten" = "Process now";

@@ -6,6 +6,8 @@ import SwiftUI
 struct RecordingStageView: View {
     @Environment(RecordingController.self) private var recorder
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    /// Verdeckt, minimiert oder im Hintergrund: Wellenform und Puls ruhen
+    @State private var isWindowVisible = true
 
     private var isPaused: Bool { recorder.isPaused }
     private var meter: LiveMeter { recorder.meter }
@@ -14,9 +16,9 @@ struct RecordingStageView: View {
         VStack(spacing: 20) {
             // Status, Laufzeit und Pegel sind für VoiceOver eine Einheit
             VStack(spacing: 20) {
-                StatusLabel(isPaused: isPaused, reduceMotion: reduceMotion)
+                StatusLabel(isPaused: isPaused, reduceMotion: reduceMotion, isVisible: isWindowVisible)
                 ElapsedTime(meter: meter)
-                StageWaveform(meter: meter, isPaused: isPaused, reduceMotion: reduceMotion)
+                StageWaveform(meter: meter, isPaused: isPaused, reduceMotion: reduceMotion, isVisible: isWindowVisible)
                     .frame(height: 64)
             }
             .accessibilityElement(children: .ignore)
@@ -30,6 +32,7 @@ struct RecordingStageView: View {
         .padding(28)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .accessibilityElement(children: .contain)
+        .onWindowVisibilityChange { isWindowVisible = $0 }
     }
 
     private var spokenState: String {
@@ -63,16 +66,19 @@ struct RecordingStageView: View {
 private struct StatusLabel: View {
     let isPaused: Bool
     let reduceMotion: Bool
+    let isVisible: Bool
     @State private var pulse = false
+
+    private var pulsing: Bool { pulse && !isPaused && !reduceMotion && isVisible }
 
     var body: some View {
         HStack(spacing: 8) {
             Circle()
                 .fill(isPaused ? Color.secondary : Color.red)
                 .frame(width: 10, height: 10)
-                .opacity(pulse && !isPaused && !reduceMotion ? 0.35 : 1)
-                .animation(isPaused || reduceMotion ? nil : .easeInOut(duration: 0.9).repeatForever(autoreverses: true),
-                           value: pulse)
+                .opacity(pulsing ? 0.35 : 1)
+                .animation(pulsing ? .easeInOut(duration: 0.9).repeatForever(autoreverses: true) : nil,
+                           value: pulsing)
                 .onAppear { pulse = true }
             Text(isPaused ? "Pausiert" : "Aufnahme läuft")
                 .font(.headline)
@@ -99,7 +105,11 @@ private struct StageWaveform: View {
     @ObservedObject var meter: LiveMeter
     let isPaused: Bool
     let reduceMotion: Bool
+    let isVisible: Bool
     @Environment(\.categoryTint) private var tint
+    @Environment(RecordingController.self) private var recorder
+    /// Beim Controller als Pegel-Zuschauer angemeldet?
+    @State private var watchesLevels = false
 
     @State private var mic = LevelBuffer(capacity: 52)
     @State private var system = LevelBuffer(capacity: 52)
@@ -119,7 +129,7 @@ private struct StageWaveform: View {
                     draw(in: context, size: size)
                 }
                 .onReceive(tick) { _ in
-                    guard !isPaused else { return }
+                    guard !isPaused, isVisible else { return }
                     mic.append(Float(MainWindowFormat.level(meter.mic)))
                     system.append(Float(MainWindowFormat.level(meter.system)))
                 }
@@ -127,6 +137,16 @@ private struct StageWaveform: View {
         }
         .opacity(isPaused ? 0.4 : 1)
         .accessibilityHidden(true)
+        .onAppear { watchLevels(isVisible) }
+        .onChange(of: isVisible) { _, visible in watchLevels(visible) }
+        .onDisappear { watchLevels(false) }
+    }
+
+    /// Nur wer den Pegel sieht, lässt ihn zehnmal pro Sekunde auffrischen
+    private func watchLevels(_ on: Bool) {
+        guard on != watchesLevels else { return }
+        watchesLevels = on
+        recorder.showsLevels(on)
     }
 
     private func draw(in context: GraphicsContext, size: CGSize) {

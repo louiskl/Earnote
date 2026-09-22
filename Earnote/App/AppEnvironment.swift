@@ -59,9 +59,19 @@ final class AppEnvironment {
         library.lastError = openError
         queue.library = library
         AudioInputDevices.removeLeftoversFromEarlierRuns()
+        let power = PowerSource()
         let recorder = RecordingController(library: library, detector: MeetingDetector(), audioInputs: AudioInputDevices(),
                                            transcribers: PlatformTranscribers(), llm: llm, precondensed: precondensed,
-                                           notify: { Notifier.send($0, $1) })
+                                           power: power, notify: { Notifier.send($0, $1) })
+        // „Erst am Netzteil“: nur auf Akku zurückhalten, nicht im Stromsparmodus am Netzteil
+        queue.isHeld = { [weak library, weak power] in
+            (library?.settings.processOnlyOnPower ?? false) && (power?.isOnBattery ?? false)
+        }
+        power.onChange = { [weak recorder, weak queue] in
+            recorder?.energyConditionsChanged()
+            queue?.resume()
+        }
+        power.start()
 
         library.willDelete = { [weak recorder] id in recorder?.endIfActive(id) }
         library.onSettingsChanged = { [weak recorder, weak queue, updates] old, new in
@@ -70,6 +80,8 @@ final class AppEnvironment {
             if old.checkForUpdates != new.checkForUpdates { updates.automaticallyChecks = new.checkForUpdates }
             recorder?.updateDetection(enabled: new.meetingDetection)
             if old.ai != new.ai { queue?.aiProviderChanged() }
+            if old.livePreviewOnBattery != new.livePreviewOnBattery { recorder?.energyConditionsChanged() }
+            if old.processOnlyOnPower != new.processOnlyOnPower { queue?.resume() }
         }
         recorder.showCallPrompt = { [weak recorder, weak library] app in
             guard let recorder, let library else { return }

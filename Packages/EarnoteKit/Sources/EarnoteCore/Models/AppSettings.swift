@@ -222,6 +222,12 @@ public struct AppSettings: Codable, Hashable, Sendable {
     public var checkForUpdates = true
     /// Schon während der Aufnahme transkribieren – danach ist die Notiz viel schneller fertig
     public var transcribeWhileRecording = true
+    /// Akkubetrieb (oder Stromsparmodus): Live-Mitschrift trotzdem zeigen – sie ist nur eine Vorschau
+    public var livePreviewOnBattery = false
+    /// Akkubetrieb (oder Stromsparmodus): trotzdem schon während der Aufnahme vorverdichten
+    public var condenseOnBattery = false
+    /// Aufnahmen erst verarbeiten, wenn der Mac am Netzteil hängt
+    public var processOnlyOnPower = false
     public var recordSystemAudio = true
     /// Aufnahme mit ⌃⌥⌘R aus jeder App starten und stoppen
     public var globalShortcut = false
@@ -252,6 +258,9 @@ public struct AppSettings: Codable, Hashable, Sendable {
         appearance = (try? c.decodeIfPresent(AppearanceChoice.self, forKey: .appearance)) ?? d.appearance
         checkForUpdates = (try? c.decodeIfPresent(Bool.self, forKey: .checkForUpdates)) ?? d.checkForUpdates
         transcribeWhileRecording = (try? c.decodeIfPresent(Bool.self, forKey: .transcribeWhileRecording)) ?? d.transcribeWhileRecording
+        livePreviewOnBattery = (try? c.decodeIfPresent(Bool.self, forKey: .livePreviewOnBattery)) ?? d.livePreviewOnBattery
+        condenseOnBattery = (try? c.decodeIfPresent(Bool.self, forKey: .condenseOnBattery)) ?? d.condenseOnBattery
+        processOnlyOnPower = (try? c.decodeIfPresent(Bool.self, forKey: .processOnlyOnPower)) ?? d.processOnlyOnPower
         transcriptionEngine = (try? c.decodeIfPresent(TranscriptionEngineKind.self, forKey: .transcriptionEngine)) ?? d.transcriptionEngine
         whisperModel = try c.decodeIfPresent(String.self, forKey: .whisperModel) ?? d.whisperModel
         language = try c.decodeIfPresent(String.self, forKey: .language) ?? d.language

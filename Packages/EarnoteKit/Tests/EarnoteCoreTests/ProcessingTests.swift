@@ -220,6 +220,47 @@ final class ProcessingQueueTests: XCTestCase {
         XCTAssertNil(queue.processingID)
     }
 
+    /// „Erst am Netzteil“: Nichts beginnt, solange die Warteschlange zurückgehalten wird
+    func testHeldQueueWaitsUntilResumed() async throws {
+        let recs = try await importedRecordings(2)
+        let library = try await TestLibrary(folder: folder, settings: .testing())
+        let transcriber = FakeTranscriber()
+        let queue = makeQueue(transcriber, library: library)
+        let onBattery = Locked(true)
+        queue.isHeld = { onBattery.get() }
+        for r in recs { queue.enqueue(r.id) }
+        XCTAssertTrue(queue.isWaitingForPower)
+        XCTAssertNil(queue.processingID)
+        XCTAssertEqual(queue.pending, recs.map(\.id))
+        XCTAssertEqual(library.recording(recs[0].id)?.status, .queued)
+
+        onBattery.mutate { $0 = false }
+        queue.resume()
+        await waitUntil { recs.allSatisfy { library.recording($0.id)?.status == .done } }
+        XCTAssertFalse(queue.isWaitingForPower)
+        XCTAssertEqual(transcriber.transcribed.get(), recs.map(\.id.uuidString))
+    }
+
+    /// „Jetzt verarbeiten“ arbeitet alles ab, obwohl weiter zurückgehalten würde
+    func testProcessNowIgnoresHold() async throws {
+        let recs = try await importedRecordings(2)
+        let library = try await TestLibrary(folder: folder, settings: .testing())
+        let queue = makeQueue(FakeTranscriber(), library: library)
+        queue.isHeld = { true }
+        for r in recs { queue.enqueue(r.id) }
+        XCTAssertTrue(queue.isWaitingForPower)
+        queue.processNow()
+        await waitUntil { recs.allSatisfy { library.recording($0.id)?.status == .done } }
+        XCTAssertFalse(queue.isWaitingForPower)
+
+        // Danach gilt die Zurückhaltung wieder
+        let later = try await folder.importedRecording(title: "später")
+        library.recordings = try await folder.library.recordings()
+        queue.enqueue(later.id)
+        XCTAssertTrue(queue.isWaitingForPower)
+        XCTAssertEqual(library.recording(later.id)?.status, .queued)
+    }
+
     func testEnqueueNextGoesToFront() async throws {
         let recs = try await importedRecordings(3)
         let library = try await TestLibrary(folder: folder, settings: .testing())
