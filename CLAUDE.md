@@ -11,7 +11,7 @@ Bei nicht-trivialen Features zuerst den Architekturvorschlag aus Abschnitt 20 li
 - `Packages/EarnoteKit/Sources/EarnoteCore` – Modelle, Datenmodell der Bibliothek (`Library/`), KI-Clients, Summarizer, Export, Speicher, Pipeline, Warteschlange
 - `Packages/EarnoteKit/Sources/EarnoteML` – WhisperKit und lokales MLX-Modell
 - `Earnote/` – Mac-App: Stores (`LibraryStore`, `RecordingController`), `AppEnvironment`, Audioaufnahme, Views
-- `AppState` ist nur eine Übergangs-Fassade für die alten Views – keine neue Logik dort einbauen
+- Ansichten lesen die Stores direkt (`LibraryStore`, `RecordingController`, `ProcessingQueue`) bzw. per `@Query`
 
 ## Abhängigkeitsregeln
 - `EarnoteCore`: nur Foundation, AVFoundation, Security, OSLog, Observation, SwiftData. Kein AppKit/UIKit/SwiftUI, keine Drittanbieter-Pakete.
