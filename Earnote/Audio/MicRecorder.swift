@@ -31,6 +31,8 @@ final class MicRecorder {
     private var _paused = false
     /// Gerät verloren, noch kein Ersatz gefunden – beim nächsten Geräte-Ereignis erneut versuchen
     private var waitingForDevice = false
+    /// Geplanter Neustart nach einer Konfigurationsänderung (siehe `scheduleSwitch`)
+    private var pendingSwitch: DispatchWorkItem?
 
     /// Gerät, über das gerade aufgenommen wird
     private(set) var device: AudioInputDeviceInfo?
@@ -136,6 +138,9 @@ final class MicRecorder {
             throw NSError(domain: AppInfo.name, code: 4,
                           userInfo: [NSLocalizedDescriptionKey: "Gerät liefert beim Start kein Eingangsformat mehr"])
         }
+        // Sicherheitsgurt: Hängt am Eingang noch ein Tap (etwa weil die alte Engine beim Abräumen
+        // mitten in einer Umkonfiguration steckte), wirft `installTap` ebenfalls eine Obj-C-Ausnahme.
+        input.removeTap(onBus: 0)
         tapFormat = format
         lock.lock()
         converter = file.map { FormatConverter(target: $0.processingFormat) }
@@ -150,6 +155,8 @@ final class MicRecorder {
     /// Hält das Mikrofon wirklich an: Die Aufnahmeanzeige von macOS (oranger Punkt) erlischt,
     /// damit niemand denkt, es werde weiter mitgehört.
     func pause() {
+        pendingSwitch?.cancel()
+        pendingSwitch = nil
         lock.lock(); _paused = true; _level = 0; lock.unlock()
         engine?.pause()
     }
@@ -175,6 +182,8 @@ final class MicRecorder {
 
     /// Räumt vollständig auf: Beobachter, Tap, Engine, Datei. Auch aus der Pause heraus.
     func stop() {
+        pendingSwitch?.cancel()
+        pendingSwitch = nil
         teardownEngine()
         waitingForDevice = false
         lock.lock(); file = nil; converter = nil; _level = 0; lock.unlock()
@@ -255,7 +264,7 @@ final class MicRecorder {
     private func devicesChanged() {
         guard file != nil else { return }
         if waitingForDevice {
-            if !isPaused { _ = switchDevice(reason: "Neues Gerät") }
+            if !isPaused { scheduleSwitch(reason: "Neues Gerät") }
         } else if let device, !AudioInputDevices.isAlive(uid: device.uid) {
             configurationChanged()
         }
@@ -266,11 +275,33 @@ final class MicRecorder {
     /// `resume` prüft das Gerät dann erneut.
     private func configurationChanged() {
         guard file != nil, !isPaused, !waitingForDevice else { return }
-        if let engine, engine.isRunning, let device, AudioInputDevices.isAlive(uid: device.uid),
-           engine.inputNode.outputFormat(forBus: 0) == tapFormat {
-            return   // nichts zu tun
+        scheduleSwitch(reason: "Konfiguration geändert")
+    }
+
+    /// Startet die Aufnahme kurz **nach** der Meldung neu, nicht mitten darin – aus zwei Gründen:
+    ///
+    /// 1. `AVAudioEngineConfigurationChange` verschickt die Engine aus ihrem eigenen Thread und wartet,
+    ///    bis alle Beobachter fertig sind; ihre Sperren hält sie dabei. Eine neue Engine von dort aus zu
+    ///    starten lässt AVFoundation eine Obj-C-Ausnahme werfen, die Swift nicht fangen kann – die App
+    ///    stürzt ab (beobachtet mit AirPods in einem Teams-Call).
+    /// 2. Bluetooth-Kopfhörer melden beim Umschalten ihres Profils im Sekundentakt Änderungen. Ohne
+    ///    diesen Aufschub startet die Aufnahme dutzende Male neu, und genau dort fehlt dann Ton.
+    private func scheduleSwitch(reason: String, after delay: TimeInterval = 0.6) {
+        pendingSwitch?.cancel()
+        let item = DispatchWorkItem { [weak self] in
+            guard let self else { return }
+            self.pendingSwitch = nil
+            guard self.file != nil, !self.isPaused, !self.waitingForDevice else { return }
+            // Hat sich zwischenzeitlich alles beruhigt, bleibt die laufende Aufnahme unangetastet.
+            if let engine = self.engine, engine.isRunning, let device = self.device,
+               AudioInputDevices.isAlive(uid: device.uid),
+               engine.inputNode.outputFormat(forBus: 0) == self.tapFormat {
+                return
+            }
+            _ = self.switchDevice(reason: reason)
         }
-        _ = switchDevice(reason: "Konfiguration geändert")
+        pendingSwitch = item
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay, execute: item)
     }
 
     /// Startet mit demselben Gerät neu oder weicht aus. Meldet einen Wechsel an `onEvent`.
