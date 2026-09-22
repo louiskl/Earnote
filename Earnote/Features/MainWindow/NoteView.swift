@@ -72,14 +72,15 @@ struct NoteView: View {
                         if recording.isBusy || recording.status == .failed {
                             StatusLine(recording: recording)
                         }
-                        ForEach(NoteMarkdown.blocks(markdown)) { block in
-                            NoteBlockView(block: block, searchText: searchText) { line in
+                        ForEach(NoteSection.sections(markdown)) { section in
+                            NoteSectionView(section: section, searchText: searchText) { line in
                                 guard let updated = NoteMarkdown.togglingTask(in: markdown, line: line) else { return }
                                 pendingMarkdown = updated
                                 library.updateSummaryText(recording.id, markdown: updated)
                             }
-                            .id(block.id)
                         }
+                        NoteFooterActions(recording: recording) { editing = true }
+                            .padding(.top, 18)
                     }
                     .frame(maxWidth: 720, alignment: .leading)
                     .padding(24)
@@ -175,6 +176,8 @@ private struct NoteBlockView: View {
             .toggleStyle(.checkbox)
             .accessibilityLabel(text)
             .accessibilityValue(isDone ? "erledigt" : "offen")
+        case .flashcard(_, let question, let answer):
+            FlashcardTile(question: inline(question), answer: inline(answer), searching: !searchText.isEmpty)
         case .quote(_, let text):
             Text(inline(text))
                 .italic()
@@ -234,5 +237,121 @@ private struct NoteEditor: View {
             .padding(12)
         }
         .onAppear { draft = markdown; focused = true }
+    }
+}
+
+
+/// Abschnitte gliedern die Notiz durch Abstand, ohne den Fließtext einzurahmen.
+private struct NoteSection: Identifiable {
+    let id: Int
+    var blocks: [NoteBlock]
+    static func sections(_ markdown: String) -> [Self] {
+        var sections: [Self] = []
+        for block in NoteMarkdown.blocks(markdown) {
+            if case .heading(_, let level, _, _) = block, level <= 2 {
+                sections.append(Self(id: block.id, blocks: [block]))
+            } else if sections.isEmpty {
+                sections.append(Self(id: block.id, blocks: [block]))
+            } else {
+                sections[sections.count - 1].blocks.append(block)
+            }
+        }
+        return sections
+    }
+}
+
+private struct FlashcardTile: View {
+    let question: AttributedString
+    let answer: AttributedString
+    let searching: Bool
+    @State private var revealed = false
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text(question).font(.headline).textSelection(.enabled)
+            if revealed || searching {
+                Divider()
+                Text(answer).textSelection(.enabled)
+            }
+            Button(revealed ? "Antwort ausblenden" : "Antwort anzeigen") { revealed.toggle() }
+                .buttonStyle(.plain)
+                .font(.callout)
+                .foregroundStyle(.secondary)
+                .accessibilityLabel(revealed ? "Antwort ausblenden" : "Antwort anzeigen")
+        }
+        .padding(12)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .overlay {
+            RoundedRectangle(cornerRadius: 8)
+                .strokeBorder(.secondary.opacity(0.18), lineWidth: 1)
+        }
+    }
+}
+
+private struct NoteSectionView: View {
+    let section: NoteSection
+    let searchText: String
+    let onToggleTask: (Int) -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            ForEach(section.blocks) { block in
+                NoteBlockView(block: block, searchText: searchText,
+                              onToggleTask: onToggleTask)
+                    .id(block.id)
+            }
+        }
+        .padding(.top, section.id == 0 ? 0 : 6)
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+}
+
+
+/// Ruhige Werkzeugleiste am Ende der Notiz; bei schmalen Fenstern umbrechend.
+private struct NoteFooterActions: View {
+    @Environment(LibraryStore.self) private var library
+    let recording: LibraryRecording
+    let edit: () -> Void
+    @State private var simplifying = false
+
+    private var makingCards: Bool { library.makingFlashcards.contains(recording.id) }
+    private var busy: Bool { recording.isBusy || makingCards || recording.status == .recording }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Divider()
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 165), alignment: .leading)],
+                      alignment: .leading, spacing: 8) {
+                Button("Bearbeiten", systemImage: "pencil", action: edit)
+                    .disabled(busy)
+                Button("Karteikarten erzeugen", systemImage: "rectangle.on.rectangle") {
+                    Task { await library.makeFlashcards(recording.id) }
+                }
+                .disabled(busy || library.settings.ai.provider == .none)
+                Button("Vereinfachen", systemImage: "text.badge.minus") { simplifying = true }
+                    .disabled(busy || library.settings.ai.provider == .none)
+                Button("PDF sichern …", systemImage: "arrow.down.document") {
+                    NoteDocument.savePDF(recording.id, library: library)
+                }
+                .disabled(busy)
+                Button("Anki sichern …", systemImage: "square.and.arrow.down") {
+                    FlashcardExport.save(recording.id, library: library)
+                }
+                .disabled(busy || (Flashcards.parse(recording.note?.markdown ?? "").isEmpty
+                                  && library.settings.ai.provider == .none))
+            }
+            .buttonStyle(.bordered)
+            .controlSize(.small)
+            if makingCards {
+                HStack(spacing: 8) {
+                    ProgressView().controlSize(.small)
+                    Text("Karteikarten entstehen …").font(.callout).foregroundStyle(.secondary)
+                }
+            }
+        }
+        .sheet(isPresented: $simplifying) {
+            SummarizeAgainSheet(recordingID: recording.id,
+                                initialInstruction: String(localized: "Erkläre den Inhalt in einfacher Sprache und kurzen Sätzen. Erkläre Fachbegriffe verständlich, bewahre wichtige Fakten und die Gliederung. Erfinde nichts hinzu."))
+        }
     }
 }

@@ -925,7 +925,6 @@
 /* No comment provided by engineer. */
 "Zusätzliche Anweisung" = "Extra instruction";
 
-
 "Alle Aufnahmen" = "All recordings";
 
 "Offene Aufgaben" = "Open tasks";
@@ -1135,3 +1134,12 @@
 "%lld Aufnahmen warten aufs Netzteil" = "%lld recordings are waiting for power";
 "Die Verarbeitung beginnt, sobald der Mac am Strom hängt." = "Processing starts once the Mac is connected to power.";
 "Jetzt verarbeiten" = "Process now";
+"Diese Aufnahme hat noch keine Notiz – es gibt also nichts zu drucken oder zu sichern." = "This recording has no note yet, so there is nothing to print or save.";
+"Die Notiz konnte nicht aufbereitet werden. Versuch es noch einmal." = "The note could not be prepared. Please try again.";
+"Antwort anzeigen" = "Show answer";
+"Antwort ausblenden" = "Hide answer";
+"Bearbeiten" = "Edit";
+"Vereinfachen" = "Simplify";
+"PDF sichern …" = "Save PDF …";
+"Anki sichern …" = "Save Anki …";
+"Erkläre den Inhalt in einfacher Sprache und kurzen Sätzen. Erkläre Fachbegriffe verständlich, bewahre wichtige Fakten und die Gliederung. Erfinde nichts hinzu." = "Explain the content in plain language and short sentences. Explain technical terms clearly, preserve important facts and the structure. Do not invent information.";

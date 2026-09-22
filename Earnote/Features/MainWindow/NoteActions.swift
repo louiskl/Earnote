@@ -26,6 +26,7 @@ struct SummarizeAgainSheet: View {
     @Environment(LibraryStore.self) private var library
     @Environment(\.dismiss) private var dismiss
     let recordingID: UUID
+    var initialInstruction = ""
 
     @State private var categoryID: UUID?
     @State private var instruction = ""
@@ -75,7 +76,10 @@ struct SummarizeAgainSheet: View {
             .padding(16)
         }
         .frame(width: 460, height: 380)
-        .onAppear { categoryID = library.recording(recordingID)?.categoryID }
+        .onAppear {
+            categoryID = library.recording(recordingID)?.categoryID
+            instruction = initialInstruction
+        }
     }
 }
 

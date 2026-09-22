@@ -288,3 +288,46 @@ final class NoteBlockTextTests: XCTestCase {
         XCTAssertFalse(texts.contains { $0.contains("- [ ]") }, "Kästchen und Aufzählungszeichen zählen nicht zum Text")
     }
 }
+
+final class FlashcardRepairTests: XCTestCase {
+    func testRepairsSeparateLabelsAndPreservesTaskLine() {
+        let text = "## Karteikarten\n- Frage :: Was sind .com-Dateien?\n- Antwort :: Ausführbare DOS-Dateien.\n\n- [ ] Nachlesen"
+        XCTAssertEqual(Flashcards.parse(text), [Flashcard(question: "Was sind .com-Dateien?", answer: "Ausführbare DOS-Dateien.")])
+        let blocks = NoteMarkdown.blocks(text)
+        XCTAssertEqual(blocks[1], .flashcard(id: 1, question: "Was sind .com-Dateien?", answer: "Ausführbare DOS-Dateien."))
+        XCTAssertEqual(blocks[2], .task(id: 2, text: "Nachlesen", isDone: false, line: 4))
+        XCTAssertTrue(NoteMarkdown.togglingTask(in: text, line: 4)!.contains("- [x] Nachlesen"))
+    }
+
+    func testRejectsPlaceholdersAndOrphansAcrossSections() {
+        XCTAssertTrue(Flashcards.parse("Frage :: Antwort\nQuestion :: Answer\nAntwort :: Verwaist\nFrage :: Wieso?\n## Abschnitt\nAntwort :: Darum").isEmpty)
+    }
+
+    func testEnglishBoldLabelsAndCompactSeparator() {
+        XCTAssertEqual(Flashcards.parse("- **Question**::Why?\n- **Answer**::Because."), [Flashcard(question: "Why?", answer: "Because.")])
+    }
+
+    func testFencedModelResponseAndCodeInNotes() async throws {
+        let client = FakeLLMClient(answer: "```markdown\nWas tut die CPU? :: Befehle ausführen.\n```")
+        let cards = try await Flashcards.generate(client: client, material: "CPU", language: "Deutsch")
+        XCTAssertEqual(cards.count, 1)
+        XCTAssertTrue(Flashcards.parse("```swift\nnamespace :: value\n```").isEmpty)
+    }
+
+    func testGenerationDeduplicatesAndLimitsCards() async throws {
+        let client = FakeLLMClient(answer: "Warum? :: Darum.\nWarum? :: Darum.\nWie? :: So.\nWann? :: Jetzt.")
+        let cards = try await Flashcards.generate(client: client, material: "Material", language: "Deutsch", count: 2)
+        XCTAssertEqual(cards.map(\.question), ["Warum?", "Wie?"])
+    }
+}
+
+final class FlashcardFalsePositiveTests: XCTestCase {
+    /// Informatik-Notizen: „::“ im Code ist keine Karte, und Aufgaben behalten ihr Kästchen.
+    func testCodeScopeAndTasksAreNotCards() {
+        let text = "Nutze std::vector für Listen.\n- [ ] std::move nachlesen\n## Klasse::methode\n- Was ist std::vector? :: Ein dynamisches Array."
+        XCTAssertEqual(Flashcards.parse(text), [Flashcard(question: "Was ist std::vector?", answer: "Ein dynamisches Array.")])
+        let blocks = NoteMarkdown.blocks(text)
+        XCTAssertEqual(blocks[0], .paragraph(id: 0, text: "Nutze std::vector für Listen."))
+        XCTAssertEqual(blocks[1], .task(id: 1, text: "std::move nachlesen", isDone: false, line: 1))
+    }
+}

@@ -9,6 +9,7 @@ public enum NoteBlock: Equatable, Sendable, Identifiable {
     case bullet(id: Int, text: String, indent: Int)
     case numbered(id: Int, number: String, text: String, indent: Int)
     case task(id: Int, text: String, isDone: Bool, line: Int)
+    case flashcard(id: Int, question: String, answer: String)
     case quote(id: Int, text: String)
 
     /// Der reine Text des Blocks – für Suche und Zählung der Fundstellen
@@ -17,6 +18,7 @@ public enum NoteBlock: Equatable, Sendable, Identifiable {
         case .paragraph(_, let text), .bullet(_, let text, _), .numbered(_, _, let text, _),
              .task(_, let text, _, _), .quote(_, let text):
             return text
+        case .flashcard(_, let question, let answer): return question + "\n" + answer
         case .heading(_, _, let text, let timestamp):
             return timestamp.map { "\(text) \($0)" } ?? text
         }
@@ -25,7 +27,7 @@ public enum NoteBlock: Equatable, Sendable, Identifiable {
     public var id: Int {
         switch self {
         case .paragraph(let id, _), .heading(let id, _, _, _), .bullet(let id, _, _), .numbered(let id, _, _, _),
-             .task(let id, _, _, _), .quote(let id, _): return id
+             .task(let id, _, _, _), .quote(let id, _), .flashcard(let id, _, _): return id
         }
     }
 }
@@ -41,6 +43,9 @@ public enum NoteMarkdown {
         var paragraph: [String] = []
         let lines = markdown.components(separatedBy: "\n")
 
+        let cards = Dictionary(uniqueKeysWithValues: Flashcards.entries(markdown).map { ($0.line, $0) })
+        var consumedThrough = -1
+
         func flushParagraph() {
             guard !paragraph.isEmpty else { return }
             blocks.append(.paragraph(id: blocks.count, text: paragraph.joined(separator: " ")))
@@ -48,6 +53,13 @@ public enum NoteMarkdown {
         }
 
         for (index, raw) in lines.enumerated() {
+            if index <= consumedThrough { continue }
+            if let entry = cards[index] {
+                flushParagraph()
+                blocks.append(.flashcard(id: blocks.count, question: entry.card.question, answer: entry.card.answer))
+                consumedThrough = entry.endLine
+                continue
+            }
             let line = raw.trimmingCharacters(in: .whitespaces)
             let indent = (raw.prefix { $0 == " " }.count) / 2
             if line.isEmpty || line == "---" {

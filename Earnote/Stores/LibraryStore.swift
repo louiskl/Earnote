@@ -255,18 +255,19 @@ final class LibraryStore: RecordingLibrary {
 
     /// Karteikarten von der KI schreiben lassen und als Abschnitt an die Notiz hängen.
     /// Sind schon welche da, werden sie ersetzt – zweimal dieselbe Frage hilft niemandem.
-    func makeFlashcards(_ id: UUID) async {
-        guard !makingFlashcards.contains(id), let recording = recording(id) else { return }
+    @discardableResult
+    func makeFlashcards(_ id: UUID) async -> [Flashcard]? {
+        guard !makingFlashcards.contains(id), let recording = recording(id) else { return nil }
         makingFlashcards.insert(id)
         defer { makingFlashcards.remove(id) }
         guard let note = await summary(id) else {
             lastError = String(localized: "Für diese Aufnahme gibt es noch keine Notiz.")
-            return
+            return nil
         }
         do {
             guard let client = try llm.make(settings.ai) else {
                 lastError = String(localized: "Für Karteikarten braucht es eine KI. Wähle in den Einstellungen unter „KI“ eine aus.")
-                return
+                return nil
             }
             let transcript = await self.transcript(id)?.formatted(includeSpeakers: false) ?? ""
             let material = note.markdown + "\n\n" + transcript
@@ -274,14 +275,21 @@ final class LibraryStore: RecordingLibrary {
                                                       language: settings.ai.summaryLanguage)
             guard !cards.isEmpty else {
                 lastError = String(localized: "Die KI hat keine Karteikarten geliefert. Versuch es noch einmal.")
-                return
+                return nil
             }
             let heading = String(localized: "Karteikarten")
-            let without = NoteMarkdown.removingSection(named: heading, from: note.markdown)
+            await waitForPendingWrites()
+            guard let latest = await summary(id) else { return nil }
+            let without = ["Karteikarten", "Flashcards", heading].reduce(latest.markdown) {
+                NoteMarkdown.removingSection(named: $1, from: $0)
+            }
             updateSummaryText(id, markdown: without + "\n" + Flashcards.markdownSection(cards, heading: heading))
+            await waitForPendingWrites()
             Log.info("Karteikarten: \(cards.count) für „\(recording.displayTitle)“")
+            return cards
         } catch {
             lastError = String(localized: "Karteikarten: \(error.localizedDescription)")
+            return nil
         }
     }
 

@@ -17,7 +17,7 @@ enum NoteDocument {
     /// Druckt die Notiz (der Druckdialog von macOS bietet auch „Als PDF sichern“ an).
     static func printNote(_ id: UUID, library: LibraryStore) {
         Task { @MainActor in
-            guard let page = try? await page(id, library: library) else { return }
+            guard let page = await pageOrComplain(id, library: library) else { return }
             let info = printInfo()
             let operation = NSPrintOperation(view: textView(page.text, info: info), printInfo: info)
             operation.jobTitle = page.title
@@ -28,7 +28,7 @@ enum NoteDocument {
     /// Schreibt ein PDF und fragt, wohin es gehört.
     static func savePDF(_ id: UUID, library: LibraryStore) {
         Task { @MainActor in
-            guard let page = try? await page(id, library: library) else { return }
+            guard let page = await pageOrComplain(id, library: library) else { return }
             let panel = NSSavePanel()
             panel.nameFieldStringValue = fileName(for: page.title)
             panel.allowedContentTypes = [.pdf]
@@ -44,7 +44,7 @@ enum NoteDocument {
 
     /// PDF im temporären Ordner – zum Teilen über das Teilen-Menü von macOS.
     static func temporaryPDF(_ id: UUID, library: LibraryStore) async -> URL? {
-        guard let page = try? await page(id, library: library) else { return nil }
+        guard let page = await pageOrComplain(id, library: library) else { return nil }
         let url = FileManager.default.temporaryDirectory.appendingPathComponent(fileName(for: page.title))
         do {
             try writePDF(page.text, title: page.title, to: url)
@@ -56,6 +56,20 @@ enum NoteDocument {
     }
 
     // MARK: Satz
+
+    /// Wie `page`, sagt aber Bescheid, wenn es nicht klappt. Vorher passierte beim Drucken oder
+    /// Sichern in diesem Fall schlicht gar nichts – kein Fenster, keine Meldung, kein Hinweis.
+    @MainActor
+    private static func pageOrComplain(_ id: UUID, library: LibraryStore) async -> (title: String, text: NSAttributedString)? {
+        do {
+            if let page = try await page(id, library: library) { return page }
+            library.lastError = String(localized: "Diese Aufnahme hat noch keine Notiz – es gibt also nichts zu drucken oder zu sichern.")
+        } catch {
+            library.lastError = String(localized: "Die Notiz konnte nicht aufbereitet werden. Versuch es noch einmal.")
+            Log.error("Notiz aufbereiten: \(error)")
+        }
+        return nil
+    }
 
     private static func page(_ id: UUID, library: LibraryStore) async throws -> (title: String, text: NSAttributedString)? {
         guard let recording = library.recording(id), let note = await library.summary(id) else { return nil }
@@ -84,6 +98,9 @@ enum NoteDocument {
                 page.append(listItem("\(number).", text, indent: indent))
             case .task(_, let text, let isDone, _):
                 page.append(listItem(isDone ? "☑" : "☐", text, indent: 0))
+            case .flashcard(_, let question, let answer):
+                page.append(paragraph(question, font: .systemFont(ofSize: 11, weight: .semibold)))
+                page.append(paragraph(answer, font: .systemFont(ofSize: 11)))
             case .quote(_, let text):
                 page.append(paragraph(text, font: .systemFont(ofSize: 11).italic, color: .secondaryLabelColor, indent: 16))
             }
@@ -212,13 +229,14 @@ private extension NSFont {
 @MainActor
 enum FlashcardExport {
     static func save(_ recordingID: UUID, library: LibraryStore) {
+        guard !library.makingFlashcards.contains(recordingID) else { return }
         Task {
             guard let recording = library.recording(recordingID),
                   let note = await library.summary(recordingID) else { return }
-            let cards = Flashcards.parse(note.markdown)
-            guard !cards.isEmpty else {
-                library.lastError = String(localized: "Diese Notiz hat noch keine Karteikarten. Erzeuge sie zuerst.")
-                return
+            var cards = Flashcards.parse(note.markdown)
+            if cards.isEmpty {
+                guard let generated = await library.makeFlashcards(recordingID) else { return }
+                cards = generated
             }
             let panel = NSSavePanel()
             panel.allowedContentTypes = [.commaSeparatedText]
