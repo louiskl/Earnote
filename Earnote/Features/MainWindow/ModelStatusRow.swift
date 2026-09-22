@@ -54,7 +54,9 @@ struct ProcessingHintRow: View {
     @Environment(LibraryStore.self) private var library
 
     var body: some View {
-        if let id = queue.processingID, let recording = library.recording(id) {
+        if queue.processingID == nil, queue.isWaitingForPower {
+            WaitingForPowerRow(count: queue.pending.count, processNow: queue.processNow)
+        } else if let id = queue.processingID, let recording = library.recording(id) {
             HStack(spacing: 10) {
                 ProgressView(value: queue.progress[id] ?? 0).frame(width: 70)
                 VStack(alignment: .leading, spacing: 1) {
@@ -74,3 +76,36 @@ struct ProcessingHintRow: View {
     }
 }
 
+/// „Erst am Netzteil“: Die Aufnahmen warten, bis der Mac am Strom hängt – oder bis man es anders will.
+private struct WaitingForPowerRow: View {
+    let count: Int
+    let processNow: @MainActor () -> Void
+
+    var body: some View {
+        HStack(spacing: 10) {
+            Image(systemName: "powerplug")
+                .foregroundStyle(.secondary)
+                .accessibilityHidden(true)
+            VStack(alignment: .leading, spacing: 1) {
+                Group {
+                    if count == 1 {
+                        Text("Eine Aufnahme wartet aufs Netzteil")
+                    } else {
+                        Text("\(count) Aufnahmen warten aufs Netzteil")
+                    }
+                }
+                .font(.callout)
+                Text("Die Verarbeitung beginnt, sobald der Mac am Strom hängt.")
+                    .font(.caption).foregroundStyle(.secondary)
+            }
+            Spacer(minLength: 0)
+            Button("Jetzt verarbeiten", action: processNow)
+                .controlSize(.small)
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(.bar)
+        .accessibilityElement(children: .contain)
+    }
+}

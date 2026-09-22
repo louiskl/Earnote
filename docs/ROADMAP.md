@@ -289,6 +289,14 @@ Alles aus echten Abstürzen des Nutzers, nicht aus Tests. Jeder Punkt wurde am G
       Lücken geschlossen: das Symbol in der **Menüleiste** (VoiceOver las „waveform“ statt des Zustands)
       und die drei Knöpfe der **Abspielleiste**.
 - [x] **Modell-Download prüft den Platz** und meldet Fehler verständlich statt mit URLSession-Wortlaut
+- [x] **Strom sparen während der Vorlesung (22.09.2026)**: macOS meldete „erheblicher Energieverbrauch“ –
+      während einer Aufnahme liefen Live-Mitschrift, Whisper und teils das Sprachmodell gleichzeitig,
+      dazu eine Wellenform mit 20 Bildern pro Sekunde. Jetzt: Wellenform und Puls ruhen, sobald das Fenster
+      verdeckt oder zu ist; ohne sichtbaren Pegel tickt die Anzeige zweimal statt zehnmal pro Sekunde, und
+      die Laufzeit meldet sich nur bei neuer Sekunde. Auf Akku oder im Stromsparmodus sind Live-Mitschrift
+      und Vorverdichten aus (einzeln einschaltbar, Einstellungen › Aufnahme › Akku). Neu als Schalter:
+      „Aufnahmen erst am Netzteil verarbeiten“ mit „Jetzt verarbeiten“ in der Liste.
+- [ ] Am echten Mac nachmessen: Aktivitätsanzeige › Energie während einer Aufnahme auf Akku, vorher/nachher
 - [ ] Mit eingeschaltetem VoiceOver einmal durch die App gehen (liegt beim Nutzer – ein Durchgang
       mit echtem Vorlesen findet Dinge, die im Quelltext nicht zu sehen sind)
 

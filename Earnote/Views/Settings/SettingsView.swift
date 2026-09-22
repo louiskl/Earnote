@@ -103,6 +103,7 @@ extension View {
 /// Aufnahme: Mikrofon, Systemton, Call-Erkennung und der Standard-Bereich.
 struct RecordingSettings: View {
     @Environment(LibraryStore.self) private var library
+    @Environment(RecordingController.self) private var recorder
 
     var body: some View {
         @Bindable var library = library
@@ -120,6 +121,7 @@ struct RecordingSettings: View {
             } footer: {
                 Text("Die Notiz ist dann kurz nach dem Ende fertig statt erst nach einer langen Rechenzeit. Kostet währenddessen etwas Akku – am Netzteil merkst du nichts davon.")
             }
+            BatterySettings(power: recorder.power)
             Section {
                 Toggle("Aufnahme mit \(GlobalShortcut.display) aus jeder App starten und stoppen",
                        isOn: $library.settings.globalShortcut)
@@ -145,6 +147,40 @@ struct RecordingSettings: View {
             }
         }
         .formStyle(.grouped)
+    }
+}
+
+/// Was im Akkubetrieb (und im Stromsparmodus) gespart wird. Voreingestellt ist: sparen, wo es
+/// niemand merkt – Vorschau und Vorverdichten aus, die Notiz entsteht trotzdem gleich.
+private struct BatterySettings: View {
+    let power: PowerSource
+    @Environment(LibraryStore.self) private var library
+
+    private var state: String {
+        switch (power.isOnBattery, power.isLowPowerMode) {
+        case (true, true): return String(localized: "Akku, Stromsparmodus")
+        case (true, false): return String(localized: "Akku")
+        case (false, true): return String(localized: "Netzteil, Stromsparmodus")
+        case (false, false): return String(localized: "Netzteil")
+        }
+    }
+
+    var body: some View {
+        @Bindable var library = library
+        Section {
+            LabeledContent("Gerade") { Text(state).foregroundStyle(.secondary) }
+            Toggle("Live-Mitschrift auch im Akkubetrieb", isOn: $library.settings.livePreviewOnBattery)
+            if DeviceCapabilities.memoryGB >= 15.5 {
+                Toggle("Auch im Akkubetrieb schon während der Aufnahme zusammenfassen",
+                       isOn: $library.settings.condenseOnBattery)
+                    .disabled(!library.settings.transcribeWhileRecording)
+            }
+            Toggle("Aufnahmen erst am Netzteil verarbeiten", isOn: $library.settings.processOnlyOnPower)
+        } header: {
+            Text("Akku")
+        } footer: {
+            Text("Im Akkubetrieb und im Stromsparmodus spart \(AppInfo.name) Strom, wo du es nicht merkst: Die Live-Mitschrift ist nur eine Vorschau, die Mitschrift entsteht trotzdem. Mit „erst am Netzteil“ beginnt die Verarbeitung, sobald der Mac am Strom hängt – das spart am meisten, die Notiz kommt dafür später.")
+        }
     }
 }
 
