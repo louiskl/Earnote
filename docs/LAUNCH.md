@@ -58,7 +58,7 @@ Dazu die [Anleitung für Tester](BETA.md) schicken. Mehr braucht es nicht.
 > gern kurz in einer Sitzung vor.
 >
 > Viele Grüße
-> Louis
+> Louis · hallo@earnote.dev
 
 **Warum das zieht:** „von einem Studenten von hier" schlägt jede Werbung. Voraussetzung ehrlich
 nennen (Mac mit Apple Silicon), sonst gibt es Enttäuschung.
@@ -255,7 +255,7 @@ Der lohnendste Kanal nach den Kommilitonen – und der, bei dem die meisten alle
 > nicht, ist das völlig in Ordnung – dann freue ich mich trotzdem, wenn du kurz reinschaust.
 >
 > Viele Grüße
-> Louis
+> Louis · hallo@earnote.dev
 
 ### Dieselbe Mail auf Englisch
 
@@ -276,7 +276,7 @@ Der lohnendste Kanal nach den Kommilitonen – und der, bei dem die meisten alle
 > Happy to send more background if it's interesting, and completely fine if it isn't.
 >
 > Best
-> Louis
+> Louis · hallo@earnote.dev
 
 **Zeitpunkt:** Erst nach dem Demo-Video anschreiben. Wer über Apps berichtet, will in dreißig
 Sekunden sehen, was die App macht – ohne sie zu installieren. Ohne Video landet deine Mail im

@@ -79,3 +79,6 @@ Issue stellen – eine kurze Beschreibung reicht.
 - **Deine Daten bleiben lokal:** Aufnahmen, Transkripte und Notizen liegen in
   `~/Library/Application Support/Earnote`. Earnote schickt nichts an einen Server – außer du wählst in den
   Einstellungen ausdrücklich eine Cloud-KI.
+
+Kein GitHub-Konto? Dann schreib einfach an **hallo@earnote.dev** – Version, Mac und
+ein, zwei Sätze genügen.
