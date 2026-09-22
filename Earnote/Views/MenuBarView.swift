@@ -27,13 +27,14 @@ struct MenuBarView: View {
     @Environment(RecordingController.self) private var recorder
     @Environment(\.openWindow) private var openWindow
 
-    /// Bereich, in dem die nächste Aufnahme landet – vorbelegt mit dem Standardbereich
+    /// Bereich, in dem die nächste Aufnahme landet – bis zur ersten Wahl gilt der Standardbereich
     @State private var chosenCategoryID: UUID?
+    @State private var hasChosen = false
 
     private static let width: CGFloat = 300
 
     private var activeCategory: RecordingCategory? {
-        library.category(chosenCategoryID ?? library.settings.defaultCategoryID) ?? library.categories.first
+        library.category(hasChosen ? chosenCategoryID : library.settings.defaultCategoryID)
     }
 
     var body: some View {
@@ -75,10 +76,12 @@ struct MenuBarView: View {
     /// Bereiche direkt wählbar – ein Tipp genügt, kein Umweg über ein Menü.
     private var categoryPicker: some View {
         VStack(alignment: .leading, spacing: 4) {
+            noCategoryRow
             ForEach(library.categories) { category in
                 let selected = activeCategory?.id == category.id
                 Button {
                     chosenCategoryID = category.id
+                    hasChosen = true
                 } label: {
                     HStack(spacing: 8) {
                         CategoryBadge(emoji: category.emoji, symbol: category.symbol,
@@ -102,6 +105,33 @@ struct MenuBarView: View {
                 .accessibilityAddTraits(selected ? [.isSelected] : [])
             }
         }
+    }
+
+    /// „Ohne Bereich“: Die Aufnahme steht dann nur unter „Alle Aufnahmen“ und kann später einsortiert werden.
+    private var noCategoryRow: some View {
+        let selected = activeCategory == nil
+        return Button {
+            chosenCategoryID = nil
+            hasChosen = true
+        } label: {
+            HStack(spacing: 8) {
+                CategoryBadge(emoji: nil, symbol: "tray", tint: .secondary, size: 18)
+                Text("Ohne Bereich")
+                Spacer(minLength: 0)
+                if selected {
+                    Image(systemName: "checkmark")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .padding(.horizontal, 8)
+            .padding(.vertical, 5)
+            .background(RoundedRectangle(cornerRadius: 7, style: .continuous)
+                .fill(selected ? Color.secondary.opacity(0.14) : .clear))
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityAddTraits(selected ? [.isSelected] : [])
     }
 
     /// Die drei jüngsten Aufnahmen – ein Klick öffnet die Notiz im Hauptfenster.

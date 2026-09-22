@@ -126,7 +126,9 @@ final class RecordingController {
             let df = DateFormatter()
             df.locale = Locale(identifier: "de_DE")
             df.dateFormat = "d. MMM, HH:mm"
-            let cat = category ?? library.category(settings.defaultCategoryID) ?? library.categories.first
+            // Ohne Standardbereich landet die Aufnahme bewusst in keinem Bereich – sie steht dann
+            // unter „Alle Aufnahmen“ und lässt sich später einsortieren.
+            let cat = category ?? library.category(settings.defaultCategoryID)
             // Läuft gerade ein Termin, heißt die Aufnahme wie er – das ist der Titel, den man sucht.
             let fromCalendar = settings.calendarTitles ? CalendarTitles.current(in: settings.calendarIDs)?.title : nil
             let name = title.isEmpty

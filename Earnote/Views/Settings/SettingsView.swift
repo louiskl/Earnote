@@ -114,7 +114,7 @@ struct RecordingSettings: View {
             }
             Section {
                 Picker("Standard-Bereich", selection: $library.settings.defaultCategoryID) {
-                    Text("Erster Bereich").tag(UUID?.none)
+                    Text("Ohne Bereich (Alle Aufnahmen)").tag(UUID?.none)
                     ForEach(library.categories) { Text("\($0.displayEmoji)  \($0.name)").tag(Optional($0.id)) }
                 }
                 Toggle("Hinweis zum Einverständnis anzeigen", isOn: $library.settings.showConsentReminder)

@@ -121,9 +121,6 @@ struct OnboardingView: View {
         let used = Set(library.recordings.compactMap(\.categoryID))
         library.categories.removeAll { !chosen.contains($0.name) && !used.contains($0.id) }
         library.addCategories(templates: selectedTemplates, subjects: subjects)
-        if library.category(library.settings.defaultCategoryID) == nil {
-            library.settings.defaultCategoryID = library.categories.first?.id
-        }
         if library.categories.isEmpty { library.categories = RecordingCategory.defaults }
     }
 
