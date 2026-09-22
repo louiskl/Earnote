@@ -9,6 +9,16 @@ struct EarnoteApp: App {
     private let environment: AppEnvironment
 
     init() {
+        #if DEBUG
+        // Einmaliger Wartungslauf: CloudKit-Schema anlegen, dann beenden (siehe CloudSchemaSetup).
+        // Muss vor jeder Umgebung laufen: Sonst spiegelt die Bibliothek des Nutzers schon, und der
+        // Schema-Lauf wartet vergeblich auf einen freien Platz („already a pending request“).
+        if CloudSchemaSetup.isRequested {
+            let ok = CloudSchemaSetup.run()
+            Log.flush()
+            exit(ok ? 0 : 1)
+        }
+        #endif
         // Der Testbereich wird zuerst geprüft: sonst würde schon das Erzeugen der echten Umgebung
         // die Bibliothek des Nutzers öffnen, obwohl der Test in seinem eigenen Ordner laufen soll.
         var sandbox: AppEnvironment?
@@ -107,14 +117,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         UNUserNotificationCenter.current().delegate = self
-        #if DEBUG
-        // Einmaliger Wartungslauf: CloudKit-Schema anlegen, danach beenden (siehe CloudSchemaSetup)
-        if CloudSchemaSetup.isRequested {
-            let ok = CloudSchemaSetup.run()
-            NSApp.reply(toApplicationShouldTerminate: true)
-            exit(ok ? 0 : 1)
-        }
-        #endif
         GlobalShortcut.action = { [weak self] in self?.toggleRecording?() }
         GlobalShortcut.apply(enabled: globalShortcutEnabled)
         #if DEBUG

@@ -29,6 +29,8 @@ public enum Log {
 
     public static func info(_ msg: String) { write("INFO", msg) }
     public static func error(_ msg: String) { write("FEHLER", msg) }
+    /// Wartet, bis alles Geschriebene auf der Platte ist – vor einem `exit()` nötig, sonst fehlt die letzte Zeile.
+    public static func flush() { queue.sync {} }
 
     private static func write(_ level: String, _ msg: String) {
         let line = "[\(formatter.string(from: Date()))] \(level): \(msg)\n"
