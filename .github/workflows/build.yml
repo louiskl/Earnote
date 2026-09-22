@@ -21,13 +21,13 @@ jobs:
     name: Kern-Tests
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Xcode-Version anzeigen
         run: xcodebuild -version
 
       - name: Pakete cachen
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: Packages/EarnoteKit/.build
           key: spm-${{ runner.os }}-${{ hashFiles('Packages/EarnoteKit/Package.resolved') }}
@@ -46,7 +46,7 @@ jobs:
     runs-on: macos-latest
     timeout-minutes: 60
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Xcode-Version anzeigen
         run: xcodebuild -version
@@ -56,7 +56,7 @@ jobs:
         run: xcodebuild -downloadComponent MetalToolchain
 
       - name: Pakete cachen
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: build/SourcePackages
           key: app-spm-${{ runner.os }}-${{ hashFiles('Earnote.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}

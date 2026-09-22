@@ -23,13 +23,15 @@ public final class FormatConverter {
         let capacity = AVAudioFrameCount((Double(buffer.frameLength) * ratio).rounded(.up)) + 32
         guard let out = AVAudioPCMBuffer(pcmFormat: target, frameCapacity: capacity) else { return nil }
 
-        var used = false
+        // Der Block läuft synchron innerhalb von `convert` – nichts davon wird nebenläufig benutzt
+        nonisolated(unsafe) var used = false
+        nonisolated(unsafe) let input = buffer
         var error: NSError?
         converter.convert(to: out, error: &error) { _, status in
             if used { status.pointee = .noDataNow; return nil }
             used = true
             status.pointee = .haveData
-            return buffer
+            return input
         }
         if let error {
             Log.error("Audio umwandeln: \(error.localizedDescription)")

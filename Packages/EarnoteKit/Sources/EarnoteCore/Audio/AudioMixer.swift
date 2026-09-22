@@ -32,16 +32,18 @@ public final class ResamplingReader {
     public func read(frames: AVAudioFrameCount) -> AVAudioPCMBuffer? {
         guard let out = AVAudioPCMBuffer(pcmFormat: Self.outputFormat, frameCapacity: frames) else { return nil }
         var error: NSError?
-        let status = converter.convert(to: out, error: &error) { [weak self] packetCount, inputStatus in
-            guard let self, !self.endOfFile,
-                  let input = AVAudioPCMBuffer(pcmFormat: self.file.processingFormat, frameCapacity: packetCount)
+        // Der Block läuft synchron innerhalb von `convert` und wird danach nicht aufbewahrt
+        nonisolated(unsafe) let reader = self
+        let status = converter.convert(to: out, error: &error) { packetCount, inputStatus in
+            guard !reader.endOfFile,
+                  let input = AVAudioPCMBuffer(pcmFormat: reader.file.processingFormat, frameCapacity: packetCount)
             else {
                 inputStatus.pointee = .endOfStream
                 return nil
             }
-            do { try self.file.read(into: input, frameCount: packetCount) } catch { input.frameLength = 0 }
+            do { try reader.file.read(into: input, frameCount: packetCount) } catch { input.frameLength = 0 }
             if input.frameLength == 0 {
-                self.endOfFile = true
+                reader.endOfFile = true
                 inputStatus.pointee = .endOfStream
                 return nil
             }
