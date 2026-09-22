@@ -29,6 +29,7 @@
 | 🚀 | **Launch Earnote 1.0 für Mac** | 1.0 | |
 | 6 | iPad eigenständig, iPhone als Begleit-App, iCloud-Sync | 1.1 | nach Launch |
 | 7 | Mac App Store prüfen (Sandbox), Kurs-Gruppen teilen | 1.2 | nach Launch |
+| 8 | Geschäftsmodell: kostenlos für Menschen, kostenpflichtig für Organisationen, nie ein Server | – | nach 1.0 |
 
 ---
 
@@ -378,13 +379,84 @@ heute für iOS – das bleibt die Eintrittskarte, und der iOS-Build läuft bei j
 **Kurs-Gruppen**
 - [ ] Bereich mit Kommilitonen teilen (iCloud-Freigabe, nur Apple-Geräte)
 
+## Phase 8 – Geschäftsmodell (nach 1.0, nicht früher)
+
+**Der Satz, auf den alles hinausläuft:** Eine Mac-App. Für Menschen kostenlos, für Organisationen
+kostenpflichtig. **Niemals ein Server.**
+
+### Warum überhaupt
+
+Wer Aufnahmen aus rechtlichen Gründen nicht hochladen darf, hat heute kein brauchbares Werkzeug:
+Ärztinnen und Psychotherapeuten (§ 203 StGB), Anwälte, Steuerberater, Betriebsräte, Journalisten mit
+Quellenschutz, Behörden, Forschung mit Ethikauflage – und ganz gewöhnliche Firmen, deren Meetings
+nicht auf fremden KI-Servern landen sollen. Für diese Gruppe ist „läuft vollständig lokal“ kein
+netter Zusatz, sondern die Bedingung, unter der sie so etwas überhaupt einsetzen dürfen.
+
+### Keine beschnittene Fassung
+
+Funktionen werden **nicht** aufgeteilt. Sprecher mit Namen oder Aufgaben mit Verantwortlichen helfen
+auch in einer Lerngruppe – so etwas künstlich wegzusperren verärgert genau die Leute, die die App
+weiterempfehlen. Bezahlt wird der **kommerzielle Einsatz** und das, was ausschließlich Organisationen
+brauchen:
+
+- Verteilung per MDM (`.pkg` für Jamf/Intune)
+- Vorgaben per Konfigurationsprofil, vom Nutzer nicht änderbar – vor allem: **Cloud-KI zentral sperren**
+- Mehrplatzlizenzen, Rechnung mit Umsatzsteuer
+- Aufbewahrungsrichtlinien und Nachweis, wer was exportiert hat
+- Support mit zugesagter Reaktionszeit
+
+### Lizenz ohne Nachweis
+
+Kostenlos für private und studentische Nutzung, Pro-Lizenz für den Einsatz in einer Organisation –
+**ohne Prüfung, ohne Konto, ohne Immatrikulationsbescheinigung.** Das trägt, weil dieselbe
+Compliance-Abteilung, die den Cloud-Upload verbietet, auch unlizenzierte Software verbietet. Wer
+wegen der Vertraulichkeit kauft, riskiert nicht 49 € wegen einer Lizenzprüfung. In den Einstellungen
+steht ein ruhiger Satz dazu – keine Countdown-Fenster, keine Bettelei.
+
+Preis-Richtung: **einmalig statt monatlich** (etwa 49 € je Platz, Staffel ab fünf, ein Jahr Updates).
+Ein Abo wäre absurd gegen Wettbewerber, die genau daran scheitern.
+
+### Was ausdrücklich nicht kommt
+
+| | Warum nicht |
+|---|---|
+| **Konten und zentrale Verwaltung** | Was die IT will – Ausrollen, Vorgaben, Lizenznachweis – geht auf dem Mac über MDM und eine signierte Lizenzdatei. Kein Backend, keine laufenden Kosten. |
+| **SaaS / eigener Server** | Kostet monatlich, erzwingt ein Abo, macht aus Earnote einen Auftragsverarbeiter nach DSGVO (AV-Verträge, TOMs, Meldepflichten) – und zerstört den einzigen Satz, der die App verkauft. |
+| **Teilen über fremde Server** | Falls Teams je teilen wollen: gemeinsamer iCloud-Bereich oder ein Ordner, den der Kunde selbst betreibt. Daten und Verantwortung bleiben beim Kunden. |
+
+### Windows und Linux
+
+**Zurückgestellt, nicht abgelehnt.** Viele Studierende haben kein MacBook, der Bedarf ist real. Aber
+es wäre keine Portierung, sondern ein zweites Produkt: WhisperKit läuft auf CoreML, das Sprachmodell
+auf MLX, die Oberfläche in SwiftUI – nichts davon existiert außerhalb von Apple. Eine Windows-Fassung
+hieße whisper.cpp, llama.cpp und eine neue Oberfläche, also Monate, in denen die Mac-App stillsteht.
+
+Reihenfolge: **erst iPad und iPhone** (gleicher Kern, gleiches Ökosystem, Phase 6), danach neu
+bewerten. Ein Zwischenweg wäre eine schlanke Windows-Begleitung, die nur aufnimmt und die Datei einem
+Mac zur Verarbeitung gibt – das ist der Punkt, an dem es sich lohnen könnte, zuerst nachzudenken.
+
+### Technische Vorbereitung (klein, aber rechtzeitig)
+
+- [ ] Einstellungen so lesen, dass ein **Konfigurationsprofil sie überschreiben** kann
+      (`NSUserDefaults` liest verwaltete Vorgaben von selbst – es braucht nur den Vorrang und eine
+      Anzeige „von der IT vorgegeben“). Zehn Zeilen, wenn man es früh weiß; ein Umbau, wenn nicht.
+- [ ] Beim Schnitt zwischen offen und geschlossen aufpassen: Der Kern bleibt MIT, spätere
+      Organisations-Funktionen kommen in ein eigenes, geschlossenes Modul (**Open Core**).
+      Einmal unter MIT Veröffentlichtes bleibt frei – künftige Teile dürfen anders lizenziert werden.
+- [ ] Vor allem anderen: **Markenrecherche abschließen.** Ohne Namensrechte lässt sich nichts verkaufen.
+
+### Wann
+
+**Nicht vor 1.0, und auch dann erst auf Zuruf von außen.** Das verlässlichste Signal ist die erste
+E-Mail aus einer Kanzlei, Praxis oder IT-Abteilung. Bis dahin gilt: Nachfragen sammeln, nichts bauen.
+
 ## Später / Ideen
 - Echte Sprechererkennung (Sprecher 1/2/3) statt „Ich / Andere“
 - Weitere Ziele: Google Docs, OneNote, Anytype, Webhooks; Notion-Anmeldung ohne Token
 - Öffentlicher Link zum Teilen einer Notiz
 - Ältere iPads ohne M-Chip (über den Mac oder einen eigenen API-Schlüssel)
 - Echo-Unterdrückung bei Lautsprecher-Calls
-- Buy Me a Coffee / GitHub Sponsors, falls die App Zulauf bekommt
+- GitHub Sponsors als frühes Signal, ob überhaupt jemand freiwillig zahlt (siehe Phase 8)
 
 ---
 
@@ -397,6 +469,8 @@ heute für iOS – das bleibt die Eintrittskarte, und der iOS-Build läuft bei j
 | Mac App Store | **Vorerst nein.** Direkt-Download plus Homebrew deckt die Zielgruppe ab; die Sandbox würde Systemton und Export einschränken. Nach 1.0 neu bewerten | nach 1.0 |
 | ~~Englische Oberfläche~~ | erledigt in 0.9.1 | ✅ |
 | Sparkle (automatische Updates) | Erst bei nennenswerter Nutzerzahl; bis dahin reicht der Hinweis mit Download-Link | nach 1.0 |
+| Windows/Linux | **Zurückgestellt.** Kein Port, sondern ein zweites Produkt (CoreML, MLX, SwiftUI gibt es dort nicht). Erst iPad/iPhone, danach neu bewerten – zuerst denkbar: schlanke Windows-Begleitung, die nur aufnimmt | nach 1.1 |
+| Geld verdienen | **Erst nach 1.0.** Kostenlos für private und studentische Nutzung, Pro-Lizenz für Organisationen, einmalig statt Abo, kein Server, keine Konten (Phase 8) | nach 1.0 |
 | Lokales Standardmodell | nach dem Modellvergleich mit echten Vorlesungen | Phase 4c |
 | Domain | erst nach der Markenrecherche kaufen | vor Phase 5 |
 
