@@ -453,9 +453,11 @@ Mac zur Verarbeitung gibt – das ist der Punkt, an dem es sich lohnen könnte, 
 
 ### Technische Vorbereitung (klein, aber rechtzeitig)
 
-- [ ] Einstellungen so lesen, dass ein **Konfigurationsprofil sie überschreiben** kann
-      (`NSUserDefaults` liest verwaltete Vorgaben von selbst – es braucht nur den Vorrang und eine
-      Anzeige „von der IT vorgegeben“). Zehn Zeilen, wenn man es früh weiß; ein Umbau, wenn nicht.
+- [x] **Konfigurationsprofil kann Einstellungen vorgeben** (22.09.2026): `ManagedSettings` liest fünf flache
+      Schlüssel (`AllowCloudAI`, `CheckForUpdates`, `SyncWithCloud`, `KeepAudioFiles`, `ShowConsentReminder`)
+      nur, wenn ein Profil sie erzwingt, und legt sie über die gespeicherten Einstellungen. Gesperrte Schalter
+      sind ausgegraut („Von deiner Organisation vorgegeben“), gesperrte Cloud-KI steht nicht zur Wahl und wird
+      zusätzlich in `LLMFactory` abgewiesen. Anleitung für IT-Abteilungen: [VERWALTUNG.md](VERWALTUNG.md)
 - [ ] Beim Schnitt zwischen offen und geschlossen aufpassen: Der Kern bleibt MIT, spätere
       Organisations-Funktionen kommen in ein eigenes, geschlossenes Modul (**Open Core**).
       Einmal unter MIT Veröffentlichtes bleibt frei – künftige Teile dürfen anders lizenziert werden.

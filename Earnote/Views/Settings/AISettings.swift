@@ -23,7 +23,10 @@ struct AISettings: View {
                 Picker("KI für die Notizen", selection: $library.settings.ai.provider) {
                     Text("Lokale KI (empfohlen)").tag(AIProviderKind.localModel)
                     Divider()
-                    ForEach(AIProviderKind.allCases.filter { $0 != .localModel }) { Text($0.label).tag($0) }
+                    // Von der Organisation gesperrte Anbieter stehen gar nicht erst zur Wahl
+                    ForEach(AIProviderKind.allCases.filter { $0 != .localModel && library.managed.allows($0) }) {
+                        Text($0.label).tag($0)
+                    }
                 }
                 Toggle("Einfach erklärt", isOn: $library.settings.ai.simpleNotes)
                     .help("Kurze Sätze, alltägliche Wörter, Fachbegriffe werden erklärt.")
@@ -34,6 +37,9 @@ struct AISettings: View {
             } footer: {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(provider.subtitle)
+                    if !library.managed.allowsCloudAI {
+                        Label("Deine Organisation erlaubt nur KI, die auf dem Mac bleibt.", systemImage: "building.2")
+                    }
                     if provider.sendsDataOffDevice {
                         Label("Das Transkript wird zur Zusammenfassung an \(provider.label) gesendet. "
                               + "Für vertrauliche Gespräche ist die lokale KI die sichere Wahl.",

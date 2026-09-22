@@ -25,8 +25,10 @@ final class AppEnvironment {
     init(storage: Storage = .standard, defaults: UserDefaults = .standard) {
         let container: ModelContainer
         var openError: String?
+        // Vorgaben per Konfigurationsprofil gehen den gespeicherten Einstellungen vor
+        let managed = ManagedSettings.read(from: defaults)
         // Die Einstellung wird gebraucht, bevor der Store steht – deshalb hier direkt gelesen.
-        let settings = UserDefaultsSettingsRepository(defaults: defaults).loadSettings() ?? AppSettings()
+        let settings = managed.apply(to: UserDefaultsSettingsRepository(defaults: defaults).loadSettings() ?? AppSettings())
         do {
             container = try LibraryContainer.make(url: storage.root.appendingPathComponent(LibraryContainer.fileName),
                                                   syncsWithCloud: settings.syncWithCloud)
@@ -39,7 +41,7 @@ final class AppEnvironment {
         }
         let libraryRepository = SwiftDataLibraryRepository(modelContainer: container)
         let audio = FileAudioStore(storage: storage)
-        let llm = LLMFactory(platform: PlatformLLMClients())
+        let llm = LLMFactory(platform: PlatformLLMClients(), managed: managed)
         let precondensed = PreCondensedStore()
         let pipeline = ProcessingPipeline(library: libraryRepository, audio: audio, transcribers: PlatformTranscribers(), llm: llm,
                                           destinations: AppDestinations(), precondensed: precondensed,
@@ -53,7 +55,7 @@ final class AppEnvironment {
         }
         let library = LibraryStore(library: libraryRepository, audio: audio,
                                    settingsRepository: UserDefaultsSettingsRepository(defaults: defaults),
-                                   queue: queue, llm: llm)
+                                   queue: queue, llm: llm, managed: managed)
         library.lastError = openError
         queue.library = library
         AudioInputDevices.removeLeftoversFromEarlierRuns()

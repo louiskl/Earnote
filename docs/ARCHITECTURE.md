@@ -26,6 +26,7 @@ Plattform- und ML-Code wird über Protokolle aus EarnoteCore eingehängt:
 |---|---|---|
 | Aufnahmen, Bereiche | gemeinsamer Domänenzustand, persistent (später synchronisiert) | `LibraryStore` (`@MainActor @Observable`, App) hält den Stand im Speicher und schreibt der Reihe nach über `LibraryRepository` |
 | Einstellungen | persistente Vorliebe, pro Gerät | `LibraryStore.settings` über `SettingsRepository` (UserDefaults, nicht synchronisiert) |
+| Vorgaben der Organisation | beim Start gelesen, unveränderlich | `ManagedSettings` (Konfigurationsprofil, siehe [VERWALTUNG.md](VERWALTUNG.md)); liegt über den Einstellungen, `LLMFactory` verweigert gesperrte Anbieter |
 | Audiodateien | lokale Dateien, nie synchronisiert | `AudioStore` |
 | Laufende Aufnahme, Pause, Pegel, Live-Mitschrift | Anwendungsdienst | `RecordingController` (`@MainActor @Observable`, App); Pegel und Live-Text in eigenen `ObservableObject`s, damit nur deren Anzeigen neu zeichnen |
 | Warteschlange, laufende Verarbeitung, Fortschritt | Anwendungsdienst, nur im Speicher | `ProcessingQueue` (`@MainActor @Observable`, Core); der Fortschritt existiert nur im Speicher und wird nie gespeichert |

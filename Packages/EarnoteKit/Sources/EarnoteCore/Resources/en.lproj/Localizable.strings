@@ -109,3 +109,4 @@
 "Aufgaben" = "Tasks";
 "„%1$@“ nimmt gerade in Telefonqualität auf (%2$lld kHz), weil es gleichzeitig Ton ausgibt. Für eine gute Mitschrift wähle in den Einstellungen unter „Aufnahme“ das eingebaute Mikrofon." = "“%1$@” is recording in phone quality (%2$lld kHz) because it is also playing sound. For a good transcript, pick the built-in microphone in Settings › Recording.";
 "Dafür fehlt der Platz: Das Modell braucht etwa %1$@ GB, frei sind nur %2$@ GB. Mach Platz auf der Festplatte und versuch es noch einmal." = "Not enough space: the model needs about %1$@ GB, only %2$@ GB are free. Free up some disk space and try again.";
+"„%@“ ist von deiner Organisation gesperrt, weil das Transkript dafür den Mac verlassen würde. Wähle in den Einstellungen unter „KI“ die lokale KI." = "“%@” is blocked by your organization because the transcript would leave the Mac. Choose the local AI in Settings › AI.";
