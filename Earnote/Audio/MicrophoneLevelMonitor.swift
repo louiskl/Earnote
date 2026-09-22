@@ -43,7 +43,11 @@ final class MicrophoneLevelMonitor: ObservableObject {
         let format = engine.inputNode.outputFormat(forBus: 0)
         guard format.sampleRate > 0, format.channelCount > 0 else { failed = true; return }
         let box = box
-        engine.inputNode.installTap(onBus: 0, bufferSize: 2048, format: format) { buffer, _ in box.set(buffer.rms) }
+        // @Sendable ist Pflicht: sonst erbt der Block die Isolation von `start` (MainActor), und Swift 6
+        // bricht ab, sobald Core Audio ihn auf seinem eigenen Thread aufruft.
+        engine.inputNode.installTap(onBus: 0, bufferSize: 2048, format: format) { @Sendable buffer, _ in
+            box.set(buffer.rms)
+        }
         do {
             engine.prepare()
             try engine.start()
