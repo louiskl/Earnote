@@ -3,6 +3,16 @@
     <channel>
         <title>Earnote</title>
         <item>
+            <title>0.9.9</title>
+            <pubDate>Tue, 22 Sep 2026 09:20:04 +0200</pubDate>
+            <link>https://louiskl.github.io/Earnote/</link>
+            <sparkle:fullReleaseNotesLink>https://github.com/louiskl/Earnote/releases</sparkle:fullReleaseNotesLink>
+            <sparkle:version>909</sparkle:version>
+            <sparkle:shortVersionString>0.9.9</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>15.0</sparkle:minimumSystemVersion>
+            <enclosure url="https://github.com/louiskl/Earnote/releases/download/v0.9.9/Earnote.dmg" length="28709293" type="application/octet-stream" sparkle:edSignature="E8ODunnwFmFxAM+bnVnoBsO+chYBOOKntKKbdkkVnF2pNO4iDP0nd8gdmBT9mVRuCPCeLXlMCj2UxuMq69DLBA=="/>
+        </item>
+        <item>
             <title>0.9.8</title>
             <pubDate>Tue, 22 Sep 2026 08:49:57 +0200</pubDate>
             <link>https://louiskl.github.io/Earnote/</link>
@@ -21,16 +31,6 @@
             <sparkle:shortVersionString>0.9.7</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>15.0</sparkle:minimumSystemVersion>
             <enclosure url="https://github.com/louiskl/Earnote/releases/download/v0.9.7/Earnote.dmg" length="28147302" type="application/octet-stream" sparkle:edSignature="OsclT5MgP12HiaEmW+hqvBsLvbuVTnF2T3p3Hr91VTdN8tRtqCthvASlmF1qqjgILy3mbnMEENb0yt1wgip5Bg=="/>
-        </item>
-        <item>
-            <title>0.9.6</title>
-            <pubDate>Tue, 22 Sep 2026 08:12:06 +0200</pubDate>
-            <link>https://louiskl.github.io/Earnote/</link>
-            <sparkle:fullReleaseNotesLink>https://github.com/louiskl/Earnote/releases</sparkle:fullReleaseNotesLink>
-            <sparkle:version>906</sparkle:version>
-            <sparkle:shortVersionString>0.9.6</sparkle:shortVersionString>
-            <sparkle:minimumSystemVersion>15.0</sparkle:minimumSystemVersion>
-            <enclosure url="https://github.com/louiskl/Earnote/releases/download/v0.9.6/Earnote.dmg" length="28148422" type="application/octet-stream" sparkle:edSignature="7JfKooHM5Tg4deHy51iVF9f91h21zPBAfwimDaDTb4CXT3rqptpluxFkNSyx7t2/NBkhzrLHSJ3k50Acv8ZPDQ=="/>
         </item>
     </channel>
 </rss>

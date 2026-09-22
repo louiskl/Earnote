@@ -107,6 +107,9 @@ final class RecordingController {
         // isStarting verhindert Doppelstarts (Doppelklick, Call-Pop-up + Menü gleichzeitig)
         guard !isRecording, !isStarting else { return }
         isStarting = true
+        // Der Pegeltest in den Einstellungen hält dasselbe Mikrofon. Er muss es loslassen, bevor die
+        // Aufnahme-Engine es anfasst – sonst liest sie ein leeres Format.
+        NotificationCenter.default.post(name: .micTestShouldStop, object: nil)
         Task {
             defer { isStarting = false }
             if MicRecorder.permission != .authorized {

@@ -16,7 +16,18 @@ final class MicrophoneLevelMonitor: ObservableObject {
 
     private var engine: AVAudioEngine?
     private var timer: Timer?
+    private var stopObserver: (any NSObjectProtocol)?
     private let box = LevelBox()
+
+    init() {
+        // Beginnt eine Aufnahme, gibt der Test das Mikrofon sofort frei (siehe `RecordingController`).
+        // queue: nil – der Block läuft direkt auf dem Absender-Thread (dem Main-Thread), also noch
+        // bevor die Aufnahme beginnt. Über eine Warteschlange käme er unter Umständen zu spät.
+        stopObserver = NotificationCenter.default.addObserver(forName: .micTestShouldStop, object: nil,
+                                                             queue: nil) { [weak self] _ in
+            MainActor.assumeIsolated { self?.stop() }
+        }
+    }
 
     private final class LevelBox: @unchecked Sendable {
         private let lock = NSLock()

@@ -160,4 +160,6 @@ extension Notification.Name {
     static let showOnboarding = Notification.Name("\(AppInfo.bundleIdentifier).showOnboarding")
     /// Eine bestimmte Aufnahme im Hauptfenster zeigen (aus der Menüleiste); `object` ist ihre UUID
     static let showRecording = Notification.Name("\(AppInfo.bundleIdentifier).showRecording")
+    /// Gleich beginnt eine Aufnahme: Der Mikrofontest in den Einstellungen muss das Gerät sofort freigeben
+    static let micTestShouldStop = Notification.Name("\(AppInfo.bundleIdentifier).micTestShouldStop")
 }

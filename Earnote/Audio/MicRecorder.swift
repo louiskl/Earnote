@@ -103,7 +103,7 @@ final class MicRecorder {
 
     /// Tap anbringen, starten und Beobachter für dieses Gerät einrichten
     private func run(_ engine: AVAudioEngine, device: AudioInputDeviceInfo) throws {
-        installTap(on: engine)
+        try installTap(on: engine)
         engine.prepare()
         do {
             #if DEBUG
@@ -125,9 +125,17 @@ final class MicRecorder {
         observe(engine, device: device)
     }
 
-    private func installTap(on engine: AVAudioEngine) {
+    private func installTap(on engine: AVAudioEngine) throws {
         let input = engine.inputNode
         let format = input.outputFormat(forBus: 0)
+        // Zwischen der Prüfung in `start` und hier kann das Gerät wegfallen – abgezogen, von einer
+        // anderen App belegt, Bluetooth weg. Dann steht hier 0 Hz, und `installTap` wirft eine
+        // Obj-C-Ausnahme, die Swift nicht fangen kann: Die App stürzt ab. Also vorher prüfen und
+        // einen normalen Fehler werfen, damit der Weg über das Ersatzgerät greift.
+        guard format.sampleRate > 0, format.channelCount > 0 else {
+            throw NSError(domain: AppInfo.name, code: 4,
+                          userInfo: [NSLocalizedDescriptionKey: "Gerät liefert beim Start kein Eingangsformat mehr"])
+        }
         tapFormat = format
         lock.lock()
         converter = file.map { FormatConverter(target: $0.processingFormat) }

@@ -1,3 +1,4 @@
+import CloudKit
 import CoreData
 import EarnoteCore
 import Foundation
@@ -37,16 +38,16 @@ final class CloudSyncStatus {
                 case .export: kind = String(localized: "Senden")
                 @unknown default: kind = String(localized: "Abgleich")
                 }
-                let message = event.error?.localizedDescription
+                let message = event.error.map(Self.describe)
                 let ended = event.endDate
                 MainActor.assumeIsolated { self?.handle(kind: kind, error: message, ended: ended) }
             }
     }
 
-    private func handle(kind: String, error: String?, ended: Date?) {
+    private func handle(kind: String, error: (text: String, log: String)?, ended: Date?) {
         if let error {
-            state = .failed(error)
-            Log.error("iCloud \(kind): \(error)")
+            state = .failed(error.text)
+            Log.error("iCloud \(kind): \(error.log)")
             return
         }
         guard let ended else {
@@ -55,6 +56,23 @@ final class CloudSyncStatus {
         }
         state = .idle(ended)
         Log.info("iCloud \(kind) fertig")
+    }
+
+    /// CloudKit verpackt den eigentlichen Grund in `partialErrorsByItemID`. Ohne das Auspacken steht
+    /// in den Einstellungen nur „Fehler 2“ und im Protokoll nichts, womit sich etwas anfangen ließe.
+    nonisolated private static func describe(_ error: Error) -> (text: String, log: String) {
+        guard let ck = error as? CKError else {
+            return (error.localizedDescription, String(describing: error))
+        }
+        let parts = (ck.partialErrorsByItemID ?? [:]).map { id, inner in
+            let code = (inner as? CKError).map { "CKError \($0.errorCode)" } ?? "\(type(of: inner))"
+            return "\(id): \(code) – \(inner.localizedDescription)"
+        }.sorted()
+        let text = parts.isEmpty
+            ? "\(ck.localizedDescription) (CKError \(ck.errorCode))"
+            : (ck.partialErrorsByItemID?.values.first?.localizedDescription ?? ck.localizedDescription)
+        let log = ([ "CKError \(ck.errorCode): \(ck.localizedDescription)" ] + parts).joined(separator: " | ")
+        return (text, log)
     }
 
     /// Ein Satz für die Einstellungen
