@@ -113,6 +113,37 @@ final class AppEnvironment {
               (try? await libraryRepository.recordings())?.isEmpty == true else { return }
         // Auf Englisch gestartet? Dann auch englische Beispieldaten – sonst passen die Bildschirmfotos nicht.
         let english = Locale.preferredLanguages.first?.hasPrefix("en") == true
+        // Bereiche wie nach dem Einrichtungsassistenten – sonst wirkt die Bibliothek auf
+        // Bildschirmfotos leerer, als die App ist.
+        if library.categories.count < 3 {
+            library.categories = [
+                RecordingCategory(name: english ? "Linear Algebra" : "Analysis II", emoji: "📐",
+                                  symbol: "graduationcap.fill", colorHex: "#E8453B",
+                                  instructions: RecordingCategory.defaults.first?.instructions ?? ""),
+                RecordingCategory(name: english ? "Operating Systems" : "Betriebssysteme", emoji: "🖥️",
+                                  symbol: "book.fill", colorHex: "#2563EB",
+                                  instructions: RecordingCategory.defaults.first?.instructions ?? ""),
+                RecordingCategory(name: english ? "Study group" : "Lerngruppe", emoji: "👥",
+                                  symbol: "person.3.fill", colorHex: "#10B981",
+                                  instructions: RecordingCategory.defaults.first?.instructions ?? ""),
+            ]
+        }
+        // Zwei ältere Aufnahmen, damit die Liste aussieht wie nach ein paar Wochen Semester
+        for (index, demo) in Self.olderDemoRecordings(english: english).enumerated() {
+            var old = Recording(title: demo.title,
+                                categoryID: library.categories[min(index + 1, library.categories.count - 1)].id,
+                                startedAt: Date().addingTimeInterval(demo.ago))
+            old.endedAt = old.startedAt.addingTimeInterval(demo.length)
+            old.status = .done
+            old.summaryTitle = demo.title
+            old.summaryPreview = demo.preview
+            old.taskCount = demo.tasks
+            try? await libraryRepository.insertRecording(old)
+            try? await libraryRepository.saveNote(Summary(title: demo.title, markdown: demo.preview,
+                                                          taskCount: demo.tasks,
+                                                          provider: english ? "Local AI" : "Lokale KI"),
+                                                  for: old.id)
+        }
         var rec = Recording(title: english ? "Linear Algebra – Eigenvalues" : "Analysis II – Eigenwerte",
                             categoryID: library.categories.first?.id,
                             startedAt: Date().addingTimeInterval(-5_400))
@@ -153,6 +184,26 @@ final class AppEnvironment {
         try? await libraryRepository.insertGlossaryTerm(GlossaryTerm(term: "Eigenwert", variants: ["Eigen Wert"],
                                                                     categoryID: library.categories.first?.id))
         await library.load()
+    }
+
+    private struct DemoRecording {
+        let title: String, preview: String, ago: TimeInterval, length: TimeInterval, tasks: Int
+    }
+
+    private static func olderDemoRecordings(english: Bool) -> [DemoRecording] {
+        english
+        ? [DemoRecording(title: "Operating Systems – Scheduling",
+                         preview: "Round robin, priority scheduling and why starvation happens.",
+                         ago: -93_600, length: 5_280, tasks: 1),
+           DemoRecording(title: "Study group – exam preparation",
+                         preview: "Split the old exams, agreed to meet again on Thursday.",
+                         ago: -180_000, length: 3_720, tasks: 2)]
+        : [DemoRecording(title: "Betriebssysteme – Scheduling",
+                         preview: "Round Robin, Prioritäten und warum Starvation entsteht.",
+                         ago: -93_600, length: 5_280, tasks: 1),
+           DemoRecording(title: "Lerngruppe – Klausurvorbereitung",
+                         preview: "Altklausuren aufgeteilt, nächster Termin am Donnerstag.",
+                         ago: -180_000, length: 3_720, tasks: 2)]
     }
 
     /// Nur Debug-Build: `EARNOTE_SANDBOX=<Ordner>` startet mit eigenem Datenordner und eigener Einstellungs-Domäne
