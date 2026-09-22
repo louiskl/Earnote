@@ -33,6 +33,8 @@ final class MicRecorder {
     private var waitingForDevice = false
     /// Geplanter Neustart nach einer Konfigurationsänderung (siehe `scheduleSwitch`)
     private var pendingSwitch: DispatchWorkItem?
+    /// Zeitpunkte der letzten Neustarts je Gerät (siehe `isFlapping`)
+    private var restarts: [String: [Date]] = [:]
 
     /// Gerät, über das gerade aufgenommen wird
     private(set) var device: AudioInputDeviceInfo?
@@ -145,7 +147,12 @@ final class MicRecorder {
         lock.lock()
         converter = file.map { FormatConverter(target: $0.processingFormat) }
         lock.unlock()
-        input.installTap(onBus: 0, bufferSize: 4096, format: format) { [weak self] buffer, _ in
+        // `format: nil` heißt „nimm das Format, das der Eingang gerade wirklich hat“. Nach einem
+        // Gerätewechsel meldet `outputFormat(forBus:)` mitunter noch das alte Gerät; ein Tap mit
+        // diesem Format liefert dann stumm gar nichts mehr – genau so ging bei einem Wechsel auf
+        // ein anderes Mikrofon der Ton verloren. Die Umwandlung aufs Dateiformat macht ohnehin
+        // `FormatConverter`, der sich auf jedes eingehende Format einstellt.
+        input.installTap(onBus: 0, bufferSize: 4096, format: nil) { [weak self] buffer, _ in
             self?.handle(buffer)
         }
     }
@@ -304,6 +311,19 @@ final class MicRecorder {
         DispatchQueue.main.asyncAfter(deadline: .now() + delay, execute: item)
     }
 
+    private func noteRestart(_ uid: String) {
+        let now = Date()
+        restarts[uid] = (restarts[uid] ?? []).filter { now.timeIntervalSince($0) < 60 } + [now]
+    }
+
+    /// Ein Gerät, das sich innerhalb einer Minute dreimal neu meldet, ist unruhig – typisch für
+    /// Bluetooth-Kopfhörer, die in einem Call zwischen ihren Profilen springen. Jeder Neustart kostet
+    /// ein bis zwei Sekunden Ton, deshalb weicht die Aufnahme dann lieber auf ein stabiles Mikrofon aus.
+    private func isFlapping(_ uid: String) -> Bool {
+        let now = Date()
+        return (restarts[uid] ?? []).filter { now.timeIntervalSince($0) < 60 }.count >= 3
+    }
+
     /// Startet mit demselben Gerät neu oder weicht aus. Meldet einen Wechsel an `onEvent`.
     /// - Returns: false, wenn kein Gerät startet (die Aufnahme wartet dann auf ein neues Gerät)
     @discardableResult
@@ -313,14 +333,24 @@ final class MicRecorder {
         teardownEngine()
 
         var candidates: [AudioInputDeviceInfo] = []
-        if let previous, AudioInputDevices.isAlive(uid: previous.uid) { candidates.append(previous) }
+        let unsteady = previous.map { isFlapping($0.uid) } ?? false
+        if let previous, AudioInputDevices.isAlive(uid: previous.uid), !unsteady { candidates.append(previous) }
         for d in replacements?(previous?.uid ?? "") ?? [] where !candidates.contains(where: { $0.uid == d.uid }) {
             candidates.append(d)
+        }
+        // Das unruhige Gerät bleibt als letzte Möglichkeit stehen – besser als gar keine Aufnahme.
+        if let previous, unsteady, AudioInputDevices.isAlive(uid: previous.uid),
+           !candidates.contains(where: { $0.uid == previous.uid }) {
+            candidates.append(previous)
         }
         for candidate in candidates {
             do {
                 try start(on: candidate, writingTo: url)
-                if let previous, candidate.uid != previous.uid {
+                noteRestart(candidate.uid)
+                if let previous, candidate.uid != previous.uid, unsteady {
+                    Log.info("„\(previous.name)“ meldet sich ständig neu – Aufnahme läuft auf „\(candidate.name)“ weiter")
+                    onEvent?(.switchedDuringRecording(lost: previous.name, used: candidate.name))
+                } else if let previous, candidate.uid != previous.uid {
                     Log.info("Mikrofon gewechselt (\(reason)): „\(previous.name)“ → „\(candidate.name)“ [\(candidate.uid)], "
                              + "\(Int(tapFormat?.sampleRate ?? 0)) Hz, Aufnahme läuft in derselben Datei weiter")
                     onEvent?(.switchedDuringRecording(lost: previous.name, used: candidate.name))
