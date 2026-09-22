@@ -1,6 +1,6 @@
 # Earnote – Roadmap
 
-> Stand: 22.09.2026 (0.9.6) · gepflegt vom Architekten · Versionen sind Arbeitsstände, öffentlich wird erst 1.0.
+> Stand: 22.09.2026 (0.9.7) · gepflegt vom Architekten · Versionen sind Arbeitsstände, öffentlich wird erst 1.0.
 > Beta läuft: [Releases](https://github.com/louiskl/Earnote/releases) · [Anleitung für Tester](BETA.md)
 > Leitlinien: [DESIGN_GUIDELINES.md](DESIGN_GUIDELINES.md) · Aufbau: [ARCHITECTURE.md](ARCHITECTURE.md)
 
@@ -268,6 +268,8 @@ Erst wenn alle drei Blöcke stehen, wird aus 0.9.x die 1.0 – und erst danach b
       Notizen und Transkripte bleiben. Ein Semester Vorlesungen sind sonst schnell 30 GB.
 - [x] **Notiz-Fundstellen mit ⌘G**: Die Suche blättert jetzt auch durch die Notiz, nicht nur durch
       das Transkript. Stehen beide nebeneinander, führt das Transkript den Zähler.
+- [x] **Absturz im Mikrofontest behoben (0.9.7)**: Der Pegel-Block der Einstellungen erbte die
+      MainActor-Isolation; Core Audio ruft ihn auf seinem eigenen Thread auf, und Swift 6 brach dort ab.
 - [x] **Letzte Notizen in der Menüleiste (0.9.6)**: Das Menüleisten-Fenster zeigt die drei neuesten
       Aufnahmen; ein Klick öffnet sie im Hauptfenster. Die README versprach das seit Monaten.
 - [x] **Fassade `AppState` aufgelöst**: siehe Phase 2a/2b
