@@ -101,7 +101,8 @@ private struct ElapsedTime: View {
 }
 
 /// Wellenform: neue Pegel kommen rechts an, alte wandern nach links. Zeichnet nur sich selbst neu.
-private struct StageWaveform: View {
+/// Dieselbe Ansicht steht auch im Fenster der Menüleiste.
+struct StageWaveform: View {
     @ObservedObject var meter: LiveMeter
     let isPaused: Bool
     let reduceMotion: Bool
