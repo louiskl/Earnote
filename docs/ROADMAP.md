@@ -24,7 +24,7 @@
 | 4c | Lernhilfen, Aufgaben-Ziele, Modellwahl, Vorverdichten, Review, Swift 6 | 0.9.3 | ✅ fertig |
 | 4d | Feinschliff: Hilfe-Menü, Speicher aufräumen, ⌘G in der Notiz, Fassade entfernt, letzte Notizen in der Menüleiste | 0.9.6 | ✅ fertig |
 | 4e | Stabilität: vier Abstürze, Tonverlust, iCloud-Schema, Wächter gegen stummes Scheitern | 0.9.7–0.9.13 | ✅ fertig |
-| **Beta** | **Zwei Wochen mit Kommilitonen, danach 1.0** | 0.9.12 | ▶ **läuft** |
+| **Beta** | **Zwei Wochen mit Kommilitonen, danach 1.0** | 0.9.13 | ▶ **läuft seit 22.09.2026** |
 | 5 | Launch: Website, Demo-Video, Homebrew, Beta mit Kommilitonen, Markenrecherche | 1.0 RC | geplant |
 | 🚀 | **Launch Earnote 1.0 für Mac** | 1.0 | |
 | 6 | iPad eigenständig, iPhone als Begleit-App, iCloud-Sync | 1.1 | nach Launch |
@@ -248,7 +248,7 @@ Nicht „wenn nichts mehr einfällt“, sondern wenn diese Punkte abgehakt sind:
 - [x] Teams- und Zoom-Calls am echten Mac aufgenommen (Systemton, Call-Erkennung) – vom Nutzer bestätigt
 - [x] **Gerät gewechselt (0.9.12)**: zwölf Wechsel unter laufender Aufnahme am echten Mac, Datei wächst durch
 - [ ] Rest der Härtefälle am echten Mac: Berechtigung entzogen, Platte voll, Deckel zu
-- [ ] Zwei Wochen Beta mit 5–10 Kommilitonen ohne Datenverlust und ohne Absturz
+- [ ] Zwei Wochen Beta mit 5–10 Kommilitonen ohne Datenverlust und ohne Absturz (**gestartet 22.09.2026**, Ende ~06.10.2026)
 - [x] Swift-6-Sprachmodus an, `LegacyMigration` entfernt
 
 **Drumherum**
@@ -339,7 +339,7 @@ Alles aus echten Abstürzen des Nutzers, nicht aus Tests. Jeder Punkt wurde am G
 - [ ] Hochschule: Fachschaften, Uni-Newsletter, Instagram/TikTok – die Zielgruppe sitzt dort, nicht auf HN
 
 **Beta**
-- [ ] 5–10 Kommilitonen, 1–2 Wochen, echte Vorlesungen ([Anleitung](BETA.md) liegt bereit)
+- [x] **5–10 Kommilitonen angeschrieben (22.09.2026)** – echte Vorlesungen, [Anleitung](BETA.md) verteilt
 - [ ] Rückmeldungen einarbeiten, danach 1.0
 
 ## Phase 6 – iPad & iPhone (1.1)

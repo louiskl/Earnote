@@ -1,0 +1,60 @@
+name: Fehler melden
+description: Etwas funktioniert nicht wie erwartet
+labels: ["Fehler"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Danke, dass du dir die Zeit nimmst. **Bitte füge nichts aus deinen Aufnahmen ein** –
+        Titel, Notizen und Transkripte gehören dir und werden hier öffentlich sichtbar.
+  - type: textarea
+    id: was
+    attributes:
+      label: Was ist passiert?
+      description: Ein, zwei Sätze genügen. Was hast du gemacht, was hast du erwartet, was kam stattdessen?
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Earnote-Version
+      description: Steht in Einstellungen › Über (z. B. 0.9.13)
+      placeholder: "0.9.13"
+    validations:
+      required: true
+  - type: input
+    id: mac
+    attributes:
+      label: Mac und macOS
+      description: Apple-Menü › Über diesen Mac
+      placeholder: "MacBook Air M1, macOS 15.2"
+    validations:
+      required: true
+  - type: dropdown
+    id: wobei
+    attributes:
+      label: Wobei ist es passiert?
+      options:
+        - Beim Aufnehmen
+        - Beim Transkribieren
+        - Beim Schreiben der Notiz
+        - Beim Export
+        - In den Einstellungen
+        - Beim Start der App
+        - Woanders / weiß ich nicht
+    validations:
+      required: true
+  - type: textarea
+    id: protokoll
+    attributes:
+      label: Protokoll (hilft sehr)
+      description: |
+        Einstellungen › Allgemein › „Protokoll öffnen“, die letzten Zeilen hier einfügen.
+        Es enthält keine Gesprächsinhalte – bitte trotzdem kurz drüberschauen.
+      render: text
+  - type: checkboxes
+    id: absturz
+    attributes:
+      label: Ist die App abgestürzt?
+      options:
+        - label: "Ja – dann bitte den Absturzbericht anhängen (Konsole › Absturzberichte › Earnote)"

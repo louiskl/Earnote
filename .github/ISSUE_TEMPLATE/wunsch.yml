@@ -1,0 +1,16 @@
+name: Wunsch oder Idee
+description: Etwas fehlt dir oder könnte einfacher sein
+labels: ["Wunsch"]
+body:
+  - type: textarea
+    id: wunsch
+    attributes:
+      label: Was würdest du dir wünschen?
+      description: Beschreib am besten die Situation, nicht die Lösung – „nach der Vorlesung muss ich immer …“
+    validations:
+      required: true
+  - type: textarea
+    id: heute
+    attributes:
+      label: Wie behilfst du dir heute?
+      description: Freiwillig, hilft aber enorm beim Einschätzen.

@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Anleitung für Tester
+    url: https://github.com/louiskl/Earnote/blob/main/docs/BETA.md
+    about: Wie du Earnote in der Beta am besten ausprobierst
+  - name: Datenschutz
+    url: https://earnote.dev/datenschutz.html
+    about: Was Earnote mit deinen Daten macht (kurz: sie bleiben auf deinem Mac)
