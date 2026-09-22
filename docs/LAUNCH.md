@@ -213,7 +213,7 @@ Ohne Sprecher, nur Bild und ein, zwei Einblendungen. Bildschirmaufnahme in 1440 
 | 30–38 | Klick auf eine Zeitmarke → Ton springt an die Stelle | „Jede Zeitmarke ist ein Knopf" |
 | 38–46 | Rechtsklick → „Lernzettel als PDF", PDF erscheint | |
 | 46–52 | Einstellungen: „Lokale KI", kein Konto zu sehen | „Alles bleibt auf deinem Mac" |
-| 52–58 | Schlussbild: Logo, `louiskl.github.io/Earnote`, „kostenlos · Open Source" | |
+| 52–58 | Schlussbild: Logo, `earnote.dev`, „kostenlos · Open Source" | |
 
 **Aufnehmen mit:** QuickTime („Neue Bildschirmaufnahme") oder ⇧⌘5. Mauszeiger einblenden, keine
 Musik (läuft sonst auf Product Hunt und Reddit stumm ins Leere), lieber ein, zwei Sekunden zu lang
