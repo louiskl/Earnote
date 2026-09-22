@@ -2,16 +2,17 @@ import EarnoteCore
 import SwiftUI
 
 struct MenuBarLabel: View {
-    @EnvironmentObject var app: AppState
+    @Environment(LibraryStore.self) private var library
+    @Environment(RecordingController.self) private var recorder
     @EnvironmentObject var meter: LiveMeter
 
     var body: some View {
-        if app.isRecording {
+        if recorder.isRecording {
             HStack(spacing: 4) {
-                Image(systemName: app.isPaused ? "pause.circle.fill" : "record.circle.fill")
+                Image(systemName: recorder.isPaused ? "pause.circle.fill" : "record.circle.fill")
                 Text(TimeFormat.duration(meter.elapsed)).monospacedDigit()
             }
-        } else if app.recordings.contains(where: { $0.status.isBusy }) {
+        } else if library.recordings.contains(where: { $0.status.isBusy }) {
             Image(systemName: "waveform.badge.magnifyingglass")
         } else {
             Image(systemName: "waveform")

@@ -65,8 +65,9 @@ Anlass: Das USB-Mikrofon der Webcam hing, jede Aufnahme brach mit „avfaudio-Fe
 - [x] Echte **Toolbar** (Aufnehmen/Stopp, Pause, Teilen, Inspector), **Menübefehle** und **Tastenkürzel**, Kontextmenüs
 - [x] `.searchable` über Titel, Notizen und Transkripte
 - [x] Views lesen direkt per `@Query`; `LibraryStore` schreibt nur noch
-- [ ] Rest der Fassade `AppState`: nur noch Menüleiste und Call-Hinweis hängen daran (`EarnoteApp`,
-      `AppEnvironment`, `MenuBarView`, `FloatingPanels`) – entfällt, wenn beide auf die Stores umgestellt sind
+- [x] **Fassade `AppState` entfernt (0.9.5)**: Menüleisten-Symbol liest `LibraryStore` und
+      `RecordingController` direkt, der Call-Hinweis bekommt nur noch eine Funktion zum Starten.
+      104 Zeilen Weiterreichen weniger.
 - [x] Auswahl als Fensterzustand; mehrere Fenster möglich
 - [x] Einstellungen als native `Form`; Einrichtungsassistent überarbeitet
 - [x] Menüleisten-App und Call-Pop-up aufgeräumt (Call-Hinweis zuletzt in 0.9.3)
@@ -266,7 +267,7 @@ Erst wenn alle drei Blöcke stehen, wird aus 0.9.x die 1.0 – und erst danach b
       Notizen und Transkripte bleiben. Ein Semester Vorlesungen sind sonst schnell 30 GB.
 - [x] **Notiz-Fundstellen mit ⌘G**: Die Suche blättert jetzt auch durch die Notiz, nicht nur durch
       das Transkript. Stehen beide nebeneinander, führt das Transkript den Zähler.
-- [ ] Rest der Fassade `AppState` auflösen (Menüleiste und Call-Hinweis auf die Stores umstellen)
+- [x] **Fassade `AppState` aufgelöst**: siehe Phase 2a/2b
 
 ## Phase 5 – Launch (1.0 RC → 1.0)
 

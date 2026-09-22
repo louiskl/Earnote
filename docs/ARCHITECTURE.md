@@ -35,10 +35,6 @@ Plattform- und ML-Code wird über Protokolle aus EarnoteCore eingehängt:
 (z. B. „Einstellung geändert → Call-Erkennung umschalten / Zusammenfassung mit neuem Anbieter neu starten“).
 Neue Typen bekommen ihre Abhängigkeiten übergeben und greifen nicht auf Singletons zu.
 
-`AppState` ist nur noch eine Fassade (unter 100 Zeilen) für die verbliebenen alten Views (Einstellungen, Menüleiste,
-Einrichtungsassistent, Bereichs-Editor) mit `@EnvironmentObject var app: AppState`. Sie leitet weiter und gibt Änderungen
-der Stores als `objectWillChange` weiter. Das neue Hauptfenster benutzt sie nicht; sie wird in Phase 2b entfernt.
-
 Beim Beenden wartet der `AppDelegate` über `LibraryStore.waitForPendingWrites()` auf noch laufende Schreibvorgänge
 (`applicationShouldTerminate` → `.terminateLater`), damit eine gerade angelegte oder umbenannte Sache nicht verloren geht.
 
@@ -139,5 +135,4 @@ Regeln: Views lesen die Bibliothek direkt über `@Query` auf dem gemeinsamen `Mo
 - **Phase 3a/3b erledigt:** Notiz bearbeiten und zurücksetzen (`LibraryRepository.restoreGeneratedNote`), Korrekturen
   (`correctTerm` über Titel, Notiz und Transkript) und das Wörterbuch (`Glossary`, `TermCorrection`). Die Pipeline gibt
   die Begriffe an Spracherkennung (`Transcriber.transcribe(hints:)`) und KI (`SummaryContext.glossary`) weiter.
-- **Offen:** `AppState` wird nur noch vom Menüleistenfenster und vom Call-Hinweis genutzt – mit deren Umbau entfällt die Fassade.
 - **Später – iCloud:** mit Entwicklerkonto `cloudKitDatabase` einschalten; Audio bleibt lokal.

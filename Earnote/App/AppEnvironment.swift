@@ -15,7 +15,6 @@ final class AppEnvironment {
     let library: LibraryStore
     let recorder: RecordingController
     /// Übergang bis Phase 2b: Schnittstelle der noch alten Views (Einstellungen, Einrichtung, Menüleiste, Call-Pop-up)
-    let appState: AppState
     /// Sucht einmal am Tag nach einer neueren Version
     let updates = AppUpdater()
     let cloudSync = CloudSyncStatus()
@@ -61,7 +60,6 @@ final class AppEnvironment {
         let recorder = RecordingController(library: library, detector: MeetingDetector(), audioInputs: AudioInputDevices(),
                                            transcribers: PlatformTranscribers(), llm: llm, precondensed: precondensed,
                                            notify: { Notifier.send($0, $1) })
-        let appState = AppState(library: library, recorder: recorder, llm: llm)
 
         library.willDelete = { [weak recorder] id in recorder?.endIfActive(id) }
         library.onSettingsChanged = { [weak recorder, weak queue, updates] old, new in
@@ -71,9 +69,12 @@ final class AppEnvironment {
             recorder?.updateDetection(enabled: new.meetingDetection)
             if old.ai != new.ai { queue?.aiProviderChanged() }
         }
-        recorder.showCallPrompt = { [weak appState] app in
-            guard let appState else { return }
-            FloatingPanels.shared.showCallPrompt(app: app, state: appState)
+        recorder.showCallPrompt = { [weak recorder, weak library] app in
+            guard let recorder, let library else { return }
+            FloatingPanels.shared.showCallPrompt(app: app) {
+                recorder.startRecording(category: library.category(library.settings.defaultCategoryID),
+                                        sourceApp: app, byCall: true)
+            }
         }
         recorder.hideCallPrompt = { FloatingPanels.shared.hideCallPrompt() }
 
@@ -89,7 +90,6 @@ final class AppEnvironment {
         self.queue = queue
         self.library = library
         self.recorder = recorder
-        self.appState = appState
 
         if library.settings.meetingDetection { recorder.detector.start() }
         Task { await start() }

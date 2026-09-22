@@ -6,7 +6,6 @@ import UserNotifications
 @main
 struct EarnoteApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var delegate
-    @StateObject private var app: AppState
     private let environment: AppEnvironment
 
     init() {
@@ -25,12 +24,13 @@ struct EarnoteApp: App {
             environment = AppEnvironment()
         }
         self.environment = environment
-        _app = StateObject(wrappedValue: environment.appState)
-        delegate.app = environment.appState
+        let recorder = environment.recorder
         let library = environment.library
+        delegate.isRecording = { recorder.isRecording }
+        delegate.stopRecording = { recorder.stopRecording() }
+        delegate.settings = { library.settings }
         delegate.waitForPendingWrites = { await library.waitForPendingWrites() }
         // Globales Kürzel: startet und stoppt im Standardbereich, egal welche App gerade vorn ist
-        let recorder = environment.recorder
         delegate.toggleRecording = {
             if recorder.isRecording {
                 recorder.stopRecording()
@@ -53,10 +53,8 @@ struct EarnoteApp: App {
                 .environment(environment.recorder.audioInputs)
                 .environment(environment.updates)
                 .environment(environment.cloudSync)
-                // Nur für die noch alten Sheets (Bereichs-Editor, Einrichtungsassistent) bis Phase 2b
-                .environmentObject(app)
-                .environmentObject(app.meter)
-                .environmentObject(app.live)
+                .environmentObject(environment.recorder.meter)
+                .environmentObject(environment.recorder.live)
                 .modelContainer(environment.container)
         }
         .windowToolbarStyle(.unified)
@@ -82,21 +80,25 @@ struct EarnoteApp: App {
                 .environment(environment.library)
                 .environment(environment.recorder)
                 .environment(environment.recorder.audioInputs)
-                .environmentObject(app)
-                .environmentObject(app.meter)
-                .environmentObject(app.live)
+                .environmentObject(environment.recorder.meter)
+                .environmentObject(environment.recorder.live)
         } label: {
             MenuBarLabel()
-                .environmentObject(app)
-                .environmentObject(app.meter)
+                .environment(environment.library)
+                .environment(environment.recorder)
+                .environmentObject(environment.recorder.meter)
         }
         .menuBarExtraStyle(.window)
     }
 }
 
 final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDelegate {
-    /// Wird in `EarnoteApp.init` gesetzt
-    var app: AppState?
+    /// Läuft gerade eine Aufnahme? (in `EarnoteApp.init` gesetzt)
+    var isRecording: () -> Bool = { false }
+    /// Aktuelle Einstellungen (für „Fenster beim Start zeigen“)
+    var settings: () -> AppSettings = { AppSettings() }
+    /// Laufende Aufnahme beenden und speichern
+    var stopRecording: () -> Void = {}
     /// Wartet auf noch laufende Schreibvorgänge der Bibliothek (in `EarnoteApp.init` gesetzt)
     var waitForPendingWrites: (@MainActor () async -> Void)?
     /// Aufnahme starten/stoppen für das globale Tastenkürzel (in `EarnoteApp.init` gesetzt)
@@ -127,17 +129,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
             }
         }
         // Nur für Tests: den Call-Hinweis einmal zeigen, ohne dass ein echter Call laufen muss
-        if let demoCall = ProcessInfo.processInfo.environment["EARNOTE_DEMO_CALL"], let state = app {
+        if let demoCall = ProcessInfo.processInfo.environment["EARNOTE_DEMO_CALL"] {
             DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                FloatingPanels.shared.showCallPrompt(app: demoCall, state: state)
+                FloatingPanels.shared.showCallPrompt(app: demoCall) {}
             }
         }
         #endif
-        guard let state = app else { return }
         Log.info("\(AppInfo.name) gestartet")
         // Wer das Fenster beim Start nicht will, ist die App nur in der Menüleiste.
         // Beim allerersten Start bleibt es offen, damit der Einrichtungsassistent erscheint.
-        if !state.settings.openWindowAtLaunch && state.settings.onboardingCompleted {
+        if !settings().openWindowAtLaunch && settings().onboardingCompleted {
             DispatchQueue.main.async {
                 NSApp.windows.filter { $0.identifier?.rawValue.contains("main") == true }.forEach { $0.close() }
             }
@@ -152,14 +153,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { false }
 
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
-        if let state = app, state.isRecording {
+        if isRecording() {
             let alert = NSAlert()
             alert.messageText = "Aufnahme läuft noch"
             alert.informativeText = "Soll die Aufnahme gespeichert werden? Sie wird beim nächsten Start verarbeitet."
             alert.addButton(withTitle: "Speichern & beenden")
             alert.addButton(withTitle: "Abbrechen")
             guard alert.runModal() == .alertFirstButtonReturn else { return .terminateCancel }
-            state.stopRecording()
+            stopRecording()
         }
         // Eine gerade angelegte Notiz, ein neuer Bereich oder ein Umbenennen wird im Hintergrund
         // gespeichert. Erst beenden, wenn das durch ist – sonst geht die letzte Änderung verloren.

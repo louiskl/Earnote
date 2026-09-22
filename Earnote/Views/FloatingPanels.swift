@@ -13,11 +13,11 @@ final class FloatingPanels {
     /// So lange bleibt der Hinweis stehen, wenn niemand reagiert.
     private static let visibleSeconds: UInt64 = 20
 
-    func showCallPrompt(app appName: String, state: AppState) {
+    /// `onRecord` startet die Aufnahme – der Hinweis kennt dafür niemanden außer dieser Funktion.
+    func showCallPrompt(app appName: String, onRecord: @escaping () -> Void) {
         hideCallPrompt(animated: false)
         let view = CallPromptView(appName: appName) { [weak self] in
-            state.startRecording(category: state.category(state.settings.defaultCategoryID),
-                                 sourceApp: appName, byCall: true)
+            onRecord()
             self?.hideCallPrompt()
         } onDismiss: { [weak self] in
             self?.hideCallPrompt()
