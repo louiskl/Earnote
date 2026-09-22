@@ -1,6 +1,6 @@
 # Earnote – Roadmap
 
-> Stand: 22.09.2026 (0.9.5) · gepflegt vom Architekten · Versionen sind Arbeitsstände, öffentlich wird erst 1.0.
+> Stand: 22.09.2026 (0.9.6) · gepflegt vom Architekten · Versionen sind Arbeitsstände, öffentlich wird erst 1.0.
 > Beta läuft: [Releases](https://github.com/louiskl/Earnote/releases) · [Anleitung für Tester](BETA.md)
 > Leitlinien: [DESIGN_GUIDELINES.md](DESIGN_GUIDELINES.md) · Aufbau: [ARCHITECTURE.md](ARCHITECTURE.md)
 
@@ -22,7 +22,7 @@
 | 4a | Härtefälle, öffentliches Repository, Beta-Auslieferung, Sprecherlabels nur bei Calls | 0.8.1–0.8.5 | ✅ fertig |
 | 4b | Reif für andere: Player, englische Oberfläche, Nebeneinander, Suche, Kürzel, Kalender | 0.9.0–0.9.2 | ✅ fertig |
 | 4c | Lernhilfen, Aufgaben-Ziele, Modellwahl, Vorverdichten, Review, Swift 6 | 0.9.3 | ✅ fertig |
-| 4d | Feinschliff: Hilfe-Menü, Speicher aufräumen, ⌘G in der Notiz, Fassade entfernt | 0.9.5 | ✅ fertig |
+| 4d | Feinschliff: Hilfe-Menü, Speicher aufräumen, ⌘G in der Notiz, Fassade entfernt, letzte Notizen in der Menüleiste | 0.9.6 | ✅ fertig |
 | **Beta** | **Zwei Wochen mit Kommilitonen, danach 1.0** | 0.9.5 | ▶ **läuft** |
 | 5 | Launch: Website, Demo-Video, Homebrew, Beta mit Kommilitonen, Markenrecherche | 1.0 RC | geplant |
 | 🚀 | **Launch Earnote 1.0 für Mac** | 1.0 | |
@@ -268,6 +268,8 @@ Erst wenn alle drei Blöcke stehen, wird aus 0.9.x die 1.0 – und erst danach b
       Notizen und Transkripte bleiben. Ein Semester Vorlesungen sind sonst schnell 30 GB.
 - [x] **Notiz-Fundstellen mit ⌘G**: Die Suche blättert jetzt auch durch die Notiz, nicht nur durch
       das Transkript. Stehen beide nebeneinander, führt das Transkript den Zähler.
+- [x] **Letzte Notizen in der Menüleiste (0.9.6)**: Das Menüleisten-Fenster zeigt die drei neuesten
+      Aufnahmen; ein Klick öffnet sie im Hauptfenster. Die README versprach das seit Monaten.
 - [x] **Fassade `AppState` aufgelöst**: siehe Phase 2a/2b
 
 ## Phase 5 – Launch (1.0 RC → 1.0)
