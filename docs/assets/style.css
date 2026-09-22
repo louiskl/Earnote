@@ -197,7 +197,14 @@ h3 { font-size: 18px; margin: 0 0 6px; font-weight: 650; letter-spacing: -0.01em
 /* Befehlszeile in der Feinschrift – lesbar, aber nicht laut */
 .fine code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12.5px;
     background: var(--surface-2); border: 1px solid var(--line); border-radius: 6px; padding: 3px 7px;
-    display: inline-block; margin-top: 4px; word-break: break-all; }
+    display: inline-block; margin-top: 4px; word-break: normal; }
+
+/* Auf dem Handy bricht der Homebrew-Befehl sonst mitten im Wort um. Lieber in einer Zeile
+   lassen und seitlich scrollen – so bleibt er kopierbar und lesbar. */
+@media (max-width: 560px) {
+    .fine code { display: block; white-space: pre; overflow-x: auto; text-align: left;
+        -webkit-overflow-scrolling: touch; }
+}
 
 dl.faq { margin: 0; }
 dl.faq dt { font-weight: 650; margin-top: 22px; }
