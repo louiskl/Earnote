@@ -59,7 +59,9 @@ final class LibraryListingTests: XCTestCase {
     }
 
     func testGroupedByDay() {
-        let sections = LibraryListing.groupedByDay(sample.shuffled(), now: now, calendar: calendar)
+        // Datumsangaben folgen der Sprache; fest auf Deutsch, damit der Test auch auf englischen Rechnern (CI) gilt
+        let sections = LibraryListing.groupedByDay(sample.shuffled(), now: now, calendar: calendar,
+                                                   locale: Locale(identifier: "de_DE"))
         // „Heute“ und „Gestern“ sind übersetzt – geprüft wird die Gruppierung, nicht der Wortlaut.
         XCTAssertEqual(sections.count, 4)
         XCTAssertNotEqual(sections[0].title, sections[1].title)
