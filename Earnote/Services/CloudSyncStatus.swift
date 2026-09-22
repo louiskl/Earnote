@@ -71,7 +71,11 @@ final class CloudSyncStatus {
         let text = parts.isEmpty
             ? "\(ck.localizedDescription) (CKError \(ck.errorCode))"
             : (ck.partialErrorsByItemID?.values.first?.localizedDescription ?? ck.localizedDescription)
-        let log = ([ "CKError \(ck.errorCode): \(ck.localizedDescription)" ] + parts).joined(separator: " | ")
+        // Ohne Teilfehler steht der Grund irgendwo im userInfo (verschachtelter Fehler, Serverantwort).
+        let extra = parts.isEmpty
+            ? (ck as NSError).userInfo.map { "\($0.key)=\(String(describing: $0.value).prefix(300))" }.sorted()
+            : []
+        let log = ([ "CKError \(ck.errorCode): \(ck.localizedDescription)" ] + parts + extra).joined(separator: " | ")
         return (text, log)
     }
 

@@ -107,6 +107,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         UNUserNotificationCenter.current().delegate = self
+        #if DEBUG
+        // Einmaliger Wartungslauf: CloudKit-Schema anlegen, danach beenden (siehe CloudSchemaSetup)
+        if CloudSchemaSetup.isRequested {
+            let ok = CloudSchemaSetup.run()
+            NSApp.reply(toApplicationShouldTerminate: true)
+            exit(ok ? 0 : 1)
+        }
+        #endif
         GlobalShortcut.action = { [weak self] in self?.toggleRecording?() }
         GlobalShortcut.apply(enabled: globalShortcutEnabled)
         #if DEBUG

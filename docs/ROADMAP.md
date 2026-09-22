@@ -389,12 +389,21 @@ das kann nur der Kontoinhaber:
 
    ```bash
    EARNOTE_ICLOUD_DEV_TEAM=KZJJ4FFKXJ python3 scripts/generate_xcodeproj.py
-   open Earnote.xcodeproj      # ⌘R, Einstellungen › Allgemein › iCloud an, App neu starten
+   open Earnote.xcodeproj      # Schema: EARNOTE_INIT_CLOUD_SCHEMA=1 setzen, ⌘R – die App legt das
+                               # Schema an, schreibt es ins Protokoll und beendet sich
    python3 scripts/generate_xcodeproj.py   # danach wieder auf den Normalfall zurück
    ```
 
    Danach in der [CloudKit-Konsole](https://icloud.developer.apple.com/) den Container wählen und
    unter *Schema* → **Deploy Schema Changes** nach Production übernehmen.
+
+   **Warum `EARNOTE_INIT_CLOUD_SCHEMA` und nicht einfach den Schalter anmachen:** Lässt man das
+   Schema nebenbei beim Hochladen echter Daten entstehen, fehlen alle Felder, die dabei zufällig
+   leer waren. Genau das ist am 22.09.2026 passiert – Production kannte `CD_editedAt` auf
+   `CD_LibraryNote` nicht, und CloudKit lehnte **jeden** Export ab
+   („Cannot create or modify field … in production schema“, CKError 12/2006). `CloudSchemaSetup`
+   legt über `initializeCloudKitSchema` jeden Typ mit jedem Feld an. Nach jeder Schema-Änderung
+   wiederholen.
 6. Zwei Wochen allein auf zwei Macs laufen lassen (Duplikate, Konflikte, Löschungen), erst dann für Tester freigeben
 
 Ohne Schritt 1–4 bleibt der Schalter wirkungslos: Die App fällt beim Start auf den lokalen Speicher zurück
