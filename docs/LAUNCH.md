@@ -29,7 +29,7 @@ Kurznachricht, WhatsApp oder Signal:
 
 > Ich hab eine Mac-App gebaut, die Vorlesungen aufnimmt und dir danach die Mitschrift schreibt –
 > komplett auf dem Rechner, ohne Konto und kostenlos. Würdest du die zwei Wochen benutzen und mir
-> sagen, was nervt? Installation: `brew install --cask louiskl/earnote/earnote` oder
+> sagen, was nervt? Installation: `brew tap louiskl/earnote && brew trust louiskl/earnote && brew install --cask earnote` oder
 > https://earnote.dev/
 
 Dazu die [Anleitung für Tester](BETA.md) schicken. Mehr braucht es nicht.

@@ -25,7 +25,7 @@
 | 4d | Feinschliff: Hilfe-Menü, Speicher aufräumen, ⌘G in der Notiz, Fassade entfernt, letzte Notizen in der Menüleiste | 0.9.6 | ✅ fertig |
 | 4e | Stabilität: vier Abstürze, Tonverlust, iCloud-Schema, Wächter gegen stummes Scheitern | 0.9.7–0.9.13 | ✅ fertig |
 | **Beta** | **Zwei Wochen mit Kommilitonen, danach 1.0** | 0.9.13 | ▶ **läuft seit 22.09.2026** |
-| 5 | Launch: Website, Demo-Video, Homebrew, Beta mit Kommilitonen, Markenrecherche | 1.0 RC | geplant |
+| 5 | Launch: Website, Demo-Video, Homebrew, Beta mit Kommilitonen, Markenrecherche | 1.0 RC | ▶ teils fertig (Website, Homebrew, Updates) |
 | 🚀 | **Launch Earnote 1.0 für Mac** | 1.0 | |
 | 6 | iPad eigenständig, iPhone als Begleit-App, iCloud-Sync | 1.1 | nach Launch |
 | 7 | Mac App Store prüfen (Sandbox), Kurs-Gruppen teilen | 1.2 | nach Launch |
@@ -57,7 +57,7 @@ Anlass: Das USB-Mikrofon der Webcam hing, jede Aufnahme brach mit „avfaudio-Fe
 - [x] Mikrofon in den Einstellungen und im Menüleisten-Menü auswählen („Systemstandard“ oder ein bestimmtes Gerät)
 - [x] Gewähltes Gerät fehlt oder reagiert nicht → automatisch auf ein funktionierendes Mikrofon ausweichen und das verständlich sagen
 - [x] Ein Wiederholungsversuch beim Start, sauberes Aufräumen auch beim Stopp aus der Pause
-- [ ] Aufnahme während eines laufenden Teams-/Zoom-Calls zuverlässig (vom Nutzer noch zu testen)
+- [x] Aufnahme während eines laufenden Teams-/Zoom-Calls zuverlässig (vom Nutzer bestätigt)
 - [x] Verständliche Fehlermeldungen ohne Fehlernummern; Diagnose im Log
 - [x] Sicherheitsregeln für Tests mit echten Daten in `CLAUDE.md`
 
@@ -85,10 +85,10 @@ Anlass: Das USB-Mikrofon der Webcam hing, jede Aufnahme brach mit „avfaudio-Fe
 - [x] Whisper-Vorbereitung sichtbar: „Für diesen Mac vorbereiten“ (läuft nach dem Download automatisch), Status „Bereit“
 - [x] Bereichs-Editor als `Form`; Vorlagen-Auswahl als Häkchenliste
 - [x] Altes Design-System gelöscht (`DesignSystem.swift`, `Components.swift`, `Views/Legacy/`), übrig: `Support/Brand.swift`
-- [x] Einstellungen und Assistent lesen `LibraryStore`/`RecordingController` direkt; `AppState` nur noch in Menüleiste und Call-Hinweis
+- [x] Einstellungen und Assistent lesen `LibraryStore`/`RecordingController` direkt (`AppState` ist seit 0.9.5 ganz entfernt)
 - [ ] Vom Nutzer zu prüfen: erster Durchlauf des Assistenten, Whisper-Vorbereitung auf dem eigenen Mac
 
-## Phase 3 – Funktionen für 1.0 (0.7–0.8)
+## ✅ Phase 3 – Funktionen für 1.0 (0.7–0.8)
 **3a Notiz bearbeiten (0.7.2, Fehler behoben in 0.7.3)**
 - [x] Notiz direkt bearbeiten (⌘E), Titel über die Liste ändern, „Auf KI-Fassung zurücksetzen“
 - [x] „Neu zusammenfassen …“ mit anderem Bereich, zusätzlicher Anweisung und wahlweise neuem Transkript
@@ -118,6 +118,12 @@ Anlass: Das USB-Mikrofon der Webcam hing, jede Aufnahme brach mit „avfaudio-Fe
 - [x] Whisper-Modell direkt nach dem Download für den Chip vorbereiten (einmalig, mehrere Minuten)
 - [x] Klare Anzeige im Assistenten („Läuft noch im Hintergrund“), im Hauptfenster und in der Menüleiste, solange geladen oder vorbereitet wird
 
+**3g Export (0.7.5)**
+- [x] Export-Status pro Ziel im Inspector – auch für Ziele, in die noch nie exportiert wurde
+- [x] Einzelnes Ziel erneut exportieren („Erneut“), erfolgreiche Exporte bleiben stehen
+- [x] Hinweis mit „Einrichten …“, wenn ein Ziel eingeschaltet, aber nicht fertig eingerichtet ist
+- [x] Nebenbei: Einstellungen einer älteren Version verlieren keine Ziele mehr (fehlende Felder bekommen Standardwerte)
+
 **3h Schneller fertig (0.8.0)**
 - [x] Transkribieren läuft schon während der Aufnahme (abschnittsweise, Schnitt am letzten fertigen Satz)
 - [x] Nach dem Stopp bleibt nur der letzte Abschnitt – die Warteschlange schreibt direkt die Notiz
@@ -126,12 +132,6 @@ Anlass: Das USB-Mikrofon der Webcam hing, jede Aufnahme brach mit „avfaudio-Fe
 - [ ] Vom Nutzer zu prüfen: Wie viel schneller ist eine 90-Minuten-Vorlesung wirklich fertig?
 - [x] faster-whisper geprüft und verworfen: CTranslate2 hat kein Metal-Backend und liefe auf dem Mac
       nur auf der CPU – langsamer als WhisperKit, dazu mit Python-Abhängigkeit
-
-**3g Export (0.7.5)**
-- [x] Export-Status pro Ziel im Inspector – auch für Ziele, in die noch nie exportiert wurde
-- [x] Einzelnes Ziel erneut exportieren („Erneut“), erfolgreiche Exporte bleiben stehen
-- [x] Hinweis mit „Einrichten …“, wenn ein Ziel eingeschaltet, aber nicht fertig eingerichtet ist
-- [x] Nebenbei: Einstellungen einer älteren Version verlieren keine Ziele mehr (fehlende Felder bekommen Standardwerte)
 
 ## ✅ Phase 4a – Härtefälle und Beta-Auslieferung (0.8.1–0.8.5)
 - [x] Festplatte voll: unter 300 MB startet keine Aufnahme, unter 1,5 GB Hinweis mit Restlaufzeit,
@@ -186,7 +186,7 @@ Ziel: Was eine fremde Person in der ersten Woche braucht, ohne zu fragen.
 
 ---
 
-## Phase 4c – Letzter Schliff vor 1.0 (0.9.3)
+## ✅ Phase 4c – Letzter Schliff vor 1.0 (0.9.3)
 
 **Zielgruppen schärfen**
 - [x] **Karteikarten (0.9.3)**: Die KI schreibt Frage-Antwort-Karten als Abschnitt in die Notiz
@@ -233,42 +233,7 @@ Ziel: Was eine fremde Person in der ersten Woche braucht, ohne zu fragen.
 
 ---
 
-## Wann ist die Mac-App fertig? (Abnahme für 1.0)
-
-Nicht „wenn nichts mehr einfällt“, sondern wenn diese Punkte abgehakt sind:
-
-**Funktion**
-- [x] Phase 4c abgeschlossen (Lernhilfen, Aufgaben nach Erinnerungen, Modellwahl, Vorverdichten)
-- [x] **Anti-Vibecoding-Review (0.9.3)**: Call-Hinweis auf Systemtypografie und -material umgestellt,
-      Farbverlauf am Knopf entfernt, Sonderschrift der Laufzeit ersetzt, Blätter vereinheitlicht,
-      lange Menüs in Untermenüs („Karteikarten“, „Weitergeben“) gegliedert.
-
-**Belastbarkeit** – an echten Daten nachgewiesen, nicht nur im Test
-- [x] **3-Stunden-Vorlesung Ende-zu-Ende bestanden** (21.09.2026, vom Nutzer gefahren): keine Abstürze,
-      Verarbeitung durchgelaufen
-- [x] Teams- und Zoom-Calls am echten Mac aufgenommen (Systemton, Call-Erkennung) – vom Nutzer bestätigt
-- [x] **Gerät gewechselt (0.9.12)**: zwölf Wechsel unter laufender Aufnahme am echten Mac, Datei wächst durch
-- [x] **Härtefälle im Code geprüft (22.09.2026)**: Deckel zu → `willSleep` beendet die Aufnahme sauber
-      und lässt sie verarbeiten; Platte voll → unter 300 MB wird gestoppt und gemeldet (mit Test);
-      Berechtigung entzogen → vor dem Start Hinweis samt Weg in die Systemeinstellungen, währenddessen
-      greift der Wächter auf den Datenfluss nach zehn Sekunden
-- [ ] Dieselben drei Fälle am echten Mac durchspielen (Deckel schließen, Platte füllen, Mikrofonrecht
-      entziehen) – dauert zusammen zehn Minuten und liegt beim Nutzer
-- [ ] Zwei Wochen Beta mit 5–10 Kommilitonen ohne Datenverlust und ohne Absturz (**gestartet 22.09.2026**, Ende ~06.10.2026)
-- [x] Swift-6-Sprachmodus an, `LegacyMigration` entfernt
-
-**Drumherum**
-- [x] Screenshots hell/dunkel in beiden Sprachen (Website, Stand 0.9.3) und Homebrew-Tap
-- [ ] Demo-Video ([Drehbuch](VIDEO.md) liegt bereit)
-- [ ] Markenrecherche Earnote abgeschlossen (liegt beim Nutzer)
-
-Erst wenn alle drei Blöcke stehen, wird aus 0.9.x die 1.0 – und erst danach beginnt Phase 6.
-
----
-
----
-
-## Phase 4d – Feinschliff nach der Beta-Auslieferung (0.9.5)
+## ✅ Phase 4d – Feinschliff nach der Beta-Auslieferung (0.9.5–0.9.6)
 - [x] **Hilfe-Menü**: Apples Platzhalter „Earnote-Hilfe“ führte ins Leere. Jetzt: Projektseite,
       Anleitung für Tester, Fehler melden, Datenschutz, Quelltext.
 - [x] **Speicher aufräumen**: Einstellungen › Allgemein zeigt, wie viel die Audiodateien belegen,
@@ -280,7 +245,7 @@ Erst wenn alle drei Blöcke stehen, wird aus 0.9.x die 1.0 – und erst danach b
       Aufnahmen; ein Klick öffnet sie im Hauptfenster. Die README versprach das seit Monaten.
 - [x] **Fassade `AppState` aufgelöst**: siehe Phase 2a/2b
 
-## ✅ Phase 4e – Stabilität (0.9.7–0.9.12)
+## ✅ Phase 4e – Stabilität (0.9.7–0.9.13)
 
 Alles aus echten Abstürzen des Nutzers, nicht aus Tests. Jeder Punkt wurde am Gerät nachgeprüft.
 
@@ -327,11 +292,47 @@ Alles aus echten Abstürzen des Nutzers, nicht aus Tests. Jeder Punkt wurde am G
 - [ ] Mit eingeschaltetem VoiceOver einmal durch die App gehen (liegt beim Nutzer – ein Durchgang
       mit echtem Vorlesen findet Dinge, die im Quelltext nicht zu sehen sind)
 
+---
+
+## Wann ist die Mac-App fertig? (Abnahme für 1.0)
+
+Nicht „wenn nichts mehr einfällt“, sondern wenn diese Punkte abgehakt sind:
+
+**Funktion**
+- [x] Phase 4c abgeschlossen (Lernhilfen, Aufgaben nach Erinnerungen, Modellwahl, Vorverdichten)
+- [x] **Anti-Vibecoding-Review (0.9.3)**: Call-Hinweis auf Systemtypografie und -material umgestellt,
+      Farbverlauf am Knopf entfernt, Sonderschrift der Laufzeit ersetzt, Blätter vereinheitlicht,
+      lange Menüs in Untermenüs („Karteikarten“, „Weitergeben“) gegliedert.
+
+**Belastbarkeit** – an echten Daten nachgewiesen, nicht nur im Test
+- [x] **3-Stunden-Vorlesung Ende-zu-Ende bestanden** (21.09.2026, vom Nutzer gefahren): keine Abstürze,
+      Verarbeitung durchgelaufen
+- [x] Teams- und Zoom-Calls am echten Mac aufgenommen (Systemton, Call-Erkennung) – vom Nutzer bestätigt
+- [x] **Gerät gewechselt (0.9.12)**: zwölf Wechsel unter laufender Aufnahme am echten Mac, Datei wächst durch
+- [x] **Härtefälle im Code geprüft (22.09.2026)**: Deckel zu → `willSleep` beendet die Aufnahme sauber
+      und lässt sie verarbeiten; Platte voll → unter 300 MB wird gestoppt und gemeldet (mit Test);
+      Berechtigung entzogen → vor dem Start Hinweis samt Weg in die Systemeinstellungen, währenddessen
+      greift der Wächter auf den Datenfluss nach zehn Sekunden
+- [ ] Dieselben drei Fälle am echten Mac durchspielen (Deckel schließen, Platte füllen, Mikrofonrecht
+      entziehen) – dauert zusammen zehn Minuten und liegt beim Nutzer
+- [ ] Zwei Wochen Beta mit 5–10 Kommilitonen ohne Datenverlust und ohne Absturz (**gestartet 22.09.2026**, Ende ~06.10.2026)
+- [x] Swift-6-Sprachmodus an, `LegacyMigration` entfernt
+
+**Drumherum**
+- [x] Screenshots hell/dunkel in beiden Sprachen (Website, Stand 0.9.13) und Homebrew-Tap
+- [ ] Demo-Video ([Drehbuch](VIDEO.md) liegt bereit)
+- [ ] Markenrecherche Earnote abgeschlossen (liegt beim Nutzer)
+
+Erst wenn alle drei Blöcke stehen, wird aus 0.9.x die 1.0 – und erst danach beginnt Phase 6.
+
+---
+
 ## Phase 5 – Launch (1.0 RC → 1.0)
 
 **Name & Recht** (liegt beim Nutzer)
 - [ ] Markenrecherche Earnote (DPMA, EUIPO, USPTO; Klassen 9 und 42)
-- [ ] Domain sichern (earnote.app o. ä.), Instagram-/TikTok-Namen sichern
+- [x] Domain: **earnote.dev** (22.09.2026) – gekauft vor Abschluss der Markenrecherche
+- [ ] Instagram-/TikTok-Namen sichern
 - [x] Impressum und Datenschutzhinweis für die Website (`docs/impressum.html`, verlinkt aus beiden Sprachen)
 
 **Website** (Hauptweg zum Download)
@@ -341,10 +342,10 @@ Alles aus echten Abstürzen des Nutzers, nicht aus Tests. Jeder Punkt wurde am G
       „bleibt auf deinem Mac“ · Voraussetzungen · FAQ · Link zu GitHub
 - [x] **Impressum nach § 5 TMG** als eigene Seite (`impressum.html`), aus beiden Sprachen verlinkt
 - [ ] Demo-Video (30–60 s) – Drehbuch und Anleitung liegen bereit: [VIDEO.md](VIDEO.md)
-- [ ] Screenshots in Hell und Dunkel, deutsch und englisch
+- [x] Screenshots in Hell und Dunkel, deutsch und englisch (Stand 0.9.13, `docs/assets/`)
 
 **Verteilung**
-- [ ] **Direkt-Download** als Hauptweg: notarisierte DMG über GitHub Releases (läuft bereits)
+- [x] **Direkt-Download** als Hauptweg: notarisierte DMG über GitHub Releases
 - [x] **Homebrew (0.9.3)**: eigener Tap [louiskl/homebrew-earnote](https://github.com/louiskl/homebrew-earnote) –
       `brew tap louiskl/earnote && brew trust louiskl/earnote && brew install --cask earnote`.
       Der offizielle `homebrew-cask` nimmt Selbsteinreichungen erst ab 225 Sternen (oder 90 Forks/Watchern)
@@ -479,39 +480,37 @@ E-Mail aus einer Kanzlei, Praxis oder IT-Abteilung. Bis dahin gilt: Nachfragen s
 
 | Frage | Empfehlung | Fällig bis |
 |---|---|---|
-| Launch-Termin | Beta ab sofort mit Kommilitonen, Launch Ende Oktober zum Semesterstart – nur wenn die Beta keine groben Fehler zeigt; sonst Anfang Januar vor der Klausurenphase | nach Phase 4c |
+| Launch-Termin | Launch Ende Oktober zum Semesterstart – nur wenn die Beta keine groben Fehler zeigt; sonst Anfang Januar vor der Klausurenphase | nach der Beta (~06.10.2026) |
 | Start von iPad/iPhone | **Nach 1.0.** Vorher nur weiter darauf achten, dass der Kern iOS-tauglich bleibt (Build läuft mit) | nach 1.0 |
 | Mac App Store | **Vorerst nein.** Direkt-Download plus Homebrew deckt die Zielgruppe ab; die Sandbox würde Systemton und Export einschränken. Nach 1.0 neu bewerten | nach 1.0 |
-| ~~Englische Oberfläche~~ | erledigt in 0.9.1 | ✅ |
-| Sparkle (automatische Updates) | Erst bei nennenswerter Nutzerzahl; bis dahin reicht der Hinweis mit Download-Link | nach 1.0 |
 | Windows/Linux | **Zurückgestellt.** Kein Port, sondern ein zweites Produkt (CoreML, MLX, SwiftUI gibt es dort nicht). Erst iPad/iPhone, danach neu bewerten – zuerst denkbar: schlanke Windows-Begleitung, die nur aufnimmt | nach 1.1 |
 | Geld verdienen | **Erst nach 1.0.** Kostenlos für private und studentische Nutzung, Pro-Lizenz für Organisationen, einmalig statt Abo, kein Server, keine Konten (Phase 8) | nach 1.0 |
-| Lokales Standardmodell | nach dem Modellvergleich mit echten Vorlesungen | Phase 4c |
-| Domain | erst nach der Markenrecherche kaufen | vor Phase 5 |
+| Lokales Standardmodell | Vorerst „Automatisch“ nach Arbeitsspeicher (bis 16 GB Qwen3 4B, darüber Qwen2.5 7B); endgültig nach dem Modellvergleich mit echten Vorlesungen | vor 1.0 |
 
 ## Erledigte Entscheidungen (Auszug)
 Earnote als Name (vorbehaltlich Prüfung) · MIT & kostenlos · Zielgruppe Studierende · eigenständige Bibliothek,
 Export optional · WhisperKit + lokales MLX-Modell als Standard · native macOS-Oberfläche nach Design-Guidelines ·
 SwiftData mit iCloud-tauglichem Schema · Audio wird nie synchronisiert · macOS 15 als Mindestversion ·
 öffentliches GitHub-Repository unter `louiskl/Earnote` · Veröffentlichung als notarisierte DMG vom Mac aus,
-nicht über die CI (das Zertifikat bleibt lokal)
+nicht über die CI (das Zertifikat bleibt lokal) · englische Oberfläche (0.9.1) · Sparkle für Updates (0.9.4) ·
+Domain earnote.dev (22.09.2026)
 
 ---
 
-## iCloud-Sync einschalten – was noch fehlt
+## iCloud-Sync – Einrichtung und Schema-Pflege
 
-Der Code ist vorbereitet (Schalter in Einstellungen › Allgemein, Container `iCloud.app.earnote.Earnote`,
-Rückfall auf den lokalen Speicher, wenn die Berechtigung fehlt). Was noch im Entwicklerportal passieren muss –
-das kann nur der Kontoinhaber:
+**Stand 22.09.2026: Schritte 1–5 erledigt, der Abgleich läuft** (siehe Phase 6). Offen ist nur Schritt 6.
+Die Liste bleibt als Anleitung stehen – Schritt 5 muss nach **jeder Schema-Änderung** wiederholt werden,
+und das Profil aus Schritt 3 liegt nur lokal (`scripts/*.provisionprofile` steht in `.gitignore`).
 
-1. **iCloud-Container anlegen**: `iCloud.app.earnote.Earnote` (Certificates, Identifiers & Profiles › Identifiers › iCloud Containers)
-2. **App-ID `app.earnote.Earnote`** um die Fähigkeit **iCloud (CloudKit)** erweitern und den Container zuordnen
-3. **Provisioning-Profil vom Typ „Developer ID“** mit dieser App-ID erzeugen, herunterladen und in `scripts/`
+1. ✅ **iCloud-Container anlegen**: `iCloud.app.earnote.Earnote` (Certificates, Identifiers & Profiles › Identifiers › iCloud Containers)
+2. ✅ **App-ID `app.earnote.Earnote`** um die Fähigkeit **iCloud (CloudKit)** erweitern und den Container zuordnen
+3. ✅ **Provisioning-Profil vom Typ „Developer ID“** mit dieser App-ID erzeugen, herunterladen und in `scripts/`
    ablegen; `build_release.sh` muss es als `embedded.provisionprofile` in die App kopieren
-4. **Erledigt, sobald das Profil liegt:** `Earnote-iCloud.entitlements` und der Einbau des Profils
+4. ✅ **Erledigt, sobald das Profil liegt:** `Earnote-iCloud.entitlements` und der Einbau des Profils
    in `build_release.sh` stehen schon – beides schaltet sich automatisch ein.
-5. **CloudKit-Schema anlegen und nach Production übernehmen.** Eine mit Developer ID signierte App
-   spricht die Production-Umgebung, dort lässt sich aber kein Schema anlegen. Deshalb einmalig:
+5. ✅ **CloudKit-Schema anlegen und nach Production übernehmen.** Eine mit Developer ID signierte App
+   spricht die Production-Umgebung, dort lässt sich aber kein Schema anlegen. Deshalb über die Entwicklungsumgebung:
 
    ```bash
    EARNOTE_ICLOUD_DEV_TEAM=KZJJ4FFKXJ python3 scripts/generate_xcodeproj.py
@@ -530,7 +529,7 @@ das kann nur der Kontoinhaber:
    („Cannot create or modify field … in production schema“, CKError 12/2006). `CloudSchemaSetup`
    legt über `initializeCloudKitSchema` jeden Typ mit jedem Feld an. Nach jeder Schema-Änderung
    wiederholen.
-6. Zwei Wochen allein auf zwei Macs laufen lassen (Duplikate, Konflikte, Löschungen), erst dann für Tester freigeben
+6. [ ] Zwei Wochen allein auf zwei Macs laufen lassen (Duplikate, Konflikte, Löschungen), erst dann für Tester freigeben
 
-Ohne Schritt 1–4 bleibt der Schalter wirkungslos: Die App fällt beim Start auf den lokalen Speicher zurück
+Fehlt das Profil (z. B. auf einem neuen Build-Mac), bleibt der Schalter wirkungslos: Die App fällt beim Start auf den lokalen Speicher zurück
 und schreibt den Grund ins Protokoll. Ein Datenverlust kann dabei nicht entstehen.
