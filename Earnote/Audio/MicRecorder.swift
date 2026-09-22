@@ -6,6 +6,7 @@ import CoreAudio
 /// Nimmt ein bestimmtes Mikrofon auf. Verschwindet das Gerät während der Aufnahme (abgezogen, Bluetooth weg)
 /// oder wechselt macOS die Konfiguration, läuft die Aufnahme in derselben Datei mit einem Ersatzgerät weiter.
 /// Jeder Start und jeder Wechsel nutzt eine frische `AVAudioEngine`, damit kein halb gestarteter Zustand bleibt.
+/// Die alte wird dabei nicht sofort freigegeben, sondern über `retire()` (siehe dort).
 final class MicRecorder {
     /// Startfehler eines einzelnen Geräts (technische Details nur fürs Protokoll)
     struct StartFailure: Error, CustomStringConvertible {
@@ -98,8 +99,10 @@ final class MicRecorder {
     func start(on device: AudioInputDeviceInfo, writingTo url: URL) throws {
         let createsFile = file == nil
         var formatText = "Format unbekannt"
+        var created: AVAudioEngine?
         do {
             let engine = try makeEngine(for: device)
+            created = engine
             let format = engine.inputNode.outputFormat(forBus: 0)
             formatText = "\(Int(format.sampleRate)) Hz, \(format.channelCount) Kanäle"
             guard format.sampleRate > 0, format.channelCount > 0 else {
@@ -113,6 +116,7 @@ final class MicRecorder {
             }
             try run(engine, device: device)
         } catch {
+            created?.retire()
             if createsFile {
                 lock.lock(); file = nil; converter = nil; lock.unlock()
                 try? FileManager.default.removeItem(at: url)
@@ -129,12 +133,16 @@ final class MicRecorder {
         }
         let engine = AVAudioEngine()
         guard let unit = engine.inputNode.audioUnit else {
+            engine.retire()
             throw NSError(domain: AppInfo.name, code: 3, userInfo: [NSLocalizedDescriptionKey: "Kein Eingang an der Audio-Engine"])
         }
         var deviceID = id
         let status = AudioUnitSetProperty(unit, kAudioOutputUnitProperty_CurrentDevice, kAudioUnitScope_Global, 0,
                                           &deviceID, UInt32(MemoryLayout<AudioDeviceID>.size))
-        guard status == noErr else { throw CoreAudioError(what: "Gerät an der Audio-Engine setzen", status: status) }
+        guard status == noErr else {
+            engine.retire()
+            throw CoreAudioError(what: "Gerät an der Audio-Engine setzen", status: status)
+        }
         return engine
     }
 
@@ -250,6 +258,7 @@ final class MicRecorder {
         if let engine {
             engine.inputNode.removeTap(onBus: 0)
             engine.stop()
+            engine.retire()
         }
         engine = nil
     }
@@ -414,5 +423,22 @@ final class MicRecorder {
         Log.error("Mikrofon (\(reason)): kein Ersatzgerät startet, Aufnahme wartet auf ein Mikrofon")
         if let previous { onEvent?(.lostWithoutReplacement(lost: previous.name)) }
         return false
+    }
+}
+
+extension AVAudioEngine {
+    private final class Hold: @unchecked Sendable {
+        let engine: AVAudioEngine
+        init(_ engine: AVAudioEngine) { self.engine = engine }
+    }
+
+    /// Statt die Engine sofort loszulassen: noch ein paar Sekunden festhalten, dann auf dem Main-Thread freigeben.
+    /// Ändert sich die Geräteliste (Kopfhörer an/ab), stellt AVFoundation der IO-Unit Meldungen auf ihrer eigenen
+    /// Warteschlange zu. Wird die Engine genau dann freigegeben, greift so eine Meldung ins Leere – die App stürzt
+    /// ab (beobachtet im Mikrofontest der Einstellungen, 0.9.14). Aufrufen, nachdem die Engine gestoppt ist.
+    // ponytail: feste 3 s statt Abwarten der Warteschlange; reicht, solange Meldungen nicht länger hängen.
+    func retire() {
+        let hold = Hold(self)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3) { withExtendedLifetime(hold) {} }
     }
 }

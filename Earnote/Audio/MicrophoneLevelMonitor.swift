@@ -52,7 +52,7 @@ final class MicrophoneLevelMonitor: ObservableObject {
                                  &deviceID, UInt32(MemoryLayout<AudioDeviceID>.size))
         }
         let format = engine.inputNode.outputFormat(forBus: 0)
-        guard format.sampleRate > 0, format.channelCount > 0 else { failed = true; return }
+        guard format.sampleRate > 0, format.channelCount > 0 else { engine.retire(); failed = true; return }
         let box = box
         // @Sendable ist Pflicht: sonst erbt der Block die Isolation von `start` (MainActor), und Swift 6
         // bricht ab, sobald Core Audio ihn auf seinem eigenen Thread aufruft.
@@ -65,6 +65,7 @@ final class MicrophoneLevelMonitor: ObservableObject {
         } catch {
             engine.inputNode.removeTap(onBus: 0)
             engine.stop()
+            engine.retire()
             failed = true
             Log.info("Mikrofontest: „\(device.name)“ startet nicht (\((error as NSError).domain) \((error as NSError).code))")
             return
@@ -89,6 +90,8 @@ final class MicrophoneLevelMonitor: ObservableObject {
         if let engine {
             engine.inputNode.removeTap(onBus: 0)
             engine.stop()
+            // Nicht sofort freigeben: Der Neustart kommt oft genau dann, wenn sich die Geräteliste ändert (siehe `retire`)
+            engine.retire()
         }
         engine = nil
         isRunning = false
