@@ -1,7 +1,10 @@
 name: Tests
 
-# Läuft bei jedem Push und bei Pull Requests. Bewusst nur die Kern-Tests und der iOS-Build des Kerns:
-# Sie brauchen weder WhisperKit noch MLX und sind in Minuten durch.
+# Läuft bei jedem Push und bei Pull Requests, in zwei Jobs nebeneinander:
+# - Kern-Tests und iOS-Build des Kerns: ohne WhisperKit und MLX, in Minuten durch.
+# - App bauen und testen: die ganze Mac-App samt WhisperKit, MLX und Sparkle, danach die App-Tests
+#   (`Tests/`). Dauert länger, fängt aber Fehler, die der Kern allein nicht sieht. Signiert wird
+#   ad hoc, wie im Projekt ohne Team voreingestellt; die Tests laufen in einem leeren Temp-Ordner.
 #
 # Die veröffentlichte DMG entsteht nicht hier, sondern auf dem Mac mit `./scripts/build_release.sh`.
 # Grund: Signieren und Notarisieren brauchen das Developer-ID-Zertifikat, und das gehört nicht als
@@ -37,3 +40,33 @@ jobs:
       - name: iOS-Build des Kerns
         working-directory: Packages/EarnoteKit
         run: xcodebuild build -scheme EarnoteCore -destination 'generic/platform=iOS' | tail -5
+
+  app:
+    name: App bauen und testen
+    runs-on: macos-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Xcode-Version anzeigen
+        run: xcodebuild -version
+
+      # MLX übersetzt Metal-Shader; die Werkzeuge dafür lädt Xcode seit Version 26 getrennt nach
+      - name: Metal-Werkzeuge laden
+        run: xcodebuild -downloadComponent MetalToolchain
+
+      - name: Pakete cachen
+        uses: actions/cache@v4
+        with:
+          path: build/SourcePackages
+          key: app-spm-${{ runner.os }}-${{ hashFiles('Earnote.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}
+          restore-keys: app-spm-${{ runner.os }}-
+
+      - name: App bauen und App-Tests ausführen
+        run: >
+          xcodebuild test -quiet
+          -project Earnote.xcodeproj -scheme Earnote -configuration Debug
+          -destination 'platform=macOS'
+          -derivedDataPath build
+          -clonedSourcePackagesDirPath build/SourcePackages
+          -skipMacroValidation -skipPackagePluginValidation
