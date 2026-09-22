@@ -188,8 +188,8 @@ HN verzeiht keine Werbesprache. Nüchtern, technisch, ehrlich über Grenzen.
 |---|---|
 | [AlternativeTo](https://alternativeto.net) | Als Alternative zu Otter.ai, Granola, Fireflies.ai eintragen |
 | [openalternative.co](https://openalternative.co) | Open-Source-Alternative zu Otter.ai |
-| [awesome-mac](https://github.com/jaywcjlove/awesome-mac) | Pull Request unter „Audio and Video" |
-| [awesome-macos-apps](https://github.com/iCHAIT/awesome-macOS) | Pull Request |
+| [awesome-mac](https://github.com/jaywcjlove/awesome-mac) | PR [#2951](https://github.com/jaywcjlove/awesome-mac/pull/2951) offen (Note-taking) |
+| [awesome-macOS](https://github.com/iCHAIT/awesome-macOS) | PR [#1136](https://github.com/iCHAIT/awesome-macOS/pull/1136) offen (Productivity) |
 | Homebrew | läuft bereits über den eigenen Tap |
 
 Kurztext für alle Verzeichnisse:
@@ -199,7 +199,93 @@ Kurztext für alle Verzeichnisse:
 
 ---
 
-## 7. Demo-Video (30–60 Sekunden)
+## 7. Menschen, die über Mac-Apps reden
+
+Der lohnendste Kanal nach den Kommilitonen – und der, bei dem die meisten alles falsch machen.
+
+**Die drei Regeln, ohne die es nicht funktioniert:**
+
+1. **Kein Verteiler.** Eine Mail an zwanzig Leute im BCC erkennt jeder sofort und niemand antwortet.
+   Ein persönlicher erster Satz, der zeigt, dass du die Person kennst, schlägt jeden perfekten Text.
+2. **Nichts anhängen.** Keine DMG, keine Pressemappe als ZIP. Ein Link, fertig.
+3. **Nicht um eine Nennung bitten.** Du schenkst etwas her, das nichts kostet. Wenn es taugt,
+   berichten sie von selbst; wenn nicht, hätte Betteln auch nicht geholfen.
+
+### Deutschsprachig
+
+| Wer | Wo | Warum passend |
+|---|---|---|
+| Kevin Chromik | YouTube | Apple-Alltag und Tipps, große deutsche Reichweite |
+| Luis Newton | YouTube | Mac-Software und Produktivität |
+| Apfeltalk (Forum + YouTube) | Forum, YouTube | Bereich Mac-Software – dort selbst posten statt anschreiben |
+| iPhone-Ticker.de | Blog | bringt regelmäßig kostenlose Mac-Tools in kurzen Meldungen |
+| Macwelt | Magazin, Online | Software-Fundstücke |
+| Mac Life Deutschland | Magazin | Testberichte kleiner Apps |
+| Studi-Kanäle auf TikTok/Instagram | Social | Lernorganisation und Prüfungsphase – genau deine Zielgruppe |
+
+### International
+
+| Wer | Wo | Warum passend |
+|---|---|---|
+| MacStories | Blog | berichtet ernsthaft über kleine Mac-Apps |
+| Six Colors (Jason Snell) | Blog | Apple-Software mit Substanz |
+| 9to5Mac | Blog | Listen der besten Mac-Apps |
+| Snazzy Labs, Christopher Lawley | YouTube | Mac-Werkzeuge und Produktivität |
+| The Sweet Setup | Blog | Empfehlungen, die lange gelesen werden |
+
+### Die Mail, die du schickst (deutsch)
+
+**Betreff:** Earnote – Vorlesungen mitschreiben, komplett offline auf dem Mac
+
+> Hallo [Name],
+>
+> [**ein persönlicher Satz** – welches Video, welcher Artikel, und warum du glaubst, dass es passt.
+> Ohne diesen Satz brauchst du die Mail nicht zu schicken.]
+>
+> Ich bin Student und habe **Earnote** gebaut: Die App nimmt eine Vorlesung auf, transkribiert sie mit
+> Whisper und schreibt daraus eine Notiz mit Zusammenfassung und Aufgaben. Das Besondere ist, dass
+> beides – Spracherkennung und KI – **auf dem Mac selbst** läuft. Kein Konto, kein Abo, keine Cloud,
+> quelloffen unter MIT.
+>
+> Dass es kostenlos ist, ist kein Einstiegsangebot: Es gibt keine Server, die bezahlt werden müssten.
+>
+> https://earnote.dev/
+>
+> Falls es dich interessiert, schicke ich gern mehr Hintergrund oder beantworte Fragen. Und falls
+> nicht, ist das völlig in Ordnung – dann freue ich mich trotzdem, wenn du kurz reinschaust.
+>
+> Viele Grüße
+> Louis
+
+### Dieselbe Mail auf Englisch
+
+**Subject:** Earnote – lecture notes that never leave your Mac
+
+> Hi [Name],
+>
+> [**one personal sentence** – which video or article, and why you think this fits.]
+>
+> I'm a student and built **Earnote**: it records a lecture, transcribes it with Whisper and writes a
+> structured note with a summary and tasks. Both the speech recognition and the language model run
+> **on the Mac itself** — no account, no subscription, nothing uploaded. Open source, MIT.
+>
+> It being free isn't a trial: there are no servers to pay for.
+>
+> https://earnote.dev/
+>
+> Happy to send more background if it's interesting, and completely fine if it isn't.
+>
+> Best
+> Louis
+
+**Zeitpunkt:** Erst nach dem Demo-Video anschreiben. Wer über Apps berichtet, will in dreißig
+Sekunden sehen, was die App macht – ohne sie zu installieren. Ohne Video landet deine Mail im
+Stapel „später ansehen“ und damit nirgends.
+
+**Wie viele antworten?** Bei zehn persönlichen Mails sind ein bis zwei Antworten normal und ein
+Beitrag ein gutes Ergebnis. Das ist kein Misserfolg, das ist der Schnitt.
+
+## 8. Demo-Video (30–60 Sekunden)
 
 Ohne Sprecher, nur Bild und ein, zwei Einblendungen. Bildschirmaufnahme in 1440 × 900, hell.
 
@@ -222,7 +308,7 @@ starten – dann sind echte Daten nicht im Bild.
 
 ---
 
-## 8. Antworten auf die Fragen, die sicher kommen
+## 9. Antworten auf die Fragen, die sicher kommen
 
 **„Ist das legal?"**
 Das nichtöffentlich gesprochene Wort ist in Deutschland geschützt (§ 201 StGB). Hol vor jeder
@@ -250,7 +336,7 @@ in den Einstellungen steht, wie viel gerade belegt ist.
 
 ---
 
-## 9. Was noch fehlt, bevor das alles rausgeht
+## 10. Was noch fehlt, bevor das alles rausgeht
 
 - [ ] Markenrecherche abgeschlossen (DPMA, EUIPO, USPTO; Klassen 9 und 42)
 - [ ] Domain gesichert, Instagram/TikTok-Namen gesichert
