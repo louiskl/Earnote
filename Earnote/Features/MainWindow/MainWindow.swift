@@ -137,6 +137,13 @@ struct MainWindow: View {
             #endif
         }
         .onReceive(NotificationCenter.default.publisher(for: .showOnboarding)) { _ in showOnboarding = true }
+        // Aus der Menüleiste gewählt: Diese Aufnahme zeigen, auch wenn gerade ein Bereich gefiltert ist
+        .onReceive(NotificationCenter.default.publisher(for: .showRecording)) { notification in
+            guard let id = notification.object as? UUID else { return }
+            if let recording = library.recording(id), !filter.wrappedValue.matches(recording) { filter.wrappedValue = .all }
+            selection.wrappedValue = id
+            detailMode.wrappedValue = .note
+        }
         .onChange(of: library.categories.map(\.id)) { _, ids in
             // Gelöschter Bereich war ausgewählt → zurück zu „Alle Aufnahmen“
             if let id = selectedCategoryID, !ids.contains(id) { filter.wrappedValue = .all }

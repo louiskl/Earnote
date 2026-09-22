@@ -158,4 +158,6 @@ enum AudioImportPanel {
 extension Notification.Name {
     /// Einrichtungsassistent erneut zeigen (aus den Einstellungen)
     static let showOnboarding = Notification.Name("\(AppInfo.bundleIdentifier).showOnboarding")
+    /// Eine bestimmte Aufnahme im Hauptfenster zeigen (aus der Menüleiste); `object` ist ihre UUID
+    static let showRecording = Notification.Name("\(AppInfo.bundleIdentifier).showRecording")
 }

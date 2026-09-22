@@ -54,6 +54,7 @@ struct MenuBarView: View {
                 MicrophoneChoiceMenu(maxNameLength: 26)
                     .labelsHidden()
             }
+            if !recorder.isRecording { recentNotes }
             ModelStatusRow()
             Divider()
             Button("Hauptfenster öffnen") { MainWindowOpener.showOrOpen(openWindow) }
@@ -99,6 +100,44 @@ struct MenuBarView: View {
                 }
                 .buttonStyle(.plain)
                 .accessibilityAddTraits(selected ? [.isSelected] : [])
+            }
+        }
+    }
+
+    /// Die drei jüngsten Aufnahmen – ein Klick öffnet die Notiz im Hauptfenster.
+    /// Nach einer Vorlesung ist genau das der Weg: Menüleiste, Titel, lesen.
+    @ViewBuilder private var recentNotes: some View {
+        let recent = Array(library.recordings.prefix(3))
+        if !recent.isEmpty {
+            Divider()
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Zuletzt")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                ForEach(recent) { recording in
+                    Button {
+                        MainWindowOpener.showOrOpen(openWindow)
+                        NotificationCenter.default.post(name: .showRecording, object: recording.id)
+                    } label: {
+                        HStack(spacing: 8) {
+                            Text(recording.displayTitle)
+                                .truncationMode(.middle)
+                            Spacer(minLength: 0)
+                            if recording.status.isBusy {
+                                ProgressView().controlSize(.small)
+                            } else if recording.taskCount > 0 {
+                                Text("\(recording.taskCount)")
+                                    .font(.caption.monospacedDigit())
+                                    .foregroundStyle(.secondary)
+                                    .help("Offene Aufgaben")
+                            }
+                        }
+                        .contentShape(Rectangle())
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                    }
+                    .buttonStyle(.plain)
+                }
             }
         }
     }

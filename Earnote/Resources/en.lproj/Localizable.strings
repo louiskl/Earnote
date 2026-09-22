@@ -1109,3 +1109,4 @@
 "Audio von einer Aufnahme löschen?" = "Delete audio of one recording?";
 "Audio von %lld Aufnahmen löschen?" = "Delete audio of %lld recordings?";
 "Notizen und Transkripte bleiben erhalten. Nur das Nachhören und das erneute Transkribieren fallen weg." = "Notes and transcripts stay. Only listening back and re-transcribing go away.";
+"Zuletzt" = "Recent";
