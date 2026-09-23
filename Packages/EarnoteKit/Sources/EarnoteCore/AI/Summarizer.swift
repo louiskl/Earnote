@@ -435,6 +435,18 @@ public struct Summarizer: Sendable {
         }
     }
 
+    /// Schreibt eine vorhandene Notiz neu – für „Vereinfachen“ und wenn es kein Transkript gibt (Übersicht eines
+    /// Bereichs). Ohne Verdichten und ohne Prüfung gegen ein Transkript: Die Notiz wurde beim Entstehen schon geprüft.
+    /// Der Umfang bleibt etwa wie bisher (die Längenvorgabe zielt auf ein Sechstel des Gesprochenen).
+    public func rewrite(_ markdown: String, context: SummaryContext,
+                        draft: @escaping @Sendable (String) -> Void = { _ in },
+                        progress: @escaping @Sendable (Double) -> Void) async throws -> Summary {
+        var context = context
+        context.glossary = Glossary.relevant(context.glossary, in: markdown)
+        return try await finalNotes(markdown, context: context, isNotes: true, words: Self.spokenWordCount(markdown) * 6,
+                                    progress: MonotonicProgress(progress), draft: draft)
+    }
+
     /// Eine Verdichtungsrunde: Das Material wird in Abschnitte geteilt und jeder zu Notizen zusammengefasst.
     private func condense(_ material: String, limit: Int, context: SummaryContext,
                           progress: (Int, Int) -> Void) async throws -> String {

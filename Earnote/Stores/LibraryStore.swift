@@ -271,14 +271,9 @@ final class LibraryStore: RecordingLibrary {
                 lastError = String(localized: "Für Karteikarten braucht es eine KI. Wähle in den Einstellungen unter „KI“ eine aus.")
                 return nil
             }
-            // Eine ausführliche Notiz enthält schon, was sich abzufragen lohnt. Das Transkript kommt nur bei knappen
-            // Notizen dazu – es verdoppelt sonst fast die Rechenzeit der lokalen KI.
-            let material: String
-            if note.markdown.count >= 1_500 {
-                material = note.markdown
-            } else {
-                material = note.markdown + "\n\n" + (await self.transcript(id)?.formatted(includeSpeakers: false) ?? "")
-            }
+            // Die Notiz enthält schon, was sich abzufragen lohnt – das Transkript verdoppelte fast die Rechenzeit.
+            // So klappt es auch bei Übersichten und Aufnahmen ohne Transkript.
+            let material = note.markdown
             let total = Flashcards.count(for: material)
             flashcardProgress[id] = (0, total)
             let cards = try await Flashcards.generate(client: client, material: material, language: settings.ai.summaryLanguage,
@@ -449,18 +444,19 @@ final class LibraryStore: RecordingLibrary {
 
     // MARK: Verarbeitung
 
-    func enqueue(_ id: UUID, next: Bool = false, instruction: String = "") {
-        queue.enqueue(id, next: next, instruction: instruction)
+    func enqueue(_ id: UUID, next: Bool = false, instruction: String = "", request: SummaryRequest = .ifMissing) {
+        queue.enqueue(id, next: next, instruction: instruction, request: request)
     }
 
-    /// Alles neu: Transkription, Zusammenfassung, Export.
+    /// Notiz neu schreiben und neu exportieren; auf Wunsch vorher neu transkribieren.
     /// `instruction` gilt nur für diesen Durchgang (z. B. „Kürzer fassen, auf Formeln achten“).
-    func reprocess(_ id: UUID, retranscribe: Bool, instruction: String = "") {
+    /// `fromNote`: aus der bisherigen Notiz statt aus dem Transkript (Vereinfachen).
+    /// Die alte Notiz bleibt stehen, bis die neue fertig ist – schlägt etwas fehl, geht nichts verloren.
+    func reprocess(_ id: UUID, retranscribe: Bool, instruction: String = "", fromNote: Bool = false) {
         let library = self.library
         if retranscribe { write("Transkript löschen") { try await library.deleteTranscript(for: id) } }
-        write("Notiz löschen") { try await library.deleteNote(for: id) }
         update(id) { $0.exports = [] }
-        enqueue(id, instruction: instruction)
+        enqueue(id, instruction: instruction, request: fromNote ? .fromNote : .again)
     }
 
     /// Verwirft die Änderungen des Nutzers und stellt die Fassung der KI wieder her.

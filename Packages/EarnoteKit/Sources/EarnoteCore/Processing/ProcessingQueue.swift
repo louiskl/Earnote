@@ -37,6 +37,8 @@ public final class ProcessingQueue {
     @ObservationIgnored private var queue: [UUID] = []
     /// Einmalige Anweisung je Aufnahme für den nächsten Durchgang („Neu zusammenfassen …“)
     @ObservationIgnored private var instructions: [UUID: String] = [:]
+    /// Neu schreiben statt nur fehlende Notizen ergänzen („Neu zusammenfassen“, „Vereinfachen“)
+    @ObservationIgnored private var requests: [UUID: SummaryRequest] = [:]
     @ObservationIgnored private var task: Task<Void, Never>?
     @ObservationIgnored private var activity: NSObjectProtocol?
     /// Solange das true liefert, beginnt keine neue Verarbeitung („erst am Netzteil“).
@@ -64,9 +66,10 @@ public final class ProcessingQueue {
         processNext()
     }
 
-    public func enqueue(_ id: UUID, next: Bool = false, instruction: String = "") {
+    public func enqueue(_ id: UUID, next: Bool = false, instruction: String = "", request: SummaryRequest = .ifMissing) {
         guard let library, library.recording(id) != nil else { return }
         if !instruction.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty { instructions[id] = instruction }
+        if request != .ifMissing { requests[id] = request }
         // Wird die Aufnahme gerade verarbeitet (z. B. „Neu zusammenfassen“ während der Transkription),
         // den laufenden Durchgang abbrechen und mit dem neuen Stand von vorn beginnen.
         if processingID == id { task?.cancel() }
@@ -82,6 +85,7 @@ public final class ProcessingQueue {
     public func remove(_ id: UUID) {
         queue.removeAll { $0 == id }
         instructions[id] = nil
+        requests[id] = nil
         progress[id] = nil
         if processingID == id { task?.cancel() }
     }
@@ -166,8 +170,9 @@ public final class ProcessingQueue {
         let settings = library.settings
         let category = library.category(rec.categoryID)
         let instruction = instructions.removeValue(forKey: id) ?? ""
+        let request = requests.removeValue(forKey: id) ?? .ifMissing
         await pipeline.process(rec, settings: settings, category: category, events: events,
-                               extraInstructions: instruction)
+                               extraInstructions: instruction, request: request)
         drafts[id] = nil
     }
 

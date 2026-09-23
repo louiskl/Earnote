@@ -27,6 +27,8 @@ struct SummarizeAgainSheet: View {
     @Environment(\.dismiss) private var dismiss
     let recordingID: UUID
     var initialInstruction = ""
+    /// Vereinfachen: aus der bisherigen Notiz statt aus dem Transkript
+    var fromNote = false
 
     @State private var categoryID: UUID?
     @State private var instruction = ""
@@ -50,14 +52,14 @@ struct SummarizeAgainSheet: View {
                 } footer: {
                     Text("Gilt nur für diesen Durchgang. Dauerhafte Hinweise gehören in den Bereich.")
                 }
-                Section {
+                if !fromNote { Section {
                     Toggle("Auch neu transkribieren", isOn: $retranscribe)
                         .disabled(!library.hasAudio(recordingID))
                 } footer: {
                     Text(library.hasAudio(recordingID)
                          ? "Dauert länger, hilft aber, wenn das Transkript viele Fehler hat."
                          : "Die Audiodatei wurde bereits gelöscht.")
-                }
+                } }
             }
             .formStyle(.grouped)
 
@@ -66,9 +68,9 @@ struct SummarizeAgainSheet: View {
                 Spacer()
                 Button("Abbrechen") { dismiss() }
                     .keyboardShortcut(.cancelAction)
-                Button("Neu zusammenfassen") {
+                Button(fromNote ? "Vereinfachen" : "Neu zusammenfassen") {
                     library.setCategory(recordingID, categoryID)
-                    library.reprocess(recordingID, retranscribe: retranscribe, instruction: instruction)
+                    library.reprocess(recordingID, retranscribe: retranscribe, instruction: instruction, fromNote: fromNote)
                     dismiss()
                 }
                 .keyboardShortcut(.defaultAction)

@@ -351,7 +351,8 @@ private struct NoteFooterActions: View {
         }
         .sheet(isPresented: $simplifying) {
             SummarizeAgainSheet(recordingID: recording.id,
-                                initialInstruction: String(localized: "Erkläre den Inhalt in einfacher Sprache und kurzen Sätzen. Erkläre Fachbegriffe verständlich, bewahre wichtige Fakten und die Gliederung. Erfinde nichts hinzu."))
+                                initialInstruction: String(localized: "Erkläre den Inhalt in einfacher Sprache und kurzen Sätzen. Erkläre Fachbegriffe verständlich, bewahre wichtige Fakten und die Gliederung. Erfinde nichts hinzu."),
+                                fromNote: true)
         }
     }
 }

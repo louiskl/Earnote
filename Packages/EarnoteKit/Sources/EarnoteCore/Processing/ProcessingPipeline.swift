@@ -22,6 +22,16 @@ public struct ProcessingEvents: Sendable {
     }
 }
 
+/// Was mit der Notiz passieren soll
+public enum SummaryRequest: Sendable {
+    /// Nur schreiben, wenn es noch keine gibt (normaler Durchgang nach der Aufnahme)
+    case ifMissing
+    /// Neu schreiben – aus dem Transkript, und nur wenn es keins gibt und keins entstehen kann, aus der Notiz
+    case again
+    /// Neu schreiben aus der bisherigen Notiz (Vereinfachen): Dort steht schon alles Wichtige, und es geht viel schneller
+    case fromNote
+}
+
 /// Verarbeitet eine Aufnahme: Audio mischen, Stille prüfen, transkribieren, Sprecher zuordnen,
 /// zusammenfassen, exportieren, aufräumen. Hält keinen eigenen Zustand und ist an keinen Actor gebunden.
 public struct ProcessingPipeline: Sendable {
@@ -50,7 +60,8 @@ public struct ProcessingPipeline: Sendable {
     /// Ein Durchgang für eine Aufnahme. Fehler landen im Status der Aufnahme; bei Abbruch wird nichts mehr gespeichert.
     /// `extraInstructions` gilt nur für diesen Durchgang (aus „Neu zusammenfassen …“).
     public func process(_ rec: Recording, settings: AppSettings, category: RecordingCategory?,
-                        events: ProcessingEvents, extraInstructions: String = "") async {
+                        events: ProcessingEvents, extraInstructions: String = "",
+                        request: SummaryRequest = .ifMissing) async {
         let id = rec.id
         var step = "Transkription"
         do {
@@ -58,10 +69,17 @@ public struct ProcessingPipeline: Sendable {
             let glossary = Glossary.forCategory(category?.id, in: (try? await library.glossaryTerms()) ?? [])
             // 1) Transkript (falls noch nicht vorhanden)
             var transcript = try await library.transcript(for: id)
+            let existing = try await library.note(for: id)
+            // Aus der Notiz statt aus dem Transkript: beim Vereinfachen immer, sonst nur, wenn es weder Transkript
+            // noch Ton gibt (Übersicht eines Bereichs, Aufnahme mit gelöschtem Ton). Vorher schlug das fehl – und weil
+            // die Notiz schon gelöscht war, war sie danach weg.
+            let fromNote = existing.flatMap { note in
+                request == .fromNote || (transcript == nil && !audio.hasAudio(rec)) ? note : nil
+            }
             // Ein durchgehender Balken für die ganze Verarbeitung statt einem neuen pro Schritt:
             // Transkription bis 60 %, Zusammenfassung bis 95 %, der Rest ist der Export.
-            let summarySpan = (transcript == nil ? 0.6 : 0.0)...0.95
-            if transcript == nil {
+            let summarySpan = (transcript == nil && fromNote == nil ? 0.6 : 0.0)...0.95
+            if transcript == nil, fromNote == nil {
                 let started = Date()
                 let fresh = try await transcribe(rec, settings: settings, hints: Glossary.speechHints(glossary),
                                                  span: 0...0.6, events: events)
@@ -72,31 +90,40 @@ public struct ProcessingPipeline: Sendable {
                 try await library.saveTranscript(fresh, for: id)
                 transcript = fresh
             }
-            guard let transcript else { return }
-            let text = transcript.formatted(includeSpeakers: settings.speakerLabels)
+            let text = transcript?.formatted(includeSpeakers: settings.speakerLabels) ?? ""
 
-            // 2) Zusammenfassung
+            // 2) Zusammenfassung – eine vorhandene Notiz wird erst ersetzt, wenn die neue fertig ist
             step = "Zusammenfassung"
-            var summary = try await library.note(for: id)
-            if summary == nil, let client = try llm.make(settings.ai) {
+            var summary = existing
+            if existing == nil || request != .ifMissing, let client = try llm.make(settings.ai) {
                 await setStep(id, .summarizing, summarySpan.lowerBound, events)
                 let summarizer = Summarizer(client: client, chunkCharacters: settings.ai.provider.chunkCharacters,
                                             providerName: settings.ai.provider.label)
                 // Automatische Namen („Meeting – 15. Sept., 19:58“) sind kein Kontext – das Modell würde sie nur als Titel übernehmen
                 let context = SummaryContext(category: category, titleHint: rec.hasAutoTitle ? "" : rec.title, sourceApp: rec.sourceApp,
                                              date: rec.startedAt, duration: rec.duration,
-                                             hasSpeakers: settings.speakerLabels && transcript.segments.contains { $0.speaker != nil },
+                                             hasSpeakers: settings.speakerLabels && transcript?.segments.contains { $0.speaker != nil } == true,
                                              language: settings.ai.summaryLanguage,
                                              glossary: glossary, extraInstructions: extraInstructions,
                                              simpleLanguage: settings.ai.simpleNotes)
                 let started = Date()
-                // Nur beim ersten Durchgang: „Neu zusammenfassen“ soll frisch rechnen.
-                let ready = extraInstructions.isEmpty ? await precondensed.take(id) : nil
-                let s = try await summarizer.summarize(transcript: text, context: context, precondensed: ready,
+                let s: Summary
+                if let fromNote {
+                    s = try await summarizer.rewrite(fromNote.markdown, context: context,
+                                                     draft: { events.draft(id, $0) }) { p in
+                        events.progress(id, Self.map(p, to: summarySpan))
+                    }
+                    Self.logDuration("Notiz aus der bisherigen Notiz (\(settings.ai.provider.label), \(fromNote.markdown.count) Zeichen)",
+                                     since: started)
+                } else {
+                    // Nur beim ersten Durchgang: „Neu zusammenfassen“ soll frisch rechnen.
+                    let ready = request == .ifMissing && extraInstructions.isEmpty ? await precondensed.take(id) : nil
+                    s = try await summarizer.summarize(transcript: text, context: context, precondensed: ready,
                                                        draft: { events.draft(id, $0) }) { p in
-                    events.progress(id, Self.map(p, to: summarySpan))
+                        events.progress(id, Self.map(p, to: summarySpan))
+                    }
+                    Self.logDuration("Notiz (\(settings.ai.provider.label), \(text.count) Zeichen Transkript)", since: started)
                 }
-                Self.logDuration("Notiz (\(settings.ai.provider.label), \(text.count) Zeichen Transkript)", since: started)
                 try Task.checkCancellation()
                 try await library.saveNote(s, for: id)
                 summary = s

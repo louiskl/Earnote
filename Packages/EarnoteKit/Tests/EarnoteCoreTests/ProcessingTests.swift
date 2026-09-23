@@ -55,6 +55,55 @@ final class ProcessingPipelineTests: XCTestCase {
         XCTAssertTrue(folder.audio.hasAudio(done), "Audio bleibt standardmäßig erhalten")
     }
 
+    /// Übersicht eines Bereichs: keine Aufnahme, kein Transkript, nur eine Notiz. „Neu zusammenfassen“ schrieb vorher
+    /// ins Leere (keine Audiodatei) – und weil die Notiz vorab gelöscht war, war sie danach weg.
+    private func overview(_ markdown: String) async throws -> Recording {
+        let rec = Recording(title: "Übersicht", startedAt: Date(), endedAt: Date(), status: .done)
+        try await folder.library.insertRecording(rec)
+        try await folder.library.saveNote(Summary(title: "Übersicht", markdown: markdown, taskCount: 0, provider: "P"), for: rec.id)
+        return rec
+    }
+
+    func testRewritesAnOverviewFromItsNote() async throws {
+        let rec = try await overview("Der Bereich behandelte Speicher und Prozesse.")
+        let llm = FakeLLMClient(answer: "# Neue Übersicht\n\nSpeicher und Prozesse, einfach erklärt.")
+        let state = RecordingState(rec, library: folder.library)
+        await pipeline(llm: llm).process(rec, settings: .testing(), category: nil, events: state.events, request: .again)
+
+        XCTAssertEqual(state.recording.status, .done)
+        XCTAssertTrue(llm.calls.get().last?.prompt.contains("Der Bereich behandelte Speicher und Prozesse.") == true,
+                      "Grundlage ist die bisherige Notiz")
+        let note = try await folder.library.note(for: rec.id)
+        XCTAssertEqual(note?.title, "Neue Übersicht")
+    }
+
+    func testKeepsTheOldNoteWhenRewritingFails() async throws {
+        let rec = try await overview("Alte, gute Notiz.")
+        let llm = FakeLLMClient { _, _ in throw LLMError(message: "KI nicht erreichbar") }
+        let state = RecordingState(rec, library: folder.library)
+        await pipeline(llm: llm).process(rec, settings: .testing(), category: nil, events: state.events, request: .again)
+
+        XCTAssertEqual(state.recording.status, .failed)
+        let note = try await folder.library.note(for: rec.id)
+        XCTAssertEqual(note?.markdown, "Alte, gute Notiz.", "Nichts geht verloren")
+    }
+
+    /// Vereinfachen schreibt die Notiz um – auch wenn ein Transkript da ist, wird es nicht noch einmal gelesen.
+    func testSimplifyUsesTheNoteNotTheTranscript() async throws {
+        let rec = try await folder.importedRecording()
+        let first = RecordingState(rec, library: folder.library)
+        await pipeline().process(rec, settings: .testing(), category: nil, events: first.events)
+
+        let llm = FakeLLMClient(answer: "# Einfach\n\nKurz und einfach.")
+        let state = RecordingState(first.recording, library: folder.library)
+        await pipeline(llm: llm).process(first.recording, settings: .testing(), category: nil, events: state.events,
+                                         extraInstructions: "Einfache Sprache", request: .fromNote)
+        let prompt = llm.calls.get().last?.prompt ?? ""
+        XCTAssertTrue(prompt.contains("Treffen vereinbart."), "die bisherige Notiz")
+        XCTAssertFalse(prompt.contains("Transkript:"), "nicht das Transkript")
+        XCTAssertEqual(state.statuses.get().first, .summarizing, "keine neue Transkription")
+    }
+
     func testAudioIsDeletedWhenNotKept() async throws {
         let rec = try await folder.importedRecording()
         var settings = AppSettings.testing()
