@@ -26,6 +26,8 @@
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Earnote", "applicationCategory": "EducationalApplication", "applicationSubCategory": "Note-taking, transcription", "operatingSystem": "macOS 15 or later, Apple Silicon", "inLanguage": ["de", "en"], "description": "Earnote nimmt Vorlesungen, Meetings und Calls auf, transkribiert sie mit Whisper direkt auf dem Mac und schreibt daraus eine strukturierte Notiz. Kostenlos, quelloffen, ohne Konto und ohne Cloud.", "url": "https://earnote.dev/de.html", "downloadUrl": "https://github.com/louiskl/Earnote/releases/latest/download/Earnote.dmg", "softwareVersion": "0.9.19", "license": "https://opensource.org/licenses/MIT", "isAccessibleForFree": true, "offers": {"@type": "Offer", "price": "0", "priceCurrency": "EUR"}, "featureList": ["Lokale Transkription mit Whisper large-v3-turbo", "Notizen von einer KI, die auf dem Mac läuft", "Live-Mitschrift während der Aufnahme", "Karteikarten mit Anki-Export, Semester-Übersicht je Fach, Lernzettel als PDF", "Export nach Markdown, Obsidian, Notion, Apple Notizen, Logseq, Things, Todoist", "Mikrofon und Systemton zusammen (Zoom, Teams, Meet)"], "author": {"@type": "Person", "name": "Louis Klinke"}, "screenshot": "https://earnote.dev/assets/screenshot-de.png"}</script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Ist Earnote wirklich kostenlos?", "acceptedAnswer": {"@type": "Answer", "text": "Ja. Kostenlos, quelloffen unter der MIT-Lizenz, ohne Konto und ohne bezahlte Variante. Die App rechnet auf deinem Mac, deshalb gibt es keine Server, die bezahlt werden müssten."}}, {"@type": "Question", "name": "Wie schnell ist Earnote?", "acceptedAnswer": {"@type": "Answer", "text": "Auf einem MacBook Air M1 ist eine 60-Minuten-Vorlesung nach dem Stoppen in etwa 8 bis 15 Minuten transkribiert, die Notiz braucht dann noch ein paar Minuten. Neuere Macs sind deutlich schneller."}}, {"@type": "Question", "name": "Was brauche ich dafür?", "acceptedAnswer": {"@type": "Answer", "text": "macOS 15 oder neuer auf einem Mac mit Apple Silicon und etwa 8 GB Arbeitsspeicher. Beim ersten Start lädt Earnote das Sprachmodell (~1,6 GB) und die lokale KI (~2,3 GB)."}}, {"@type": "Question", "name": "Funktioniert das mit Zoom, Teams und Google Meet?", "acceptedAnswer": {"@type": "Answer", "text": "Ja. Earnote nimmt den Systemton zusammen mit deinem Mikrofon auf, damit alle Beteiligten im Transkript landen."}}, {"@type": "Question", "name": "Verlässt meine Aufnahme den Rechner?", "acceptedAnswer": {"@type": "Answer", "text": "Nein. Transkription und Notiz laufen lokal auf deinem Mac. Es gibt kein Konto, keine Telemetrie und keinen Earnote-Server. Ins Netz geht nur der einmalige Modell-Download und die tägliche Update-Prüfung."}}, {"@type": "Question", "name": "Darf ich eine Vorlesung aufnehmen?", "acceptedAnswer": {"@type": "Answer", "text": "Frag vorher. In Deutschland schützt § 201 StGB das nichtöffentlich gesprochene Wort – hol das Einverständnis aller Beteiligten ein, auch der dozierenden Person. Earnote blendet vor jeder Aufnahme einen Hinweis ein."}}, {"@type": "Question", "name": "Warum ist Earnote nicht im Mac App Store?", "acceptedAnswer": {"@type": "Answer", "text": "Die Sandbox dort würde die Aufnahme des Systemtons und das Ablegen der Notizen in anderen Apps behindern. Der Download von der Website ist von Apple signiert und beglaubigt."}}, {"@type": "Question", "name": "Gibt es eine Version für Windows oder iPhone?", "acceptedAnswer": {"@type": "Answer", "text": "Windows nicht, weil Earnote auf Apples CoreML und MLX aufbaut. iPad und iPhone sind nach Version 1.0 geplant."}}]}</script>
 
+<!-- Besucherzählung ohne Cookies (siehe datenschutz.html) -->
+<script data-goatcounter="https://louiskl.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </head>
 <body>
 
@@ -38,7 +40,7 @@
         <a href="#privacy" class="hide-s">Datenschutz</a>
         <a href="#faq" class="hide-s">Fragen</a>
         <a href="index.html">EN</a>
-        <a class="pill" href="https://github.com/louiskl/Earnote/releases/latest/download/Earnote.dmg">Laden</a>
+        <a class="pill" data-goatcounter-click="download-menue" href="https://github.com/louiskl/Earnote/releases/latest/download/Earnote.dmg">Laden</a>
     </div>
 </nav>
 
@@ -49,7 +51,7 @@
         <p class="claim">Earnote nimmt auf, transkribiert mit Whisper und macht daraus eine geordnete Notiz –
             alles auf deinem Mac. Ohne Konto, ohne Abo, ohne Cloud.</p>
         <div class="cta">
-            <a class="btn" href="https://github.com/louiskl/Earnote/releases/latest/download/Earnote.dmg">↓ Für macOS laden</a>
+            <a class="btn" data-goatcounter-click="download-oben" href="https://github.com/louiskl/Earnote/releases/latest/download/Earnote.dmg">↓ Für macOS laden</a>
             <a class="btn ghost" href="https://github.com/louiskl/Earnote">Quelltext auf GitHub</a>
         </div>
         <p class="fine">macOS 15 oder neuer · Apple Silicon · kostenlos · MIT-Lizenz</p>
@@ -198,7 +200,7 @@
                 Earnote einmal lädt und danach auf deinem Gerät ausführt – ohne Konto, ohne API-Schlüssel, auch offline.</p>
             <div class="cols">
                 <div><h3>Dein Ton bleibt da</h3><p>Aufnahmen, Transkripte und Notizen liegen in deinem Benutzerordner und werden nirgendwohin synchronisiert.</p></div>
-                <div><h3>Keine Telemetrie</h3><p>Keine Analyse, keine Absturzmeldungen, kein Server, der zu Earnote gehört.</p></div>
+                <div><h3>Keine Telemetrie</h3><p>Die App schickt keine Analysedaten und keine Absturzmeldungen. Es gibt keinen Server, der zu Earnote gehört.</p></div>
                 <div><h3>Cloud nur, wenn du willst</h3><p>Du kannst Claude, OpenAI, Gemini oder einen eigenen Server wählen – die App sagt deutlich, wenn Text den Mac verlässt.</p></div>
             </div>
         </div>
@@ -294,7 +296,7 @@
         <h2 class="reveal">Die nächste Vorlesung kommt bestimmt.</h2>
         <p class="lead reveal" style="margin: 0 auto 26px">26 MB, signiert und beglaubigt. Installieren, Mikrofon erlauben, fertig.</p>
         <div class="cta reveal">
-            <a class="btn" href="https://github.com/louiskl/Earnote/releases/latest/download/Earnote.dmg">↓ Für macOS laden</a>
+            <a class="btn" data-goatcounter-click="download-unten" href="https://github.com/louiskl/Earnote/releases/latest/download/Earnote.dmg">↓ Für macOS laden</a>
         </div>
     </div>
 </section>

@@ -26,6 +26,8 @@
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Earnote", "applicationCategory": "EducationalApplication", "applicationSubCategory": "Note-taking, transcription", "operatingSystem": "macOS 15 or later, Apple Silicon", "inLanguage": ["de", "en"], "description": "Earnote records lectures, meetings and calls, transcribes them with Whisper on your Mac and writes a structured note. Free, open source, no account, no cloud.", "url": "https://earnote.dev/", "downloadUrl": "https://github.com/louiskl/Earnote/releases/latest/download/Earnote.dmg", "softwareVersion": "0.9.19", "license": "https://opensource.org/licenses/MIT", "isAccessibleForFree": true, "offers": {"@type": "Offer", "price": "0", "priceCurrency": "EUR"}, "featureList": ["Local transcription with Whisper large-v3-turbo", "Notes written by an AI running on your Mac", "Live transcript while recording", "Flashcards with Anki export, semester overview per course, PDF study sheets", "Exports to Markdown, Obsidian, Notion, Apple Notes, Logseq, Things, Todoist", "Microphone and system audio together (Zoom, Teams, Meet)"], "author": {"@type": "Person", "name": "Louis Klinke"}, "screenshot": "https://earnote.dev/assets/screenshot-en.png"}</script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is Earnote really free?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Free, open source under the MIT licence, no accounts and no paid tier. It runs on your own Mac, so there are no servers to pay for."}}, {"@type": "Question", "name": "How fast is it?", "acceptedAnswer": {"@type": "Answer", "text": "On an M1 MacBook Air a 60-minute lecture takes about 8 to 15 minutes to transcribe after you stop, and the note a few minutes more. Newer Macs are considerably faster."}}, {"@type": "Question", "name": "What do I need to run it?", "acceptedAnswer": {"@type": "Answer", "text": "macOS 15 or newer on Apple Silicon and about 8 GB of memory. On the first run it downloads the speech model (~1.6 GB) and the local AI (~2.3 GB)."}}, {"@type": "Question", "name": "Does it work with Zoom, Teams and Google Meet?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Earnote captures system audio alongside your microphone, so everyone on the call ends up in the transcript."}}, {"@type": "Question", "name": "Does my recording leave my computer?", "acceptedAnswer": {"@type": "Answer", "text": "No. Transcription and note writing run locally on your Mac. There is no account, no telemetry and no Earnote server. Only the one-time model download and the daily update check use the network."}}, {"@type": "Question", "name": "Am I allowed to record a lecture?", "acceptedAnswer": {"@type": "Answer", "text": "Ask first. In Germany § 201 StGB protects private spoken words, so get consent from everyone involved, including the lecturer. Earnote shows a reminder before each recording."}}, {"@type": "Question", "name": "Why is Earnote not in the Mac App Store?", "acceptedAnswer": {"@type": "Answer", "text": "The App Store sandbox would get in the way of recording system audio and filing notes into other apps. The download from the website is signed and notarised by Apple."}}, {"@type": "Question", "name": "Is there a version for Windows or iPhone?", "acceptedAnswer": {"@type": "Answer", "text": "Windows no, because Earnote builds on Apple's CoreML and MLX. iPad and iPhone versions are planned after 1.0."}}]}</script>
 
+<!-- Besucherzählung ohne Cookies (siehe datenschutz.html) -->
+<script data-goatcounter="https://louiskl.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </head>
 <body>
 
@@ -38,7 +40,7 @@
         <a href="#privacy" class="hide-s">Privacy</a>
         <a href="#faq" class="hide-s">FAQ</a>
         <a href="de.html">DE</a>
-        <a class="pill" href="https://github.com/louiskl/Earnote/releases/latest/download/Earnote.dmg">Download</a>
+        <a class="pill" data-goatcounter-click="download-menue" href="https://github.com/louiskl/Earnote/releases/latest/download/Earnote.dmg">Download</a>
     </div>
 </nav>
 
@@ -49,7 +51,7 @@
         <p class="claim">Earnote records, transcribes with Whisper and turns the result into a structured note —
             all on your Mac. No account, no subscription, nothing in the cloud.</p>
         <div class="cta">
-            <a class="btn" href="https://github.com/louiskl/Earnote/releases/latest/download/Earnote.dmg">↓ Download for macOS</a>
+            <a class="btn" data-goatcounter-click="download-oben" href="https://github.com/louiskl/Earnote/releases/latest/download/Earnote.dmg">↓ Download for macOS</a>
             <a class="btn ghost" href="https://github.com/louiskl/Earnote">Source on GitHub</a>
         </div>
         <p class="fine">macOS 15 or newer · Apple Silicon · free · MIT licence</p>
@@ -198,7 +200,7 @@
                 that Earnote downloads once and then runs on your device — no account, no API key, works offline.</p>
             <div class="cols">
                 <div><h3>Your audio stays put</h3><p>Recordings, transcripts and notes live in your home folder and are never synced.</p></div>
-                <div><h3>No telemetry</h3><p>No analytics, no crash pings, no server that belongs to Earnote.</p></div>
+                <div><h3>No telemetry</h3><p>The app sends no analytics and no crash reports. There is no server that belongs to Earnote.</p></div>
                 <div><h3>Cloud only if you ask</h3><p>You can pick Claude, OpenAI, Gemini or your own server — the app says clearly when text would leave.</p></div>
             </div>
         </div>
@@ -294,7 +296,7 @@
         <h2 class="reveal">Your next lecture starts soon.</h2>
         <p class="lead reveal" style="margin: 0 auto 26px">26 MB, signed and notarised. Install it, allow the microphone, done.</p>
         <div class="cta reveal">
-            <a class="btn" href="https://github.com/louiskl/Earnote/releases/latest/download/Earnote.dmg">↓ Download for macOS</a>
+            <a class="btn" data-goatcounter-click="download-unten" href="https://github.com/louiskl/Earnote/releases/latest/download/Earnote.dmg">↓ Download for macOS</a>
         </div>
     </div>
 </section>
