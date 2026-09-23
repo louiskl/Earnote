@@ -113,7 +113,7 @@ To build the downloadable `dist/Earnote.dmg`, run `./scripts/build_release.sh`. 
 
 ### Status
 
-Earnote is in **beta** (0.9.15): it works and is used daily, and it gets better every week. If something
+Earnote is in **beta** (0.9.16): it works and is used daily, and it gets better every week. If something
 breaks, [tell me](https://github.com/louiskl/Earnote/issues/new/choose) – that is exactly what this phase
 is for. Version 1.0 follows after two weeks of testing with real lectures.
 
