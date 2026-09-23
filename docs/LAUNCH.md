@@ -36,7 +36,8 @@ Für jeden Kanal derselbe Gedanke, nur anders lang:
 **Ehrlich zur Geschwindigkeit** (gemessen, 22./23.09.2026, MacBook Air M1): Whisper schafft rund die
 12-fache Echtzeit – eine Stunde Vorlesung in etwa 5–6 Minuten. Ab 0.9.20 läuft das schon während der
 Aufnahme mit, beim Stopp bleibt nur der letzte Abschnitt. Die Notiz braucht danach ein paar Minuten und ist
-beim Entstehen zu sehen; ab 16 GB Arbeitsspeicher wird sie am Netzteil schon während der Aufnahme vorbereitet.
+beim Entstehen zu sehen; ab 16 GB Arbeitsspeicher wird sie schon während der Aufnahme vorbereitet (außer im
+Stromsparmodus). Gemessen mit 0.9.21: Notiz zu einer 2-Stunden-Vorlesung in 13 Minuten, zu einer Stunde in 4.
 **Im Stromsparmodus dauert alles etwa dreimal so lange** (gemessen: 4-fache statt 12-fache Echtzeit) – die App
 sagt das. Nicht „in Sekunden“ versprechen.
 
