@@ -1,3 +1,4 @@
+import AVFoundation
 import XCTest
 @testable import EarnoteCore
 
@@ -300,5 +301,26 @@ final class DownloadSpaceTests: XCTestCase {
 
         XCTAssertNotNil(DiskSpace.blocksDownload(ofGigabytes: 1.6, availableBytes: 2 * gb),
                         "Ein Gigabyte Luft gehört obendrauf")
+    }
+}
+
+final class AvailableAudioTests: XCTestCase {
+    /// In einer Vorlesung spielt der Mac keinen Ton ab – die Systemspur bleibt leer. Sie darf die Live-Mitschrift
+    /// nicht aufhalten; nur ein kurzer Nachlauf (ein Puffer) zählt als „noch nicht da“.
+    func testSilentSystemTrackDoesNotBlockLiveTranscription() throws {
+        let folder = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: folder) }
+        let mic = folder.appendingPathComponent("mic.wav"), empty = folder.appendingPathComponent("system.wav")
+        let lagging = folder.appendingPathComponent("lagging.wav")
+        try TestFolder.writeAudio(to: mic, amplitude: 0.5, seconds: 20)
+        // Leere Spur wie bei einer Vorlesung: nur der Dateikopf, kein einziger Rahmen
+        let format = AVAudioFormat(commonFormat: .pcmFormatFloat32, sampleRate: 16_000, channels: 1, interleaved: false)!
+        _ = try AVAudioFile(forWriting: empty, settings: format.settings, commonFormat: .pcmFormatFloat32, interleaved: false)
+        try TestFolder.writeAudio(to: lagging, amplitude: 0, seconds: 19)
+
+        XCTAssertEqual(AudioMixer.availableSeconds(mic: mic, system: empty), 20, accuracy: 0.01)
+        XCTAssertEqual(AudioMixer.availableSeconds(mic: mic, system: lagging), 19, accuracy: 0.01)
+        XCTAssertEqual(AudioMixer.availableSeconds(mic: mic, system: nil), 20, accuracy: 0.01)
     }
 }

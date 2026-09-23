@@ -159,7 +159,12 @@ public enum AudioMixer {
         let micSeconds = Double(micFile.length) / micFile.processingFormat.sampleRate
         guard let system, FileManager.default.fileExists(atPath: system.path),
               let systemFile = try? AVAudioFile(forReading: system) else { return micSeconds }
-        return min(micSeconds, Double(systemFile.length) / systemFile.processingFormat.sampleRate)
+        let systemSeconds = Double(systemFile.length) / systemFile.processingFormat.sampleRate
+        // Beide Spuren liegen normal höchstens Sekundenbruchteile auseinander. Hinkt der Systemton weit hinterher,
+        // liefert er gerade nichts – dann darf er die Live-Mitschrift nicht aufhalten. Vorher blieb sie in jeder
+        // Vorlesung bei 0 stehen (Systemspur nach 97 Minuten: 0 Sekunden), und nach dem Stopp wurde alles
+        // noch einmal komplett transkribiert. Gemischt wird ohnehin bis zum Ende der längeren Spur.
+        return micSeconds - systemSeconds > 5 ? micSeconds : min(micSeconds, systemSeconds)
     }
 
     private static func readers(mic: URL, system: URL?, from: Double = 0,
