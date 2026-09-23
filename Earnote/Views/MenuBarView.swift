@@ -46,6 +46,7 @@ struct MenuBarView: View {
     }
 
     var body: some View {
+        @Bindable var library = library
         VStack(alignment: .leading, spacing: 12) {
             header
             Divider()
@@ -63,6 +64,10 @@ struct MenuBarView: View {
                 categoryPicker
                 MicrophoneChoiceMenu(maxNameLength: 26)
                     .labelsHidden()
+                // Im Hörsaal unnötig: kostet Speicher (bis ~1,4 GB/Stunde) und blendet oben die Audio-Anzeige ein
+                Toggle("Systemton mitaufnehmen", isOn: $library.settings.recordSystemAudio)
+                    .toggleStyle(.checkbox)
+                    .help("Für Zoom, Teams, Meet und Videos. Im Hörsaal brauchst du ihn nicht – bei erkannten Calls nimmt Earnote ihn immer mit.")
             }
             if !recorder.isRecording { recentNotes }
             ModelStatusRow()

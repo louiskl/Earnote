@@ -191,6 +191,7 @@ struct MainWindow: View {
                           detailMode: detailMode, inspectorShown: $inspectorShown,
                           isEditingText: searchFocused || renamingRecordingID != nil || renamingCategoryID != nil,
                           isRecording: recorder.isRecording, isPaused: recorder.isPaused,
+                          recordSystemAudio: library.settings.recordSystemAudio,
                           activeRecordingID: recorder.activeRecordingID,
                           requestDelete: { if let id = selection.wrappedValue { pendingDeletion = id } },
                           requestDiscardRecording: { confirmDiscard = true },

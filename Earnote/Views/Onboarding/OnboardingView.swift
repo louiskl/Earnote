@@ -187,6 +187,13 @@ private struct DoneStep: View {
     var body: some View {
         @Bindable var library = library
         Form {
+            Section {
+                Toggle("Systemton mitaufnehmen", isOn: $library.settings.recordSystemAudio)
+            } header: {
+                Text("Aufnahme")
+            } footer: {
+                Text("Für Zoom, Teams, Meet und Videos. Im Hörsaal brauchst du ihn nicht – bei erkannten Calls nimmt Earnote ihn immer mit.")
+            }
             Section("Start") {
                 Toggle("\(AppInfo.name) beim Start des Macs automatisch öffnen", isOn: $launchAtLogin)
                 Toggle("Fenster beim Start zeigen", isOn: $library.settings.openWindowAtLaunch)

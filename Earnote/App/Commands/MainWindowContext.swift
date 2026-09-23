@@ -15,6 +15,8 @@ struct MainWindowContext {
     /// Stores selbst nicht mitbekommt und die Menütitel sonst veraltet wären.
     var isRecording: Bool
     var isPaused: Bool
+    /// Systemton bei der nächsten Aufnahme mitnehmen (über das Fenster, damit das Häkchen im Menü aktuell bleibt)
+    var recordSystemAudio: Bool
     var activeRecordingID: UUID?
     var requestDelete: () -> Void
     var requestDiscardRecording: () -> Void

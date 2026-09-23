@@ -58,6 +58,10 @@ struct EarnoteCommands: Commands {
                 .disabled(window?.playback == nil)
             Divider()
             MicrophoneCommandPicker(library: library, audioInputs: audioInputs, isRecording: isRecording)
+            Toggle("Systemton mitaufnehmen", isOn: Binding(
+                get: { window?.recordSystemAudio ?? library.settings.recordSystemAudio },
+                set: { library.settings.recordSystemAudio = $0 }))
+                .disabled(isRecording)
         }
 
         CommandMenu("Notiz") {
