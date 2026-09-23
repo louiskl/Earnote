@@ -156,7 +156,7 @@ APP_ENTITLEMENTS = ("Earnote/Resources/Earnote-iCloud-Development.entitlements" 
 # Die Version der App steht nur hier. Sparkle vergleicht Fassungen an der Buildnummer
 # (CFBundleVersion), nicht am Namen – sie muss also mit jeder Fassung wachsen, sonst bietet die
 # App ein Update nie an. Aus „0.9.4“ wird 904.
-MARKETING_VERSION = "0.9.17"
+MARKETING_VERSION = "0.9.18"
 _parts = (MARKETING_VERSION.split(".") + ["0", "0"])[:3]
 BUILD_NUMBER = str(int(_parts[0]) * 10_000 + int(_parts[1]) * 100 + int(_parts[2]))
 
