@@ -130,6 +130,9 @@ final class NoteDocumentTests: XCTestCase {
         let document = try XCTUnwrap(PDFDocument(url: url))
         XCTAssertGreaterThan(document.pageCount, 1, "Lange Notizen brechen auf mehrere Seiten um")
         XCTAssertTrue(document.string?.contains("Übungsblatt rechnen") == true, "Der Text steht im PDF")
+        // Jede Seite trägt die Fußzeile, und „earnote.dev“ ist anklickbar – PDFs werden gern weitergegeben
+        XCTAssertTrue(document.page(at: 1)?.string?.contains("earnote.dev") == true, document.page(at: 1)?.string ?? "")
+        XCTAssertEqual(document.page(at: 1)?.annotations.compactMap(\.url?.host), ["earnote.dev"])
     }
 }
 
