@@ -132,6 +132,7 @@ private struct StatusLine: View {
             }
             .font(.callout)
             .foregroundStyle(.secondary)
+            if recording.status == .summarizing { LowPowerHint() }
         } else {
             Label(recording.errorMessage ?? "Verarbeitung fehlgeschlagen", systemImage: "exclamationmark.triangle.fill")
                 .font(.callout)
@@ -347,11 +348,33 @@ private struct NoteFooterActions: View {
                     ProgressView().controlSize(.small)
                     Text("Karteikarten entstehen …").font(.callout).foregroundStyle(.secondary)
                 }
+                LowPowerHint()
             }
         }
         .sheet(isPresented: $simplifying) {
             SummarizeAgainSheet(recordingID: recording.id,
                                 initialInstruction: String(localized: "Erkläre den Inhalt in einfacher Sprache und kurzen Sätzen. Erkläre Fachbegriffe verständlich, bewahre wichtige Fakten und die Gliederung. Erfinde nichts hinzu."))
+        }
+    }
+}
+
+/// Der Stromsparmodus drosselt die Grafikeinheit, auf der die lokale KI rechnet – Notizen und
+/// Karteikarten dauern dann ein Mehrfaches (gemessen: 83 s statt 352 s für dieselben Karteikarten).
+/// Wer das nicht weiß, hält Earnote für langsam. Nur zeigen, während die lokale KI wirklich arbeitet.
+private struct LowPowerHint: View {
+    @Environment(PowerSource.self) private var power
+    @Environment(LibraryStore.self) private var library
+
+    var body: some View {
+        if power.isLowPowerMode, library.settings.ai.provider.isLocal {
+            HStack(spacing: 8) {
+                Label("Der Stromsparmodus ist an. Die KI braucht dadurch bis zu viermal so lang.",
+                      systemImage: "tortoise")
+                Button("Einstellungen öffnen …") { SystemSettingsLink.battery() }
+                    .buttonStyle(.link)
+            }
+            .font(.callout)
+            .foregroundStyle(.secondary)
         }
     }
 }

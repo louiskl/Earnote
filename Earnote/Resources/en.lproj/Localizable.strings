@@ -1143,3 +1143,5 @@
 "PDF sichern …" = "Save PDF …";
 "Anki sichern …" = "Save Anki …";
 "Erkläre den Inhalt in einfacher Sprache und kurzen Sätzen. Erkläre Fachbegriffe verständlich, bewahre wichtige Fakten und die Gliederung. Erfinde nichts hinzu." = "Explain the content in plain language and short sentences. Explain technical terms clearly, preserve important facts and the structure. Do not invent information.";
+"Der Stromsparmodus ist an. Die KI braucht dadurch bis zu viermal so lang." = "Low Power Mode is on. The AI can take up to four times as long.";
+"Einstellungen öffnen …" = "Open Settings …";

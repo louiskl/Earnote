@@ -14,6 +14,7 @@ final class AppEnvironment {
     let queue: ProcessingQueue
     let library: LibraryStore
     let recorder: RecordingController
+    let power: PowerSource
     /// Übergang bis Phase 2b: Schnittstelle der noch alten Views (Einstellungen, Einrichtung, Menüleiste, Call-Pop-up)
     /// Sucht einmal am Tag nach einer neueren Version
     let updates = AppUpdater()
@@ -105,6 +106,7 @@ final class AppEnvironment {
         self.queue = queue
         self.library = library
         self.recorder = recorder
+        self.power = power
 
         if library.settings.meetingDetection { recorder.detector.start() }
         Task { await start() }

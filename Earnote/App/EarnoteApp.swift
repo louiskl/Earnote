@@ -60,6 +60,7 @@ struct EarnoteApp: App {
                 .environment(environment.library)
                 .environment(environment.recorder)
                 .environment(environment.queue)
+                .environment(environment.power)
                 .environment(environment.recorder.audioInputs)
                 .environment(environment.updates)
                 .environment(environment.cloudSync)
