@@ -159,6 +159,21 @@ final class GlossaryTests: XCTestCase {
         XCTAssertTrue(text.contains("- Eigenwert"), text)
         XCTAssertEqual(Glossary.promptText([]), "")
     }
+
+    /// Nur Begriffe, die vorkommen, gehen an die KI – sonst macht sie aus einem unbenannten Sprecher
+    /// „Professor Meyer“ oder schreibt „Eigenwerte“ in eine Notiz, in der nie davon die Rede war.
+    func testRelevantKeepsOnlyTermsThatOccur() {
+        let terms = [GlossaryTerm(term: "Professor Meyer"), GlossaryTerm(term: "Eigenwert"),
+                     GlossaryTerm(term: "Kubernetes", variants: ["Cuba Netties"]), GlossaryTerm(term: "Kant")]
+        func relevant(_ text: String) -> [String] { Glossary.relevant(terms, in: text).map(\.term) }
+
+        XCTAssertEqual(relevant("Okay, the unit tests from you, Heiko. Are you still struggling?"), [])
+        XCTAssertEqual(relevant("Die Eigenwerte der Matrix bestimmen wir morgen."), ["Eigenwert"], "Mehrzahl zählt")
+        XCTAssertEqual(relevant("Wie Herr Meier gestern sagte"), ["Professor Meyer"], "um einen Buchstaben verhört")
+        XCTAssertEqual(relevant("Das läuft auf Cuba Netties."), ["Kubernetes"], "hinterlegter Hörfehler")
+        XCTAssertEqual(relevant("Das kann man so sehen."), [], "kurze Wörter nicht unscharf vergleichen")
+        XCTAssertEqual(relevant("Laut Kant gilt das."), ["Kant"])
+    }
 }
 
 final class TranscriptQualityTests: XCTestCase {

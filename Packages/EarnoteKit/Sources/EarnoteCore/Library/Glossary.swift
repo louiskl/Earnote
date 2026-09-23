@@ -24,8 +24,51 @@ public enum Glossary {
             return variants.isEmpty ? "- \(name)" : "- \(name) (oft falsch erkannt als: \(variants.joined(separator: ", ")))"
         }
         guard !lines.isEmpty else { return "" }
-        return "Richtige Schreibweisen von Namen und Begriffen (im Transkript oft falsch erkannt):\n"
+        return "Richtige Schreibweisen – nur zum Korrigieren falsch erkannter Wörter. Setze keinen dieser Begriffe ein, "
+            + "der nicht gesagt wurde, und gib niemandem einen dieser Namen, der im Transkript nicht so heißt:\n"
             + lines.joined(separator: "\n")
+    }
+
+    /// Nur die Einträge, die in diesem Text vorkommen: richtig geschrieben, als hinterlegter Hörfehler oder
+    /// um einen Buchstaben verhört („Meier“ statt „Meyer“). Alle übrigen verleiten die KI nur dazu, sie
+    /// irgendwo unterzubringen – aus einem unbenannten Sprecher in einem englischen Meeting wurde so
+    /// „Professor Meyer“, und kurze Notizen bekamen „Eigenwerte“, von denen nie die Rede war.
+    public static func relevant(_ terms: [GlossaryTerm], in text: String) -> [GlossaryTerm] {
+        let flat = normalized(text)
+        let spoken = Set(words(flat))
+        return terms.filter { term in
+            let spellings = ([term.term] + term.variants).map(normalized).filter { !$0.isEmpty }
+            if spellings.contains(where: flat.contains) { return true }
+            // Markante Wörter des Begriffs: ab fünf Buchstaben, ohne Anrede – „Kant“/„kann“ wären zu nah beieinander
+            let key = words(normalized(term.term)).filter { $0.count >= 5 && !titles.contains($0) }
+            return key.contains { k in spoken.contains { abs($0.count - k.count) <= 1 && editDistance($0, k) <= 1 } }
+        }
+    }
+
+    private static let titles: Set<String> = ["professor", "professorin", "doktor", "herr", "frau"]
+
+    private static func normalized(_ s: String) -> String {
+        s.folding(options: [.caseInsensitive, .diacriticInsensitive], locale: nil).trimmingCharacters(in: .whitespaces)
+    }
+
+    private static func words(_ s: String) -> [String] {
+        s.split { !$0.isLetter && !$0.isNumber }.map(String.init)
+    }
+
+    private static func editDistance(_ a: String, _ b: String) -> Int {
+        let a = Array(a), b = Array(b)
+        guard !a.isEmpty, !b.isEmpty else { return max(a.count, b.count) }
+        var row = Array(0...b.count)
+        for i in 1...a.count {
+            var previous = row[0]
+            row[0] = i
+            for j in 1...b.count {
+                let current = row[j]
+                row[j] = min(row[j] + 1, row[j - 1] + 1, previous + (a[i - 1] == b[j - 1] ? 0 : 1))
+                previous = current
+            }
+        }
+        return row[b.count]
     }
 }
 

@@ -30,7 +30,10 @@ public struct Summary: Codable, Sendable {
             text = text.replacingOccurrences(of: #"^```[a-zA-Z]*\n"#, with: "", options: .regularExpression)
             text = text.replacingOccurrences(of: #"\n```\s*$"#, with: "", options: .regularExpression)
         }
-        var lines = text.components(separatedBy: "\n")
+        // Kleine Modelle setzen vor die Checkbox gern noch einen Spiegelstrich („- - [ ] …“) – dann fehlt das Kästchen
+        var lines = text.components(separatedBy: "\n").map {
+            $0.replacingOccurrences(of: #"^(\s*)[-*•]\s+(- \[[ xX]\])"#, with: "$1$2", options: .regularExpression)
+        }
         var title = fallbackTitle
         if let idx = lines.firstIndex(where: { $0.hasPrefix("# ") }), idx < 3 {
             title = String(lines[idx].dropFirst(2)).trimmingCharacters(in: .whitespaces)
@@ -117,6 +120,39 @@ public struct NotesDraft: Sendable {
         s.trimmingCharacters(in: .whitespacesAndNewlines)
             .replacingOccurrences(of: #"^(?:[-*•]\s*)?(?:\[[ xX]?\]\s*)?"#, with: "", options: .regularExpression)
             .trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+}
+
+/// Prüft Aufgaben gegen das Transkript. Kleine Modelle halten sich bei Aufgaben trotz klarer Regeln nicht immer
+/// an das Gesagte: Sie verteilen Aufgaben an „Team“ oder an Namen, die nie fielen, und hängen Uhrzeiten an,
+/// die niemand genannt hat („– bis 17:00“ in einem englischen Meeting ohne jede Uhrzeit). Die Aufgabe selbst
+/// bleibt stehen – weg fällt nur, was sich im Transkript nicht findet.
+public enum TaskCheck {
+    private static let groups: Set<String> = ["team", "alle", "gruppe", "studierende", "teilnehmer", "teilnehmende",
+                                              "beteiligte", "wir", "everyone", "all", "everybody"]
+
+    public static func clean(_ markdown: String, transcript: String) -> String {
+        // Zahlen, die gesagt wurden – ohne die Zeitmarken des Transkripts („[00:12:30]“), sonst gälte „00:00“ als genannt
+        let spoken = transcript.replacing(/\[\d{1,2}:\d{2}(?::\d{2})?\]/, with: "")
+        let numbers = Set(spoken.matches(of: /\d+/).compactMap { Int($0.output) })
+        return markdown.components(separatedBy: "\n").map { line in
+            guard let task = line.firstMatch(of: /^(\s*- \[[ xX]\] )(.*)$/) else { return line }
+            var text = String(task.output.2)
+            // „Heiko: …“ bzw. „**Heiko**: …“ – nur kurze Angaben vor dem Doppelpunkt sind eine Zuständigkeit
+            if let who = text.firstMatch(of: /^\*{0,2}([^:*]{1,40}?)\*{0,2}:\s+(.+)$/) {
+                let name = String(who.output.1).trimmingCharacters(in: .whitespaces)
+                let unknown = Glossary.relevant([GlossaryTerm(term: name)], in: transcript).isEmpty
+                if name.split(separator: " ").count <= 3, groups.contains(name.lowercased()) || unknown {
+                    text = String(who.output.2)
+                }
+            }
+            // „– bis 17:00“, „(bis 30.09.2026)“, „Frist: …“: Zahlen, die nie gesagt wurden, sind erfunden
+            if let due = text.firstMatch(of: /\s*[–—-]?\s*\(?\b(?:bis|Frist:?|until|by)\s+[^()]*\d[^()]*\)?\s*$/),
+               !due.output.matches(of: /\d+/).allSatisfy({ Int($0.output).map(numbers.contains) ?? false }) {
+                text = String(text[..<due.range.lowerBound])
+            }
+            return task.output.1 + text
+        }.joined(separator: "\n")
     }
 }
 
@@ -211,6 +247,8 @@ public struct Summarizer: Sendable {
 
     public func summarize(transcript: String, context: SummaryContext, precondensed: PreCondensed? = nil,
                           progress: @escaping @Sendable (Double) -> Void) async throws -> Summary {
+        var context = context
+        context.glossary = Glossary.relevant(context.glossary, in: transcript)
         let tracker = MonotonicProgress(progress)
         var material = transcript
         var isNotes = false
@@ -253,7 +291,9 @@ public struct Summarizer: Sendable {
             }
 
             do {
-                return try await finalNotes(material, context: context, isNotes: isNotes, words: words, progress: tracker)
+                var summary = try await finalNotes(material, context: context, isNotes: isNotes, words: words, progress: tracker)
+                summary.markdown = TaskCheck.clean(summary.markdown, transcript: transcript)
+                return summary
             } catch is ContextWindowExceeded where limit > 1_500 {
                 // Nur den letzten Schritt wiederholen: kleinere Abschnitte, aber nicht alles von vorn.
                 limit /= 2
@@ -324,7 +364,9 @@ public struct Summarizer: Sendable {
 
         - Gib den Inhalt sinngemäß in ganzen Sätzen wieder, mit Begründungen, Beispielen, Zahlen und Namen.
         - Fasse dich dabei kurz: Die Notizen dürfen höchstens ein Drittel so lang sein wie der Abschnitt.
-        - Hat jemand ausdrücklich etwas entschieden, vereinbart oder eine Aufgabe übernommen, halte auch das fest (wer, bis wann).
+        - Hat jemand ausdrücklich etwas entschieden, vereinbart oder eine Aufgabe übernommen, halte auch das fest \
+        (wer und bis wann nur, wenn es gesagt wurde).
+        - Namen nur, wenn sie im Abschnitt fallen. Wer nicht genannt wird, bleibt ohne Namen.
         - Setze vor jedes neue Thema die Zeitmarke aus dem Transkript, z. B. "[00:12:30] Thema".
         - Schreibe neutral in der dritten Person. Lass Smalltalk, Füllwörter und Wiederholungen weg.
         - Nur, was im Abschnitt steht. Nichts erfinden, nichts bewerten. Keine Einleitung, kein Schlusssatz.
@@ -336,38 +378,44 @@ public struct Summarizer: Sendable {
         """
         Du schreibst Notizen zu einer Aufnahme – einem Meeting, Gespräch, Telefonat, einer Vorlesung, einem Video oder einer Sprachnotiz. \
         Schreib sie so, wie ein aufmerksamer, erfahrener Mensch, der dabei war, sie für sich und andere festhalten würde: \
-        Wer sie liest, soll verstehen, worum es ging, was gesagt wurde und was daraus folgt, ohne die Aufnahme zu hören. \
+        Wer sie liest, soll verstehen, worum es ging und was gesagt oder vereinbart wurde, ohne die Aufnahme zu hören. \
         Sprache der Notizen: \(c.language).
         """
     }
 
-    /// Inhalt, Stil und Genauigkeit – gilt für beide Ausgabeformate.
+    /// Genauigkeit, Inhalt und Stil – gilt für beide Ausgabeformate. Genauigkeit steht vorn: Kleine lokale Modelle
+    /// halten sich an das, was zuerst und konkret dasteht. Die Regeln zu Namen, Aufgaben und offenen Fragen
+    /// antworten auf echte Fehler (erfundene „Team:“-Aufgaben in Vorlesungen, Namen aus dem Wörterbuch für
+    /// unbenannte Sprecher, selbst ausgedachte Fragen).
     private func contentRules(_ c: SummaryContext) -> String {
         var s = """
+        Genauigkeit (am wichtigsten)
+        - Schreib nur, was in der Aufnahme gesagt wurde. Nichts ergänzen, nichts aus Allgemeinwissen auffüllen. \
+        Lieber eine kurze Notiz als eine erfundene.
+        - Namen nur, wenn sie in der Aufnahme fallen. Wer nicht genannt wird, bleibt ohne Namen ("eine Teilnehmerin", "der Dozent").
+        - Aufgaben nur, wenn jemand in der Aufnahme ausdrücklich etwas übernimmt, zusagt oder verlangt, \
+        oder sich die aufnehmende Person in einer Sprachnotiz etwas vornimmt. Leite keine Aufgaben aus dem Thema ab. \
+        Keine Aufgaben für "Team", "alle" oder "Studierende" erfinden. Zuständige Person und Frist nur, wenn genau das gesagt wurde.
+        - Vorlesungen, Vorträge und Videos haben meist keine Aufgaben – außer die vortragende Person verlangt ausdrücklich etwas \
+        (etwa ein Übungsblatt bis Freitag).
+        - Entscheidungen nur, wenn ausdrücklich etwas festgelegt wurde. Fakten aus einem Vortrag sind keine Entscheidungen.
+        - Offene Fragen nur, wenn sie in der Aufnahme gestellt und nicht beantwortet wurden. Keine eigenen Fragen.
+        - Gibt es keine Entscheidungen, Aufgaben oder offenen Fragen, lass diese Abschnitte ganz weg.
+        - Das Transkript wurde automatisch erstellt und enthält Hörfehler. Offensichtlich falsch erkannte Wörter korrigierst du \
+        stillschweigend; was unverständlich bleibt, lässt du weg. Ist das Transkript in einer anderen Sprache, übersetze sinngemäß.
+        - Kategorie und Dateiname sind nur Hinweise. Richte dich nach dem, was tatsächlich zu hören ist, \
+        und nenne es auch so (eine Vorlesung ist kein Meeting).
+
         Inhalt
-        - Erfasse zuerst das Ganze: Anlass, Thema, Beteiligte, Ergebnis.
-        - Gib die Inhalte sinngemäß wieder: die wichtigen Aussagen mit ihren Begründungen, Beispiele, Zahlen, Namen und Termine. \
+        - Gib die wichtigen Aussagen sinngemäß wieder, mit Begründungen, Beispielen, Zahlen und Namen. \
         Zusammenhänge gehören dazu, nicht nur Schlagworte.
-        - Gewichte wie ein Mensch: Wichtiges ausführlich, Nebensächliches knapp, Smalltalk, Füllwörter und Wiederholungen gar nicht.
-        - Der Umfang richtet sich nach dem Material (siehe "Umfang" in der Nachricht). Eine kurze Aufnahme ergibt eine kurze Notiz. \
-        Nichts doppelt aufschreiben.
-        - Eine Aufgabe ist nur, was jemand in der Aufnahme ausdrücklich übernommen, zugesagt oder verlangt hat, oder was sich \
-        die aufnehmende Person in einer Sprachnotiz vornimmt. Leite keine Aufgaben aus dem Thema ab. \
-        Gibt es keine Entscheidungen, Aufgaben oder offenen Fragen, lass diese Teile ganz weg.
+        - Wichtiges ausführlich, Nebensächliches knapp, Smalltalk und Wiederholungen gar nicht. \
+        Der Umfang richtet sich nach dem Material (siehe "Umfang" in der Nachricht). Nichts doppelt aufschreiben.
 
         Stil
-        - Neutral und sachlich, unpersönlich oder in der dritten Person ("Vereinbart wurde …", "Anna schlägt vor …"). \
-        Keine Wertungen, keine eigene Meinung, keine Ratschläge.
-        - Klare, vollständige Sätze, wo es um Zusammenhänge geht; knappe Stichpunkte für Aufzählungen.
-        - Wörtliche Zitate nur, wenn die genaue Formulierung wichtig ist.
+        - Neutral und sachlich, in der dritten Person ("Vereinbart wurde …", "Anna schlägt vor …"). Keine Wertungen, keine Ratschläge.
+        - Ganze Sätze für Zusammenhänge, knappe Stichpunkte für Aufzählungen.
         - Formeln, Variablen und Rechenwege in Code-Zeichen setzen: `A·v = λ·v`. So bleiben sie unverändert.
-
-        Genauigkeit
-        - Nur, was im Material steht. Nichts ergänzen oder erfinden; Unsicheres mit "(unklar)" kennzeichnen oder weglassen.
-        - Kategorie und Dateiname sind nur Hinweise. Passt der Inhalt nicht dazu (etwa ein Video, Podcast oder Vortrag \
-        statt eines Meetings), richte dich nach dem, was tatsächlich zu hören ist, und nenne es auch so.
-        - Das Transkript wurde automatisch erstellt und enthält Hörfehler. Offensichtlich falsch erkannte Wörter, Namen und \
-        Fachbegriffe korrigierst du stillschweigend. Ist das Transkript in einer anderen Sprache, übersetze sinngemäß.
         """
         if c.simpleLanguage {
             s += """
@@ -418,7 +466,10 @@ public struct Summarizer: Sendable {
         - Gib wieder, was gesagt wurde: die Aussagen mit ihren Begründungen, Zahlen, Namen und Terminen, in ganzen, neutralen Sätzen.
         - Nur, was im Transkript steht. Nichts erfinden, nichts bewerten, keine Ratschläge.
         - Richte dich nach dem tatsächlichen Inhalt, nicht nach der Kategorie: Ein Video oder Vortrag ist kein Meeting.
-        - Aufgaben nur, wenn jemand sie ausdrücklich übernommen hat oder sich vornimmt.
+        - Namen nur, wenn sie im Transkript fallen. Wer nicht genannt wird, bleibt ohne Namen.
+        - Aufgaben nur, wenn jemand sie ausdrücklich übernommen hat oder sich vornimmt – keine für "Team" oder "alle", \
+        keine aus dem Thema abgeleiteten. Vorlesungen und Videos haben meist keine Aufgaben.
+        - Offene Fragen nur, wenn sie gestellt und nicht beantwortet wurden.
         - Das Transkript wurde automatisch erstellt und enthält Hörfehler. Korrigiere offensichtliche Fehler stillschweigend.
         """
         if c.hasSpeakers {

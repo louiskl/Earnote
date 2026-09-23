@@ -68,6 +68,31 @@ final class SummarizerTests: XCTestCase {
         XCTAssertGreaterThanOrEqual(condense.filter { $0.prompt.count <= 1_200 }.count, 2, "Danach die Hälften")
     }
 
+    /// Echte Ausgabe von Qwen3 4B zu einem englischen Meeting: „Team“ und Uhrzeiten, die nie fielen
+    func testTaskCheckDropsInventedAssigneesAndDeadlines() {
+        let transcript = "[00:00:24] Same for here, the unit tests from you, Heiko. Susanne's team has to fix the API. Ready by Monday, version 135."
+        let note = """
+        ## Aufgaben
+        - [ ] Heiko: Unit-Test auf Android 9 überprüfen – bis 17:00
+        - [ ] Team: Aktualisierung der Pull-Requests – bis 08:00
+        - [ ] Professor Meyer: Rotation testen
+        - [ ] **Maria**: Übersetzungen prüfen (bis Montag)
+        - [ ] Version 135 fertigstellen – bis 135
+        - [ ] Heiko: Filter prüfen. Frist: bis 00:00 Uhr.
+        Ein Satz mit Doppelpunkt: bleibt, wie er ist.
+        """
+        XCTAssertEqual(TaskCheck.clean(note, transcript: transcript), """
+        ## Aufgaben
+        - [ ] Heiko: Unit-Test auf Android 9 überprüfen
+        - [ ] Aktualisierung der Pull-Requests
+        - [ ] Rotation testen
+        - [ ] Übersetzungen prüfen (bis Montag)
+        - [ ] Version 135 fertigstellen – bis 135
+        - [ ] Heiko: Filter prüfen.
+        Ein Satz mit Doppelpunkt: bleibt, wie er ist.
+        """)
+    }
+
     func testParseTitleCodeFenceAndTasks() {
         let raw = "```markdown\n# Planung Q3\n\nKurzfassung.\n\n## Aufgaben\n- [ ] Anna: Budget\n  - [ ] Tom: Folien\n- [x] erledigt\n```"
         let summary = Summary.parse(raw, provider: "P", fallbackTitle: "Ersatz")
@@ -76,6 +101,10 @@ final class SummarizerTests: XCTestCase {
         XCTAssertTrue(summary.markdown.hasPrefix("Kurzfassung."))
         XCTAssertEqual(summary.taskCount, 2)
         XCTAssertEqual(summary.preview, "Kurzfassung.")
+
+        let doubled = Summary.parse("# T\n\n## Aufgaben\n- - [ ] Anna: Budget", provider: "P", fallbackTitle: "Ersatz")
+        XCTAssertEqual(doubled.markdown, "## Aufgaben\n- [ ] Anna: Budget")
+        XCTAssertEqual(doubled.taskCount, 1)
 
         let untitled = Summary.parse("Nur Text ohne Überschrift.", provider: "P", fallbackTitle: "Ersatz")
         XCTAssertEqual(untitled.title, "Ersatz")
