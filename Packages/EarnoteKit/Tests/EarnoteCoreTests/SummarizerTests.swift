@@ -136,3 +136,98 @@ final class SummarizerTests: XCTestCase {
         XCTAssertFalse(summary.markdown.contains("Entscheidungen"))
     }
 }
+
+final class NoteCheckTests: XCTestCase {
+    /// Eine Frage bleibt nur, wenn sie im Transkript gestellt wurde; ausgedachte fallen weg.
+    func testQuestionCheckKeepsOnlyAskedQuestions() {
+        let transcript = "[00:01:00] Wer übernimmt die Folien für Freitag? Anna macht das. Dann zur Sicherheit von Speichern."
+        let note = "Kurzfassung über Folien und Speicher.\n\n## Offene Fragen\n- Wer übernimmt die Folien?\n"
+            + "- Wie kann die IT-Sicherheit weiter verbessert werden?\n\n## Aufgaben\n- [ ] Anna: Folien"
+        XCTAssertEqual(QuestionCheck.clean(note, transcript: transcript),
+                       "Kurzfassung über Folien und Speicher.\n\n## Offene Fragen\n- Wer übernimmt die Folien?\n\n## Aufgaben\n- [ ] Anna: Folien")
+
+        // Keine einzige Frage im Transkript: Der Abschnitt entfällt ganz
+        XCTAssertEqual(QuestionCheck.clean("Kurzfassung.\n\n## Offene Fragen\n- Was folgt daraus?", transcript: "Heute nur Folien."),
+                       "Kurzfassung.")
+    }
+
+    /// Übersetzte Notiz (englisches Meeting, deutsche Notiz): Wort für Wort nicht prüfbar, Fragen bleiben
+    func testQuestionCheckKeepsQuestionsOfTranslatedNotes() {
+        let note = "Das Team plant die Veröffentlichung.\n\n## Offene Fragen\n- Gibt es eine Schnittstelle für Durchschnittswerte?"
+        XCTAssertEqual(QuestionCheck.clean(note, transcript: "Do we get the average from the backend? I don't know."), note)
+    }
+
+    /// Echte Ausgabe zu einer Vorlesung: Aufgaben aus dem Stoff erfunden, dazu leere und doppelte Abschnitte.
+    func testTaskCheckDropsTasksNobodyAskedFor() {
+        let transcript = "SATA schafft 540 Megabyte, NVMe über PCI Express bis 7000. "
+            + "Bis nächste Woche rechnet ihr bitte das Übungsblatt zur Speicherbandbreite. Die MMU prüft jeden Zugriff."
+        let note = """
+        SATA schafft 540 Megabyte, NVMe über PCI Express deutlich mehr. Die MMU prüft jeden Zugriff.
+
+        ## Entscheidungen
+        - Die MMU bleibt als Grundlage für moderne Systeme relevant.
+
+        ## Aufgaben
+        - [ ] Vergleich der Leistung von SATA- und NVMe-SSDs in realen Anwendungsszenarien
+
+        ## Aufgaben
+        - [ ] Übungsblatt zur Speicherbandbreite rechnen
+        """
+        XCTAssertEqual(TaskCheck.clean(note, transcript: transcript), """
+        SATA schafft 540 Megabyte, NVMe über PCI Express deutlich mehr. Die MMU prüft jeden Zugriff.
+
+        ## Aufgaben
+        - [ ] Übungsblatt zur Speicherbandbreite rechnen
+        """)
+    }
+
+    func testLengthTargetGrowsWithTranscriptButIsCapped() {
+        XCTAssertEqual(Summarizer.target(900), 150)
+        XCTAssertEqual(Summarizer.target(4_800), 800)
+        XCTAssertEqual(Summarizer.target(20_000), 1_200)
+    }
+
+    /// Whisper schreibt bei Stille seinen Wörterbuch-Hinweis ab – das gehört nicht ins Transkript.
+    func testRemovesSegmentsThatOnlyEchoTheGlossary() {
+        let segments = [TranscriptSegment(start: 0, end: 8, text: "Eigenwert, Professor Meyer."),
+                        TranscriptSegment(start: 10, end: 11.5, text: "Professor Meyer?"),
+                        TranscriptSegment(start: 12, end: 15, text: "Die Eigenwerte berechnen wir jetzt."),
+                        TranscriptSegment(start: 20, end: 30, text: "Eigenwert.")]
+        XCTAssertEqual(TranscriptCleanup.clean(segments, hints: ["Eigenwert", "Professor Meyer"]).map(\.text),
+                       ["Professor Meyer?", "Die Eigenwerte berechnen wir jetzt."])
+        XCTAssertEqual(TranscriptCleanup.clean(segments).count, 4, "ohne Wörterbuch bleibt alles")
+    }
+
+    /// Die Notiz ist schon beim Schreiben sichtbar: Zwischenstände des letzten Schritts gehen an `draft`.
+    func testFinalStepReportsDrafts() async throws {
+        let client = StreamingFake(parts: ["# Titel\n\nErster", "# Titel\n\nErster Satz. Zweiter Satz."])
+        let drafts = Locked<[String]>([])
+        let summary = try await Summarizer(client: client, chunkCharacters: 60_000, providerName: "P")
+            .summarize(transcript: "[00:00:01] Erster Satz. Zweiter Satz.",
+                       context: SummaryContext(category: nil, titleHint: "", sourceApp: nil, date: Date(), duration: 60,
+                                               hasSpeakers: false, language: "Deutsch"),
+                       draft: { text in drafts.mutate { $0.append(text) } }) { _ in }
+        XCTAssertEqual(drafts.get(), ["# Titel\n\nErster", "# Titel\n\nErster Satz. Zweiter Satz."])
+        XCTAssertEqual(summary.markdown, "Erster Satz. Zweiter Satz.")
+    }
+}
+
+private struct StreamingFake: LLMClient {
+    let parts: [String]
+    func complete(system: String, prompt: String) async throws -> String { parts.last ?? "" }
+    func complete(system: String, prompt: String, partial: @escaping @Sendable (String) -> Void) async throws -> String {
+        parts.forEach(partial)
+        return parts.last ?? ""
+    }
+}
+
+final class DecisionCheckTests: XCTestCase {
+    func testKeepsDecisionsThatWereMade() {
+        let transcript = "Die Migration verschieben wir auf den nächsten Sprint. Die Tests laufen auf Android neun instabil."
+        let note = "Die Migration der Schnittstelle und instabile Tests auf Android.\n\n## Entscheidungen\n"
+            + "- Die Migration wird auf den nächsten Sprint verschoben.\n- Android neun bleibt die wichtigste Plattform."
+        XCTAssertEqual(TaskCheck.clean(note, transcript: transcript),
+                       "Die Migration der Schnittstelle und instabile Tests auf Android.\n\n## Entscheidungen\n"
+                       + "- Die Migration wird auf den nächsten Sprint verschoben.")
+    }
+}

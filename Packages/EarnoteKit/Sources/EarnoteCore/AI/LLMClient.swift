@@ -2,6 +2,15 @@ import Foundation
 
 public protocol LLMClient: Sendable {
     func complete(system: String, prompt: String) async throws -> String
+    /// Wie `complete`, meldet aber zwischendurch den bisher geschriebenen Text – damit die Notiz beim Entstehen
+    /// sichtbar wird, statt nach Minuten auf einmal. Wer nicht schrittweise liefern kann, meldet nichts.
+    func complete(system: String, prompt: String, partial: @escaping @Sendable (String) -> Void) async throws -> String
+}
+
+public extension LLMClient {
+    func complete(system: String, prompt: String, partial: @escaping @Sendable (String) -> Void) async throws -> String {
+        try await complete(system: system, prompt: prompt)
+    }
 }
 
 public struct LLMError: LocalizedError, Sendable {

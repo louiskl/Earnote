@@ -124,26 +124,68 @@ public struct NotesDraft: Sendable {
 }
 
 /// Prüft Aufgaben gegen das Transkript. Kleine Modelle halten sich bei Aufgaben trotz klarer Regeln nicht immer
-/// an das Gesagte: Sie verteilen Aufgaben an „Team“ oder an Namen, die nie fielen, und hängen Uhrzeiten an,
-/// die niemand genannt hat („– bis 17:00“ in einem englischen Meeting ohne jede Uhrzeit). Die Aufgabe selbst
-/// bleibt stehen – weg fällt nur, was sich im Transkript nicht findet.
+/// an das Gesagte: Sie verteilen Aufgaben an „Team“ oder an Namen, die nie fielen, hängen Uhrzeiten an, die niemand
+/// genannt hat („– bis 17:00“ in einem englischen Meeting ohne jede Uhrzeit), und erfinden in Vorlesungen
+/// Aufgaben aus dem Stoff („Vergleich der Leistung von SATA- und NVMe-SSDs“).
+/// - Zuständige, die im Transkript nicht vorkommen oder nur eine Gruppe sind, fallen weg; ebenso Fristen mit
+///   Zahlen, die nie gesagt wurden.
+/// - Eine Aufgabe ohne bekannte zuständige Person bleibt nur, wenn im Transkript ein Satz mit denselben
+///   Kernwörtern nach Auftrag klingt („bis Freitag“, „bitte“, „müsst ihr“). Ist die Notiz übersetzt, lässt
+///   sich das nicht Wort für Wort prüfen – dann bleibt sie.
 public enum TaskCheck {
     private static let groups: Set<String> = ["team", "alle", "gruppe", "studierende", "teilnehmer", "teilnehmende",
                                               "beteiligte", "wir", "everyone", "all", "everybody"]
+
+    /// Wörter, an denen man einen Auftrag erkennt (klein, ohne Umlaute)
+    /// Bewusst eindeutig: „bis 7000“ oder „der Prozess muss warten“ sind in einer Vorlesung kein Auftrag.
+    private static let cues = ["bitte", "aufgabe", "ubung", "abgab", "erledig", "ubernehm", "ubernimm", "kummer",
+                               "vorbereit", "musst", "solltet", "ich muss", "ich sollte", "ich will", "nicht vergessen",
+                               "denk dran", "mach ich", "machst du", "bis zum", "bis nachst", "bis morgen", "bis ende",
+                               "bis montag", "bis dienstag", "bis mittwoch", "bis donnerstag", "bis freitag",
+                               "please", "deadline", "homework", "assignment", "submit", "todo", "need to", "have to",
+                               "will do", "i'll", "i will", "can you", "could you", "next week", "prepare"]
+
+    /// Woran man einen Beschluss erkennt – Sachaussagen einer Vorlesung sind keine Entscheidungen
+    private static let decisionCues = ["entschied", "entscheid", "beschlo", "vereinbar", "festgeleg", "geeinigt", "einig ",
+                                       "machen wir", "nehmen wir", "lassen wir", "verschieb", "streichen", "decided",
+                                       "decide", "agreed", "let's", "we'll", "go with", "postpone", "move it", "drop"]
 
     public static func clean(_ markdown: String, transcript: String) -> String {
         // Zahlen, die gesagt wurden – ohne die Zeitmarken des Transkripts („[00:12:30]“), sonst gälte „00:00“ als genannt
         let spoken = transcript.replacing(/\[\d{1,2}:\d{2}(?::\d{2})?\]/, with: "")
         let numbers = Set(spoken.matches(of: /\d+/).compactMap { Int($0.output) })
-        return markdown.components(separatedBy: "\n").map { line in
+        let requests = spoken.split { ".!?\n".contains($0) }
+            .filter { sentence in cues.contains { NoteStems.folded(String(sentence)).contains($0) } }
+            .map { NoteStems.of(String($0)) }
+        let decisions = spoken.split { ".!?\n".contains($0) }
+            .filter { sentence in decisionCues.contains { NoteStems.folded(String(sentence)).contains($0) } }
+            .map { NoteStems.of(String($0)) }
+        let lines = markdown.components(separatedBy: "\n")
+        let prose = lines.filter { !$0.contains("[ ]") && !$0.hasPrefix("#") }
+        let sameLanguage = NoteStems.sameLanguage(prose.joined(separator: "\n"), spoken)
+
+        var section = ""
+        let checked = lines.compactMap { line -> String? in
+            if line.hasPrefix("## ") { section = line.dropFirst(3).trimmingCharacters(in: .whitespaces).lowercased() }
+            // Entscheidungen: nur, wenn im Transkript ein Satz mit denselben Kernwörtern nach Beschluss klingt
+            if section == "entscheidungen", sameLanguage, line.hasPrefix("- "), !line.contains("[ ]") {
+                let mine = NoteStems.of(line)
+                let needed = mine.count <= 2 ? 1 : 2
+                return decisions.contains { $0.intersection(mine).count >= needed } ? line : nil
+            }
             guard let task = line.firstMatch(of: /^(\s*- \[[ xX]\] )(.*)$/) else { return line }
             var text = String(task.output.2)
+            var assigned = false
             // „Heiko: …“ bzw. „**Heiko**: …“ – nur kurze Angaben vor dem Doppelpunkt sind eine Zuständigkeit
             if let who = text.firstMatch(of: /^\*{0,2}([^:*]{1,40}?)\*{0,2}:\s+(.+)$/) {
                 let name = String(who.output.1).trimmingCharacters(in: .whitespaces)
-                let unknown = Glossary.relevant([GlossaryTerm(term: name)], in: transcript).isEmpty
-                if name.split(separator: " ").count <= 3, groups.contains(name.lowercased()) || unknown {
-                    text = String(who.output.2)
+                let known = !Glossary.relevant([GlossaryTerm(term: name)], in: transcript).isEmpty
+                if name.split(separator: " ").count <= 3 {
+                    if groups.contains(name.lowercased()) || !known {
+                        text = String(who.output.2)
+                    } else {
+                        assigned = true
+                    }
                 }
             }
             // „– bis 17:00“, „(bis 30.09.2026)“, „Frist: …“: Zahlen, die nie gesagt wurden, sind erfunden
@@ -151,8 +193,95 @@ public enum TaskCheck {
                !due.output.matches(of: /\d+/).allSatisfy({ Int($0.output).map(numbers.contains) ?? false }) {
                 text = String(text[..<due.range.lowerBound])
             }
+            if !assigned, sameLanguage {
+                let mine = NoteStems.of(text)
+                let needed = mine.count <= 2 ? 1 : 2
+                guard requests.contains(where: { $0.intersection(mine).count >= needed }) else { return nil }
+            }
             return task.output.1 + text
-        }.joined(separator: "\n")
+        }
+        return NoteStems.tidy(checked.joined(separator: "\n"))
+    }
+}
+
+/// Grobe Wortstämme zum Vergleichen von Notiz und Transkript, und das Aufräumen danach.
+enum NoteStems {
+    static func folded(_ text: String) -> String {
+        text.folding(options: [.caseInsensitive, .diacriticInsensitive], locale: nil)
+    }
+
+    /// Die ersten fünf Buchstaben aller Wörter ab fünf Buchstaben, ohne Füllwörter
+    static func of(_ text: String) -> Set<String> {
+        Set(folded(text).split { !$0.isLetter }.filter { $0.count >= 5 }.map { String($0.prefix(5)) }
+            .filter { !stop.contains($0) })
+    }
+
+    /// Ist die Notiz in der Sprache des Transkripts? Bei einer Übersetzung teilen beide kaum Wortstämme.
+    static func sameLanguage(_ note: String, _ transcript: String) -> Bool {
+        let mine = of(note)
+        return !mine.isEmpty && Double(mine.intersection(of(transcript)).count) / Double(mine.count) >= 0.3
+    }
+
+    private static let stop: Set<String> = [
+        "werde", "wurde", "welch", "diese", "nicht", "keine", "einer", "einem", "einen", "eines", "haben", "hatte",
+        "sollt", "konne", "konnt", "musse", "warum", "wieso", "wesha", "immer", "schon", "etwas", "damit",
+        "there", "which", "would", "could", "about", "these", "those", "their", "where", "shoul", "being", "other",
+    ]
+
+    /// Abschnitte für Entscheidungen, Aufgaben und offene Fragen, die leer geworden sind, fallen weg;
+    /// kommt einer doppelt vor, wird er zusammengelegt.
+    static func tidy(_ markdown: String) -> String {
+        let closing = ["entscheidungen", "aufgaben", "offene fragen"]
+        var parts: [(heading: String?, lines: [String])] = [(nil, [])]
+        for line in markdown.components(separatedBy: "\n") {
+            if line.hasPrefix("## ") { parts.append((line.trimmingCharacters(in: .whitespaces), [])) }
+            else { parts[parts.count - 1].lines.append(line) }
+        }
+        var merged: [(heading: String?, lines: [String])] = []
+        for part in parts {
+            if let heading = part.heading, closing.contains(String(heading.dropFirst(3)).lowercased()),
+               let i = merged.firstIndex(where: { $0.heading == heading }) {
+                merged[i].lines += part.lines
+            } else {
+                merged.append(part)
+            }
+        }
+        return merged.compactMap { part -> String? in
+            let body = part.lines.filter { !$0.trimmingCharacters(in: .whitespaces).isEmpty }
+            guard let heading = part.heading else { return part.lines.joined(separator: "\n") }
+            if closing.contains(String(heading.dropFirst(3)).lowercased()) {
+                return body.isEmpty ? nil : ([heading] + body).joined(separator: "\n") + "\n"
+            }
+            return ([heading] + part.lines).joined(separator: "\n")
+        }.joined(separator: "\n").replacing(/\n{3,}/, with: "\n\n").trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+}
+
+/// Prüft „Offene Fragen“ gegen das Transkript. Kleine Modelle denken sich hier gern Fragen aus, die passen
+/// könnten („Wie kann die IT-Sicherheit weiter verbessert werden?“), obwohl niemand sie gestellt hat.
+/// Eine Frage bleibt, wenn im Transkript eine Frage mit denselben Kernwörtern steht. Gab es dort gar keine Frage,
+/// fällt der Abschnitt weg. Ist die Notiz in eine andere Sprache übersetzt, lässt sich das Wort für Wort nicht
+/// prüfen – dann bleibt es bei der Regel „keine Frage im Transkript, keine offenen Fragen“.
+public enum QuestionCheck {
+    public static func clean(_ markdown: String, transcript: String) -> String {
+        var lines = markdown.components(separatedBy: "\n")
+        guard let head = lines.firstIndex(where: {
+            $0.trimmingCharacters(in: .whitespaces).lowercased().hasPrefix("## offene fragen")
+        }) else { return markdown }
+        let end = lines[(head + 1)...].firstIndex { $0.hasPrefix("#") } ?? lines.count
+        let asked = transcript.matches(of: /[^.!?\n]*\?/).map { NoteStems.of(String($0.output)) }.filter { !$0.isEmpty }
+        let sameLanguage = NoteStems.sameLanguage((lines[..<head] + lines[end...]).joined(separator: "\n"), transcript)
+        let kept = lines[(head + 1)..<end].filter { line in
+            let text = line.trimmingCharacters(in: .whitespaces)
+            guard !text.isEmpty else { return false }
+            guard !asked.isEmpty else { return false }
+            guard sameLanguage else { return true }
+            let mine = NoteStems.of(text)
+            let needed = mine.count <= 2 ? 1 : 2
+            return asked.contains { $0.intersection(mine).count >= needed }
+        }
+        lines.replaceSubrange(head..<end, with: kept.isEmpty ? [] : [lines[head]] + kept + [""])
+        return lines.joined(separator: "\n").trimmingCharacters(in: .whitespacesAndNewlines)
     }
 }
 
@@ -245,7 +374,9 @@ public struct Summarizer: Sendable {
         self.providerName = providerName
     }
 
+    /// `draft` bekommt die Notiz des letzten Schritts, während die KI sie schreibt (roh, mit Titelzeile).
     public func summarize(transcript: String, context: SummaryContext, precondensed: PreCondensed? = nil,
+                          draft: @escaping @Sendable (String) -> Void = { _ in },
                           progress: @escaping @Sendable (Double) -> Void) async throws -> Summary {
         var context = context
         context.glossary = Glossary.relevant(context.glossary, in: transcript)
@@ -291,8 +422,10 @@ public struct Summarizer: Sendable {
             }
 
             do {
-                var summary = try await finalNotes(material, context: context, isNotes: isNotes, words: words, progress: tracker)
-                summary.markdown = TaskCheck.clean(summary.markdown, transcript: transcript)
+                var summary = try await finalNotes(material, context: context, isNotes: isNotes, words: words,
+                                                   progress: tracker, draft: draft)
+                summary.markdown = QuestionCheck.clean(TaskCheck.clean(summary.markdown, transcript: transcript),
+                                                       transcript: transcript)
                 return summary
             } catch is ContextWindowExceeded where limit > 1_500 {
                 // Nur den letzten Schritt wiederholen: kleinere Abschnitte, aber nicht alles von vorn.
@@ -335,7 +468,7 @@ public struct Summarizer: Sendable {
     }
 
     private func finalNotes(_ material: String, context: SummaryContext, isNotes: Bool, words: Int,
-                            progress: MonotonicProgress) async throws -> Summary {
+                            progress: MonotonicProgress, draft: @escaping @Sendable (String) -> Void) async throws -> Summary {
         let prompt = finalPrompt(material, context, isNotes: isNotes, words: words)
         let fallbackTitle = context.titleHint.isEmpty ? "Aufnahme" : context.titleHint
         // Der letzte Schritt meldet keinen Zwischenstand. Damit der Balken nicht minutenlang steht,
@@ -350,7 +483,7 @@ public struct Summarizer: Sendable {
             progress.set(1)
             return draft.summary(provider: providerName, fallbackTitle: fallbackTitle, showTopics: words >= 150)
         }
-        let raw = try await client.complete(system: markdownSystem(context), prompt: prompt)
+        let raw = try await client.complete(system: markdownSystem(context), prompt: prompt, partial: draft)
         progress.set(1)
         return Summary.parse(raw, provider: providerName, fallbackTitle: fallbackTitle)
     }
@@ -514,16 +647,24 @@ public struct Summarizer: Sendable {
             return "Sehr kurz (ca. \(words) gesprochene Wörter). Nur Titel, eine Kurzfassung in ein bis drei Sätzen und, "
                 + "falls vorhanden, Aufgaben. Keine weitere Gliederung."
         case ..<700:
-            return "Kurz (ca. \(words) Wörter). Eine kompakte Notiz: Kurzfassung und das Wesentliche in wenigen Punkten; "
-                + "nach Themen gliedern nur, wenn es mehrere klar getrennte Themen gibt."
+            return "Kurz (ca. \(words) Wörter). Eine kompakte Notiz: Kurzfassung und das Wesentliche in wenigen Punkten, "
+                + "höchstens etwa 150 Wörter; nach Themen gliedern nur, wenn es mehrere klar getrennte Themen gibt."
         case ..<3_000:
-            return "Mittel (ca. \(words) Wörter). Gliedere nach den Hauptthemen."
+            return "Mittel (ca. \(words) Wörter). Gliedere nach den Hauptthemen, insgesamt etwa \(target(words)) Wörter."
         case ..<12_000:
-            return "Lang (ca. \(words) Wörter). Gliedere ausführlich nach Themen und gib die Inhalte detailliert wieder."
+            return "Lang (ca. \(words) Wörter). Gliedere mit einer Überschrift \"## Thema\" je Thema, insgesamt etwa "
+                + "\(target(words)) Wörter. Unter jeder Überschrift knappe Stichpunkte statt langer Absätze."
         default:
-            return "Sehr lang (ca. \(words) Wörter). Gliedere ausführlich nach Themen, gib die Inhalte detailliert wieder "
-                + "und setze Zeitmarken hinter die Themenüberschriften."
+            return "Sehr lang (ca. \(words) Wörter). Gliedere mit einer Überschrift \"## Thema [Zeitmarke]\" je Thema, "
+                + "insgesamt etwa \(target(words)) Wörter. Unter jeder Überschrift knappe Stichpunkte statt langer Absätze."
         }
+    }
+
+    /// Zielumfang der Notiz: etwa ein Sechstel des Gesprochenen, höchstens 1.200 Wörter. Die Rechenzeit der lokalen KI
+    /// hängt fast nur daran, wie viel sie schreibt. Gemessen an einer Stunde Vorlesung (Qwen3 4B, 23.09.2026):
+    /// ohne Ziel 1.168 Wörter in 524 s, mit Ziel 592 Wörter in 386 s.
+    static func target(_ words: Int) -> Int {
+        min(1_200, max(150, words / 6 / 50 * 50))
     }
 
     /// Wörter im Transkript ohne Zeitmarken und Sprecherangaben.

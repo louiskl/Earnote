@@ -19,8 +19,29 @@ public enum TranscriptCleanup {
     ]
 
     /// Alles zusammen: Schleifen entfernen, erfundene Sätze aus Stille entfernen.
-    public static func clean(_ segments: [TranscriptSegment]) -> [TranscriptSegment] {
-        removeHallucinations(removeRepetitions(segments))
+    /// `hints` sind die Wörterbuch-Begriffe, die Whisper als Hinweis bekam.
+    public static func clean(_ segments: [TranscriptSegment], hints: [String] = []) -> [TranscriptSegment] {
+        removeHintEchoes(removeHallucinations(removeRepetitions(segments)), hints: hints)
+    }
+
+    /// Whisper schreibt bei Stille mitunter seinen Hinweis ab: ein Abschnitt, der nur aus Wörterbuch-Begriffen
+    /// besteht („Eigenwert, Professor Meyer.“). Der fliegt raus – bei zwei und mehr Begriffen immer, bei einem nur,
+    /// wenn er sich wie eine stille Stelle über Sekunden zieht. „Professor Meyer?“ als echte Nachfrage bleibt.
+    public static func removeHintEchoes(_ segments: [TranscriptSegment], hints: [String]) -> [TranscriptSegment] {
+        let terms = hints.map(normalized).filter { !$0.isEmpty }.sorted { $0.count > $1.count }
+        guard !terms.isEmpty else { return segments }
+        return segments.filter { segment in
+            var rest = " " + normalized(segment.text) + " "
+            var found = 0
+            for term in terms where rest.contains(" \(term) ") {
+                found += rest.components(separatedBy: " \(term) ").count - 1
+                rest = rest.replacingOccurrences(of: " \(term) ", with: " ")
+            }
+            let leftover = rest.split(separator: " ").filter { !["und", "and", "oder", "or"].contains($0) }
+            guard found > 0, leftover.isEmpty else { return true }
+            let words = max(1, normalized(segment.text).split(separator: " ").count)
+            return found < 2 && segment.end - segment.start <= Double(words) * 1.5 + 1.5
+        }
     }
 
     /// Entfernt Sätze, die Whisper aus Stille erfindet.

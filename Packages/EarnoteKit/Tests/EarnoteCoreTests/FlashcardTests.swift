@@ -331,3 +331,12 @@ final class FlashcardFalsePositiveTests: XCTestCase {
         XCTAssertEqual(blocks[1], .task(id: 1, text: "std::move nachlesen", isDone: false, line: 1))
     }
 }
+
+final class FlashcardCountTests: XCTestCase {
+    /// 4 bis 8 Karten je nach Umfang – 12 waren mehr, als beim Lernen jemand durchgeht.
+    func testCountFollowsMaterialBetweenFourAndEight() {
+        XCTAssertEqual(Flashcards.count(for: String(repeating: "a", count: 800)), 4)
+        XCTAssertEqual(Flashcards.count(for: String(repeating: "a", count: 6_000)), 6)
+        XCTAssertEqual(Flashcards.count(for: String(repeating: "a", count: 30_000)), 8)
+    }
+}

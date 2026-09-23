@@ -36,6 +36,8 @@ final class LibraryStore: RecordingLibrary {
     @ObservationIgnored let managed: ManagedSettings
     /// Aufnahmen, für die gerade Karteikarten entstehen (die Menüeinträge sind so lange aus)
     private(set) var makingFlashcards: Set<UUID> = []
+    /// Wie viele Karteikarten schon geschrieben sind (und wie viele es werden), während sie entstehen
+    private(set) var flashcardProgress: [UUID: (done: Int, of: Int)] = [:]
     /// Läuft gerade eine Bereichs-Übersicht? (nur eine auf einmal – sie belegt die KI)
     private(set) var isSummarizingCategory = false
     /// Nach jeder Änderung der Einstellungen (alt, neu)
@@ -259,7 +261,7 @@ final class LibraryStore: RecordingLibrary {
     func makeFlashcards(_ id: UUID) async -> [Flashcard]? {
         guard !makingFlashcards.contains(id), let recording = recording(id) else { return nil }
         makingFlashcards.insert(id)
-        defer { makingFlashcards.remove(id) }
+        defer { makingFlashcards.remove(id); flashcardProgress[id] = nil }
         guard let note = await summary(id) else {
             lastError = String(localized: "Für diese Aufnahme gibt es noch keine Notiz.")
             return nil
@@ -269,10 +271,22 @@ final class LibraryStore: RecordingLibrary {
                 lastError = String(localized: "Für Karteikarten braucht es eine KI. Wähle in den Einstellungen unter „KI“ eine aus.")
                 return nil
             }
-            let transcript = await self.transcript(id)?.formatted(includeSpeakers: false) ?? ""
-            let material = note.markdown + "\n\n" + transcript
-            let cards = try await Flashcards.generate(client: client, material: material,
-                                                      language: settings.ai.summaryLanguage)
+            // Eine ausführliche Notiz enthält schon, was sich abzufragen lohnt. Das Transkript kommt nur bei knappen
+            // Notizen dazu – es verdoppelt sonst fast die Rechenzeit der lokalen KI.
+            let material: String
+            if note.markdown.count >= 1_500 {
+                material = note.markdown
+            } else {
+                material = note.markdown + "\n\n" + (await self.transcript(id)?.formatted(includeSpeakers: false) ?? "")
+            }
+            let total = Flashcards.count(for: material)
+            flashcardProgress[id] = (0, total)
+            let cards = try await Flashcards.generate(client: client, material: material, language: settings.ai.summaryLanguage,
+                                                      count: total) { [weak self] done in
+                Task { @MainActor in
+                    if self?.makingFlashcards.contains(id) == true { self?.flashcardProgress[id] = (done, total) }
+                }
+            }
             guard !cards.isEmpty else {
                 lastError = String(localized: "Die KI hat keine Karteikarten geliefert. Versuch es noch einmal.")
                 return nil

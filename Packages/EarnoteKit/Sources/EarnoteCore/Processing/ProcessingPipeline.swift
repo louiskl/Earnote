@@ -8,13 +8,17 @@ public struct ProcessingEvents: Sendable {
     public var update: @Sendable (UUID, @escaping @Sendable (inout Recording) -> Void) async -> Void
     /// Fortschritt des gesamten Durchgangs (0…1); nur im Speicher, läuft nur vorwärts
     public var progress: @Sendable (UUID, Double) -> Void
+    /// Die Notiz, während die KI sie schreibt (roh, mit Titelzeile); nur im Speicher
+    public var draft: @Sendable (UUID, String) -> Void
 
     public init(recording: @escaping @Sendable (UUID) async -> Recording?,
                 update: @escaping @Sendable (UUID, @escaping @Sendable (inout Recording) -> Void) async -> Void,
-                progress: @escaping @Sendable (UUID, Double) -> Void) {
+                progress: @escaping @Sendable (UUID, Double) -> Void,
+                draft: @escaping @Sendable (UUID, String) -> Void = { _, _ in }) {
         self.recording = recording
         self.update = update
         self.progress = progress
+        self.draft = draft
     }
 }
 
@@ -88,8 +92,8 @@ public struct ProcessingPipeline: Sendable {
                 let started = Date()
                 // Nur beim ersten Durchgang: „Neu zusammenfassen“ soll frisch rechnen.
                 let ready = extraInstructions.isEmpty ? await precondensed.take(id) : nil
-                let s = try await summarizer.summarize(transcript: text, context: context,
-                                                       precondensed: ready) { p in
+                let s = try await summarizer.summarize(transcript: text, context: context, precondensed: ready,
+                                                       draft: { events.draft(id, $0) }) { p in
                     events.progress(id, Self.map(p, to: summarySpan))
                 }
                 Self.logDuration("Notiz (\(settings.ai.provider.label), \(text.count) Zeichen Transkript)", since: started)
@@ -201,7 +205,7 @@ public struct ProcessingPipeline: Sendable {
         // Schleifen und die Sätze, die Whisper aus Stille erfindet, gehören nicht ins Transkript –
         // sonst entsteht daraus eine Notiz über ein Gespräch, das nie stattgefunden hat.
         let raw = segments.count
-        segments = TranscriptCleanup.clean(segments)
+        segments = TranscriptCleanup.clean(segments, hints: hints)
         if segments.count < raw { Log.info("Transkript bereinigt: \(raw - segments.count) von \(raw) Abschnitten entfernt") }
         guard TranscriptCleanup.spokenWords(segments) >= 3 else { throw TranscriptionError.noSpeech }
 

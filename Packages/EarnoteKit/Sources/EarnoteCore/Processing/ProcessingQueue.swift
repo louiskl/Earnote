@@ -27,6 +27,8 @@ public final class ProcessingQueue {
     public private(set) var processingID: UUID?
     /// Fortschritt je Aufnahme (0…1), nur im Speicher; für Liste, Detail und Inspector
     public private(set) var progress: [UUID: Double] = [:]
+    /// Die Notiz, während die KI sie schreibt – bis die fertige gespeichert ist
+    public private(set) var drafts: [UUID: String] = [:]
 
     @ObservationIgnored public weak var library: (any RecordingLibrary)?
     @ObservationIgnored private let pipeline: ProcessingPipeline
@@ -166,13 +168,18 @@ public final class ProcessingQueue {
         let instruction = instructions.removeValue(forKey: id) ?? ""
         await pipeline.process(rec, settings: settings, category: category, events: events,
                                extraInstructions: instruction)
+        drafts[id] = nil
     }
 
     private var events: ProcessingEvents {
         ProcessingEvents(
             recording: { [weak self] id in await self?.currentRecording(id) },
             update: { [weak self] id, change in await self?.apply(id, change) },
-            progress: { [weak self] id, p in Task { @MainActor in self?.setProgress(id, p) } })
+            progress: { [weak self] id, p in Task { @MainActor in self?.setProgress(id, p) } },
+            // Nur für die laufende Aufnahme: Ein verspäteter Zwischenstand darf die fertige Notiz nicht überdecken
+            draft: { [weak self] id, text in
+                Task { @MainActor in if self?.processingID == id { self?.drafts[id] = text } }
+            })
     }
 
     private func currentRecording(_ id: UUID) -> Recording? { library?.recording(id) }

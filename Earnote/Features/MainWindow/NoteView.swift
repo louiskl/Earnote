@@ -4,6 +4,7 @@ import SwiftUI
 /// Die Notiz als gegliederter Text: Kurzfassung, Themen als Überschriften, Aufgaben als Checkboxen.
 struct NoteView: View {
     @Environment(LibraryStore.self) private var library
+    @Environment(ProcessingQueue.self) private var queue
     let recording: LibraryRecording
     /// Anfrage aus dem Menü: Ist sie diese Aufnahme, geht der Editor auf.
     let editRequest: UUID?
@@ -54,7 +55,10 @@ struct NoteView: View {
     }
 
     @ViewBuilder private var content: some View {
-        if let note = recording.note {
+        if recording.isBusy, let draft = queue.drafts[recording.id], !draft.isEmpty {
+            // „Neu zusammenfassen“: Die neue Notiz entsteht sichtbar an Stelle der alten
+            DraftNoteView(recording: recording, draft: draft)
+        } else if let note = recording.note {
             let markdown = pendingMarkdown ?? note.markdown
             if editing {
                 NoteEditor(markdown: markdown) { edited in
@@ -72,6 +76,7 @@ struct NoteView: View {
                         if recording.isBusy || recording.status == .failed {
                             StatusLine(recording: recording)
                         }
+                        FlashcardStatus(recordingID: recording.id)
                         ForEach(NoteSection.sections(markdown)) { section in
                             NoteSectionView(section: section, searchText: searchText) { line in
                                 guard let updated = NoteMarkdown.togglingTask(in: markdown, line: line) else { return }
@@ -343,13 +348,6 @@ private struct NoteFooterActions: View {
             }
             .buttonStyle(.bordered)
             .controlSize(.small)
-            if makingCards {
-                HStack(spacing: 8) {
-                    ProgressView().controlSize(.small)
-                    Text("Karteikarten entstehen …").font(.callout).foregroundStyle(.secondary)
-                }
-                LowPowerHint()
-            }
         }
         .sheet(isPresented: $simplifying) {
             SummarizeAgainSheet(recordingID: recording.id,
@@ -361,7 +359,7 @@ private struct NoteFooterActions: View {
 /// Der Stromsparmodus drosselt die Grafikeinheit, auf der die lokale KI rechnet – Notizen und
 /// Karteikarten dauern dann ein Mehrfaches (gemessen: 83 s statt 352 s für dieselben Karteikarten).
 /// Wer das nicht weiß, hält Earnote für langsam. Nur zeigen, während die lokale KI wirklich arbeitet.
-private struct LowPowerHint: View {
+struct LowPowerHint: View {
     @Environment(PowerSource.self) private var power
     @Environment(LibraryStore.self) private var library
 
@@ -375,6 +373,63 @@ private struct LowPowerHint: View {
             }
             .font(.callout)
             .foregroundStyle(.secondary)
+        }
+    }
+}
+
+/// Die Notiz, während die KI sie schreibt: blasser, ohne Häkchen und Aktionen, folgt dem Text nach unten.
+/// Die fertige Notiz ersetzt sie – sie ist erst danach geprüft (erfundene Zuständige, Fristen, Fragen fallen weg).
+struct DraftNoteView: View {
+    let recording: LibraryRecording
+    let draft: String
+
+    var body: some View {
+        let markdown = Summary.parse(draft, provider: "", fallbackTitle: "").markdown
+        ScrollView {
+            VStack(alignment: .leading, spacing: 10) {
+                DetailHeader(recording: recording)
+                    .padding(.bottom, 6)
+                StatusLine(recording: recording)
+                ForEach(NoteMarkdown.blocks(markdown)) { block in
+                    NoteBlockView(block: block, searchText: "") { _ in }
+                }
+                .foregroundStyle(.secondary)
+                .allowsHitTesting(false)
+            }
+            .frame(maxWidth: 720, alignment: .leading)
+            .padding(24)
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .defaultScrollAnchor(.bottom)
+        .accessibilityHint("Die Notiz entsteht gerade")
+    }
+}
+
+/// Stand der Karteikarten oben in der Notiz – egal, ob sie über die Leiste, das Menü oder die Liste angestoßen wurden.
+/// Erst liest die KI die Notiz (das dauert, ohne dass etwas zu zählen wäre), dann zählt die Anzeige jede fertige Karte mit.
+private struct FlashcardStatus: View {
+    @Environment(LibraryStore.self) private var library
+    let recordingID: UUID
+
+    var body: some View {
+        if library.makingFlashcards.contains(recordingID) {
+            let (done, total) = library.flashcardProgress[recordingID] ?? (0, 0)
+            VStack(alignment: .leading, spacing: 6) {
+                HStack(spacing: 8) {
+                    if done == 0 {
+                        ProgressView().controlSize(.small)
+                        Text("Karteikarten entstehen – die KI liest die Notiz …")
+                    } else {
+                        Text("Karteikarten entstehen – \(done) von \(total)")
+                        ProgressView(value: Double(done), total: Double(max(total, done)))
+                            .frame(maxWidth: 160)
+                    }
+                }
+                .font(.callout)
+                .foregroundStyle(.secondary)
+                .accessibilityElement(children: .combine)
+                LowPowerHint()
+            }
         }
     }
 }

@@ -226,6 +226,11 @@ public struct LocalLLMClient: LLMClient {
     public init() {}
 
     public func complete(system: String, prompt: String) async throws -> String {
+        try await complete(system: system, prompt: prompt) { _ in }
+    }
+
+    public func complete(system: String, prompt: String,
+                         partial: @escaping @Sendable (String) -> Void) async throws -> String {
         if let reason = LocalModelManager.unsupportedReason { throw LLMError(message: reason) }
         if !LocalModelManager.installed {
             await LocalModelManager.shared.waitForDownload()
@@ -238,7 +243,17 @@ public struct LocalLLMClient: LLMClient {
         let answer = try await LocalLLMCache.shared.use { container in
             let session = ChatSession(container, instructions: system,
                                       generateParameters: GenerateParameters(maxTokens: 4_000, temperature: 0.3, topP: 0.9))
-            return try await session.respond(to: prompt)
+            var text = ""
+            var reported = Date.distantPast
+            for try await chunk in session.streamResponse(to: prompt) {
+                text += chunk
+                // Höchstens dreimal pro Sekunde melden – jede Meldung zeichnet die Notiz neu
+                if Date().timeIntervalSince(reported) > 0.3 {
+                    partial(text.removingThinkBlocks)
+                    reported = Date()
+                }
+            }
+            return text
         }
         let seconds = Date().timeIntervalSince(started)
         Log.info(String(format: "Lokale KI: %d Zeichen hinein, %d heraus, %.0f s", prompt.count, answer.count, seconds))

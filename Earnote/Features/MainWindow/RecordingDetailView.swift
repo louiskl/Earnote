@@ -120,13 +120,18 @@ struct ProcessingStateView: View {
     let recording: LibraryRecording
 
     var body: some View {
-        if recording.isBusy {
+        if recording.isBusy, let draft = queue.drafts[recording.id], !draft.isEmpty {
+            DraftNoteView(recording: recording, draft: draft)
+        } else if recording.isBusy {
             ContentUnavailableView {
                 Label(recording.status.label, systemImage: "gearshape.2")
             } description: {
-                ProgressView(value: queue.progress[recording.id] ?? 0)
-                    .frame(maxWidth: 240)
-                    .accessibilityLabel("Fortschritt")
+                VStack(spacing: 12) {
+                    ProgressView(value: queue.progress[recording.id] ?? 0)
+                        .frame(maxWidth: 240)
+                        .accessibilityLabel("Fortschritt")
+                    if recording.status == .summarizing { LowPowerHint() }
+                }
             }
         } else if recording.status == .failed {
             ContentUnavailableView {

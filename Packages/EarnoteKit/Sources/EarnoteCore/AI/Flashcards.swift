@@ -77,10 +77,18 @@ public enum Flashcards {
         return cards.map { "\(field($0.question)),\(field($0.answer))" }.joined(separator: "\n") + "\n"
     }
 
+    /// Wie viele Karten sich aus dem Material lohnen: 4 bei einer kurzen Notiz, höchstens 8 bei einer langen.
+    /// Mehr wollte beim Lernen niemand durchgehen, und jede Karte kostet die lokale KI Rechenzeit.
+    public static func count(for material: String) -> Int {
+        max(4, min(8, material.count / 1_000))
+    }
+
     /// Fragt die KI nach Karteikarten. Antwortet sie mit Fließtext, bleibt die Liste leer –
     /// dann ist nichts passiert, statt Unsinn in der Notiz zu landen.
+    /// `progress` meldet, wie viele Karten schon geschrieben sind – für eine Anzeige, die mitzählt.
     public static func generate(client: any LLMClient, material: String, language: String,
-                                count: Int = 12, limit: Int = 20_000) async throws -> [Flashcard] {
+                                count: Int? = nil, limit: Int = 20_000,
+                                progress: @escaping @Sendable (Int) -> Void = { _ in }) async throws -> [Flashcard] {
         let system = t("""
         Du machst Karteikarten zum Lernen aus einer Mitschrift.
         Schreibe pro Karte genau eine Zeile: tatsächlicher Fragetext :: tatsächlicher Antworttext.
@@ -93,9 +101,14 @@ public enum Flashcards {
         Frage nach Begriffen, Zusammenhängen und Rechenwegen – nicht nach Nebensächlichkeiten
         wie Terminen oder Organisatorischem.
         """) + "\n" + t("Sprache der Karten: \(language)")
+        let count = count ?? Self.count(for: material)
         let prompt = t("Mach höchstens \(count) Karteikarten aus diesem Material:") + "\n\n"
             + String(material.prefix(limit))
-        var response = try await client.complete(system: system, prompt: prompt)
+        var response = try await client.complete(system: system, prompt: prompt) { partial in
+            // Die letzte Zeile ist noch unfertig – gezählt wird nur, was schon mit Zeilenumbruch dasteht
+            let done = partial.components(separatedBy: "\n").dropLast().joined(separator: "\n")
+            progress(min(count, parse(done).count))
+        }
         response = response.trimmingCharacters(in: .whitespacesAndNewlines)
         if response.hasPrefix("```") {
             response = response.replacingOccurrences(of: #"^```[^\n]*\n"#, with: "", options: .regularExpression)
