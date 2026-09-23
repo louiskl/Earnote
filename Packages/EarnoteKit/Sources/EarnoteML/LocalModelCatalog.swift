@@ -34,7 +34,7 @@ public enum LocalModelCatalog {
                        detail: t("Googles Modell in derselben Größe – schreibt etwas ausführlicher.")),
         LocalModelInfo(id: "mlx-community/Qwen2.5-7B-Instruct-4bit", name: "Qwen2.5 7B",
                        sizeGB: 4.3, minMemoryGB: 16,
-                       detail: t("Erkennt Zusammenhänge besser als die 4B-Modelle. Ab 16 GB Arbeitsspeicher.")),
+                       detail: t("Älteres, größeres Modell: schreibt knapper, braucht aber doppelt so viel Arbeitsspeicher. Ab 16 GB.")),
         LocalModelInfo(id: "mlx-community/gemma-3-text-12b-it-4bit", name: "Gemma 3 12B",
                        sizeGB: 7.2, minMemoryGB: 24,
                        detail: t("Deutlich gründlicher, dafür langsamer. Ab 24 GB Arbeitsspeicher.")),
@@ -50,9 +50,11 @@ public enum LocalModelCatalog {
 
     /// Was auf diesem Mac sinnvoll ist. Größer ist nicht besser: Ein Modell, das den Arbeitsspeicher
     /// füllt, lässt den Mac auslagern und macht die Notiz langsamer statt besser.
+    /// Qwen3 4B (2507) überall: Im Vergleich an echten Vorlesungen (23.09.2026, MacBook Air M1 16 GB)
+    /// schrieb es echte Lernfragen und erfasste mehr Inhalt als Qwen2.5 7B – in derselben Zeit
+    /// und mit halb so viel Arbeitsspeicher.
     public static func recommended(memoryGB: Double = DeviceCapabilities.memoryGB) -> LocalModelInfo {
-        if memoryGB >= 15.5 { return all[3] }   // Qwen2.5 7B
-        return standard                          // Qwen3 4B
+        standard
     }
 
     /// Modelle, die auf diesem Mac nicht in den Speicher passen, werden nicht versteckt,

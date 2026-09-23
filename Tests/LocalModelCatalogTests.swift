@@ -13,7 +13,7 @@ final class LocalModelCatalogTests: XCTestCase {
                                      "\(model.name) wird bei \(Int(memory)) GB empfohlen, braucht aber mehr")
         }
         XCTAssertEqual(LocalModelCatalog.recommended(memoryGB: 8).name, "Qwen3 4B")
-        XCTAssertEqual(LocalModelCatalog.recommended(memoryGB: 16).name, "Qwen2.5 7B")
+        XCTAssertEqual(LocalModelCatalog.recommended(memoryGB: 16).name, "Qwen3 4B")
     }
 
     func testEveryModelIsAFourBitMlxRepositoryWithAPlausibleSize() {

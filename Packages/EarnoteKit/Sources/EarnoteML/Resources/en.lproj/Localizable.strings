@@ -7,6 +7,6 @@
 "Am schnellsten und am sparsamsten. Für ältere Macs oder wenn nebenbei viel läuft." = "Fastest and most frugal. For older Macs, or when a lot else is running.";
 "Gutes Deutsch, hält sich an Vorgaben, verarbeitet lange Transkripte am Stück." = "Writes well, follows instructions and handles long transcripts in one go.";
 "Googles Modell in derselben Größe – schreibt etwas ausführlicher." = "Google's model in the same size — writes a little more elaborately.";
-"Erkennt Zusammenhänge besser als die 4B-Modelle. Ab 16 GB Arbeitsspeicher." = "Sees connections better than the 4B models. From 16 GB of memory.";
+"Älteres, größeres Modell: schreibt knapper, braucht aber doppelt so viel Arbeitsspeicher. Ab 16 GB." = "Older, larger model: writes more briefly but needs twice the memory. From 16 GB.";
 "Deutlich gründlicher, dafür langsamer. Ab 24 GB Arbeitsspeicher." = "Noticeably more thorough, but slower. From 24 GB of memory.";
 "Groß, aber flink: Es rechnet nur mit einem Teil seiner Größe. Ab 32 GB." = "Big but nimble: it only computes with a fraction of its size. From 32 GB.";

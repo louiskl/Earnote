@@ -161,7 +161,7 @@ HN verzeiht keine Werbesprache. Nüchtern, technisch, ehrlich über Grenzen.
 > subscription.
 >
 > Earnote records microphone plus system audio, runs WhisperKit (large-v3-turbo, CoreML) for the
-> transcript and an MLX model (Qwen3 4B or Qwen2.5 7B depending on your RAM) for the note. Both run
+> transcript and an MLX model (Qwen3 4B) for the note. Both run
 > on Apple Silicon, nothing leaves the machine.
 >
 > Some things that turned out harder than expected:

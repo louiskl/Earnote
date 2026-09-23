@@ -219,7 +219,8 @@ Ziel: Was eine fremde Person in der ersten Woche braucht, ohne zu fragen.
 - [x] **Automatische Wahl nach Gerät (0.9.3)**: „Automatisch“ nimmt, was zum Arbeitsspeicher passt
       (bis 16 GB Qwen3 4B, darüber Qwen2.5 7B). Ein bereits geladenes Modell geht der Empfehlung vor –
       ein Update zwingt niemanden zu einem neuen Download.
-- [ ] Modellvergleich an echten Vorlesungen: Lernzettel der Modelle nebeneinander bewerten
+- [x] Modellvergleich an echten Vorlesungen (23.09.2026): Qwen3 4B schreibt echte Lernfragen und erfasst mehr Inhalt
+      als Qwen2.5 7B, in derselben Zeit und mit halb so viel Arbeitsspeicher → Empfehlung überall Qwen3 4B
 - [x] **Vorverdichten während der Aufnahme (0.9.3)**: Sobald wieder ein Block von ~20 000 Zeichen
       (grob 25 Minuten) transkribiert ist, verdichtet die KI ihn schon zu Arbeitsnotizen. Nach dem Stopp
       bleibt nur der Rest plus die eigentliche Notiz. Läuft nur auf Macs ab 16 GB (sonst liegen Whisper
@@ -501,7 +502,7 @@ E-Mail aus einer Kanzlei, Praxis oder IT-Abteilung. Bis dahin gilt: Nachfragen s
 | Mac App Store | **Vorerst nein.** Direkt-Download plus Homebrew deckt die Zielgruppe ab; die Sandbox würde Systemton und Export einschränken. Nach 1.0 neu bewerten | nach 1.0 |
 | Windows/Linux | **Zurückgestellt.** Kein Port, sondern ein zweites Produkt (CoreML, MLX, SwiftUI gibt es dort nicht). Erst iPad/iPhone, danach neu bewerten – zuerst denkbar: schlanke Windows-Begleitung, die nur aufnimmt | nach 1.1 |
 | Geld verdienen | **Erst nach 1.0.** Kostenlos für private und studentische Nutzung, Pro-Lizenz für Organisationen, einmalig statt Abo, kein Server, keine Konten (Phase 8) | nach 1.0 |
-| Lokales Standardmodell | Vorerst „Automatisch“ nach Arbeitsspeicher (bis 16 GB Qwen3 4B, darüber Qwen2.5 7B); endgültig nach dem Modellvergleich mit echten Vorlesungen | vor 1.0 |
+| Lokales Standardmodell | Qwen3 4B auf allen Macs (Modellvergleich 23.09.2026) | ✅ entschieden |
 
 ## Erledigte Entscheidungen (Auszug)
 Earnote als Name (vorbehaltlich Prüfung) · MIT & kostenlos · Zielgruppe Studierende · eigenständige Bibliothek,
