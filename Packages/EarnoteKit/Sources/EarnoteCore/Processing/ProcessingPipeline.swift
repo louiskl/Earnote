@@ -73,8 +73,15 @@ public struct ProcessingPipeline: Sendable {
             // Aus der Notiz statt aus dem Transkript: beim Vereinfachen immer, sonst nur, wenn es weder Transkript
             // noch Ton gibt (Übersicht eines Bereichs, Aufnahme mit gelöschtem Ton). Vorher schlug das fehl – und weil
             // die Notiz schon gelöscht war, war sie danach weg.
+            let hasAudio = audio.hasAudio(rec)
             let fromNote = existing.flatMap { note in
-                request == .fromNote || (transcript == nil && !audio.hasAudio(rec)) ? note : nil
+                request == .fromNote || (transcript == nil && !hasAudio) ? note : nil
+            }
+            // Übersicht eines Bereichs (oder Aufnahme ohne Ton und Transkript): wird nie exportiert – auch nicht,
+            // wenn man sie neu schreibt. Sonst landete sie plötzlich in Notion & Co.
+            let notFromAudio = transcript == nil && !hasAudio
+            if transcript == nil, fromNote == nil, !hasAudio {
+                throw LLMError(message: t("Für diese Aufnahme gibt es weder Ton noch Transkript oder Notiz – daraus kann keine Notiz entstehen."))
             }
             // Ein durchgehender Balken für die ganze Verarbeitung statt einem neuen pro Schritt:
             // Transkription bis 60 %, Zusammenfassung bis 95 %, der Rest ist der Export.
@@ -107,9 +114,9 @@ public struct ProcessingPipeline: Sendable {
                                              glossary: glossary, extraInstructions: extraInstructions,
                                              simpleLanguage: settings.ai.simpleNotes)
                 let started = Date()
-                let s: Summary
+                var s: Summary
                 if let fromNote {
-                    s = try await summarizer.rewrite(fromNote.markdown, context: context,
+                    s = try await summarizer.rewrite(Self.withoutFlashcards(fromNote.markdown), context: context,
                                                      draft: { events.draft(id, $0) }) { p in
                         events.progress(id, Self.map(p, to: summarySpan))
                     }
@@ -124,9 +131,13 @@ public struct ProcessingPipeline: Sendable {
                     }
                     Self.logDuration("Notiz (\(settings.ai.provider.label), \(text.count) Zeichen Transkript)", since: started)
                 }
+                // Karteikarten gehören zur Aufnahme, nicht zu einer Fassung der Notiz: Sie bleiben beim Neuschreiben erhalten
+                if let existing { s.markdown = Self.keepingFlashcards(of: existing.markdown, in: s.markdown) }
                 try Task.checkCancellation()
                 try await library.saveNote(s, for: id)
                 summary = s
+                // Die neue Fassung ist unbearbeitet – „Auf KI-Fassung zurücksetzen“ hat nichts mehr zu tun
+                await events.update(id) { $0.isNoteEdited = false }
             }
             if let summary {
                 await events.update(id) { $0.summaryTitle = summary.title; $0.summaryPreview = summary.preview; $0.taskCount = summary.taskCount }
@@ -137,6 +148,7 @@ public struct ProcessingPipeline: Sendable {
             await setStep(id, .exporting, summarySpan.upperBound, events)
             var ids = settings.destinations.enabled
             if let c = category, !c.destinationIDs.isEmpty { ids = c.destinationIDs }
+            if notFromAudio { ids = [] }
             let current = await events.recording(id)
             let already = Set((current?.exports ?? []).filter(\.success).map(\.destinationID))
             let payload = ExportPayload(recording: current ?? rec, category: category, summary: summary,
@@ -247,6 +259,19 @@ public struct ProcessingPipeline: Sendable {
                             envelope.micLoudShare * 100, envelope.systemLoudShare * 100))
         }
         return Transcript(segments: segments, engine: transcriber.engineName)
+    }
+
+    /// Die Notiz ohne ihren Karteikarten-Abschnitt – als Material zum Umschreiben
+    static func withoutFlashcards(_ markdown: String) -> String {
+        ["Karteikarten", "Flashcards"].reduce(markdown) { NoteMarkdown.removingSection(named: $1, from: $0) }
+    }
+
+    /// Hängt die Karteikarten der alten Notiz an die neue, wenn diese selbst keine hat
+    static func keepingFlashcards(of old: String, in new: String) -> String {
+        let cards = Flashcards.parse(old)
+        guard !cards.isEmpty, Flashcards.parse(new).isEmpty else { return new }
+        let heading = old.contains("## Flashcards") ? "Flashcards" : "Karteikarten"
+        return new.trimmingCharacters(in: .whitespacesAndNewlines) + "\n\n" + Flashcards.markdownSection(cards, heading: heading)
     }
 
     private func setStep(_ id: UUID, _ status: RecordingStatus, _ progress: Double, _ events: ProcessingEvents) async {

@@ -453,6 +453,11 @@ final class LibraryStore: RecordingLibrary {
     /// `fromNote`: aus der bisherigen Notiz statt aus dem Transkript (Vereinfachen).
     /// Die alte Notiz bleibt stehen, bis die neue fertig ist – schlägt etwas fehl, geht nichts verloren.
     func reprocess(_ id: UUID, retranscribe: Bool, instruction: String = "", fromNote: Bool = false) {
+        // Ohne KI entsteht keine neue Notiz – das sagen, statt still nichts zu tun
+        guard retranscribe || settings.ai.provider != .none else {
+            lastError = String(localized: "Zum Neuschreiben der Notiz braucht es eine KI. Wähle in den Einstellungen unter „KI“ eine aus.")
+            return
+        }
         let library = self.library
         if retranscribe { write("Transkript löschen") { try await library.deleteTranscript(for: id) } }
         update(id) { $0.exports = [] }

@@ -1148,3 +1148,4 @@
 "Die Notiz entsteht gerade" = "The note is being written";
 "Karteikarten entstehen – die KI liest die Notiz …" = "Creating flashcards – the AI is reading the note …";
 "Karteikarten entstehen – %lld von %lld" = "Creating flashcards – %1$lld of %2$lld";
+"Zum Neuschreiben der Notiz braucht es eine KI. Wähle in den Einstellungen unter „KI“ eine aus." = "Rewriting the note needs an AI. Choose one in Settings › AI.";

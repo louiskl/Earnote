@@ -77,6 +77,36 @@ final class ProcessingPipelineTests: XCTestCase {
         XCTAssertEqual(note?.title, "Neue Übersicht")
     }
 
+    /// Karteikarten bleiben beim Neuschreiben erhalten, gehen aber nicht als Material an die KI;
+    /// eine Übersicht wird dabei nicht plötzlich exportiert.
+    func testRewriteKeepsFlashcardsAndDoesNotExportAnOverview() async throws {
+        let rec = try await overview("Speicher und Prozesse.\n\n## Karteikarten\n\n- Was prüft die MMU? :: Jeden Speicherzugriff.")
+        let llm = FakeLLMClient(answer: "# Neu\n\nSpeicher und Prozesse, einfach erklärt.")
+        let destination = FakeDestination()
+        let state = RecordingState(rec, library: folder.library)
+        await pipeline(llm: llm, destinations: ["a": destination])
+            .process(rec, settings: .testing(), category: nil, events: state.events, request: .fromNote)
+
+        XCTAssertFalse(llm.calls.get().last?.prompt.contains("MMU") == true, "Karteikarten sind kein Material")
+        let note = try await folder.library.note(for: rec.id)
+        XCTAssertEqual(Flashcards.parse(note?.markdown ?? ""), [Flashcard(question: "Was prüft die MMU?", answer: "Jeden Speicherzugriff.")])
+        XCTAssertTrue(note?.markdown.hasPrefix("Speicher und Prozesse, einfach erklärt.") == true)
+        XCTAssertEqual(destination.exports.get(), 0, "Übersichten werden nie exportiert")
+        XCTAssertEqual(state.recording.status, .done)
+        XCTAssertEqual(state.recording.isNoteEdited, false)
+    }
+
+    /// Weder Ton noch Transkript noch Notiz: verständlich sagen, statt mit einem Audiofehler abzubrechen
+    func testNothingToWorkWithFailsWithAClearMessage() async throws {
+        let rec = Recording(title: "Leer", startedAt: Date(), endedAt: Date(), status: .done)
+        try await folder.library.insertRecording(rec)
+        let state = await run(pipeline(), rec)
+        XCTAssertEqual(state.recording.status, .failed)
+        let message = t("Für diese Aufnahme gibt es weder Ton noch Transkript oder Notiz – daraus kann keine Notiz entstehen.")
+        XCTAssertTrue(state.recording.errorMessage?.contains(message) == true,
+                      state.recording.errorMessage ?? "")
+    }
+
     func testKeepsTheOldNoteWhenRewritingFails() async throws {
         let rec = try await overview("Alte, gute Notiz.")
         let llm = FakeLLMClient { _, _ in throw LLMError(message: "KI nicht erreichbar") }
