@@ -145,6 +145,25 @@ enum SharePicker {
     }
 }
 
+/// „Earnote empfehlen …“: ein kurzer Text mit Link, geteilt über das Teilen-Menü von macOS
+/// (Nachrichten, Mail, AirDrop …). Ohne offenes Fenster landet er in der Zwischenablage.
+@MainActor
+enum Recommendation {
+    static var text: String {
+        String(localized: "Kennst du Earnote? Die Mac-App nimmt Vorlesungen auf und schreibt die Mitschrift – mit Karteikarten und Lernzettel als PDF. Läuft komplett auf dem Mac, kostenlos und ohne Konto.")
+            + " " + AppInfo.website.absoluteString
+    }
+
+    static func share() {
+        if NSApp.keyWindow?.contentView != nil {
+            SharePicker.show(text)
+        } else {
+            NSPasteboard.general.clearContents()
+            NSPasteboard.general.setString(text, forType: .string)
+        }
+    }
+}
+
 /// Auswahl von Audiodateien für den Import
 @MainActor
 enum AudioImportPanel {

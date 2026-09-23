@@ -145,7 +145,7 @@ private struct WelcomeStep: View {
             VStack(alignment: .leading, spacing: 10) {
                 Label("Nimmt Mikrofon und den Ton aus Zoom, Teams und Meet auf", systemImage: "mic")
                 Label("Transkription und KI laufen auf deinem Mac – nichts geht in die Cloud", systemImage: "lock")
-                Label("Notiz mit Kurzfassung, Themen und Aufgaben zum Abhaken", systemImage: "list.bullet.rectangle")
+                Label("Notiz mit Kurzfassung und Themen – dazu Karteikarten und Lernzettel als PDF", systemImage: "list.bullet.rectangle")
                 Label("Auf Wunsch zusätzlich in Notion, Obsidian, Apple Notizen und mehr", systemImage: "square.and.arrow.up")
             }
             Spacer()
@@ -156,7 +156,11 @@ private struct WelcomeStep: View {
 }
 
 /// KI-Schritt: nur die eingebaute KI. Alles andere steckt in den Einstellungen.
+/// Der Download beginnt von selbst: Wer mit „Weiter“ durchklickt – und das tun die meisten –, bekam sonst nach
+/// der ersten Vorlesung keine Notiz, sondern die Aufforderung, in den Einstellungen etwas zu laden.
 private struct AIStep: View {
+    @Environment(LibraryStore.self) private var library
+
     var body: some View {
         Form {
             LocalModelSection()
@@ -166,6 +170,12 @@ private struct AIStep: View {
             }
         }
         .formStyle(.grouped)
+        .onAppear {
+            let manager = LocalModelManager.shared
+            guard library.settings.ai.provider == .localModel, LocalModelManager.isSupported,
+                  !manager.isInstalled, !manager.isDownloading else { return }
+            manager.download()
+        }
     }
 }
 

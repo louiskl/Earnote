@@ -632,7 +632,7 @@
 "Notiz erstellt mit" = "Note written by";
 
 /* No comment provided by engineer. */
-"Notiz mit Kurzfassung, Themen und Aufgaben zum Abhaken" = "A note with a summary, topics and tasks to tick off";
+"Notiz mit Kurzfassung und Themen – dazu Karteikarten und Lernzettel als PDF" = "Notes with a summary and topics – plus flashcards and PDF study sheets";
 
 /* No comment provided by engineer. */
 "Notiz teilen" = "Share note";
@@ -1156,3 +1156,5 @@
 "Erstellt mit" = "Made with";
 "Seite %lld von %lld" = "Page %1$lld of %2$lld";
 "Seite %lld" = "Page %lld";
+"Earnote empfehlen …" = "Recommend Earnote …";
+"Kennst du Earnote? Die Mac-App nimmt Vorlesungen auf und schreibt die Mitschrift – mit Karteikarten und Lernzettel als PDF. Läuft komplett auf dem Mac, kostenlos und ohne Konto." = "Have you tried Earnote? The Mac app records lectures and writes the notes for you – with flashcards and PDF study sheets. Runs entirely on your Mac, free and without an account.";

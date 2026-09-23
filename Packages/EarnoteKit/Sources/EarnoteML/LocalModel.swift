@@ -233,8 +233,14 @@ public struct LocalLLMClient: LLMClient {
                          partial: @escaping @Sendable (String) -> Void) async throws -> String {
         if let reason = LocalModelManager.unsupportedReason { throw LLMError(message: reason) }
         if !LocalModelManager.installed {
+            // Nicht geladen (Assistent übersprungen, Modell gelöscht): jetzt laden, statt die Notiz scheitern zu lassen.
+            // `download` tut nichts, wenn schon geladen wird – dann wird nur gewartet.
+            await MainActor.run { LocalModelManager.shared.download() }
             await LocalModelManager.shared.waitForDownload()
             guard LocalModelManager.installed else {
+                if let reason = await MainActor.run(body: { LocalModelManager.shared.lastError }) {
+                    throw LLMError(message: reason)
+                }
                 throw LLMError(message: "Das lokale Modell ist noch nicht geladen. "
                     + "Öffne die Einstellungen unter „KI“ und klicke auf „Laden“.")
             }

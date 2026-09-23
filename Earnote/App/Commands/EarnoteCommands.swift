@@ -145,6 +145,9 @@ struct EarnoteCommands: Commands {
             Button("Datenschutz") { NSWorkspace.shared.open(AppInfo.privacyPage) }
             Divider()
             Button("Quelltext auf GitHub") { NSWorkspace.shared.open(AppInfo.repository) }
+            Divider()
+            // Weitersagen ist, wie Earnote zu Kommilitonen kommt – ohne Werbung, ohne Nachfragen in der App
+            Button("Earnote empfehlen …") { Recommendation.share() }
         }
 
         CommandGroup(before: .sidebar) {
