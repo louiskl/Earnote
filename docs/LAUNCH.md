@@ -18,8 +18,26 @@ Für jeden Kanal derselbe Gedanke, nur anders lang:
   auf dem Mac und schreibt daraus eine strukturierte Notiz – ohne Konto, ohne Abo, ohne Cloud.
 - **Der Unterschied zum Rest:** Alle anderen schicken deine Vorlesung auf einen Server und verlangen
   ein Abo. Earnote rechnet auf deinem Mac und kostet nichts.
+- **Was Studierende am meisten überzeugt:** Aus jeder Vorlesung werden auf Knopfdruck Karteikarten,
+  und am Ende des Semesters schreibt Earnote aus allen Notizen eines Fachs eine Übersicht zum Lernen.
 
 **Drei Dinge, die immer vorkommen sollten:** kostenlos · läuft lokal (Datenschutz) · für Studierende gebaut.
+
+**Was die App heute kann (Stand 0.9.19)** – für alle Texte unten:
+- Notiz mit Kurzfassung, Themen und Zeitmarken; die Notiz erscheint schon, während die KI sie schreibt
+- Karteikarten (4–8 pro Vorlesung), als Anki-Datei exportierbar
+- Übersicht über alle Vorlesungen eines Fachs (Themen, roter Faden, Prüfungshinweise)
+- „Vereinfachen“: dieselbe Notiz in einfacher Sprache
+- Lernzettel als PDF (Druck, Teilen)
+- Genauigkeit: Aufgaben, Fristen, Namen und offene Fragen, die in der Aufnahme nicht vorkamen, werden
+  automatisch entfernt
+- Export nach Markdown, Obsidian, Notion, Apple Notizen, Bear, Craft, Logseq, Erinnerungen, Things, Todoist
+
+**Ehrlich zur Geschwindigkeit** (gemessen, 22./23.09.2026): Das Transkript entsteht nach dem Stopp, auf einem
+MacBook Air M1 mit dem 4- bis 7,5-Fachen der Echtzeit – eine Stunde Vorlesung also in etwa 8–15 Minuten.
+Die Notiz braucht danach ein paar Minuten und ist beim Entstehen zu sehen. Am Netzteil gibt es eine
+Live-Mitschrift als Vorschau; ab 16 GB Arbeitsspeicher wird die Notiz schon während der Aufnahme vorbereitet. Im Stromsparmodus
+dauert alles deutlich länger – die App sagt das. Nicht „in Sekunden“ oder „wenige Minuten“ versprechen.
 
 ---
 
@@ -28,8 +46,8 @@ Für jeden Kanal derselbe Gedanke, nur anders lang:
 Kurznachricht, WhatsApp oder Signal:
 
 > Ich hab eine Mac-App gebaut, die Vorlesungen aufnimmt und dir danach die Mitschrift schreibt –
-> komplett auf dem Rechner, ohne Konto und kostenlos. Würdest du die zwei Wochen benutzen und mir
-> sagen, was nervt? Installation: `brew tap louiskl/earnote && brew trust louiskl/earnote && brew install --cask earnote` oder
+> mit Karteikarten und Lernzettel als PDF, komplett auf dem Rechner, ohne Konto und kostenlos.
+> Würdest du die zwei Wochen benutzen und mir sagen, was nervt? (Braucht einen Mac mit M-Chip.) Installation: `brew tap louiskl/earnote && brew trust louiskl/earnote && brew install --cask earnote` oder
 > https://earnote.dev/
 
 Dazu die [Anleitung für Tester](BETA.md) schicken. Mehr braucht es nicht.
@@ -43,9 +61,11 @@ Dazu die [Anleitung für Tester](BETA.md) schicken. Mehr braucht es nicht.
 > Hallo zusammen,
 >
 > ich studiere hier und habe in den letzten Monaten eine Mac-App entwickelt: **Earnote** nimmt eine
-> Vorlesung auf und schreibt daraus eine strukturierte Notiz mit Zusammenfassung, Themen und
-> Aufgaben. Besonders ist, dass alles **lokal auf dem eigenen Rechner** läuft – keine Aufnahme wird
-> hochgeladen, es gibt kein Konto und keine Kosten. Der Quelltext ist offen (MIT).
+> Vorlesung auf und schreibt daraus eine strukturierte Notiz mit Zusammenfassung und Themen. Auf
+> Knopfdruck werden daraus Karteikarten, und vor der Prüfung fasst Earnote alle Vorlesungen eines
+> Fachs zu einer Übersicht zusammen. Besonders ist, dass alles **lokal auf dem eigenen Rechner** läuft –
+> keine Aufnahme wird hochgeladen, es gibt kein Konto und keine Kosten. Der Quelltext ist offen (MIT).
+> Voraussetzung ist ein Mac mit Apple-Chip (M1 oder neuer).
 >
 > Ich dachte, das könnte für unsere Kommilitoninnen und Kommilitonen interessant sein – besonders
 > für alle, die mitschreiben und gleichzeitig zuhören müssen, und für internationale Studierende,
@@ -77,9 +97,10 @@ nennen (Mac mit Apple Silicon), sonst gibt es Enttäuschung.
 > note with a local model. No account, no subscription, nothing is uploaded – the only network
 > traffic is downloading the models once and the daily update check.
 >
-> - Transcription starts while you are still recording, so a 90-minute lecture is done a few minutes
->   after you stop
-> - Notes, tasks as checkboxes, flashcards, PDF study sheets
+> - The note appears while the model is still writing it; on power you get a live transcript preview
+> - Flashcards from any lecture (Anki export), and a semester overview across all lectures of a course
+> - "Simplify" rewrites a note in plain language; PDF study sheets for printing or sharing
+> - Tasks, deadlines, names and questions that weren't actually said are filtered out of the note
 > - Exports to Markdown, Obsidian, Notion, Apple Notes, Bear, Craft, Logseq, Reminders, Things, Todoist
 > - Click any timestamp in the note to hear that moment
 > - German and English interface
@@ -98,8 +119,9 @@ antworten. Beste Zeit: Dienstag bis Donnerstag, vormittags US-Zeit.
 **Titel:** Ich habe eine kostenlose App gebaut, die Vorlesungen mitschreibt – läuft komplett offline auf dem Mac
 
 > Mich hat genervt, dass man entweder zuhört oder mitschreibt. Also habe ich Earnote gebaut:
-> aufnehmen, und ein paar Minuten später steht die Notiz da – Zusammenfassung, Themen, Aufgaben zum
-> Abhaken, auf Wunsch Karteikarten und ein Lernzettel als PDF.
+> aufnehmen, und danach steht die Notiz da – Zusammenfassung und Themen, auf Knopfdruck Karteikarten
+> und ein Lernzettel als PDF. Vor der Prüfung fasst Earnote alle Vorlesungen eines Fachs zu einer
+> Übersicht zusammen.
 >
 > Das Besondere: Es läuft **komplett auf dem eigenen Mac**. Keine Aufnahme geht in eine Cloud, kein
 > Konto, kein Abo, Quelltext offen. Kostet nichts und wird auch nichts kosten.
@@ -122,10 +144,11 @@ antworten. Beste Zeit: Dienstag bis Donnerstag, vormittags US-Zeit.
 **Beschreibung:**
 
 > Earnote records your lectures, meetings and calls, transcribes them with Whisper and turns the
-> result into a structured note — summary, topics, decisions and tasks as checkboxes.
+> result into a structured note — summary, topics, decisions and tasks as checkboxes. One click makes
+> flashcards; at the end of term it writes an overview across every lecture of a course.
 >
-> Everything runs on your Mac. No account, no subscription, no server. The transcript starts while
-> you are still recording, so the note is ready minutes after you stop.
+> Everything runs on your Mac. No account, no subscription, no server. You watch the note being
+> written, and anything the recording didn't actually say — tasks, deadlines, names — is filtered out.
 >
 > Free and open source (MIT), built by a student who got tired of typing along.
 
@@ -166,11 +189,14 @@ HN verzeiht keine Werbesprache. Nüchtern, technisch, ehrlich über Grenzen.
 >
 > Some things that turned out harder than expected:
 >
-> - Transcribing while recording: the audio is condensed into chunks during the recording, so a
->   90-minute lecture finishes minutes after you stop instead of taking another 20
+> - Not making people wait blind: on power, the transcript streams live (and on 16 GB Macs the note is
+>   pre-condensed chunk by chunk during the recording); afterwards the note streams in as the model writes
 > - Spoken technical terms: a glossary feeds Whisper's prompt tokens, and corrections apply to title,
 >   note and transcript at once
 > - Whisper hallucinating on silence — quiet passages get filtered out before the model sees them
+> - A 4B model inventing things: tasks for "the team", deadlines nobody said, questions nobody asked.
+>   The prompt helps, but what actually works is checking the note against the transcript afterwards
+>   and dropping what has no evidence there
 > - Keeping a recording alive across device changes: Bluetooth headphones switch profile mid-call and
 >   AVAudioEngine throws Objective-C exceptions that Swift cannot catch, which kills the process
 >
@@ -302,7 +328,7 @@ Ohne Sprecher, nur Bild und ein, zwei Einblendungen. Bildschirmaufnahme in 1440 
 | 12–20 | Fortschritt Transkription → Notiz, Zeitraffer | „90 Minuten – in drei Minuten fertig" |
 | 20–30 | Notiz scrollen: Zusammenfassung, Themen, Aufgaben zum Abhaken | |
 | 30–38 | Klick auf eine Zeitmarke → Ton springt an die Stelle | „Jede Zeitmarke ist ein Knopf" |
-| 38–46 | Rechtsklick → „Lernzettel als PDF", PDF erscheint | |
+| 38–46 | Unter der Notiz „Karteikarten erzeugen“, Zähler läuft; dann „PDF sichern“, PDF erscheint | „Karteikarten und Lernzettel“ |
 | 46–52 | Einstellungen: „Lokale KI", kein Konto zu sehen | „Alles bleibt auf deinem Mac" |
 | 52–58 | Schlussbild: Logo, `earnote.dev`, „kostenlos · Open Source" | |
 
@@ -324,6 +350,15 @@ vor jeder Aufnahme einen Hinweis ein. Die Verantwortung liegt beim Nutzer, und d
 Kein Haken. Ich habe es für mich gebaut, es läuft auf deinem Rechner und kostet mich deshalb nichts
 außer der Entwicklungszeit. Es gibt keine Server, die bezahlt werden müssten, also auch kein Abo.
 
+**„Erfindet die KI nicht Sachen?"**
+Kleine Modelle neigen dazu. Earnote prüft die Notiz deshalb gegen das Transkript: Aufgaben ohne
+Auftrag, Fristen und Namen, die nie fielen, und offene Fragen, die niemand gestellt hat, fliegen raus.
+Perfekt ist das nicht – aber deutlich besser als ohne. Jede Zeitmarke führt zur Stelle im Ton.
+
+**„Wie lange dauert es?"**
+Auf einem MacBook Air M1 ist eine Stunde Vorlesung nach dem Stoppen in etwa 8–15 Minuten transkribiert,
+die Notiz braucht dann noch ein paar Minuten – man sieht sie entstehen. Neuere Macs sind deutlich schneller.
+
 **„Wie gut ist die Erkennung wirklich?"**
 Whisper large-v3-turbo, dasselbe Modell wie bei den meisten kostenpflichtigen Diensten. Bei
 Fachbegriffen hilft das eingebaute Wörterbuch: Einmal korrigieren, danach sitzt es.
@@ -344,6 +379,6 @@ in den Einstellungen steht, wie viel gerade belegt ist.
 ## 10. Was noch fehlt, bevor das alles rausgeht
 
 - [ ] Markenrecherche abgeschlossen (DPMA, EUIPO, USPTO; Klassen 9 und 42)
-- [ ] Domain gesichert, Instagram/TikTok-Namen gesichert
+- [x] Domain gesichert (earnote.dev) · [ ] Instagram/TikTok-Namen gesichert
 - [ ] Demo-Video gedreht
 - [ ] Zwei Wochen Beta ohne Datenverlust und ohne Absturz
