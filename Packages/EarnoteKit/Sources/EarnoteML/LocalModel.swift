@@ -1,6 +1,7 @@
 import EarnoteCore
 import Foundation
 import HuggingFace
+import MLX
 import MLXLLM
 import MLXLMCommon
 import Tokenizers
@@ -171,13 +172,40 @@ public final class LocalModelManager: ObservableObject {
 
 // MARK: - Modell im Speicher
 
-/// Hält das geladene Modell, solange Aufnahmen verarbeitet werden, und gibt den Speicher danach frei.
+/// Hält das geladene Modell, solange es gebraucht wird, und gibt den Speicher danach frei.
+/// Jede Anfrage meldet sich über `use` an und ab. Eine Minute nach der letzten wird das Modell entladen –
+/// egal, ob sie aus der Warteschlange, von den Karteikarten, einer Bereichs-Zusammenfassung oder dem
+/// Vorverdichten kam. Vorher blieb es nach Karteikarten im Speicher (Earnote belegte im Leerlauf 8 GB,
+/// der Mac lagerte aus, und die nächste Notiz dauerte ein Vielfaches).
 public actor LocalLLMCache {
     public static let shared = LocalLLMCache()
     private var container: ModelContainer?
+    private var users = 0
+    private var idleRelease: Task<Void, Never>?
+
+    public func use<T: Sendable>(_ body: @Sendable (ModelContainer) async throws -> T) async throws -> T {
+        users += 1
+        idleRelease?.cancel()
+        defer {
+            users -= 1
+            if users == 0 {
+                idleRelease = Task {
+                    try? await Task.sleep(for: .seconds(60))
+                    if !Task.isCancelled { self.releaseIfIdle() }
+                }
+            }
+        }
+        return try await body(try await container())
+    }
+
+    private func releaseIfIdle() {
+        if users == 0 { release() }
+    }
 
     public func container() async throws -> ModelContainer {
         if let container { return container }
+        // MLX behält freigegebene Rechenpuffer sonst ohne Obergrenze für später – das sind schnell Gigabytes
+        Memory.cacheLimit = 256 * 1024 * 1024
         let started = Date()
         let loaded = try await LLMModelFactory.shared.loadContainer(from: LocalModelManager.folder,
                                                                      using: TransformersTokenizerLoader())
@@ -188,6 +216,7 @@ public actor LocalLLMCache {
 
     public func release() {
         container = nil
+        Memory.clearCache()
     }
 }
 
@@ -205,11 +234,12 @@ public struct LocalLLMClient: LLMClient {
                     + "Öffne die Einstellungen unter „KI“ und klicke auf „Laden“.")
             }
         }
-        let container = try await LocalLLMCache.shared.container()
-        let session = ChatSession(container, instructions: system,
-                                  generateParameters: GenerateParameters(maxTokens: 4_000, temperature: 0.3, topP: 0.9))
         let started = Date()
-        let answer = try await session.respond(to: prompt)
+        let answer = try await LocalLLMCache.shared.use { container in
+            let session = ChatSession(container, instructions: system,
+                                      generateParameters: GenerateParameters(maxTokens: 4_000, temperature: 0.3, topP: 0.9))
+            return try await session.respond(to: prompt)
+        }
         let seconds = Date().timeIntervalSince(started)
         Log.info(String(format: "Lokale KI: %d Zeichen hinein, %d heraus, %.0f s", prompt.count, answer.count, seconds))
         return answer.removingThinkBlocks
