@@ -97,8 +97,10 @@ public enum AIProviderKind: String, Codable, CaseIterable, Identifiable, Sendabl
     public var chunkCharacters: Int {
         switch self {
         case .appleIntelligence: return 5_000   // Kontext ~4k Token: Anweisungen + Material + Antwort müssen hineinpassen
-        // Großes Kontextfenster: eine Stunde Meeting passt am Stück. Mit wenig Arbeitsspeicher kleiner schneiden.
-        case .localModel: return DeviceCapabilities.memoryGB >= 15 ? 60_000 : 20_000
+        // Die Rechenzeit der lokalen KI wächst mit der Länge der Eingabe weit mehr als linear. Gemessen (MacBook Air M1,
+        // Qwen3 4B): 30.000 Zeichen am Stück 6–8 Minuten, 60.000 Zeichen 48 Minuten. 32.000 hält eine Stunde Vorlesung
+        // in einem Durchgang; längere werden geteilt (2 h 12 min: 15 statt 53 Minuten).
+        case .localModel: return DeviceCapabilities.memoryGB >= 15 ? 32_000 : 12_000
         case .ollama, .lmStudio: return 24_000
         case .openAICompatible: return 60_000
         default: return 400_000

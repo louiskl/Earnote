@@ -114,7 +114,7 @@ struct RecordingSettings: View {
             Section {
                 Toggle("Systemton mitaufnehmen", isOn: $library.settings.recordSystemAudio)
             } footer: {
-                Text("Nimmt auch die anderen Teilnehmer in Zoom, Teams und Meet auf.")
+                Text("Für Zoom, Teams, Meet und Videos. Im Hörsaal brauchst du ihn nicht – bei erkannten Calls nimmt Earnote ihn immer mit.")
             }
             Section {
                 Toggle("Schon während der Aufnahme transkribieren", isOn: $library.settings.transcribeWhileRecording)
@@ -171,7 +171,7 @@ private struct BatterySettings: View {
             LabeledContent("Gerade") { Text(state).foregroundStyle(.secondary) }
             Toggle("Live-Mitschrift auch im Akkubetrieb", isOn: $library.settings.livePreviewOnBattery)
             if DeviceCapabilities.memoryGB >= 15.5 {
-                Toggle("Auch im Akkubetrieb schon während der Aufnahme zusammenfassen",
+                Toggle("Auch im Stromsparmodus schon während der Aufnahme zusammenfassen",
                        isOn: $library.settings.condenseOnBattery)
                     .disabled(!library.settings.transcribeWhileRecording)
             }
@@ -179,7 +179,7 @@ private struct BatterySettings: View {
         } header: {
             Text("Akku")
         } footer: {
-            Text("Im Akkubetrieb und im Stromsparmodus spart \(AppInfo.name) Strom, wo du es nicht merkst: Die Live-Mitschrift ist nur eine Vorschau, die Mitschrift entsteht trotzdem. Mit „erst am Netzteil“ beginnt die Verarbeitung, sobald der Mac am Strom hängt – das spart am meisten, die Notiz kommt dafür später.")
+            Text("Im Akkubetrieb spart \(AppInfo.name) Strom, wo du es nicht merkst: Die Live-Mitschrift ist nur eine Vorschau, die Mitschrift entsteht trotzdem. Zusammengefasst wird schon während der Aufnahme – dieselbe Arbeit wie danach, nur früher –, außer im Stromsparmodus. Mit „erst am Netzteil“ beginnt die Verarbeitung, sobald der Mac am Strom hängt – das spart am meisten, die Notiz kommt dafür später.")
         }
     }
 }

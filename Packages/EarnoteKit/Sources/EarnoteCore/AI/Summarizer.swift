@@ -510,8 +510,8 @@ public struct Summarizer: Sendable {
         Du bekommst einen Abschnitt aus dem automatisch erstellten Transkript einer längeren Aufnahme. \
         Fasse ihn auf \(c.language) zu ausführlichen Arbeitsnotizen zusammen, aus denen später die endgültigen Notizen entstehen.
 
-        - Gib den Inhalt sinngemäß in ganzen Sätzen wieder, mit Begründungen, Beispielen, Zahlen und Namen.
-        - Fasse dich dabei kurz: Die Notizen dürfen höchstens ein Drittel so lang sein wie der Abschnitt.
+        - Gib den Inhalt sinngemäß in knappen Stichpunkten wieder, mit Begründungen, Beispielen, Zahlen und Namen.
+        - Fasse dich kurz: Die Notizen dürfen höchstens ein Sechstel so lang sein wie der Abschnitt.
         - Hat jemand ausdrücklich etwas entschieden, vereinbart oder eine Aufgabe übernommen, halte auch das fest \
         (wer und bis wann nur, wenn es gesagt wurde).
         - Namen nur, wenn sie im Abschnitt fallen. Wer nicht genannt wird, bleibt ohne Namen.
@@ -651,6 +651,14 @@ public struct Summarizer: Sendable {
             ? "\nDas folgende Material sind bereits verdichtete Notizen aus dem vollständigen Transkript, in zeitlicher Reihenfolge:\n\n"
             : "\nTranskript:\n\n"
         p += material
+        // Die Erinnerung steht bewusst hinter dem Material: Kleine Modelle halten sich an das, was sie zuletzt
+        // gelesen haben. Ohne sie schrieb Qwen3 4B lange Notizen mal mit zehn Überschriften, mal ganz ohne.
+        // Größenordnung statt „jedes Thema“: Wörtlich genommen, machte das Modell aus einer langen Vorlesung 43 Überschriften.
+        if words >= 700 {
+            let topics = min(10, max(3, words / 600))
+            p += "\n\n---\nSchreibe jetzt die Notiz: erste Zeile \"# Titel\", dann eine Kurzfassung in höchstens "
+                + "drei Sätzen, dann etwa \(topics) Hauptthemen, jedes mit einer Überschrift \"## Thema\" und Stichpunkten darunter."
+        }
         return p
     }
 

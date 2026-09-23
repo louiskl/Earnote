@@ -157,7 +157,10 @@ final class RecordingController {
             let session = RecordingSession(recordingID: rec.id, audio: library.audio)
             let notice: MicrophoneEvent?
             do {
-                notice = try await session.start(includeSystemAudio: settings.recordSystemAudio, plan: plan,
+                // Bei einem erkannten Call immer mit Systemton – sonst fehlte die Gegenseite, und das merkt man erst hinterher
+                let systemAudio = settings.recordSystemAudio || byCall || sourceApp != nil
+                if systemAudio && !settings.recordSystemAudio { Log.info("Systemton für den Call eingeschaltet") }
+                notice = try await session.start(includeSystemAudio: systemAudio, plan: plan,
                                                  preferredName: settings.microphoneDeviceName,
                                                  preferredUID: settings.microphoneDeviceUID)
             } catch {
@@ -421,7 +424,10 @@ final class RecordingController {
 
     /// Live-Mitschrift ist nur eine Vorschau – auf Akku bleibt sie aus, außer es ist so eingestellt
     private var wantsLivePreview: Bool { !power.savesEnergy || library.settings.livePreviewOnBattery }
-    private var allowsCondensingNow: Bool { !power.savesEnergy || library.settings.condenseOnBattery }
+    /// Vorverdichten ist dieselbe Arbeit wie nach dem Stopp, nur früher – deshalb auch auf Akku. Nur der
+    /// Stromsparmodus hält es an (dort rechnet die KI dreimal so langsam), außer es ist ausdrücklich erlaubt.
+    /// Vorher lief es auf Akku gar nicht: Eine lange Vorlesung brauchte danach fast eine Stunde bis zur Notiz.
+    private var allowsCondensingNow: Bool { !power.isLowPowerMode || library.settings.condenseOnBattery }
     private var allowsTranscribingNow: Bool { !(power.isOnBattery && library.settings.processOnlyOnPower) }
 
     static let livePreviewOffMessage = String(localized: "Live-Mitschrift ist im Akkubetrieb aus, das spart Strom. Die Mitschrift entsteht wie immer nach der Aufnahme.")
