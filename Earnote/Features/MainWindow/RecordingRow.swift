@@ -47,12 +47,14 @@ struct RecordingRow: View {
             secondaryLine
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
-            if !isLive, let preview = recording.note?.preview, !preview.isEmpty {
-                Text(preview)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(1)
-            }
+            // Immer drei Zeilen, wie in Mail: Kommt die Vorschau erst später dazu (Notiz fertig), misst die Liste
+            // die Zeile nicht neu – sie blieb dann abgeschnitten, bis man die Spalte verbreiterte.
+            let preview = isLive ? nil : recording.note?.preview.flatMap { $0.isEmpty ? nil : $0 }
+            Text(preview ?? " ")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
+                .accessibilityHidden(preview == nil)
         }
         .padding(.vertical, 2)
         .accessibilityElement(children: .combine)
@@ -73,7 +75,9 @@ struct RecordingRow: View {
             }
         } else {
             HStack(spacing: 5) {
-                Text([MainWindowFormat.time(recording.startedAt), MainWindowFormat.duration(recording.duration)]
+                // Übersichten haben keine Laufzeit – statt „0 Sek.“ steht dort, was sie sind
+                Text([MainWindowFormat.time(recording.startedAt),
+                      recording.duration < 1 ? String(localized: "Übersicht") : MainWindowFormat.duration(recording.duration)]
                     .joined(separator: " · "))
                 if let categoryName {
                     if let categoryTint { CategoryDot(tint: categoryTint) }

@@ -154,8 +154,11 @@ public enum TaskCheck {
         // Zahlen, die gesagt wurden – ohne die Zeitmarken des Transkripts („[00:12:30]“), sonst gälte „00:00“ als genannt
         let spoken = transcript.replacing(/\[\d{1,2}:\d{2}(?::\d{2})?\]/, with: "")
         let numbers = Set(spoken.matches(of: /\d+/).compactMap { Int($0.output) })
+        // Als Auftrag zählt auch eine Aufgabe, die schon im Material steht – so prüft eine Übersicht gegen die Notizen
         let requests = spoken.split { ".!?\n".contains($0) }
-            .filter { sentence in cues.contains { NoteStems.folded(String(sentence)).contains($0) } }
+            .filter { sentence in
+                sentence.contains("[ ]") || cues.contains { NoteStems.folded(String(sentence)).contains($0) }
+            }
             .map { NoteStems.of(String($0)) }
         let decisions = spoken.split { ".!?\n".contains($0) }
             .filter { sentence in decisionCues.contains { NoteStems.folded(String(sentence)).contains($0) } }

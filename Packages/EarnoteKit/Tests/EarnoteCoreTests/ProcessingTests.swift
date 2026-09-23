@@ -134,6 +134,50 @@ final class ProcessingPipelineTests: XCTestCase {
         XCTAssertEqual(state.statuses.get().first, .summarizing, "keine neue Transkription")
     }
 
+    /// Übersicht über einen Bereich: läuft in der Warteschlange, schreibt aus den Notizen, prüft die Aufgaben dagegen
+    func testOverviewIsMadeFromTheNotesOfTheArea() async throws {
+        let area = UUID()
+        let category = RecordingCategory(id: area, name: "Betriebssysteme", symbol: "book.fill", colorHex: "#000000", instructions: "")
+        try await folder.library.insertCategory(category, sortIndex: nil)
+        for (title, note) in [("Vorlesung 1", "Die MMU prüft jeden Zugriff.\n\n- [ ] Übungsblatt 1 rechnen"),
+                              ("Vorlesung 2", "SATA gegen NVMe.")] {
+            let rec = Recording(title: title, categoryID: area, startedAt: Date(timeIntervalSinceNow: -3_600),
+                                endedAt: Date(), status: .done)
+            try await folder.library.insertRecording(rec)
+            try await folder.library.saveNote(Summary(title: title, markdown: note, taskCount: 0, provider: "P"), for: rec.id)
+        }
+        let placeholder = Recording(title: "Übersicht – Betriebssysteme", categoryID: area, startedAt: Date(), endedAt: Date(),
+                                    status: .queued)
+        try await folder.library.insertRecording(placeholder)
+        let llm = FakeLLMClient(answer: "# Betriebssysteme bis heute\n\n## Überblick\nDie MMU prüft jeden Zugriff, dazu SATA gegen NVMe.\n\n"
+                                + "## Offene Aufgaben\n- [ ] Übungsblatt 1 rechnen\n- [ ] Team: Referat vorbereiten über NVMe-Leistung")
+        let destination = FakeDestination()
+        let state = RecordingState(placeholder, library: folder.library)
+        await pipeline(llm: llm, destinations: ["a": destination])
+            .process(placeholder, settings: .testing(), category: category, events: state.events, request: .overview(since: nil))
+
+        XCTAssertEqual(state.recording.status, .done, state.recording.errorMessage ?? "")
+        XCTAssertEqual(state.recording.title, "Betriebssysteme bis heute")
+        let prompt = llm.calls.get().last?.prompt ?? ""
+        XCTAssertTrue(prompt.contains("Die MMU prüft jeden Zugriff.") && prompt.contains("SATA gegen NVMe."))
+        XCTAssertFalse(prompt.contains("Übersicht – Betriebssysteme"), "die Übersicht ist nicht ihre eigene Quelle")
+        let note = try await folder.library.note(for: placeholder.id)
+        XCTAssertTrue(note?.markdown.contains("- [ ] Übungsblatt 1 rechnen") == true, "steht so in einer Notiz")
+        XCTAssertFalse(note?.markdown.contains("Referat") == true, "erfunden – fällt weg")
+        XCTAssertEqual(destination.exports.get(), 0, "Übersichten werden nicht exportiert")
+    }
+
+    func testOverviewNeedsTwoNotes() async throws {
+        let area = UUID()
+        let placeholder = Recording(title: "Übersicht", categoryID: area, startedAt: Date(), endedAt: Date(), status: .queued)
+        try await folder.library.insertRecording(placeholder)
+        let state = RecordingState(placeholder, library: folder.library)
+        let category = RecordingCategory(id: area, name: "Leer", symbol: "book.fill", colorHex: "#000000", instructions: "")
+        await pipeline().process(placeholder, settings: .testing(), category: category, events: state.events,
+                                 request: .overview(since: nil))
+        XCTAssertEqual(state.recording.status, .failed)
+    }
+
     func testAudioIsDeletedWhenNotKept() async throws {
         let rec = try await folder.importedRecording()
         var settings = AppSettings.testing()

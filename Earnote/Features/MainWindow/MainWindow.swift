@@ -47,6 +47,12 @@ struct MainWindow: View {
         Binding(get: { DetailMode(rawValue: detailModeRaw) ?? .note }, set: { detailModeRaw = $0.rawValue })
     }
 
+    /// Übersicht über den gewählten Bereich – nur, wenn es genug fertige Aufnahmen dafür gibt
+    private var overviewAction: (() -> Void)? {
+        guard let id = selectedCategoryID, library.overviewSourceCount(id) >= 2 else { return nil }
+        return { summarizingCategoryID = id }
+    }
+
     private var selectedCategoryID: UUID? {
         if case .category(let id) = filter.wrappedValue { return id }
         return nil
@@ -81,6 +87,7 @@ struct MainWindow: View {
         }
         .toolbar {
             MainToolbar(selectedRecordingID: selection.wrappedValue, selectedCategoryID: selectedCategoryID,
+                        onSummarize: overviewAction,
                         detailMode: detailMode, inspectorShown: $inspectorShown,
                         onDelete: { if let id = selection.wrappedValue { pendingDeletion = id } })
         }
@@ -188,6 +195,7 @@ struct MainWindow: View {
                           requestDelete: { if let id = selection.wrappedValue { pendingDeletion = id } },
                           requestDiscardRecording: { confirmDiscard = true },
                           newCategory: newCategory,
+                          summarizeCategory: overviewAction,
                           focusSearch: { searchFocused = true },
                           noteActions: noteActions,
                           playback: player.hasAudio

@@ -136,8 +136,10 @@ final class PeriodSummaryTests: XCTestCase {
         let limit = 3_000
         let material = PeriodSummary.material(all, limit: limit)
         XCTAssertLessThanOrEqual(material.count, limit)
-        XCTAssertTrue(material.contains("Vorlesung 1"))
-        XCTAssertFalse(material.contains("Vorlesung 9"), "was nicht mehr passt, fällt ganz weg statt halb")
+        XCTAssertTrue(material.contains("Vorlesung 10"), "vor der Prüfung zählt, was zuletzt dran war")
+        XCTAssertFalse(material.contains("Vorlesung 1 "), "die ältesten fallen ganz weg statt halb")
+        XCTAssertTrue(material.range(of: "Vorlesung 9")!.lowerBound < material.range(of: "Vorlesung 10")!.lowerBound,
+                      "gelesen wird in zeitlicher Reihenfolge")
         XCTAssertEqual(PeriodSummary.fittingCount(all, limit: limit), 2)
     }
 

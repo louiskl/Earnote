@@ -6,6 +6,8 @@ import SwiftUI
 struct MainToolbar: ToolbarContent {
     let selectedRecordingID: UUID?
     let selectedCategoryID: UUID?
+    /// Übersicht über den gewählten Bereich (nil = ausgegraut)
+    let onSummarize: (() -> Void)?
     @Binding var detailMode: DetailMode
     @Binding var inspectorShown: Bool
     let onDelete: () -> Void
@@ -21,6 +23,18 @@ struct MainToolbar: ToolbarContent {
             .pickerStyle(.segmented)
             .disabled(selectedRecordingID == nil)
             .help("Notiz (⌘1), Transkript (⌘2) oder beides nebeneinander (⌘3)")
+        }
+        // Nur, wenn ein Bereich gewählt ist: Lernübersicht über seine Aufnahmen (sonst nur per Rechtsklick zu finden)
+        if selectedCategoryID != nil {
+            ToolbarItem(placement: .primaryAction) {
+                Button { onSummarize?() } label: {
+                    Label("Übersicht", systemImage: "list.bullet.rectangle")
+                }
+                .disabled(onSummarize == nil)
+                .help(onSummarize == nil
+                      ? "Für eine Übersicht braucht es mindestens zwei fertige Aufnahmen in diesem Bereich."
+                      : "Übersicht über die Aufnahmen dieses Bereichs erstellen (⇧⌘U)")
+            }
         }
         ToolbarItemGroup(placement: .primaryAction) {
             SelectionActions(recordingID: selectedRecordingID, onDelete: onDelete)

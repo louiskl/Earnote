@@ -1025,7 +1025,7 @@
 "Aufnahmen" = "Recordings";
 "Eine Aufnahme" = "One recording";
 "%lld Aufnahmen" = "%lld recordings";
-"Die KI liest die fertigen Notizen dieses Bereichs und schreibt daraus eine Übersicht mit Themen, rotem Faden und Prüfungshinweisen. Sie landet als eigener Eintrag hier." = "The AI reads the finished notes of this area and writes an overview with topics, the thread that runs through them and exam hints. It lands here as its own entry.";
+"Die KI liest die fertigen Notizen dieses Bereichs und schreibt daraus eine Übersicht mit Themen, rotem Faden und Prüfungshinweisen. Sie entsteht im Hintergrund als eigener Eintrag in diesem Bereich – du kannst währenddessen weiterarbeiten." = "The AI reads the finished notes of this area and writes an overview with topics, the common thread and exam hints. It is created in the background as its own entry in this area – you can keep working meanwhile.";
 "Zusätzliche Anweisung (optional)" = "Additional instruction (optional)";
 "Zum Beispiel: „Nur die Rechenwege“ oder „Mit Beispielaufgaben zu jedem Thema“." = "For example: “Only the calculations” or “With example problems for each topic”.";
 "Die KI liest die Notizen … das dauert ein paar Minuten." = "The AI is reading the notes … this takes a few minutes.";
@@ -1149,3 +1149,7 @@
 "Karteikarten entstehen – die KI liest die Notiz …" = "Creating flashcards – the AI is reading the note …";
 "Karteikarten entstehen – %lld von %lld" = "Creating flashcards – %1$lld of %2$lld";
 "Zum Neuschreiben der Notiz braucht es eine KI. Wähle in den Einstellungen unter „KI“ eine aus." = "Rewriting the note needs an AI. Choose one in Settings › AI.";
+"Übersicht – %@" = "Overview – %@";
+"Übersicht über den Bereich …" = "Overview of the Area …";
+"Übersicht" = "Overview";
+"Übersicht über die Aufnahmen dieses Bereichs erstellen (⇧⌘U)" = "Create an overview of this area’s recordings (⇧⌘U)";

@@ -13,7 +13,6 @@ struct CategorySummarySheet: View {
 
     @State private var period: Period = .semester
     @State private var instruction = ""
-    @State private var running = false
 
     /// Zeiträume, wie Studierende denken – nicht in Tagen
     private enum Period: String, CaseIterable, Identifiable {
@@ -44,12 +43,7 @@ struct CategorySummarySheet: View {
     private var category: RecordingCategory? { library.category(categoryID) }
 
     /// Wie viele Aufnahmen in den gewählten Zeitraum fallen (Übersichten zählen nicht mit)
-    private var matching: Int {
-        library.recordings.filter { recording in
-            recording.categoryID == categoryID && recording.status == .done && recording.duration >= 1
-                && (period.since.map { recording.startedAt >= $0 } ?? true)
-        }.count
-    }
+    private var matching: Int { library.overviewSourceCount(categoryID, since: period.since) }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -66,7 +60,7 @@ struct CategorySummarySheet: View {
                             .foregroundStyle(.secondary)
                     }
                 } footer: {
-                    Text("Die KI liest die fertigen Notizen dieses Bereichs und schreibt daraus eine Übersicht mit Themen, rotem Faden und Prüfungshinweisen. Sie landet als eigener Eintrag hier.")
+                    Text("Die KI liest die fertigen Notizen dieses Bereichs und schreibt daraus eine Übersicht mit Themen, rotem Faden und Prüfungshinweisen. Sie entsteht im Hintergrund als eigener Eintrag in diesem Bereich – du kannst währenddessen weiterarbeiten.")
                 }
                 Section {
                     TextField("Zusätzliche Anweisung (optional)", text: $instruction, axis: .vertical)
@@ -78,30 +72,21 @@ struct CategorySummarySheet: View {
             .formStyle(.grouped)
             Divider()
             HStack {
-                if running {
-                    ProgressView().controlSize(.small)
-                    Text("Die KI liest die Notizen … das dauert ein paar Minuten.")
-                        .font(.callout).foregroundStyle(.secondary)
-                }
                 Spacer()
                 Button("Abbrechen") { dismiss() }
                     .keyboardShortcut(.cancelAction)
                 Button("Übersicht erstellen") { create() }
                     .keyboardShortcut(.defaultAction)
-                    .disabled(running || matching < 2)
+                    .disabled(matching < 2)
             }
             .padding(16)
         }
         .frame(width: 520)
     }
 
+    /// Die Übersicht entsteht in der Warteschlange – das Fenster schließt sofort, der neue Eintrag ist ausgewählt
     private func create() {
-        running = true
-        Task {
-            let id = await library.summarizeCategory(categoryID, since: period.since, instruction: instruction)
-            running = false
-            if let id { onCreated(id) }
-            dismiss()
-        }
+        if let id = library.summarizeCategory(categoryID, since: period.since, instruction: instruction) { onCreated(id) }
+        dismiss()
     }
 }

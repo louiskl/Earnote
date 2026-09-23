@@ -41,6 +41,10 @@ struct EarnoteCommands: Commands {
             Button("Aufnahme verwerfen …") { window?.requestDiscardRecording() }
                 .disabled(!isRecording || window == nil)
             Divider()
+            Button("Übersicht über den Bereich …") { window?.summarizeCategory?() }
+                .keyboardShortcut("u", modifiers: [.command, .shift])
+                .disabled(window?.summarizeCategory == nil)
+            Divider()
             Button(window?.playback?.isPlaying == true ? "Pause" : "Aufnahme anhören") {
                 window?.playback?.playPause()
             }

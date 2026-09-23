@@ -39,7 +39,6 @@ final class LibraryStore: RecordingLibrary {
     /// Wie viele Karteikarten schon geschrieben sind (und wie viele es werden), während sie entstehen
     private(set) var flashcardProgress: [UUID: (done: Int, of: Int)] = [:]
     /// Läuft gerade eine Bereichs-Übersicht? (nur eine auf einmal – sie belegt die KI)
-    private(set) var isSummarizingCategory = false
     /// Nach jeder Änderung der Einstellungen (alt, neu)
     @ObservationIgnored var onSettingsChanged: (AppSettings, AppSettings) -> Void = { _, _ in }
     /// Vor dem Löschen einer Aufnahme (z. B. eine noch laufende Aufnahme beenden)
@@ -323,75 +322,35 @@ final class LibraryStore: RecordingLibrary {
 
     /// Übersicht über mehrere Aufnahmen eines Bereichs („Semester-Zusammenfassung“).
     /// Sie landet als eigener Eintrag in der Bibliothek – dadurch lässt sie sich lesen, bearbeiten,
-    /// drucken, exportieren und durchsuchen wie jede andere Notiz.
-    /// Gibt die Kennung des neuen Eintrags zurück (nil = nichts entstanden).
+    /// drucken, exportieren und durchsuchen wie jede andere Notiz. Erstellt wird sie in der Warteschlange
+    /// (siehe `ProcessingPipeline.makeOverview`): Das Fenster ist sofort frei, der Eintrag zeigt Fortschritt
+    /// und entstehenden Text wie jede andere Aufnahme.
+    /// Gibt die Kennung des neuen Eintrags zurück.
     @discardableResult
-    func summarizeCategory(_ categoryID: UUID, since: Date?, instruction: String = "") async -> UUID? {
+    func summarizeCategory(_ categoryID: UUID, since: Date?, instruction: String = "") -> UUID? {
         guard let category = category(categoryID) else { return nil }
-        guard !isSummarizingCategory else { return nil }
-        isSummarizingCategory = true
-        defer { isSummarizingCategory = false }
-
-        // Übersichten selbst haben keine Laufzeit – so fließt eine frühere Übersicht nicht in die nächste ein,
-        // ohne dass das Datenmodell dafür ein eigenes Feld braucht.
-        let candidates = recordings.filter { recording in
-            recording.categoryID == categoryID && recording.status == .done && recording.duration >= 1
-                && (since.map { recording.startedAt >= $0 } ?? true)
-        }
-        guard candidates.count >= 2 else {
-            lastError = String(localized: "Für eine Übersicht braucht es mindestens zwei fertige Aufnahmen in diesem Bereich.")
-            return nil
-        }
-        var sources: [PeriodSummary.Source] = []
-        for recording in candidates {
-            guard let note = await summary(recording.id) else { continue }
-            sources.append(PeriodSummary.Source(title: recording.displayTitle, date: recording.startedAt,
-                                                markdown: note.markdown))
-        }
-        guard !sources.isEmpty else {
-            lastError = String(localized: "Die Aufnahmen in diesem Bereich haben noch keine Notizen.")
-            return nil
-        }
-        do {
-            guard let client = try llm.make(settings.ai) else {
-                lastError = String(localized: "Für eine Übersicht braucht es eine KI. Wähle in den Einstellungen unter „KI“ eine aus.")
-                return nil
-            }
-            let overview = try await PeriodSummary.generate(
-                client: client, sources: sources, subject: category.name,
-                language: settings.ai.summaryLanguage, simple: settings.ai.simpleNotes,
-                extra: instruction, limit: settings.ai.provider.chunkCharacters,
-                providerName: settings.ai.provider.label)
-            guard let overview else {
-                lastError = String(localized: "Die KI hat keine Übersicht geliefert. Versuch es noch einmal.")
-                return nil
-            }
-            var entry = Recording(title: overview.title, categoryID: categoryID,
-                                  startedAt: Date(), endedAt: Date(), status: .done)
-            entry.isTitleCustom = true
-            entry.language = settings.language
-            entry.summaryTitle = overview.title
-            entry.summaryPreview = overview.preview
-            entry.taskCount = overview.taskCount
-            insert(entry)
-            let library = self.library
-            let id = entry.id
-            let stored = entry
-            write("Übersicht sichern") {
-                try await library.insertRecording(stored)
-                try await library.saveNote(overview, for: id)
-            }
-            Log.info("Übersicht für „\(category.name)“ aus \(sources.count) Notizen")
-            return id
-        } catch {
-            lastError = String(localized: "Übersicht: \(error.localizedDescription)")
-            return nil
-        }
+        // Keine Laufzeit: So zählt eine Übersicht nie als Quelle der nächsten
+        var entry = Recording(title: String(localized: "Übersicht – \(category.name)"), categoryID: categoryID,
+                              startedAt: Date(), endedAt: Date(), status: .queued)
+        entry.isTitleCustom = true
+        entry.language = settings.language
+        insert(entry)
+        let library = self.library
+        let stored = entry
+        write("Übersicht anlegen") { try await library.insertRecording(stored) }
+        enqueue(entry.id, instruction: instruction, request: .overview(since: since))
+        Log.info("Übersicht für „\(category.name)“ angestoßen")
+        return entry.id
     }
 
-    /// Übernimmt ausgewählte Vorlagen und Fächer als Bereiche. Bereiche mit gleichem Namen bleiben erhalten,
-    /// damit bestehende Aufnahmen ihre Zuordnung nicht verlieren.
-    @discardableResult
+    /// Wie viele fertige Aufnahmen ein Bereich hat (ab `since`) – eine Übersicht braucht mindestens zwei
+    func overviewSourceCount(_ categoryID: UUID, since: Date? = nil) -> Int {
+        recordings.filter { recording in
+            recording.categoryID == categoryID && recording.status == .done && recording.duration >= 1
+                && (since.map { recording.startedAt >= $0 } ?? true)
+        }.count
+    }
+
     func addCategories(templates: Set<String>, subjects: [String]) -> [RecordingCategory] {
         let existing = Set(categories.map(\.name))
         var added: [RecordingCategory] = []

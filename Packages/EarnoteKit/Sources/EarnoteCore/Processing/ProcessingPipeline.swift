@@ -23,13 +23,15 @@ public struct ProcessingEvents: Sendable {
 }
 
 /// Was mit der Notiz passieren soll
-public enum SummaryRequest: Sendable {
+public enum SummaryRequest: Sendable, Equatable {
     /// Nur schreiben, wenn es noch keine gibt (normaler Durchgang nach der Aufnahme)
     case ifMissing
     /// Neu schreiben – aus dem Transkript, und nur wenn es keins gibt und keins entstehen kann, aus der Notiz
     case again
     /// Neu schreiben aus der bisherigen Notiz (Vereinfachen): Dort steht schon alles Wichtige, und es geht viel schneller
     case fromNote
+    /// Übersicht über die Notizen des Bereichs (ab `since`) – der Eintrag selbst ist nur ihr Platzhalter
+    case overview(since: Date?)
 }
 
 /// Verarbeitet eine Aufnahme: Audio mischen, Stille prüfen, transkribieren, Sprecher zuordnen,
@@ -65,6 +67,12 @@ public struct ProcessingPipeline: Sendable {
         let id = rec.id
         var step = "Transkription"
         do {
+            if case .overview(let since) = request {
+                step = "Übersicht"
+                try await makeOverview(rec, since: since, settings: settings, category: category, events: events,
+                                       instruction: extraInstructions)
+                return
+            }
             // Wörterbuch: hilft der Spracherkennung und der KI, Namen und Fachbegriffe richtig zu schreiben
             let glossary = Glossary.forCategory(category?.id, in: (try? await library.glossaryTerms()) ?? [])
             // 1) Transkript (falls noch nicht vorhanden)
@@ -80,6 +88,14 @@ public struct ProcessingPipeline: Sendable {
             // Übersicht eines Bereichs (oder Aufnahme ohne Ton und Transkript): wird nie exportiert – auch nicht,
             // wenn man sie neu schreibt. Sonst landete sie plötzlich in Notion & Co.
             let notFromAudio = transcript == nil && !hasAudio
+            // Eine Übersicht, deren Erstellung unterbrochen wurde (App beendet): Der Platzhalter hat weder Ton noch
+            // Transkript noch Notiz. Neu erstellen – mit dem üblichen Zeitraum, der gewählte ist nicht gespeichert.
+            if transcript == nil, existing == nil, !hasAudio, rec.categoryID != nil, rec.duration < 1 {
+                step = "Übersicht"
+                try await makeOverview(rec, since: Calendar.current.date(byAdding: .month, value: -6, to: Date()),
+                                       settings: settings, category: category, events: events, instruction: extraInstructions)
+                return
+            }
             if transcript == nil, fromNote == nil, !hasAudio {
                 throw LLMError(message: t("Für diese Aufnahme gibt es weder Ton noch Transkript oder Notiz – daraus kann keine Notiz entstehen."))
             }
@@ -259,6 +275,64 @@ public struct ProcessingPipeline: Sendable {
                             envelope.micLoudShare * 100, envelope.systemLoudShare * 100))
         }
         return Transcript(segments: segments, engine: transcriber.engineName)
+    }
+
+    /// Übersicht über mehrere Aufnahmen eines Bereichs. Läuft wie jede Verarbeitung in der Warteschlange:
+    /// Das Fenster ist sofort wieder frei, Fortschritt und entstehender Text stehen am Eintrag selbst.
+    private func makeOverview(_ rec: Recording, since: Date?, settings: AppSettings, category: RecordingCategory?,
+                              events: ProcessingEvents, instruction: String) async throws {
+        let id = rec.id
+        guard let category else { throw LLMError(message: t("Diese Übersicht gehört zu keinem Bereich mehr.")) }
+        await setStep(id, .summarizing, 0, events)
+        // Übersichten selbst haben keine Laufzeit – so fließt eine frühere Übersicht nicht in die nächste ein
+        let candidates = try await library.recordings().filter { r in
+            r.id != id && r.categoryID == category.id && r.status == .done && r.duration >= 1
+                && (since.map { r.startedAt >= $0 } ?? true)
+        }
+        var sources: [PeriodSummary.Source] = []
+        for r in candidates {
+            if let note = try await library.note(for: r.id) {
+                sources.append(PeriodSummary.Source(title: r.displayTitle, date: r.startedAt, markdown: note.markdown))
+            }
+        }
+        guard sources.count >= 2 else {
+            throw LLMError(message: t("Für eine Übersicht braucht es mindestens zwei fertige Aufnahmen mit Notiz in diesem Bereich."))
+        }
+        guard let client = try llm.make(settings.ai) else {
+            throw LLMError(message: t("Für eine Übersicht braucht es eine KI. Wähle in den Einstellungen unter „KI“ eine aus."))
+        }
+        let limit = settings.ai.provider.chunkCharacters
+        let material = PeriodSummary.material(sources, limit: limit)
+        let tracker = MonotonicProgress { events.progress(id, $0) }
+        let estimate = tracker.creep(to: 0.95, typicalSeconds: 30 + Double(material.count) / 250)
+        defer { estimate.cancel() }
+        let started = Date()
+        guard var overview = try await PeriodSummary.generate(
+            client: client, sources: sources, subject: category.name, language: settings.ai.summaryLanguage,
+            simple: settings.ai.simpleNotes, extra: instruction, limit: limit,
+            providerName: settings.ai.provider.label, partial: { events.draft(id, $0) }) else {
+            throw LLMError(message: t("Die KI hat keine Übersicht geliefert. Versuch es noch einmal."))
+        }
+        // Aufgaben nur, wenn sie in den Notizen stehen oder dort jemand etwas aufgetragen hat
+        overview.markdown = TaskCheck.clean(overview.markdown, transcript: material)
+        overview.taskCount = NoteMarkdown.openTaskCount(overview.markdown)
+        try Task.checkCancellation()
+        try await library.saveNote(overview, for: id)
+        let done = overview
+        await events.update(id) {
+            $0.title = done.title
+            $0.isTitleCustom = true
+            $0.summaryTitle = done.title
+            $0.summaryPreview = done.preview
+            $0.taskCount = done.taskCount
+            $0.isNoteEdited = false
+            $0.status = .done
+            $0.progress = 1
+            $0.errorMessage = nil
+        }
+        Self.logDuration("Übersicht „\(category.name)“ aus \(PeriodSummary.fittingCount(sources, limit: limit)) von \(sources.count) Notizen",
+                         since: started)
+        notify(t("Übersicht fertig"), done.title)
     }
 
     /// Die Notiz ohne ihren Karteikarten-Abschnitt – als Material zum Umschreiben

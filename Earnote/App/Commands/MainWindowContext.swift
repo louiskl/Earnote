@@ -19,6 +19,8 @@ struct MainWindowContext {
     var requestDelete: () -> Void
     var requestDiscardRecording: () -> Void
     var newCategory: () -> Void
+    /// Übersicht über den gewählten Bereich (nil = kein Bereich gewählt oder zu wenige Aufnahmen)
+    var summarizeCategory: (() -> Void)?
     var focusSearch: () -> Void
     /// Notiz bearbeiten, neu zusammenfassen, korrigieren, zurücksetzen
     var noteActions = NoteActions()

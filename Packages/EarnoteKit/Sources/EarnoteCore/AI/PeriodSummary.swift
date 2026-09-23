@@ -20,23 +20,26 @@ public enum PeriodSummary {
     /// Notizen in der Reihenfolge, in der sie entstanden sind – mit Datum, damit das Modell
     /// eine Entwicklung erkennen kann („zuerst …, später …“).
     public static func material(_ sources: [Source], limit: Int) -> String {
-        let sorted = sources.sorted { $0.date < $1.date }
         let df = DateFormatter()
         df.dateStyle = .medium
         df.timeStyle = .none
-        var out = ""
-        for source in sorted {
+        // Lieber weniger Termine vollständig als alle halb – und dann die neuesten: Vor der Prüfung zählt,
+        // was zuletzt dran war. Gelesen wird trotzdem in zeitlicher Reihenfolge.
+        var kept: [String] = []
+        var used = 0
+        for source in sources.sorted(by: { $0.date > $1.date }) {
             let block = "## \(source.title) (\(df.string(from: source.date)))\n\n\(source.markdown)\n\n"
-            // Lieber weniger Termine vollständig als alle halb: abschneiden, sobald es nicht mehr passt
-            if out.count + block.count > limit { break }
-            out += block
+            if used + block.count > limit { break }
+            kept.insert(block, at: 0)
+            used += block.count
         }
-        return out.isEmpty ? String(sorted.first?.markdown.prefix(limit) ?? "") : out
+        let newest = sources.max { $0.date < $1.date }
+        return kept.isEmpty ? String(newest?.markdown.prefix(limit) ?? "") : kept.joined()
     }
 
     /// Wie viele Notizen tatsächlich hineingepasst haben (für den Hinweis in der Oberfläche)
     public static func fittingCount(_ sources: [Source], limit: Int) -> Int {
-        let sorted = sources.sorted { $0.date < $1.date }
+        let sorted = sources.sorted { $0.date > $1.date }
         let df = DateFormatter()
         df.dateStyle = .medium
         df.timeStyle = .none
@@ -80,13 +83,14 @@ public enum PeriodSummary {
     /// besser keine Übersicht als eine erfundene.
     public static func generate(client: any LLMClient, sources: [Source], subject: String, language: String,
                                 simple: Bool = false, extra: String = "", limit: Int = 40_000,
-                                providerName: String) async throws -> Summary? {
+                                providerName: String,
+                                partial: @escaping @Sendable (String) -> Void = { _ in }) async throws -> Summary? {
         guard !sources.isEmpty else { return nil }
         let text = material(sources, limit: limit)
         let prompt = t("Hier sind die Mitschriften:") + "\n\n" + text
         let raw = try await client.complete(system: system(language: language, subject: subject,
                                                            simple: simple, extra: extra),
-                                            prompt: prompt)
+                                            prompt: prompt, partial: partial)
         guard raw.trimmingCharacters(in: .whitespacesAndNewlines).count > 40 else { return nil }
         return Summary.parse(raw, provider: providerName, fallbackTitle: subject)
     }
