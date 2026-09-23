@@ -1,6 +1,6 @@
 # Earnote – Roadmap
 
-> Stand: 23.09.2026 (0.9.16) · gepflegt vom Architekten · Versionen sind Arbeitsstände, öffentlich wird erst 1.0.
+> Stand: 23.09.2026 (0.9.17) · gepflegt vom Architekten · Versionen sind Arbeitsstände, öffentlich wird erst 1.0.
 > Beta läuft: [Releases](https://github.com/louiskl/Earnote/releases) · [Anleitung für Tester](BETA.md)
 > Leitlinien: [DESIGN_GUIDELINES.md](DESIGN_GUIDELINES.md) · Aufbau: [ARCHITECTURE.md](ARCHITECTURE.md)
 
@@ -27,7 +27,8 @@
 | 4f | Während der Beta: Strom sparen in der Vorlesung, Wellenform in der Menüleiste, iCloud-Duplikate, Konfigurationsprofil, App-Build in der CI | 0.9.14 | ✅ fertig |
 | 4g | Während der Beta: Absturz bei Gerätewechsel behoben, Karteikarten in der Notiz, Vereinfachen | 0.9.15 | ✅ fertig |
 | 4h | Während der Beta: lokale KI gibt Speicher frei, Hinweis im Stromsparmodus, Qwen3 4B überall, weniger erfundene Namen/Aufgaben/Fristen | 0.9.16 | ✅ fertig |
-| **Beta** | **Zwei Wochen mit Kommilitonen, danach 1.0** | 0.9.13–0.9.16 | ▶ **läuft seit 22.09.2026** |
+| 4i | Während der Beta: Notiz beim Entstehen, kürzere Notizen, geprüfte Fragen/Aufgaben/Entscheidungen, 4–8 Karteikarten mit Fortschritt | 0.9.17 | ✅ fertig |
+| **Beta** | **Zwei Wochen mit Kommilitonen, danach 1.0** | 0.9.13–0.9.17 | ▶ **läuft seit 22.09.2026** |
 | 5 | Launch: Website, Demo-Video, Homebrew, Beta mit Kommilitonen, Markenrecherche | 1.0 RC | ▶ teils fertig (Website, Homebrew, Updates) |
 | 🚀 | **Launch Earnote 1.0 für Mac** | 1.0 | |
 | 6 | iPad eigenständig, iPhone als Begleit-App, iCloud-Sync | 1.1 | nach Launch |
