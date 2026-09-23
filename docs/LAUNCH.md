@@ -33,11 +33,12 @@ Für jeden Kanal derselbe Gedanke, nur anders lang:
   automatisch entfernt
 - Export nach Markdown, Obsidian, Notion, Apple Notizen, Bear, Craft, Logseq, Erinnerungen, Things, Todoist
 
-**Ehrlich zur Geschwindigkeit** (gemessen, 22./23.09.2026): Das Transkript entsteht nach dem Stopp, auf einem
-MacBook Air M1 mit dem 4- bis 7,5-Fachen der Echtzeit – eine Stunde Vorlesung also in etwa 8–15 Minuten.
-Die Notiz braucht danach ein paar Minuten und ist beim Entstehen zu sehen. Am Netzteil gibt es eine
-Live-Mitschrift als Vorschau; ab 16 GB Arbeitsspeicher wird die Notiz schon während der Aufnahme vorbereitet. Im Stromsparmodus
-dauert alles deutlich länger – die App sagt das. Nicht „in Sekunden“ oder „wenige Minuten“ versprechen.
+**Ehrlich zur Geschwindigkeit** (gemessen, 22./23.09.2026, MacBook Air M1): Whisper schafft rund die
+12-fache Echtzeit – eine Stunde Vorlesung in etwa 5–6 Minuten. Ab 0.9.20 läuft das schon während der
+Aufnahme mit, beim Stopp bleibt nur der letzte Abschnitt. Die Notiz braucht danach ein paar Minuten und ist
+beim Entstehen zu sehen; ab 16 GB Arbeitsspeicher wird sie am Netzteil schon während der Aufnahme vorbereitet.
+**Im Stromsparmodus dauert alles etwa dreimal so lange** (gemessen: 4-fache statt 12-fache Echtzeit) – die App
+sagt das. Nicht „in Sekunden“ versprechen.
 
 ---
 
@@ -356,8 +357,9 @@ Auftrag, Fristen und Namen, die nie fielen, und offene Fragen, die niemand geste
 Perfekt ist das nicht – aber deutlich besser als ohne. Jede Zeitmarke führt zur Stelle im Ton.
 
 **„Wie lange dauert es?"**
-Auf einem MacBook Air M1 ist eine Stunde Vorlesung nach dem Stoppen in etwa 8–15 Minuten transkribiert,
-die Notiz braucht dann noch ein paar Minuten – man sieht sie entstehen. Neuere Macs sind deutlich schneller.
+Auf einem MacBook Air M1 ist eine Stunde Vorlesung in etwa 5–6 Minuten transkribiert, und das läuft schon
+während der Aufnahme mit. Die Notiz braucht danach ein paar Minuten – man sieht sie entstehen. Im Stromsparmodus
+dauert es etwa dreimal so lange.
 
 **„Wie gut ist die Erkennung wirklich?"**
 Whisper large-v3-turbo, dasselbe Modell wie bei den meisten kostenpflichtigen Diensten. Bei
