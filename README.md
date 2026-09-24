@@ -26,7 +26,8 @@
 </p>
 
 <p align="center">
-  <img src="docs/assets/screenshot-en.png" width="820" alt="Earnote showing a lecture note with tasks and flashcards next to the recording list">
+  <a href="https://earnote.dev/assets/demo-en.mp4"><img src="docs/assets/demo-poster.jpg" width="820" alt="Demo video: Earnote records a lecture, writes the note, makes flashcards and a PDF study sheet"></a><br>
+  <sub>▶︎ <a href="https://earnote.dev/assets/demo-en.mp4">Watch the 75-second demo</a></sub>
 </p>
 
 ---

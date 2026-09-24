@@ -59,8 +59,15 @@
         <p class="fine">Or with Homebrew: <code>brew tap louiskl/earnote &amp;&amp; brew trust louiskl/earnote &amp;&amp; brew install --cask earnote</code></p>
     </div>
     <div class="hero-shot reveal">
-        <img src="assets/screenshot-en.png" alt="Earnote showing a lecture note with tasks, the inspector and the player bar">
+        <video src="assets/demo-en.mp4" poster="assets/demo-poster.jpg" autoplay muted loop playsinline controls
+               preload="metadata" aria-label="Demo: Earnote records a lecture, writes the note, makes flashcards and a PDF study sheet"></video>
     </div>
+    <script>
+        // Wer „Bewegung reduzieren“ eingestellt hat, bekommt das Video angehalten
+        if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            for (const v of document.querySelectorAll('video[autoplay]')) { v.removeAttribute('autoplay'); v.pause(); }
+        }
+    </script>
 </header>
 
 <section id="how">

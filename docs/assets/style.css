@@ -98,7 +98,8 @@ h1 .accent { color: var(--brand); }
 .fine { font-size: 14px; color: var(--dim); margin-top: 16px; }
 
 .hero-shot { margin: 52px auto 0; max-width: 1020px; padding: 0 24px; }
-.hero-shot img { width: 100%; height: auto; border-radius: var(--radius); box-shadow: var(--shadow); display: block; }
+.hero-shot img, .hero-shot video { width: 100%; height: auto; border-radius: var(--radius); box-shadow: var(--shadow); display: block; }
+.hero-shot video { aspect-ratio: 8 / 5; background: #0b1e2d; }
 
 /* Abschnitte */
 section { padding: 84px 0; position: relative; }
