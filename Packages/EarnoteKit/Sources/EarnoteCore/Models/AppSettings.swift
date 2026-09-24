@@ -104,7 +104,10 @@ public enum AIProviderKind: String, Codable, CaseIterable, Identifiable, Sendabl
         // Die Rechenzeit der lokalen KI wächst mit der Länge der Eingabe weit mehr als linear. Gemessen (MacBook Air M1,
         // Qwen3 4B): 30.000 Zeichen am Stück 6–8 Minuten, 60.000 Zeichen 48 Minuten. 32.000 hält eine Stunde Vorlesung
         // in einem Durchgang; längere werden geteilt (2 h 12 min: 15 statt 53 Minuten).
-        case .localModel: return DeviceCapabilities.memoryGB >= 15 ? 32_000 : 12_000
+        // Kleine Abschnitte auf Geräten mit 6 GB: Der Zwischenspeicher des Modells wächst mit der Länge der Eingabe
+        case .localModel:
+            let memory = DeviceCapabilities.memoryGB
+            return memory >= 15 ? 32_000 : memory >= DeviceCapabilities.fullModelMemoryGB ? 12_000 : 8_000
         case .ollama, .lmStudio: return 24_000
         // Kostenlose Modelle haben oft nur 32.000 Token Kontext
         case .openAICompatible, .openRouter: return 60_000

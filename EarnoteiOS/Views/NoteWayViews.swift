@@ -186,7 +186,8 @@ struct LocalModelRow: View {
         } else if manager.isDownloading {
             ProgressView(value: manager.progress) { Text("Wird geladen …").font(.footnote) }
         } else {
-            Button("Jetzt laden (~2,5 GB, am besten im WLAN)", systemImage: "arrow.down.circle") { manager.download() }
+            Button("Jetzt laden (~\(manager.selected.sizeGB.formatted(.number.precision(.fractionLength(1)))) GB, am besten im WLAN)",
+                   systemImage: "arrow.down.circle") { manager.download() }
                 .font(.footnote)
         }
     }

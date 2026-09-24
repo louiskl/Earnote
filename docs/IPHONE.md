@@ -30,7 +30,7 @@ Notiz da, und unterwegs lernst du mit den Karteikarten. Die Bibliothek ist diese
 
 | Weg | Für wen | Transkription | Notiz | Was verlässt das iPhone |
 |---|---|---|---|---|
-| **A · Auf diesem iPhone** | iPhone 15 Pro und neuer (8 GB) | SpeechAnalyzer (Apple, auf dem Gerät) | Qwen3 4B über MLX oder Apple Intelligence (Foundation Models) | nichts |
+| **A · Auf diesem iPhone** | iPhone 15 Pro und neuer (8 GB): Qwen3 4B · **ab 6 GB (iPhone 13 Pro–15, entworfen 25.09.2026, am Gerät zu prüfen): Qwen3 1.7B** | SpeechAnalyzer (Apple, auf dem Gerät) | Qwen3 4B bzw. 1.7B über MLX oder Apple Intelligence (Foundation Models) | nichts |
 | **B · Mit meinem Mac** | jedes iPhone + Mac mit Earnote | auf dem Mac (Whisper) | auf dem Mac (lokale KI) | Audio über die eigene iCloud zum eigenen Mac, danach gelöscht |
 | **C · Cloud-KI mit eigenem Schlüssel** | jedes iPhone | SpeechAnalyzer (auf dem Gerät) | Claude, OpenAI, Gemini, Mistral per API-Schlüssel | nur der Text an den gewählten Anbieter |
 

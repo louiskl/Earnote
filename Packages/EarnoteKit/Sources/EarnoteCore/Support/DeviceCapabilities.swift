@@ -14,11 +14,16 @@ public enum DeviceCapabilities {
         #endif
     }
 
+    /// Ab hier trägt das Gerät das Standardmodell (Qwen3 4B); darunter, ab `smallModelMemoryGB`, das kleine (1.7B).
+    /// Gemessen wird weniger als auf dem Etikett steht (ein iPhone mit 6 GB meldet etwa 5,6 GB).
+    public static let fullModelMemoryGB = 7.5
+    public static let smallModelMemoryGB = 5.5
+
     /// Warum das lokale Sprachmodell hier nicht läuft (nil = läuft).
-    /// Voraussetzung: Apple Silicon mit mindestens 8 GB Arbeitsspeicher.
+    /// Voraussetzung: Apple Silicon mit mindestens 6 GB Arbeitsspeicher (jeder Mac mit Apple-Chip hat 8 GB oder mehr).
     public static var localModelUnsupportedReason: String? {
         guard isAppleSilicon else { return t("Das lokale Modell benötigt einen Mac mit Apple-Chip (M1 oder neuer).") }
-        return memoryGB >= 7.5 ? nil : t("Dieser Mac hat zu wenig Arbeitsspeicher für das lokale Modell (mindestens 8 GB).")
+        return memoryGB >= smallModelMemoryGB ? nil : t("Dieses Gerät hat zu wenig Arbeitsspeicher für das lokale Modell (mindestens 6 GB).")
     }
 
     public static var supportsLocalModel: Bool { localModelUnsupportedReason == nil }

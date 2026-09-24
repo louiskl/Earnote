@@ -1417,7 +1417,7 @@
 "Hast du Earnote auf dem Mac, nimm „Mit meinem Mac“: Das iPhone nimmt nur auf, der Mac schreibt die Notiz und schont deinen Akku. Ohne Mac: „Auf diesem iPhone“, wenn es angeboten wird – sonst „Kostenlos mit Google-Konto“." = "If you have Earnote on your Mac, choose “With My Mac”: your iPhone only records, your Mac writes the note and saves your battery. Without a Mac: “On This iPhone” if it's offered – otherwise “Free with Google Account”.";
 "Hast du Earnote auf dem Mac, schreibt er die Notiz. Sonst geht es kostenlos mit deinem Google-Konto – dabei geht nur der Text an Google, nie das Audio." = "If you have Earnote on your Mac, it writes the note. Otherwise it works for free with your Google account – only the text goes to Google, never the audio.";
 "Hilfe" = "Help";
-"Jetzt laden (~2,5 GB, am besten im WLAN)" = "Download now (~2.5 GB, ideally on Wi-Fi)";
+"Jetzt laden (~%@ GB, am besten im WLAN)" = "Download now (~%@ GB, ideally on Wi-Fi)";
 "Klappt! Earnote schreibt deine Notizen jetzt mit Google." = "It works! Earnote now writes your notes with Google.";
 "Komm zurück und füge ihn hier ein." = "Come back and paste it here.";
 "Kopiere den Schlüssel noch einmal vollständig (er beginnt meist mit „AIza“) und füge ihn erneut ein. Meldet Earnote, das Kontingent sei aufgebraucht, warte ein paar Minuten. Hilft das nicht, erstelle auf aistudio.google.com einen neuen Schlüssel." = "Copy the whole key again (it usually starts with “AIza”) and paste it once more. If Earnote says the quota is used up, wait a few minutes. If that doesn't help, create a new key at aistudio.google.com.";

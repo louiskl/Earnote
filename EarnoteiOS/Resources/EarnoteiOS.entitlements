@@ -19,7 +19,7 @@
 	<!-- Stille Mitteilungen von CloudKit: Änderungen vom Mac kommen ohne Öffnen der App an -->
 	<key>aps-environment</key>
 	<string>development</string>
-	<!-- Das lokale Sprachmodell braucht mehr als die üblichen App-Grenzen (iPhones mit 8 GB) -->
+	<!-- Das lokale Sprachmodell braucht mehr als die üblichen App-Grenzen (4B-Modell ab 8 GB, 1.7B-Modell ab 6 GB) -->
 	<key>com.apple.developer.kernel.increased-memory-limit</key>
 	<true/>
 </dict>

@@ -24,7 +24,7 @@ public struct LocalModelInfo: Identifiable, Hashable, Sendable {
 public enum LocalModelCatalog {
     public static let all: [LocalModelInfo] = [
         LocalModelInfo(id: "mlx-community/Qwen3-1.7B-4bit", name: "Qwen3 1.7B",
-                       sizeGB: 1.0, minMemoryGB: 8,
+                       sizeGB: 1.0, minMemoryGB: 6,
                        detail: t("Am schnellsten und am sparsamsten. Für ältere Macs oder wenn nebenbei viel läuft.")),
         LocalModelInfo(id: "mlx-community/Qwen3-4B-Instruct-2507-4bit", name: "Qwen3 4B",
                        sizeGB: 2.3, minMemoryGB: 8,
@@ -53,8 +53,10 @@ public enum LocalModelCatalog {
     /// Qwen3 4B (2507) überall: Im Vergleich an echten Vorlesungen (23.09.2026, MacBook Air M1 16 GB)
     /// schrieb es echte Lernfragen und erfasste mehr Inhalt als Qwen2.5 7B – in derselben Zeit
     /// und mit halb so viel Arbeitsspeicher.
+    /// Geräte mit 6 GB (iPhone 13 Pro bis 15, iPads mit 6 GB) tragen das 4B-Modell nicht – dort das 1.7B-Modell:
+    /// einfachere Notizen, aber ohne Internet, ohne Schlüssel und ohne Altersgrenze eines Cloud-Anbieters.
     public static func recommended(memoryGB: Double = DeviceCapabilities.memoryGB) -> LocalModelInfo {
-        standard
+        memoryGB < DeviceCapabilities.fullModelMemoryGB ? all[0] : standard
     }
 
     /// Modelle, die auf diesem Mac nicht in den Speicher passen, werden nicht versteckt,
