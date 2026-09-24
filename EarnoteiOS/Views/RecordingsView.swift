@@ -5,6 +5,7 @@ import UniformTypeIdentifiers
 /// Tab „Aufnahmen“: nach Tagen gruppiert, Filter nach Bereich, Einstellungen in der Symbolleiste.
 struct RecordingsView: View {
     @Environment(LibraryStore.self) private var library
+    @Environment(PhoneRecorder.self) private var recorder
     @SceneStorage("recordings.category") private var categoryFilter = ""
     @State private var showsSettings = false
     @State private var pendingDeletion: UUID?
@@ -21,8 +22,20 @@ struct RecordingsView: View {
                 if !library.isLoaded {
                     ProgressView()
                 } else if filtered.isEmpty {
-                    ContentUnavailableView("Noch keine Aufnahme", systemImage: "waveform",
-                                           description: Text("Tippe unten auf „Aufnehmen“. Danach steht hier deine Notiz."))
+                    ContentUnavailableView {
+                        Label("Noch keine Aufnahme", systemImage: "waveform")
+                            .symbolEffect(.variableColor.iterative.reversing)
+                    } description: {
+                        Text("Tippe unten auf „Aufnehmen“. Danach steht hier deine Notiz.")
+                    } actions: {
+                        if !recorder.isRecording {
+                            Button("Jetzt aufnehmen", systemImage: "record.circle") {
+                                Task { await recorder.start(category: UUID(uuidString: categoryFilter).flatMap { library.category($0) }) }
+                            }
+                            .buttonStyle(.glassProminent)
+                            .controlSize(.large)
+                        }
+                    }
                 } else {
                     List {
                         ForEach(LibraryListing.groupedByDay(filtered)) { section in
@@ -55,7 +68,7 @@ struct RecordingsView: View {
                                                                          : "line.3.horizontal.decrease.circle.fill") {
                         Picker("Bereich", selection: $categoryFilter) {
                             Text("Alle Aufnahmen").tag("")
-                            ForEach(library.categories) { Text("\($0.displayEmoji) \($0.name)").tag($0.id.uuidString) }
+                            ForEach(library.categories) { Label($0.name, systemImage: $0.symbol).tag($0.id.uuidString) }
                         }
                     }
                 }
@@ -89,13 +102,23 @@ struct RecordingRow: View {
     @Environment(LibraryStore.self) private var library
 
     var body: some View {
+        HStack(alignment: .top, spacing: 12) {
+            CategoryBadge(category: library.category(recording.categoryID))
+            details
+        }
+    }
+
+    private var details: some View {
         VStack(alignment: .leading, spacing: 3) {
             Text(recording.displayTitle)
                 .font(.headline)
                 .lineLimit(2)
             HStack(spacing: 6) {
                 Text(recording.startedAt, format: .dateTime.hour().minute())
-                if recording.status != .recording {
+                if recording.duration < 1 && recording.status != .recording {
+                    Text("·")
+                    Text("Übersicht")
+                } else if recording.status != .recording {
                     Text("·")
                     Text(Duration.seconds(recording.duration).formatted(.units(allowed: recording.duration < 60 ? Set([.seconds]) : Set([.hours, .minutes]), width: .abbreviated)))
                 }
@@ -139,7 +162,7 @@ struct RecordingMenu: View {
             Picker("Bereich", selection: Binding(get: { library.recording(id)?.categoryID },
                                                  set: { library.setCategory(id, $0) })) {
                 Text("Ohne Bereich").tag(UUID?.none)
-                ForEach(library.categories) { Text("\($0.displayEmoji) \($0.name)").tag(Optional($0.id)) }
+                ForEach(library.categories) { Label($0.name, systemImage: $0.symbol).tag(Optional($0.id)) }
             }
         }
         if library.recording(id)?.status == .failed {
@@ -157,5 +180,19 @@ enum AudioImport {
         let accessed = urls.filter { $0.startAccessingSecurityScopedResource() }
         defer { accessed.forEach { $0.stopAccessingSecurityScopedResource() } }
         library.importAudio(urls, category: category)
+    }
+}
+
+/// Symbol des Bereichs weiß auf einem Kreis in dessen Farbe – wie die Listen in Erinnerungen
+struct CategoryBadge: View {
+    let category: RecordingCategory?
+
+    var body: some View {
+        Image(systemName: category?.symbol ?? "waveform")
+            .font(.system(size: 16, weight: .semibold))
+            .foregroundStyle(.white)
+            .frame(width: 36, height: 36)
+            .background(category.map { Color(hex: $0.colorHex) } ?? Color.gray, in: .circle)
+            .accessibilityHidden(true)
     }
 }

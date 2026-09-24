@@ -29,6 +29,7 @@ struct RecordingDetailView: View {
             }
         }
         .navigationTitle(recording?.displayTitle ?? "")
+        .navigationSubtitle(subtitle)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar { toolbar }
         .safeAreaInset(edge: .bottom) {
@@ -48,6 +49,17 @@ struct RecordingDetailView: View {
             Button("Sichern") { library.rename(id, to: newTitle) }
             Button("Abbrechen", role: .cancel) {}
         }
+    }
+
+    /// „24. Sept. · 1 Std. 25 Min. · Vorlesung“
+    private var subtitle: String {
+        guard let r = recording else { return "" }
+        var parts = [r.startedAt.formatted(.dateTime.day().month(.abbreviated).hour().minute())]
+        if r.status != .recording {
+            parts.append(Duration.seconds(r.duration).formatted(.units(allowed: r.duration < 60 ? Set([.seconds]) : Set([.hours, .minutes]), width: .abbreviated)))
+        }
+        if let name = library.category(r.categoryID)?.name { parts.append(name) }
+        return parts.joined(separator: " · ")
     }
 
     private var reloadKey: String {
@@ -327,9 +339,11 @@ private struct PlayerBar: View {
                     Text(player.rate == 1 ? "1×" : player.rate == 1.5 ? "1,5×" : "2×").monospacedDigit()
                 }
             }
+            .padding(.horizontal, 18)
+            .padding(.vertical, 12)
+            .glassEffect(in: .capsule)
             .padding(.horizontal)
-            .padding(.vertical, 10)
-            .background(.bar)
+            .padding(.bottom, 8)
         }
     }
 }

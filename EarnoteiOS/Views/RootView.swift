@@ -88,15 +88,19 @@ private struct RecordAccessory: View {
             .sensoryFeedback(.impact, trigger: recorder.isPaused)
         } else {
             Button { start(nil) } label: {
-                Label("Aufnehmen", systemImage: "record.circle")
-                    .frame(maxWidth: .infinity)
+                Label {
+                    Text("Aufnehmen").fontWeight(.semibold)
+                } icon: {
+                    Image(systemName: "record.circle").foregroundStyle(.tint)
+                }
+                .frame(maxWidth: .infinity)
                     .contentShape(.rect)
             }
             .buttonStyle(.plain)
             .contextMenu {
                 Section("Aufnehmen in …") {
                     ForEach(library.categories) { category in
-                        Button("\(category.displayEmoji) \(category.name)") { start(category) }
+                        Button(category.name, systemImage: category.symbol) { start(category) }
                     }
                 }
             }

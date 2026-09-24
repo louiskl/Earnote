@@ -13,6 +13,7 @@ final class PhoneEnvironment {
     let recorder: PhoneRecorder
     let background: BackgroundProcessing
     let liveActivity = LiveActivityController()
+    private let repository: any LibraryRepository
 
     init(storage: Storage = .standard, defaults: UserDefaults = .standard) {
         let settingsRepository = UserDefaultsSettingsRepository(defaults: defaults)
@@ -49,6 +50,7 @@ final class PhoneEnvironment {
 
         self.library = library
         self.queue = queue
+        self.repository = repository
         recorder = PhoneRecorder(library: library)
         background = BackgroundProcessing(queue: queue, library: library)
         recorder.onChange = { [weak recorder, liveActivity] in
@@ -85,6 +87,10 @@ final class PhoneEnvironment {
 
     private func start() async {
         await library.load()
+        #if DEBUG
+        // Vor den Standardbereichen: Die Beispieldaten bringen ihre eigenen Bereiche mit
+        await DemoLibrary.fill(library: library, repository: repository, audio: library.audio)
+        #endif
         if library.categories.isEmpty {
             library.categories = RecordingCategory.defaults
         }
@@ -97,6 +103,16 @@ final class PhoneEnvironment {
         #endif
     }
 }
+
+#if DEBUG
+extension PhoneEnvironment {
+    /// Beispieldaten wie am Mac (Bereiche, Notizen, Aufgaben, Karteikarten) – nur in Test-Fassungen
+    func loadDemoLibrary() async {
+        await DemoLibrary.fill(library: library, repository: repository, audio: library.audio, force: true)
+        await library.load()
+    }
+}
+#endif
 
 /// Am iPhone gibt es keine direkten Ziele – geteilt wird über das Teilen-Menü.
 struct NoDestinations: DestinationProvider {

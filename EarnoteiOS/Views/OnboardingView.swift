@@ -10,7 +10,9 @@ struct OnboardingView: View {
     @State private var suggestedWay = false
 
     var body: some View {
-        NavigationStack {
+        ZStack {
+            // Der besondere Moment: nur auf der ersten Seite kräftig, danach ein Hauch
+            BrandGlow(intensity: step == 0 ? 1 : 0.35)
             TabView(selection: $step) {
                 welcome.tag(0)
                 microphone.tag(1)
@@ -19,62 +21,79 @@ struct OnboardingView: View {
                 done.tag(4)
             }
             .tabViewStyle(.page(indexDisplayMode: .always))
-            .indexViewStyle(.page(backgroundDisplayMode: .always))
-            .animation(.snappy, value: step)
+            .indexViewStyle(.page(backgroundDisplayMode: .interactive))
         }
+        .animation(.smooth, value: step)
         .interactiveDismissDisabled()
     }
 
     // MARK: Schritte
 
     private var welcome: some View {
-        Page(symbol: "waveform", title: "Earnote schreibt deine Vorlesungen mit",
-             text: "Aufnehmen, iPhone weglegen – danach steht die Notiz da: Zusammenfassung, Aufgaben und Karteikarten zum Lernen.") {
-            Label("Bleibt auf deinem iPhone", systemImage: "lock.shield")
-            Label("Kostenlos, ohne Konto, ohne Abo", systemImage: "gift")
-            Button("Los geht's") { step = 1 }.buttonStyle(.borderedProminent).controlSize(.large)
+        Page(symbol: "waveform", effect: .variableColor, title: "Earnote schreibt deine Vorlesungen mit",
+             text: "Aufnehmen, iPhone weglegen – danach steht die Notiz da.") {
+            VStack(alignment: .leading, spacing: 14) {
+                Feature(symbol: "text.page", text: "Zusammenfassung und Aufgaben")
+                Feature(symbol: "rectangle.on.rectangle.angled", text: "Karteikarten zum Lernen")
+                Feature(symbol: "lock.shield", text: "Bleibt auf deinem iPhone")
+                Feature(symbol: "gift", text: "Kostenlos, ohne Konto, ohne Abo")
+            }
+            .padding(.bottom, 8)
+            PrimaryButton("Los geht's") { step = 1 }
         }
     }
 
     private var microphone: some View {
-        Page(symbol: "mic.fill", title: "Mikrofon erlauben",
+        Page(symbol: "mic.fill", effect: .bounce, title: "Mikrofon erlauben",
              text: "Damit Earnote aufnehmen kann. Die Aufnahme bleibt auf deinem iPhone.") {
             if microphoneAllowed {
-                Label("Erlaubt", systemImage: "checkmark.circle.fill").foregroundStyle(.green)
-                Button("Weiter") { step = 2 }.buttonStyle(.borderedProminent).controlSize(.large)
+                Label("Erlaubt", systemImage: "checkmark.circle.fill")
+                    .foregroundStyle(.green)
+                    .font(.headline)
+                    .transition(.scale.combined(with: .opacity))
+                PrimaryButton("Weiter") { step = 2 }
             } else {
-                Button("Mikrofon erlauben") {
+                PrimaryButton("Mikrofon erlauben") {
                     Task {
-                        microphoneAllowed = await AVAudioApplication.requestRecordPermission()
-                        if microphoneAllowed { step = 2 }
+                        let allowed = await AVAudioApplication.requestRecordPermission()
+                        withAnimation(.bouncy) { microphoneAllowed = allowed }
+                        if allowed {
+                            try? await Task.sleep(for: .milliseconds(600))
+                            step = 2
+                        }
                     }
                 }
-                .buttonStyle(.borderedProminent).controlSize(.large)
                 if AVAudioApplication.shared.recordPermission == .denied {
                     Link("In den Einstellungen erlauben", destination: URL(string: UIApplication.openSettingsURLString)!)
                 }
             }
         }
+        .sensoryFeedback(.success, trigger: microphoneAllowed)
     }
 
     private var notifications: some View {
-        Page(symbol: "bell.badge", title: "Bescheid sagen, wenn die Notiz fertig ist?",
+        Page(symbol: "bell.badge.fill", effect: .wiggle, title: "Bescheid sagen, wenn die Notiz fertig ist?",
              text: "Earnote schreibt die Notiz nach dem Stopp – eine Mitteilung sagt dir, wann sie da ist.") {
-            Button("Mitteilungen erlauben") {
+            PrimaryButton("Mitteilungen erlauben") {
                 Task {
                     _ = await Notifier.requestPermission()
                     step = 3
                 }
             }
-            .buttonStyle(.borderedProminent).controlSize(.large)
             Button("Später") { step = 3 }
+                .buttonStyle(.glass)
+                .controlSize(.large)
         }
     }
 
     private var noteWay: some View {
         Form {
             Section {
-                VStack(alignment: .leading, spacing: 8) {
+                VStack(alignment: .leading, spacing: 10) {
+                    Image(systemName: "sparkles")
+                        .font(.system(size: 40))
+                        .foregroundStyle(.tint)
+                        .symbolEffect(.bounce, value: step == 3)
                     Text("Wie soll die Notiz entstehen?").font(.title2.bold())
                     Text(DeviceCapabilities.supportsLocalModel
                          ? "Dein iPhone kann die Notiz selbst schreiben – ganz ohne Internet."
@@ -85,10 +104,12 @@ struct OnboardingView: View {
             }
             NoteWaySection()
             Section {
-                Button("Weiter") { step = 4 }
-                    .frame(maxWidth: .infinity)
+                PrimaryButton("Weiter") { step = 4 }
+                    .listRowBackground(Color.clear)
+                    .listRowInsets(EdgeInsets())
             }
         }
+        .scrollContentBackground(.hidden)
         .onAppear {
             // Vorschlag je nach Gerät (docs/IPHONE.md, Abschnitt 2), nur beim ersten Mal; der Mac-Weg kommt mit dem iCloud-Abgleich
             guard !suggestedWay else { return }
@@ -100,12 +121,11 @@ struct OnboardingView: View {
     }
 
     private var done: some View {
-        Page(symbol: "checkmark.seal", title: "Fertig",
+        Page(symbol: "checkmark.seal.fill", effect: .bounce, title: "Fertig",
              text: "Bitte hole vor jeder Aufnahme das Einverständnis aller Beteiligten ein – in Vorlesungen die Erlaubnis der Lehrperson.") {
-            Button("Erste Aufnahme") {
+            PrimaryButton("Erste Aufnahme") {
                 library.settings.onboardingCompleted = true
             }
-            .buttonStyle(.borderedProminent).controlSize(.large)
             .disabled(!microphoneAllowed)
             if !microphoneAllowed {
                 Text("Ohne Mikrofon kann Earnote nicht aufnehmen.").font(.footnote).foregroundStyle(.secondary)
@@ -114,26 +134,85 @@ struct OnboardingView: View {
     }
 }
 
-/// Eine Seite: Symbol, Überschrift, Text, darunter die Knöpfe
-private struct Page<Actions: View>: View {
+/// Eine Seite: bewegtes Symbol, Überschrift, Text, darunter der Inhalt
+private struct Page<Content: View>: View {
+    enum Effect { case variableColor, bounce, wiggle }
+
     let symbol: String
+    let effect: Effect
     let title: LocalizedStringKey
     let text: LocalizedStringKey
-    @ViewBuilder let actions: Actions
+    @ViewBuilder let content: Content
+    @State private var appeared = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: 18) {
             Spacer()
-            Image(systemName: symbol)
-                .font(.system(size: 56))
+            icon
+                .font(.system(size: 64, weight: .medium))
                 .foregroundStyle(.tint)
+                .frame(width: 128, height: 128)
+                .glassEffect(.regular.tint(.accentColor.opacity(0.12)), in: .circle)
                 .accessibilityHidden(true)
-            Text(title).font(.title.bold()).multilineTextAlignment(.center)
-            Text(text).foregroundStyle(.secondary).multilineTextAlignment(.center)
+                .padding(.bottom, 8)
+            Text(title)
+                .font(.largeTitle.bold())
+                .multilineTextAlignment(.center)
+            Text(text)
+                .font(.title3)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
             Spacer()
-            VStack(spacing: 14) { actions }
-            Spacer().frame(height: 40)
+            VStack(spacing: 14) { content }
+            Spacer().frame(height: 56)
         }
         .padding(.horizontal, 28)
+        .onAppear { appeared = true }
+        .onDisappear { appeared = false }
+    }
+
+    @ViewBuilder private var icon: some View {
+        let image = Image(systemName: symbol)
+        switch effect {
+        case .variableColor:
+            image.symbolEffect(.variableColor.iterative.reversing, isActive: !reduceMotion)
+        case .bounce:
+            image.symbolEffect(.bounce, value: appeared)
+        case .wiggle:
+            image.symbolEffect(.wiggle, value: appeared)
+        }
+    }
+}
+
+private struct Feature: View {
+    let symbol: String
+    let text: LocalizedStringKey
+
+    var body: some View {
+        Label {
+            Text(text).font(.body.weight(.medium))
+        } icon: {
+            Image(systemName: symbol).foregroundStyle(.tint).frame(width: 28)
+        }
+    }
+}
+
+/// Hauptknopf einer Seite: volle Breite, Liquid Glass in Earnote-Rot
+struct PrimaryButton: View {
+    let title: LocalizedStringKey
+    let action: () -> Void
+
+    init(_ title: LocalizedStringKey, action: @escaping () -> Void) {
+        self.title = title
+        self.action = action
+    }
+
+    var body: some View {
+        Button(action: action) {
+            Text(title).font(.headline).frame(maxWidth: .infinity)
+        }
+        .buttonStyle(.glassProminent)
+        .controlSize(.extraLarge)
     }
 }

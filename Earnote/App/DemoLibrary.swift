@@ -18,8 +18,9 @@ enum DemoLibrary {
     /// Auf Englisch gestartet? Dann auch englische Beispieldaten – sonst passen die Bilder nicht.
     private static var english: Bool { Locale.preferredLanguages.first?.hasPrefix("en") == true }
 
-    static func fill(library: LibraryStore, repository: any LibraryRepository, audio: any AudioStore) async {
-        guard isRequested, (try? await repository.recordings())?.isEmpty == true else { return }
+    /// `force`: ohne Umgebungsvariable (Knopf „Beispieldaten laden“ in Debug-Fassungen der iPhone-App)
+    static func fill(library: LibraryStore, repository: any LibraryRepository, audio: any AudioStore, force: Bool = false) async {
+        guard isRequested || force, (try? await repository.recordings())?.isEmpty == true else { return }
         let areas = areas(english: english)
         if library.categories.count < areas.count { library.categories = areas }
         // Erst weitermachen, wenn die Bereiche wirklich in der Datenbank stehen – sonst findet die

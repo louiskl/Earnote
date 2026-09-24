@@ -56,6 +56,7 @@ SHARED = [
     "Earnote/AI/PlatformLLMClients.swift",
     "Earnote/AI/AppleIntelligenceClient.swift",
     "Earnote/AI/LocalModels.swift",
+    "Earnote/App/DemoLibrary.swift",
 ]
 # Übersetzungen: dieselbe Tabelle wie am Mac (Deutsch steht im Code)
 LOCALIZED = {"en": "Earnote/Resources/en.lproj/Localizable.strings"}

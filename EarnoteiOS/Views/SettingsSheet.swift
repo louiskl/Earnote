@@ -6,6 +6,7 @@ import SwiftUI
 struct SettingsSheet: View {
     @Environment(LibraryStore.self) private var library
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.loadDemoLibrary) private var loadDemoLibrary
 
     var body: some View {
         @Bindable var library = library
@@ -15,11 +16,27 @@ struct SettingsSheet: View {
                 Section("Aufnahme") {
                     Picker("Standardbereich", selection: $library.settings.defaultCategoryID) {
                         Text("Ohne Bereich").tag(UUID?.none)
-                        ForEach(library.categories) { Text("\($0.displayEmoji) \($0.name)").tag(Optional($0.id)) }
+                        ForEach(library.categories) { Label($0.name, systemImage: $0.symbol).tag(Optional($0.id)) }
                     }
                     Toggle("Audio nach der Notiz behalten", isOn: $library.settings.keepAudioFiles)
                     NavigationLink("Bereiche") { CategoriesView() }
                 }
+                #if DEBUG
+                if let loadDemoLibrary {
+                    Section {
+                        Button("Beispieldaten laden", systemImage: "sparkles.rectangle.stack") {
+                            Task {
+                                await loadDemoLibrary()
+                                dismiss()
+                            }
+                        }
+                    } header: {
+                        Text(verbatim: "Test")
+                    } footer: {
+                        Text(verbatim: "Nur in Test-Fassungen und nur bei leerer Bibliothek: Bereiche, Notizen, Aufgaben und Karteikarten wie am Mac.")
+                    }
+                }
+                #endif
                 Section {
                     Link(destination: AppInfo.sponsor) { Label("Earnote unterstützen", systemImage: "heart") }
                     Link(destination: AppInfo.website) { Label("earnote.dev", systemImage: "safari") }
@@ -118,7 +135,7 @@ struct CategoriesView: View {
         List {
             ForEach(library.categories) { category in
                 Button { rename(category) } label: {
-                    Label { Text(category.name).foregroundStyle(.primary) } icon: { Text(category.displayEmoji) }
+                    Label { Text(category.name).foregroundStyle(.primary) } icon: { CategoryBadge(category: category) }
                 }
             }
             .onMove { from, to in

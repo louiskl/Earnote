@@ -12,6 +12,14 @@ struct EarnoteiOSApp: App {
                 .environment(environment.library)
                 .environment(environment.recorder)
                 .environment(environment.queue)
+                #if DEBUG
+                .environment(\.loadDemoLibrary) { await environment.loadDemoLibrary() }
+                #endif
         }
     }
+}
+
+extension EnvironmentValues {
+    /// Nur Debug: Beispieldaten laden (Einstellungen › Test)
+    @Entry var loadDemoLibrary: (@MainActor () async -> Void)?
 }

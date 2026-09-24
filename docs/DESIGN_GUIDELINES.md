@@ -198,7 +198,8 @@ The same philosophy applies to the iPhone app: **"This application belongs on iO
 **Visuals**
 - System typography with Dynamic Type everywhere; test at the largest accessibility size.
 - Semantic colors only; the brand red is the tint, nothing else. Light and Dark Mode.
-- Liquid Glass only where iOS 26 applies it itself (tab bar, toolbars, sheets). No glass or cards added by hand.
+- Liquid Glass: iOS 26 applies it to tab bar, toolbars and sheets. Beyond that, glass is allowed for **a few floating controls that sit above content** – the record/stop controls, the player bar, the flashcard – via `.glassEffect`, `GlassEffectContainer` and `.buttonStyle(.glass/.glassProminent)`. Never on list rows, never glass on glass, never as a decorative background.
+- One signature moment per screen is allowed (24.09.2026, owner's request "native, but a little special"): a softly moving brand-tinted `MeshGradient` on the welcome page and behind a running recording, animated SF Symbols (`symbolEffect`) and numeric transitions. Everything else stays plain system UI. Respect Reduce Motion: gradients stand still, symbols do not animate.
 - SF Symbols with meaning; no decorative icons.
 
 **Behavior**
