@@ -39,7 +39,7 @@
 AI meeting notes are great, but usually tied to one app and a monthly subscription. Earnote is a native Mac app that does the same job for free and lets **you** choose:
 
 - **where the transcription runs**: always locally (Apple Speech on macOS 26 or Whisper via WhisperKit)
-- **which AI writes the notes**: by default its own on-device model (one download, then private, free and offline), or Apple Intelligence, Ollama, LM Studio, Claude, OpenAI, Gemini, Mistral, any OpenAI‑compatible server, or your existing Claude Code / Codex subscription
+- **which AI writes the notes**: by default its own on-device model (one download, then private, free and offline), or Apple Intelligence, Ollama, LM Studio, Claude, OpenAI, Gemini, OpenRouter (free models), Mistral, any OpenAI‑compatible server, or your existing Claude Code / Codex subscription
 - **where the notes end up**: Notion, Obsidian, Logseq, Apple Notes, a Markdown folder, Bear, Craft — and tasks into Reminders, Things or Todoist
 
 ### Features
@@ -68,6 +68,15 @@ AI meeting notes are great, but usually tied to one app and a monthly subscripti
 | 🧒 **Explain it simply** | A switch that makes the AI write short sentences and explain technical terms — for school and for anyone new to a subject. |
 | 🧹 **Storage cleanup** | See what the audio files take up and drop the sound of old recordings — notes and transcripts stay. |
 | ✉️ **Follow-up email** | Opens a draft with the note, ready to send to everyone in the meeting. |
+
+### iPhone (beta)
+
+Earnote for iPhone is in testing via TestFlight. Put your iPhone on the desk, start recording, turn the screen off.
+The note is written **on your iPhone** (iPhone 15 Pro or newer), **by your Mac** (the iPhone hands the recording
+over through your own iCloud, the Mac writes the note and sends it back, the audio is deleted afterwards), or with a
+**free Google or OpenRouter key**. Live Activity, Control Center and Action button, widgets, flashcards, PDF study
+sheets, and automatic export to Notion, Obsidian, a folder, Todoist or Reminders. A public TestFlight link follows
+shortly; the App Store release is planned for the start of the winter semester.
 
 ### Language
 
@@ -132,7 +141,7 @@ Earnote is free. If it saves you time, you can support it on [Ko-fi](https://ko-
 - **Aufnahme** von Mikrofon und Systemton (Zoom, Teams, Meet …), ohne Zusatzsoftware, mit Pause-Funktion (⇧⌘P)
 - **Call-Erkennung** mit Pop-up („Zoom erkannt – aufnehmen?“), automatisches Stoppen am Ende des Calls
 - **Lokale Transkription** mit Apple-Spracherkennung (ab macOS 26) oder Whisper
-- **Zusammenfassung** mit der eingebauten lokalen KI, die komplett auf deinem Mac läuft (privat, kostenlos, offline) – oder wahlweise mit Apple Intelligence, Ollama, LM Studio, Claude, OpenAI, Gemini, Mistral oder über ein bestehendes Claude-Code- bzw. Codex-Abo
+- **Zusammenfassung** mit der eingebauten lokalen KI, die komplett auf deinem Mac läuft (privat, kostenlos, offline) – oder wahlweise mit Apple Intelligence, Ollama, LM Studio, Claude, OpenAI, Gemini, OpenRouter (kostenlose Modelle), Mistral oder über ein bestehendes Claude-Code- bzw. Codex-Abo
 - **Ablage** in Notion, Obsidian, Logseq, Apple Notizen, einem Markdown-Ordner, Bear oder Craft
 - **Eigene Kategorien** mit eigenen Anweisungen für die Zusammenfassung (z. B. Vorlesung mit Prüfungshinweisen und Lernzettel)
 - **Sprecher-Unterscheidung** in „Ich“ und „Andere“
@@ -149,6 +158,13 @@ Earnote is free. If it saves you time, you can support it on [Ko-fi](https://ko-
 - **„Einfach erklärt“**: Schalter für kurze Sätze und erklärte Fachbegriffe – für Schule und fachfremde Themen
 - **Speicher aufräumen**: zeigt, was die Audiodateien belegen, und löscht den Ton alter Aufnahmen – Notizen bleiben
 - **Follow-up-Mail**: öffnet einen Entwurf mit der Notiz, verschickt wird nichts von allein
+
+**iPhone (Beta):** Earnote für das iPhone ist im Test (TestFlight). Handy auf den Tisch, Aufnahme starten, Bildschirm aus.
+Die Notiz schreibt **das iPhone selbst** (ab iPhone 15 Pro), **dein Mac** (das iPhone übergibt die Aufnahme über deine
+eigene iCloud, der Mac schickt die Notiz zurück, das Audio wird danach gelöscht) oder eine **kostenlose KI von Google oder
+OpenRouter** mit eigenem Schlüssel. Mit Live-Aktivität, Kontrollzentrum und Action-Taste, Widgets, Karteikarten,
+PDF-Lernzetteln und automatischem Export nach Notion, Obsidian, in einen Ordner, nach Todoist oder Erinnerungen.
+Ein öffentlicher TestFlight-Link folgt in Kürze, der App Store ist zum Wintersemester geplant.
 
 **Installation mit Homebrew:** `brew tap louiskl/earnote && brew trust louiskl/earnote && brew install --cask earnote`
 
