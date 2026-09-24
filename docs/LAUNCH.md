@@ -217,7 +217,7 @@ HN verzeiht keine Werbesprache. Nüchtern, technisch, ehrlich über Grenzen.
 | [AlternativeTo](https://alternativeto.net) | Als Alternative zu Otter.ai, Granola, Fireflies.ai eintragen |
 | [openalternative.co](https://openalternative.co) | Open-Source-Alternative zu Otter.ai |
 | [awesome-mac](https://github.com/jaywcjlove/awesome-mac) | PR [#2951](https://github.com/jaywcjlove/awesome-mac/pull/2951) offen (Note-taking) – die Liste nimmt neue Einträge nur in allen vier Sprachen (EN/ZH/JA/KO) auf |
-| [MacUpdate](https://www.macupdate.com/submit-app) | kostenlos als Entwickler eintragen, Kategorie Productivity |
+| [MacUpdate](https://www.macupdate.com/content/submit) | eingereicht am 24.09.2026 (Formular „Add App“ in der Fußzeile), wartet auf Prüfung |
 | [awesome-macOS](https://github.com/iCHAIT/awesome-macOS) | PR [#1136](https://github.com/iCHAIT/awesome-macOS/pull/1136) offen (Productivity) |
 | Homebrew | läuft bereits über den eigenen Tap |
 
