@@ -19,6 +19,8 @@ final class AppEnvironment {
     /// Sucht einmal am Tag nach einer neueren Version
     let updates = AppUpdater()
     let cloudSync = CloudSyncStatus()
+    /// Weg B: Aufnahmen vom iPhone über iCloud abholen
+    let handoffs: HandoffWatcher
 
     private let storage: Storage
     private let defaults: UserDefaults
@@ -93,7 +95,14 @@ final class AppEnvironment {
         recorder.hideCallPrompt = { FloatingPanels.shared.hideCallPrompt() }
 
         LocalModels.apply(library.settings)
-        cloudSync.onImportFinished = { [weak library] in Task { await library?.mergeSyncDuplicates() } }
+        let handoffs = HandoffWatcher(handoffs: libraryRepository, library: library, defaults: defaults,
+                                      deviceName: Host.current().localizedName ?? "Mac")
+        cloudSync.onImportFinished = { [weak library, weak handoffs] in
+            Task {
+                await library?.mergeSyncDuplicates()
+                await handoffs?.check()
+            }
+        }
         cloudSync.start(enabled: settings.syncWithCloud)
 
         self.container = container
@@ -106,6 +115,7 @@ final class AppEnvironment {
         self.library = library
         self.recorder = recorder
         self.power = power
+        self.handoffs = handoffs
 
         if library.settings.meetingDetection { recorder.detector.start() }
         Task { await start() }
@@ -150,5 +160,6 @@ final class AppEnvironment {
         await addDemoLibraryIfRequested()
         #endif
         queue.resumeInterruptedWork()
+        handoffs.start()
     }
 }

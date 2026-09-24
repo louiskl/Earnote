@@ -209,3 +209,26 @@ The same philosophy applies to the iPhone app: **"This application belongs on iO
 - Respect Reduce Motion, VoiceOver (every control labeled, the record state spoken), Bold Text, Increased Contrast.
 
 **Review:** Section 28 applies unchanged, plus: Would this feel normal in Voice Memos, Notes, Music or Mail on iPhone?
+
+## 31. IPAD (Entwurf ab 24.09.2026)
+The iPad is not a big iPhone and not a small Mac: **"This application belongs on iPadOS."** Plan: [IPAD.md](IPAD.md). Section 30 applies unless stated otherwise here.
+
+**Structure**
+- One app for iPhone and iPad. The root stays one `TabView`, now with `.tabViewStyle(.sidebarAdaptable)`: tabs on iPhone and in compact width, a sidebar on iPad. Sidebar entries mirror the Mac sidebar (All, Open Tasks, Uncategorized, Problems, areas). Never a second, iPad-only root.
+- In regular width the recordings tab is a `NavigationSplitView` (list | note). Compact width (Slide Over, narrow Stage Manager windows) falls back to the stack automatically – never branch on device type, only on size class.
+- The transcript sits in an `inspector` next to the note when there is room; in compact width it stays the segmented picker from section 30.
+- Every window size and orientation works. Test at full screen, half, a third, and a small Stage Manager window.
+
+**Input**
+- Menu bar and keyboard (iPadOS 26): `commands` with the same shortcuts as the Mac (⌘N record, Space pause/resume, ⌘F search, ⌘, settings, ⌘⌫ delete). Every command in the menu bar, not only as a shortcut.
+- Pointer: hover effects come from the system controls; no custom hover states.
+- Drag and drop: audio files into the window import; a note drags out as Markdown text.
+
+**Windows**
+- `WindowGroup(for: UUID.self)` opens a note in its own window (e.g. next to lecture slides). A window restores its content via `@SceneStorage`.
+- The running recording is global (`PhoneRecorder`); every window shows it in its bottom accessory.
+
+**Visuals**
+- Same rules as section 30: system typography, semantic colors, Liquid Glass only where the system puts it plus the few floating controls. Content columns get a readable width (`.frame(maxWidth:)` around 700 pt for the note text) instead of stretching across the screen.
+
+**Review:** Section 28 applies unchanged, plus: Would this feel normal in Notes, Files, Mail or Voice Memos on iPad – with a keyboard attached and without one?

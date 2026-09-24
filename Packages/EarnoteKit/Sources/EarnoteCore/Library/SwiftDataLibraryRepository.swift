@@ -14,7 +14,7 @@ public enum LibraryContainer {
     /// schlägt der Start mit iCloud fehl – deshalb fällt er auf den reinen Ordner-Speicher zurück,
     /// statt die Bibliothek gar nicht zu öffnen.
     public static func make(url: URL, syncsWithCloud: Bool = false) throws -> ModelContainer {
-        let schema = Schema(versionedSchema: EarnoteSchemaV1.self)
+        let schema = Schema(versionedSchema: EarnoteSchemaLatest.self)
         if syncsWithCloud {
             do {
                 let cloud = ModelConfiguration(schema: schema, url: url,
@@ -30,7 +30,7 @@ public enum LibraryContainer {
 
     /// Für Tests
     public static func makeInMemory() throws -> ModelContainer {
-        let schema = Schema(versionedSchema: EarnoteSchemaV1.self)
+        let schema = Schema(versionedSchema: EarnoteSchemaLatest.self)
         let configuration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true, cloudKitDatabase: .none)
         return try ModelContainer(for: schema, migrationPlan: EarnoteMigrationPlan.self, configurations: configuration)
     }

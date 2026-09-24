@@ -2,6 +2,10 @@ import Foundation
 
 public enum RecordingStatus: String, Codable, Sendable {
     case recording, queued, transcribing, summarizing, exporting, done, failed
+    /// Weg B: Das iPhone hat die Aufnahme an den Mac übergeben (`LibraryHandoff`). Nicht „beschäftigt“ –
+    /// die Warteschlange dieses Geräts lässt sie liegen. Ältere Versionen lesen den Rohwert als `.queued`,
+    /// deshalb müssen alle Macs V2 kennen, bevor das iPhone übergibt (`HandoffRules.processingMacs`).
+    case waitingForMac
 
     public var label: String {
         switch self {
@@ -12,6 +16,7 @@ public enum RecordingStatus: String, Codable, Sendable {
         case .exporting: return t("Wird exportiert")
         case .done: return t("Fertig")
         case .failed: return t("Fehler")
+        case .waitingForMac: return t("Wartet auf deinen Mac")
         }
     }
     public var isBusy: Bool { [RecordingStatus.queued, .transcribing, .summarizing, .exporting].contains(self) }

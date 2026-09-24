@@ -1,6 +1,7 @@
 # Earnote für iPad – Plan
 
 > Stand: 24.09.2026 · **Entwurf, noch nicht freigegeben** (offene Entscheidungen in Abschnitt 6) · gepflegt vom Architekten.
+> P1 beginnt bewusst erst nach der iPhone-1.1: Mit `TARGETED_DEVICE_FAMILY = 1,2` verlangt App Review auch iPad-Screenshots und eine gute iPad-Oberfläche.
 > Baut auf der iPhone-App auf ([IPHONE.md](IPHONE.md)). Die Mac-Beta und die iPhone-1.1 haben Vorrang.
 
 ## Die Idee in einem Satz
@@ -69,7 +70,7 @@ Aufnahme: tabViewBottomAccessory (wie am iPhone), in der Seitenleiste unten
 
 | Etappe | Inhalt | Ergebnis |
 |---|---|---|
-| **P0** | Plan freigeben, Abschnitt 31 in den Design-Richtlinien | Entscheidungen stehen |
+| **P0 – teilweise ✅** | ✅ Abschnitt 31 in den Design-Richtlinien (Entwurf) · offen: Plan freigeben (Abschnitt 6) | Entscheidungen stehen |
 | **P1** | `TARGETED_DEVICE_FAMILY = 1,2`, alle Ausrichtungen, `sidebarAdaptable`, Split-Ansicht im Tab „Aufnahmen“ | Läuft im iPad-Simulator, nichts ist gestreckt |
 | **P2** | Menüleiste und Tastenkürzel, mehrere Fenster, Drag & Drop, Inspector fürs Transkript | Fühlt sich an wie eine iPad-App |
 | **P3** | Whisper und lokales Modell auf M-Chips, Messung (Dauer, Wärme, Akku) auf einem echten iPad | Weg A mit Whisper |

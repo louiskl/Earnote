@@ -153,3 +153,4 @@
 "Export" = "Export";
 "%@ fehlgeschlagen: %@" = "%1$@ failed: %2$@";
 "Export teilweise fehlgeschlagen:" = "Export partly failed:";
+"Wartet auf deinen Mac" = "Waiting for your Mac";

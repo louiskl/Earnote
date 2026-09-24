@@ -64,7 +64,7 @@ Beim Beenden wartet der `AppDelegate` über `LibraryStore.waitForPendingWrites()
 
 Gespeichert wird mit **SwiftData** in `Application Support/Earnote/Library.store`. Der `ModelContainer` entsteht einmal in
 `AppEnvironment`; alle Zugriffe laufen über den Actor `SwiftDataLibraryRepository` (`@ModelActor`). Das Schema ist versioniert
-(`EarnoteSchemaV1`, `EarnoteMigrationPlan`) und liegt in `EarnoteCore/Library`.
+(`EarnoteSchemaV1` → `EarnoteSchemaV2`, leichte Stufe im `EarnoteMigrationPlan`; geöffnet wird `EarnoteSchemaLatest`) und liegt in `EarnoteCore/Library`.
 
 | Modell | Inhalt | Beziehungen (Löschregel) |
 |---|---|---|
@@ -74,11 +74,15 @@ Gespeichert wird mit **SwiftData** in `Application Support/Earnote/Library.store
 | `LibraryCategory` | `id`, Name, Emoji, Symbol, Farbe, Anweisungen, Ziele, `sortIndex` | `recordings` (nullify: Aufnahmen bleiben, ohne Bereich); `glossary` (cascade) |
 | `LibraryGlossaryTerm` | `id`, Begriff, Hörfehler-Varianten, Notiz (noch ungenutzt) | `category` (nil = überall) |
 | `LibraryExport` | Ziel, `stateRaw` (success/skipped/failed), Meldung, Link, Datum | `recording` (Inverse) |
+| `LibraryHandoff` (V2) | `id`, `recordingID`, Gerät, Audio (`.externalStorage`), Format, `stateRaw` (waiting/claimed/failed), `claimedBy`/`claimedAt`, Fehler. Weg B: Audio vom iPhone zum Mac, wird nach der Übernahme gelöscht | keine (nur die ID der Aufnahme) |
+| `LibraryDevice` (V2) | `id`, Name, `platformRaw`, `canProcess`, `schemaVersion`, `lastSeen` | keine |
 
 **Synchronisiert (iCloud, wenn eingeschaltet):** alles oben, in der privaten Datenbank des Nutzers
 (Container `iCloud.app.earnote.Earnote`). **Immer lokal:** Audiodateien (`AudioStore`, `Recordings/<id>/`) und Einstellungen
 (UserDefaults). Der Schalter steht in Einstellungen › Allgemein und wirkt ab dem nächsten Start; fehlt die Berechtigung,
 öffnet `LibraryContainer.make` den Speicher ohne CloudKit weiter, statt die Bibliothek gar nicht zu öffnen.
+**Weg B (iPhone → Mac):** `HandoffRepository` (Kern, `Library/Handoff.swift`) mit den Regeln in `HandoffRules`;
+am Mac holt `HandoffWatcher` Übergaben nach jedem Empfang ab (Plan: IPHONE.md Abschnitt 6a).
 **Doppelte nach dem Abgleich:** CloudKit kennt keine eindeutigen Attribute, also legen zwei Macs dieselben
 Standardbereiche zweimal an. Nach dem Start und nach jedem Empfang (`CloudSyncStatus.onImportFinished`) ruft
 `LibraryStore.mergeSyncDuplicates` `LibraryRepository.mergeDuplicates` auf: gleiche ID oder gleicher Name

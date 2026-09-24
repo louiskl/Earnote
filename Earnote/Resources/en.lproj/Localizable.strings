@@ -1381,3 +1381,4 @@
 "Öffne Earnote – dann entsteht die Notiz." = "Open Earnote to have the note written.";
 "Das geht leider nicht" = "That didn’t work";
 "Earnote kann nur Audio und Video übernehmen." = "Earnote can only take audio and video.";
+"Der Mac konnte die Aufnahme nicht übernehmen (%@)." = "The Mac couldn’t take over the recording (%@).";

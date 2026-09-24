@@ -21,9 +21,25 @@ public enum EarnoteSchemaV1: VersionedSchema {
     }
 }
 
+/// V2 (Weg B, docs/IPHONE.md Abschnitt 6a): Übergabe von Aufnahmen vom iPhone an den Mac und die Geräte der Bibliothek.
+/// Nur neue Modelle – die aus V1 bleiben unverändert, deshalb reicht eine leichte Migration.
+/// Vor dem ersten Abgleich mit V2 das CloudKit-Schema neu anlegen (ROADMAP, „iCloud-Sync“, Schritt 5).
+public enum EarnoteSchemaV2: VersionedSchema {
+    public static let versionIdentifier = Schema.Version(2, 0, 0)
+
+    public static var models: [any PersistentModel.Type] {
+        EarnoteSchemaV1.models + [LibraryHandoff.self, LibraryDevice.self]
+    }
+}
+
+/// Das Schema, mit dem die Bibliothek geöffnet wird
+public typealias EarnoteSchemaLatest = EarnoteSchemaV2
+
 public enum EarnoteMigrationPlan: SchemaMigrationPlan {
-    public static var schemas: [any VersionedSchema.Type] { [EarnoteSchemaV1.self] }
-    public static var stages: [MigrationStage] { [] }
+    public static var schemas: [any VersionedSchema.Type] { [EarnoteSchemaV1.self, EarnoteSchemaV2.self] }
+    public static var stages: [MigrationStage] {
+        [.lightweight(fromVersion: EarnoteSchemaV1.self, toVersion: EarnoteSchemaV2.self)]
+    }
 }
 
 public typealias LibraryRecording = EarnoteSchemaV1.LibraryRecording
@@ -32,6 +48,8 @@ public typealias LibraryNote = EarnoteSchemaV1.LibraryNote
 public typealias LibraryCategory = EarnoteSchemaV1.LibraryCategory
 public typealias LibraryGlossaryTerm = EarnoteSchemaV1.LibraryGlossaryTerm
 public typealias LibraryExport = EarnoteSchemaV1.LibraryExport
+public typealias LibraryHandoff = EarnoteSchemaV2.LibraryHandoff
+public typealias LibraryDevice = EarnoteSchemaV2.LibraryDevice
 
 extension EarnoteSchemaV1 {
     /// Eine Aufnahme. Der Verarbeitungsfortschritt wird bewusst nicht gespeichert.
@@ -170,6 +188,62 @@ extension EarnoteSchemaV1 {
         public var state: ExportState {
             get { ExportState(rawValue: stateRaw) ?? .failed }
             set { stateRaw = newValue.rawValue }
+        }
+    }
+}
+
+extension EarnoteSchemaV2 {
+    /// Eine Aufnahme auf dem Weg vom iPhone zum Mac. Das Audio liegt nur so lange in iCloud, bis der Mac
+    /// sie verarbeitet hat – dann löscht er dieses Objekt. Keine Beziehung zur Aufnahme, nur ihre ID:
+    /// So braucht es keine Inverse, und die Aufnahme bleibt unberührt, wenn die Übergabe verschwindet.
+    @Model
+    public final class LibraryHandoff {
+        public var id: UUID = UUID()
+        public var recordingID: UUID?
+        public var createdAt: Date = Date()
+        /// Name des Geräts, das aufgenommen hat (für Hinweise wie „vom iPhone von …“)
+        public var fromDevice: String = ""
+        @Attribute(.externalStorage)
+        public var audio: Data?
+        /// Dateiendung des Audios
+        public var audioFormat: String = "m4a"
+        /// `HandoffState`
+        public var stateRaw: String = HandoffState.waiting.rawValue
+        /// `SyncedDevice.id` des Macs, der die Aufnahme verarbeitet
+        public var claimedBy: UUID?
+        public var claimedAt: Date?
+        public var errorMessage: String?
+
+        public init(id: UUID = UUID()) {
+            self.id = id
+        }
+
+        public var state: HandoffState {
+            get { HandoffState(rawValue: stateRaw) ?? .waiting }
+            set { stateRaw = newValue.rawValue }
+        }
+    }
+
+    /// Ein Gerät mit dieser Bibliothek. Das iPhone erkennt daran, ob ein Mac Aufnahmen übernehmen kann.
+    @Model
+    public final class LibraryDevice {
+        public var id: UUID = UUID()
+        public var name: String = ""
+        /// `DevicePlatform`
+        public var platformRaw: String = DevicePlatform.mac.rawValue
+        /// Übernimmt Aufnahmen anderer Geräte (Weg B)
+        public var canProcess: Bool = false
+        /// Höchste Schema-Version, die das Gerät kennt
+        public var schemaVersion: Int = 2
+        public var lastSeen: Date = Date()
+
+        public init(id: UUID = UUID()) {
+            self.id = id
+        }
+
+        public var platform: DevicePlatform {
+            get { DevicePlatform(rawValue: platformRaw) ?? .mac }
+            set { platformRaw = newValue.rawValue }
         }
     }
 }

@@ -259,7 +259,10 @@ beide                     ──►  EarnoteML
 
 ---
 
-## 6a. Weg B im Detail (Entwurf zur Freigabe, 24.09.2026)
+## 6a. Weg B im Detail (24.09.2026)
+
+> **Stand:** B1 (Kern) und B2 (Mac) als Code da, **ungebaut** (in der Cloud gibt es kein Xcode). Die offenen Fragen unten sind
+> vorerst mit den Vorschlägen beantwortet. Weiter geht es mit dem Bauen und den Kern-Tests am Mac, danach mit B3 (iPhone).
 
 **Ziel:** Das iPhone nimmt auf, der eigene Mac schreibt Transkript und Notiz, das Audio verschwindet danach aus iCloud.
 
@@ -276,8 +279,11 @@ beide                     ──►  EarnoteML
 **Ablauf**
 1. iPhone: Stopp → Aufnahme mit `waitingForMac`, Audio komprimieren, `LibraryHandoff` anlegen. In der Liste steht „Wartet auf deinen Mac“, daneben „Auf dem iPhone verarbeiten“.
 2. Mac: Ein `HandoffWatcher` im App-Target reagiert auf Änderungen aus iCloud, setzt `claimedBy`/`claimedAt` und prüft nach 60 s, ob der Anspruch noch seiner ist. So verarbeiten zwei Macs nie dieselbe Aufnahme; Ansprüche älter als 2 h verfallen.
-3. Mac: Audio als importierte Datei in den eigenen `FileAudioStore`, einreihen, mit den **Einstellungen des Macs** verarbeiten (Whisper, lokale KI, Wörterbuch). Transkript und Notiz kommen über den normalen Abgleich zurück aufs iPhone.
-4. Mac: `LibraryHandoff` löschen, damit ist das Audio aus iCloud weg. „Audio behalten“ gilt auf dem Mac wie sonst auch.
+3. Mac: Audio als importierte Datei in den eigenen `FileAudioStore`, einreihen und **sofort** `LibraryHandoff` löschen. Damit ist
+   das Audio aus iCloud weg, sobald es sicher auf dem Mac liegt, und nicht erst nach der Verarbeitung. Scheitert die Übernahme,
+   wird die Übergabe als `failed` markiert, und das iPhone bietet an, selbst zu verarbeiten (sein Audio hat es noch).
+4. Mac: verarbeitet mit den **Einstellungen des Macs** (Whisper, lokale KI, Wörterbuch). Transkript und Notiz kommen über den
+   normalen Abgleich zurück aufs iPhone. „Audio behalten“ gilt auf dem Mac wie sonst auch.
 5. iPhone: Nach 24 h ohne Anspruch gibt es eine Mitteilung „Dein Mac hat die Aufnahme noch nicht abgeholt“ mit „Auf dem iPhone verarbeiten“ (Weg A oder C).
 
 **Wo der Code hingehört**
@@ -287,10 +293,20 @@ beide                     ──►  EarnoteML
 
 **Reihenfolge:** B1 Kern + Tests → B2 Mac (Watcher, Release, Dauerlauf mit iCloud, Roadmap Phase 6) → B3 iPhone → B4 echte Geräte: 1 h hin, Notiz zurück, Audio weg.
 
-**Offene Fragen an dich:**
-1. Verarbeitet der Mac mit **seinen** Einstellungen (Vorschlag) oder mit denen des iPhones?
-2. Soll der Mac das Audio nach der Übergabe behalten dürfen (Einstellung „Audio behalten“ des Macs), oder immer löschen?
-3. Wartezeit bis zum Hinweis: 24 h (Vorschlag) oder kürzer, z. B. „heute Abend“?
+| Etappe | Stand |
+|---|---|
+| **B1 Kern** | ✅ Code: `EarnoteSchemaV2` (+ leichte Migration), `Library/Handoff.swift` (Snapshots `Handoff`/`SyncedDevice`, `HandoffRules`, `HandoffRepository`), Status `waitingForMac`, Tests in `HandoffTests.swift` (Regeln, Speichern, Migration V1 → V2). **Offen:** `swift test` am Mac |
+| **B2 Mac** | ✅ Code: `Earnote/Services/HandoffWatcher.swift` meldet den Mac stündlich als Gerät, holt nach jedem iCloud-Empfang ab, verdrahtet in `AppEnvironment`. **Offen:** Build, CloudKit-Schema neu anlegen und nach Production übernehmen (ROADMAP „iCloud-Sync“, Schritt 5), Release |
+| **B3 iPhone** | offen: iCloud-Berechtigung und -Schalter, nach dem Stopp komprimieren (AAC) und übergeben, Weg „Mit meinem Mac“ in den Einstellungen und im Onboarding (nur, wenn `HandoffRules.processingMacs` nicht leer ist), Zeile „Wartet auf deinen Mac“, Hinweis nach 24 h und bei `failed` |
+| **B4 Geräte** | offen |
+
+**Bekanntes Risiko:** Mac-Versionen ohne V2 lesen `waitingForMac` als „Wartet“ und würden die Aufnahme ohne Audio verarbeiten
+(→ „Fehler“). Weil der Sync noch „in Erprobung“ ist, betrifft das nur Testgeräte. Vor B3 müssen alle eigenen Macs V2 haben.
+
+**Fragen (vorläufig mit dem Vorschlag beantwortet, änderbar):**
+1. Der Mac verarbeitet mit **seinen** Einstellungen.
+2. Der Mac behält das Audio nach seiner Einstellung „Audio behalten“; aus iCloud verschwindet es immer.
+3. Hinweis nach **24 h** (`HandoffRules.overdueAfter`).
 
 ---
 

@@ -25,7 +25,7 @@ enum CloudSchemaSetup {
 
     /// Legt alle Record-Typen und Felder in der Development-Umgebung an. Gibt zurück, ob es geklappt hat.
     static func run() -> Bool {
-        guard let model = NSManagedObjectModel.makeManagedObjectModel(for: EarnoteSchemaV1.models) else {
+        guard let model = NSManagedObjectModel.makeManagedObjectModel(for: EarnoteSchemaLatest.models) else {
             Log.error("CloudKit-Schema: Datenmodell ließ sich nicht erzeugen")
             return false
         }
