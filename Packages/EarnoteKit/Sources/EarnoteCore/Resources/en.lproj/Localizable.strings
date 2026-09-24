@@ -154,3 +154,6 @@
 "%@ fehlgeschlagen: %@" = "%1$@ failed: %2$@";
 "Export teilweise fehlgeschlagen:" = "Export partly failed:";
 "Wartet auf deinen Mac" = "Waiting for your Mac";
+"Google nimmt den Gemini-Schlüssel nicht an. Prüfe, ob du ihn vollständig kopiert hast." = "Google doesn’t accept the Gemini key. Check that you copied all of it.";
+"Das kostenlose Kontingent von Gemini ist gerade aufgebraucht. Versuche es in ein paar Minuten erneut." = "Gemini’s free quota is used up for now. Try again in a few minutes.";
+"Google bietet das gewählte Gemini-Modell nicht mehr an. Wähle in den Einstellungen ein anderes Modell oder lass das Feld leer." = "Google no longer offers the selected Gemini model. Choose another model in Settings or leave the field empty.";

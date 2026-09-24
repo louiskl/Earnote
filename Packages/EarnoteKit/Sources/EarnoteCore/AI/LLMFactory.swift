@@ -43,8 +43,7 @@ public struct LLMFactory: Sendable {
         case .gemini:
             let key = apiKey(config.provider) ?? ""
             guard !key.isEmpty else { throw LLMError(message: t("Kein API-Schlüssel für Gemini hinterlegt.")) }
-            return OpenAICompatibleClient(baseURL: "https://generativelanguage.googleapis.com/v1beta/openai",
-                                          apiKey: key, model: config.effectiveModel)
+            return GeminiClient(apiKey: key, model: config.effectiveModel)
         case .mistral:
             let key = apiKey(config.provider) ?? ""
             guard !key.isEmpty else { throw LLMError(message: t("Kein API-Schlüssel für Mistral hinterlegt.")) }
@@ -68,9 +67,7 @@ public struct LLMFactory: Sendable {
             return try await OpenAICompatibleClient(baseURL: "https://api.openai.com/v1", apiKey: key, model: "").listModels()
                 .filter { $0.hasPrefix("gpt") || $0.hasPrefix("o") }
         case .gemini:
-            return try await OpenAICompatibleClient(baseURL: "https://generativelanguage.googleapis.com/v1beta/openai", apiKey: key, model: "")
-                .listModels().map { $0.replacingOccurrences(of: "models/", with: "") }
-                .filter { $0.hasPrefix("gemini") }
+            return try await GeminiClient(apiKey: key, model: "").listModels()
         case .mistral:
             return try await OpenAICompatibleClient(baseURL: "https://api.mistral.ai/v1", apiKey: key, model: "").listModels()
         case .lmStudio, .openAICompatible:

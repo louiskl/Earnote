@@ -76,7 +76,7 @@ public enum AIProviderKind: String, Codable, CaseIterable, Identifiable, Sendabl
         switch self {
         case .anthropic: return "claude-sonnet-4-5"
         case .openAI: return "gpt-4.1-mini"
-        case .gemini: return "gemini-2.5-flash"
+        case .gemini: return GeminiClient.defaultModel
         case .mistral: return "mistral-medium-latest"
         case .ollama: return "qwen3:8b"
         case .localModel, .lmStudio, .openAICompatible, .appleIntelligence, .claudeCode, .codex, .none: return ""
