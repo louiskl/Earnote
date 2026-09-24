@@ -19,3 +19,7 @@ icon-preview.png
 
 # Signaturprofil (enthält Team- und Zertifikatsangaben) – bleibt lokal
 scripts/*.provisionprofile
+
+# App-Store-Connect-API-Schlüssel – bleibt lokal, nie ins Repository
+*.p8
+scripts/appstoreconnect.env
