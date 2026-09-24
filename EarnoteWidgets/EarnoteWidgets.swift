@@ -45,7 +45,13 @@ struct RecordingLiveActivity: Widget {
                     RecordingIcon(isPaused: context.state.isPaused).font(.title2).padding(.leading, 4)
                 }
                 DynamicIslandExpandedRegion(.trailing) {
-                    Elapsed(state: context.state).font(.title3.monospacedDigit()).padding(.trailing, 4)
+                    Elapsed(state: context.state)
+                        .font(.title3.weight(.semibold).monospacedDigit())
+                        .fontDesign(.rounded)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
+                        .frame(minWidth: 72, alignment: .trailing)
+                        .padding(.trailing, 4)
                 }
                 DynamicIslandExpandedRegion(.center) {
                     VStack(spacing: 6) {
@@ -59,7 +65,7 @@ struct RecordingLiveActivity: Widget {
             } compactLeading: {
                 RecordingIcon(isPaused: context.state.isPaused)
             } compactTrailing: {
-                Elapsed(state: context.state).monospacedDigit().frame(maxWidth: 56)
+                Elapsed(state: context.state).monospacedDigit().lineLimit(1).frame(width: 44, alignment: .trailing)
             } minimal: {
                 RecordingIcon(isPaused: context.state.isPaused)
             }

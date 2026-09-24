@@ -29,8 +29,9 @@ enum RecordingCommands {
 }
 
 /// Kontrollzentrum, Action-Taste, Siri, Kurzbefehle. Als `AudioRecordingIntent` darf er aufnehmen, ohne die App zu öffnen –
-/// die Live-Aktivität zeigt dann, dass aufgenommen wird.
-struct StartRecordingIntent: AudioRecordingIntent {
+/// die Live-Aktivität zeigt dann, dass aufgenommen wird. `LiveActivityIntent` sorgt dafür, dass iOS ihn in der App
+/// ausführt und nicht in der Widget-Erweiterung (dort sind die `RecordingCommands` leer – der Knopf blinkte nur).
+struct StartRecordingIntent: AudioRecordingIntent, LiveActivityIntent {
     static let title: LocalizedStringResource = "Aufnahme starten"
     static let description = IntentDescription("Startet in Earnote eine Aufnahme.")
 
