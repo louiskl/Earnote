@@ -1,0 +1,270 @@
+# Earnote für iPhone – Plan
+
+> Stand: 24.09.2026 · Entwurf zur Freigabe · gepflegt vom Architekten.
+> Start parallel zur Mac-Beta. Die Beta hat Vorrang, gemeldete Fehler am Mac gehen vor.
+> iPad kommt als eigener Plan.
+
+## Die Idee in einem Satz
+
+Das iPhone liegt in der Vorlesung auf dem Tisch: Aufnahme starten, Bildschirm aus. Danach ist die
+Notiz da, und unterwegs lernst du mit den Karteikarten. Die Bibliothek ist dieselbe wie auf dem Mac.
+
+---
+
+## 1. Grundentscheidungen (Vorschlag)
+
+| # | Frage | Vorschlag | Warum |
+|---|---|---|---|
+| 1 | Begleiter oder eigenständig? | **Eigenständig**, mit Mac als Option | Mit iOS 26 transkribiert das iPhone selbst (SpeechAnalyzer), und neue iPhones schaffen ein 4B-Modell. Ein reiner Begleiter wäre ohne Mac nutzlos, und die meisten Studierenden haben nur ein iPhone. |
+| 2 | Mindestversion | **iOS 26** (iPhone 11 und neuer) | SpeechAnalyzer, `BGContinuedProcessingTask`, Foundation Models, Liquid-Glass-Oberfläche. Der Kern ist ohnehin auf iOS 26 ausgelegt. |
+| 3 | Wo entsteht die Notiz? | **Drei Wege, automatisch vorgeschlagen** (Abschnitt 2) | Neue iPhones lokal, ältere über den Mac oder mit eigenem Cloud-Schlüssel |
+| 4 | Verteilung | **App Store + TestFlight** | Auf dem iPhone gibt es keinen anderen Weg. Datenschutz-Etikett: „Keine Daten erfasst“. |
+| 5 | Code | **Selbes Repo, selber Kern**, neues Target `Earnote iOS` | `EarnoteCore` baut schon für iOS, `EarnoteML` (WhisperKit, MLX) läuft auf iOS |
+| 6 | Sync | **iCloud, abschaltbar**; die App funktioniert auch ohne | Sync muss am Mac erst seinen Dauerlauf bestehen (Roadmap Phase 6) |
+| 7 | Audio | **Bleibt auf dem Gerät.** Einzige Ausnahme: Weg B (der Mac verarbeitet), die Datei wird danach gelöscht | Versprechen „Audio wird nie synchronisiert“ bleibt im Normalfall bestehen |
+| 8 | Geld | **Offen – muss vor der App-Store-Einreichung entschieden sein**, nicht vor dem Bauen | Siehe Abschnitt 9 |
+
+---
+
+## 2. Wo die Notiz entsteht – drei Wege
+
+| Weg | Für wen | Transkription | Notiz | Was verlässt das iPhone |
+|---|---|---|---|---|
+| **A · Auf diesem iPhone** | iPhone 15 Pro und neuer (8 GB) | SpeechAnalyzer (Apple, auf dem Gerät) | Qwen3 4B über MLX oder Apple Intelligence (Foundation Models) | nichts |
+| **B · Mit meinem Mac** | jedes iPhone + Mac mit Earnote | auf dem Mac (Whisper) | auf dem Mac (lokale KI) | Audio über die eigene iCloud zum eigenen Mac, danach gelöscht |
+| **C · Cloud-KI mit eigenem Schlüssel** | jedes iPhone | SpeechAnalyzer (auf dem Gerät) | Claude, OpenAI, Gemini, Mistral per API-Schlüssel | nur der Text an den gewählten Anbieter |
+
+- **Vorschlag im Onboarding:** Ab dem iPhone 15 Pro wird A empfohlen, sonst B, wenn Earnote auf einem Mac läuft, sonst C.
+  Wechseln geht jederzeit in den Einstellungen.
+- **Abos (ChatGPT Plus, Claude Pro) gehen auf dem iPhone nicht.** Anbieter lassen fremde Apps nur mit
+  API-Schlüssel zu, also mit Zahlung pro Nutzung. Auf dem Mac geht es, weil Earnote dort die installierten Programme
+  Claude Code und Codex nutzt. Gemini hat ein kostenloses Kontingent und ist deshalb der einfachste
+  Einstieg für Weg C. Die Clients (`AnthropicClient`, OpenAI, Gemini, Mistral) liegen schon im Kern.
+- **Transkription in der Cloud ist nicht vorgesehen.** SpeechAnalyzer läuft auf jedem iPhone mit iOS 26
+  lokal, und so geht Audio nie an einen Anbieter.
+- **Ältere Macs (Intel):** Das ist eine eigene Frage. Nötig wären ein x86-Build ohne MLX,
+  die Apple-Spracherkennung und Cloud-KI. Das wird nach dem iPhone geprüft.
+
+---
+
+## 3. Funktionen – vollständige Liste
+
+Priorität: **1.1** = erste Version im App Store · **1.2** = direkt danach · **später** = Idee, nicht geplant.
+
+### Aufnehmen
+| Funktion | Prio |
+|---|---|
+| Aufnahme starten mit einem Tipp, Bereich wählen (Vorlesung, Meeting …), Pause, Fortsetzen, Stopp | 1.1 |
+| **Weiter aufnehmen bei ausgeschaltetem Bildschirm und im Hintergrund** (Background Audio) | 1.1 |
+| Unterbrechungen: Anruf, Wecker, Siri → automatisch pausieren, danach fortsetzen, mit Hinweis | 1.1 |
+| Mikrofone: eingebaut, AirPods, USB-C, Lightning; Wechsel während der Aufnahme in derselben Datei | 1.1 |
+| Aufnahme übersteht App-Absturz und Neustart (Datei in Abschnitten, nichts geht verloren) | 1.1 |
+| Pegel, Warnung „seit einer Minute nichts zu hören“, Warnung bei wenig Speicher, sauberer Stopp bei vollem Speicher | 1.1 |
+| Einverständnis-Hinweis vor der ersten Aufnahme (§ 201 StGB) | 1.1 |
+| Stromsparmodus berücksichtigen (keine Live-Mitschrift, später verarbeiten) | 1.1 |
+| Live-Mitschrift während der Aufnahme (SpeechAnalyzer, einschaltbar) | 1.2 |
+| **Markieren „Das ist wichtig“** mit einem Tipp oder über die Action-Taste → erscheint als Prüfungshinweis in der Notiz | 1.2 |
+| Foto von Tafel oder Folie während der Aufnahme, erscheint an der richtigen Stelle im Transkript | später |
+| Titel aus dem Kalender (wie am Mac `CalendarTitles`) | 1.2 |
+| Erinnerung zum Vorlesungsbeginn aus dem Kalender: „Analysis beginnt – aufnehmen?“ | später |
+
+### System: Sperrbildschirm, Dynamic Island, Mitteilungen, Kurzbefehle
+| Funktion | Prio |
+|---|---|
+| **Live-Aktivität** auf dem Sperrbildschirm und in der Dynamic Island: Laufzeit, Bereich, Knöpfe Pause/Stopp (App Intents) | 1.1 |
+| Fortschritt der Verarbeitung („Notiz wird geschrieben … 45 %“), über die Systemanzeige von `BGContinuedProcessingTask` | 1.1 |
+| Mitteilung „Notiz fertig“ mit Titel; Tippen öffnet die Notiz | 1.1 |
+| **Steuerelement** fürs Kontrollzentrum und den Sperrbildschirm: „Aufnahme starten“ (ControlWidget) | 1.1 |
+| **App Intents:** „Aufnahme starten/stoppen“, „Letzte Notiz zeigen“; damit gehen Siri, Kurzbefehle und die Action-Taste | 1.1 |
+| Widget für den Home-Bildschirm: letzte Notizen, offene Aufgaben, fällige Karteikarten | 1.2 |
+| Apple Watch: Aufnahme starten/stoppen | später |
+
+### Verarbeiten
+| Funktion | Prio |
+|---|---|
+| Drei Wege A/B/C (Abschnitt 2), Vorschlag je nach Gerät | 1.1 |
+| Läuft nach dem Stopp im Hintergrund weiter (`BGContinuedProcessingTask`); wird es abgebrochen, geht es beim nächsten Öffnen weiter | 1.1 |
+| Option „Erst am Ladekabel verarbeiten“ (`BGProcessingTask`, z. B. nachts) | 1.1 |
+| Modell-Download im WLAN mit Größenangabe (~2,5 GB), Platzprüfung, Löschen in den Einstellungen | 1.1 |
+| Dieselben Prüfungen wie am Mac: keine erfundenen Namen, Aufgaben, Fristen (`TaskCheck`, `QuestionCheck`) – kommen aus dem Kern | 1.1 |
+| Wörterbuch (Fachbegriffe) wird an Transkription und KI weitergegeben | 1.1 |
+
+### Bibliothek und Lesen
+| Funktion | Prio |
+|---|---|
+| Liste nach Tagen, Filter nach Bereich, Suche in Titel, Notiz und Transkript | 1.1 |
+| Notiz lesen, Aufgaben abhaken, bearbeiten, KI-Fassung wiederherstellen | 1.1 |
+| Transkript mit Zeitmarken; Tippen spielt die Stelle ab; Abspielleiste mit 15 s zurück und 1×/1,5×/2× | 1.1 |
+| Teilen über das Teilen-Menü: PDF-Lernzettel, Markdown, Text (für Notion, Apple Notizen, WhatsApp …) | 1.1 |
+| Notiz neu schreiben, vereinfachen (aus der Notiz statt aus dem Audio) | 1.2 |
+| Übersicht über einen Bereich (vor der Prüfung) | 1.2 |
+| Bereiche anlegen, umbenennen, sortieren, Vorlagen | 1.1 |
+| Löschen mit Bestätigung, Wischgesten, Kontextmenüs | 1.1 |
+| Direkte Exporte (Obsidian, Notion …) wie am Mac | später – am iPhone reicht das Teilen-Menü |
+
+### Lernen
+| Funktion | Prio |
+|---|---|
+| Karteikarten erzeugen (4–8, wie am Mac) | 1.1 |
+| **Karteikarten lernen:** Karte umdrehen, „wusste ich / wusste ich nicht“, schwierige Karten öfter | 1.1 |
+| Einfache Wiederholung nach Abstand (fällig heute), Widget „3 Karten fällig“ | 1.2 |
+| Anki-Export | 1.2 |
+
+### Importieren
+| Funktion | Prio |
+|---|---|
+| Audio und Video aus der Dateien-App importieren | 1.1 |
+| **„Mit Earnote öffnen“** aus Sprachmemos, WhatsApp-Sprachnachrichten, Dateien (Share Extension) | 1.1 |
+
+### Sync mit dem Mac
+| Funktion | Prio |
+|---|---|
+| Bibliothek über iCloud (vorhandenes SwiftData-Schema, Container `iCloud.app.earnote.Earnote`) | 1.1 |
+| Status „Gleicht ab … / Aktuell“ in den Einstellungen | 1.1 |
+| Übergabe an den Mac (Weg B): Audio in einen Übergabebereich, der Mac verarbeitet, die Notiz kommt zurück, das Audio wird gelöscht | 1.1 |
+| Doppelte Bereiche zusammenführen (vorhanden: `mergeDuplicates`) | 1.1 |
+| Karteikarten-Lernstand synchronisieren | 1.2 |
+
+### Einstellungen (in der App, als Blatt)
+Notiz-Weg und Modell (mit Speicherbedarf, Löschen) · Sprache der Notiz · Aufnahme (Audio behalten,
+bei Anruf pausieren, Live-Mitschrift) · Akku (erst am Ladekabel) · Mitteilungen · iCloud · Bereiche ·
+Wörterbuch · Cloud-Schlüssel (Schlüsselbund) · Über, Earnote unterstützen, Fehler melden (Diagnose).
+
+---
+
+## 4. Onboarding (erster Start)
+
+Kurz, fünf Schritte, jeder überspringbar außer dem Mikrofon.
+
+1. **Willkommen:** „Earnote schreibt deine Vorlesungen mit.“ Drei Zeilen mit dem, was es kann, und dem Hinweis „Bleibt auf deinem iPhone“. Knopf **Los geht's**.
+2. **Mikrofon:** erst erklären, dann die Systemabfrage. Wird sie abgelehnt, steht der Weg in die Einstellungen da.
+3. **Mitteilungen:** „Damit du weißt, wann die Notiz fertig ist.“ Das ist optional.
+4. **Wie soll die Notiz entstehen?** Der passende Weg ist vorausgewählt (A, B oder C).
+   - Bei A beginnt der Download im WLAN im Hintergrund. Aufnehmen geht sofort.
+   - B erscheint nur, wenn iCloud an ist und die Bibliothek eines Macs gefunden wurde.
+   - Bei C gibt es Schlüssel-Eingabe und einen Link „Wo bekomme ich einen Schlüssel?“, empfohlen wird Gemini.
+5. **Fertig:** Bereiche aus Vorlagen wählen (Vorlesung ist vorausgewählt), den Einverständnis-Hinweis lesen, **Erste Aufnahme**.
+
+Mit Earnote auf dem Mac und eingeschaltetem iCloud übernimmt das iPhone Bereiche und Wörterbuch
+vom Mac, statt neue anzulegen.
+
+---
+
+## 5. Oberfläche (nativ iOS)
+
+Die Design-Richtlinien gelten sinngemäß: **native Strukturen statt eigener Karten**. Für iOS heißt das
+`TabView`, `NavigationStack`, `List`, Blätter, Wischgesten, Kontextmenüs, Dynamic Type, Hell/Dunkel und
+das Liquid Glass von iOS 26 nur dort, wo das System es selbst setzt. `DESIGN_GUIDELINES.md` bekommt
+dafür einen eigenen iOS-Abschnitt, bevor die erste Ansicht entsteht.
+
+```
+TabView (iOS 26, Liquid-Glass-Tableiste)
+├─ Aufnahmen      NavigationStack: Liste (nach Tagen, Filter „Bereich“ im Menü) → Notiz | Transkript
+├─ Lernen         Bereiche → Karteikarten lernen · Übersicht
+└─ Suche          (Tab mit Suchrolle, sucht in allem)
+
+Unten über der Tableiste: tabViewBottomAccessory
+  ohne Aufnahme:  ● Aufnehmen               (Tippen startet, langes Drücken: Bereich wählen)
+  bei Aufnahme:   0:42:13 · Analysis  ⏸ ■   (Tippen öffnet die Aufnahme-Ansicht)
+
+Aufnahme-Ansicht (Blatt, groß): Laufzeit, Pegel, Bereich, Live-Mitschrift (falls an),
+                                Markieren, Pause, Stopp
+Einstellungen: Zahnrad in der Symbolleiste von „Aufnahmen“ → Blatt mit Form
+```
+
+- **Notiz-Ansicht:** Oben wählt ein Segmented Picker zwischen Notiz und Transkript. Die Symbolleiste enthält
+  Teilen und das Menü „Mehr“ (Karteikarten, Vereinfachen, PDF, Löschen). Die Abspielleiste wird nur eingeblendet, wenn es Audio gibt.
+- **Verarbeitung:** In der Liste steht der Fortschritt in der Zeile. In der Notiz-Ansicht erscheint der Entwurf, während er
+  entsteht, wie am Mac (`DraftNoteView`-Logik aus `ProcessingQueue.drafts`).
+- **Leere Zustände:** `ContentUnavailableView` für „Noch keine Aufnahme“, „Keine Treffer“ und „Keine Karteikarten“.
+
+---
+
+## 6. Architektur (Vorschlag nach Design-Richtlinien Abschnitt 20)
+
+| Punkt | Antwort |
+|---|---|
+| **Scenes** | `WindowGroup` mit `TabView`. Dazu WidgetKit-Extension (Live-Aktivität, Widgets, Steuerelement), App Intents, Share Extension |
+| **Hauptaufgabe** | Aufnehmen, ohne hinzusehen; danach lesen und lernen |
+| **Layout** | Tabs → `NavigationStack` → Detail. Keine Split-Ansicht (die kommt mit dem iPad) |
+| **Auswahl** | Navigationspfad je Tab (`@SceneStorage` bzw. `NavigationPath`), die laufende Aufnahme global im `PhoneRecorder` |
+| **Befehle** | App Intents statt Menüs: Aufnahme starten/stoppen/pausieren, letzte Notiz; dazu Kontextmenüs und Wischgesten in der Liste |
+| **Symbolleiste** | Liste: Filter, Einstellungen. Notiz: Teilen, Mehr |
+| **Zustand** | siehe Tabelle unten |
+| **Native Komponenten** | `TabView`, `tabViewBottomAccessory`, `List`, `searchable`, `ContentUnavailableView`, `ShareLink`, ActivityKit, `ControlWidget`, `BGContinuedProcessingTask` |
+| **Eigene Darstellung** | nur die Pegelanzeige und die umdrehbare Karteikarte |
+
+### Module
+
+```
+Earnote iOS (App-Target)  ──►  EarnotePlatform (neu)  ──►  EarnoteCore
+Earnote (Mac)             ──►  EarnotePlatform        ──►  EarnoteCore
+beide                     ──►  EarnoteML
+```
+
+| Modul | Inhalt |
+|---|---|
+| `EarnoteCore` | unverändert: Modelle, Bibliothek, Pipeline, Warteschlange, Summarizer, Cloud-KI-Clients |
+| `EarnoteML` | unverändert: WhisperKit, MLX. Auf iOS mit „Increased Memory Limit“ |
+| **`EarnotePlatform`** (neu) | Apple-Frameworks ohne Oberfläche, die beide Apps brauchen: `AppleSpeechTranscriber` (heute im Mac-Target), Apple Intelligence (`FoundationModels`), Mitteilungen. Kein SwiftUI, AppKit oder UIKit |
+| **App-neutrale Stores** | `LibraryStore` und die Verdrahtung aus `AppEnvironment` sind großteils plattformneutral. Was kein AppKit braucht, wandert nach `EarnotePlatform`, damit es nicht doppelt existiert |
+| `Earnote iOS` | `PhoneRecorder` (`AVAudioSession` + `AVAudioEngine`), Live-Aktivität, Intents, Oberfläche |
+
+### Wer besitzt welchen Zustand
+| Zustand | Besitzer |
+|---|---|
+| Bibliothek | `LibraryStore` (geteilt), SwiftData, `@Query` in den Ansichten |
+| Laufende Aufnahme, Pegel, Unterbrechungen | `PhoneRecorder` (`@MainActor @Observable`, iOS) |
+| Live-Aktivität | `RecordingActivity` hört auf `PhoneRecorder` und `ProcessingQueue` |
+| Verarbeitung | `ProcessingQueue` + `ProcessingPipeline` (Kern, unverändert), im Hintergrund über einen `BackgroundProcessor` |
+| Einstellungen | `SettingsRepository` pro Gerät (neu: Notiz-Weg A/B/C) |
+| Karteikarten-Lernstand | **neu im Schema** (`EarnoteSchemaV2`, CloudKit-Regeln), erst 1.1 lokal, 1.2 synchronisiert |
+
+### Übergabe an den Mac (Weg B)
+- **Neu:** Das iPhone legt die Aufnahme mit dem Status `waitingForMac` an, die Audiodatei (AAC, ~30 MB pro Stunde) landet
+  als Asset in der privaten iCloud-Datenbank (Feld mit `.externalStorage` an einem eigenen Übergabe-Modell).
+- Der Mac sieht beim Abgleich neue Übergaben, lädt das Audio, verarbeitet es und schreibt Transkript und Notiz zurück.
+  Danach löscht er das Übergabe-Objekt, sodass das Audio aus iCloud verschwindet.
+- Ist kein Mac erreichbar, sagt das iPhone das nach 24 Stunden und bietet Weg A oder C an.
+- Dafür braucht es eine Schema-Stufe, die nach den CloudKit-Regeln gebaut und am Mac zuerst ausgerollt wird.
+
+---
+
+## 7. Technische Risiken – zuerst messen (Spike, ca. eine Woche)
+
+| Frage | Wie wir es herausfinden |
+|---|---|
+| Schafft ein iPhone 15 Pro, 16 oder 17 Qwen3 4B für eine 1-Stunden-Vorlesung? Wie lange, wie warm, wie viel Akku? | Die Messbank vom Mac (`scratchpad/bench`) auf iOS bringen und mit echten Transkripten messen. Vergleich mit Apple Intelligence (kleines Kontextfenster, braucht mehr Abschnitte) |
+| Ist SpeechAnalyzer auf Deutsch gut genug gegenüber Whisper? | Dieselben drei Vorlesungen transkribieren und die Fehlerquote vergleichen; Whisper auf dem iPhone als Ausweg |
+| Darf die Verarbeitung im Hintergrund die GPU nutzen? | `BGContinuedProcessingTask` mit GPU-Berechtigung auf echten Geräten testen |
+| Hält eine Aufnahme 3 Stunden bei ausgeschaltetem Bildschirm, mit Anruf und AirPods-Wechsel? | Echte Vorlesung, vom Nutzer gefahren |
+| Wie groß und wie schnell ist die Übergabe über iCloud? | 1 h AAC hin, Notiz zurück, stoppen |
+
+Kommt bei der ersten Frage „zu langsam“ heraus, wird Weg B oder C auch auf neuen iPhones der Standard, und A bleibt eine Option.
+
+---
+
+## 8. Etappen
+
+| Etappe | Inhalt | Ergebnis |
+|---|---|---|
+| **M0 – jetzt** | Plan freigeben, Entscheidungen aus Abschnitt 9, iOS-Abschnitt in den Design-Richtlinien, Projektgenerator kann ein iOS-Target | Freigabe |
+| **M1 – Spike** | Messungen aus Abschnitt 7 | Entscheidung über Weg A |
+| **M2 – Aufnehmen & Lesen** | `EarnotePlatform`, iOS-Target, Aufnahme mit Bildschirm aus, Bibliothek, Notiz, Transkript, Sync lesen | erste TestFlight-Fassung (intern) |
+| **M3 – Notiz entsteht** | Wege A/B/C, Hintergrund-Verarbeitung, Live-Aktivität, Mitteilungen, Steuerelement, Intents | TestFlight für Kommilitonen |
+| **M4 – Lernen & Import** | Karteikarten lernen, Share Extension, Import | vollständige 1.1 |
+| **M5 – Einreichen** | Onboarding-Feinschliff, Datenschutz-Etikett, Screenshots, App Review | **Earnote 1.1 für iPhone im App Store** |
+
+---
+
+## 9. Entscheidungen, die bei dir liegen
+
+1. **Eigenständig mit drei Wegen** (Vorschlag) statt reiner Begleiter?
+2. **Geld:** Die iPhone-App ist entweder a) kostenlos wie am Mac, mit Spenden, oder b) als „Earnote Pro“ bezahlt, etwa als Einmalkauf,
+   während der Mac kostenlos bleibt. Die Roadmap (Phase 8) sagt bisher „für Menschen kostenlos,
+   für Organisationen kostenpflichtig“. b) würde das für Studierende ändern. Das muss erst vor der Einreichung
+   feststehen, aber die Entscheidung bestimmt, ob In-App-Käufe eingebaut werden.
+3. **iCloud auf dem iPhone standardmäßig an?** Vorschlag: aus, bis der Mac-Dauerlauf bestanden ist; im Onboarding
+   an, sobald ein Mac gefunden wurde.
+4. **iOS 26 als Mindestversion** (iPhone 11 und neuer)?
+5. **Bundle-ID** `app.earnote.Earnote` für die iPhone-App (gleicher iCloud-Container) – für das App Store Connect-Konto nötig.

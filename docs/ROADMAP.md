@@ -306,9 +306,8 @@ Alles aus echten Abstürzen des Nutzers, nicht aus Tests. Jeder Punkt wurde am G
       die Laufzeit meldet sich nur bei neuer Sekunde. Auf Akku oder im Stromsparmodus sind Live-Mitschrift
       und Vorverdichten aus (einzeln einschaltbar, Einstellungen › Aufnahme › Akku). Neu als Schalter:
       „Aufnahmen erst am Netzteil verarbeiten“ mit „Jetzt verarbeiten“ in der Liste.
-- [ ] Am echten Mac nachmessen: Aktivitätsanzeige › Energie während einer Aufnahme auf Akku, vorher/nachher
-- [ ] Mit eingeschaltetem VoiceOver einmal durch die App gehen (liegt beim Nutzer – ein Durchgang
-      mit echtem Vorlesen findet Dinge, die im Quelltext nicht zu sehen sind)
+- [x] Am echten Mac nachgemessen (24.09.2026, vom Nutzer): Aufnahmen in Vorlesungen deutlich angenehmer, Akku hält gut durch
+- [x] Mit eingeschaltetem VoiceOver einmal durch die App gegangen (24.09.2026, vom Nutzer): passt
 
 ---
 
@@ -331,8 +330,8 @@ Nicht „wenn nichts mehr einfällt“, sondern wenn diese Punkte abgehakt sind:
       und lässt sie verarbeiten; Platte voll → unter 300 MB wird gestoppt und gemeldet (mit Test);
       Berechtigung entzogen → vor dem Start Hinweis samt Weg in die Systemeinstellungen, währenddessen
       greift der Wächter auf den Datenfluss nach zehn Sekunden
-- [ ] Dieselben drei Fälle am echten Mac durchspielen (Deckel schließen, Platte füllen, Mikrofonrecht
-      entziehen) – dauert zusammen zehn Minuten und liegt beim Nutzer
+- [x] Dieselben drei Fälle am echten Mac durchgespielt (24.09.2026, vom Nutzer): Deckel zu, Mikrofonrecht
+      entzogen und Platte voll – die App reagiert jeweils richtig
 - [ ] Zwei Wochen Beta mit 5–10 Kommilitonen ohne Datenverlust und ohne Absturz (**gestartet 22.09.2026**, Ende ~06.10.2026)
 - [x] Swift-6-Sprachmodus an, `LegacyMigration` entfernt
 
@@ -379,6 +378,9 @@ Erst wenn alle drei Blöcke stehen, wird aus 0.9.x die 1.0 – und erst danach b
 - [ ] Rückmeldungen einarbeiten, danach 1.0
 
 ## Phase 6 – iPad & iPhone (1.1)
+
+> **24.09.2026: Start des iPhone-Plans parallel zur Beta beschlossen** (Nutzer). Plan, Funktionsliste,
+> Onboarding und Architektur: **[IPHONE.md](IPHONE.md)**. Die Mac-Beta hat weiter Vorrang. Das iPad bekommt einen eigenen Plan.
 
 **Warum erst nach 1.0:** iCloud-Sync und eine zweite Oberfläche verdoppeln die Fehlerfläche. Solange die
 Mac-App noch täglich wächst, würde jede Änderung zweimal anfallen. Der Kern (`EarnoteCore`) baut schon
@@ -496,6 +498,7 @@ E-Mail aus einer Kanzlei, Praxis oder IT-Abteilung. Bis dahin gilt: Nachfragen s
 - Weitere Ziele: Google Docs, OneNote, Anytype, Webhooks; Notion-Anmeldung ohne Token
 - Öffentlicher Link zum Teilen einer Notiz
 - Ältere iPads ohne M-Chip (über den Mac oder einen eigenen API-Schlüssel)
+- Ältere Macs mit Intel-Chip: x86-Build ohne MLX, Apple-Spracherkennung + Cloud-KI (nach dem iPhone prüfen)
 - Echo-Unterdrückung bei Lautsprecher-Calls
 - GitHub Sponsors als frühes Signal, ob überhaupt jemand freiwillig zahlt (siehe Phase 8)
 
@@ -506,7 +509,7 @@ E-Mail aus einer Kanzlei, Praxis oder IT-Abteilung. Bis dahin gilt: Nachfragen s
 | Frage | Empfehlung | Fällig bis |
 |---|---|---|
 | Launch-Termin | Launch Ende Oktober zum Semesterstart – nur wenn die Beta keine groben Fehler zeigt; sonst Anfang Januar vor der Klausurenphase | nach der Beta (~06.10.2026) |
-| Start von iPad/iPhone | **Nach 1.0.** Vorher nur weiter darauf achten, dass der Kern iOS-tauglich bleibt (Build läuft mit) | nach 1.0 |
+| Start von iPad/iPhone | **iPhone: Planung ab 24.09.2026 parallel zur Beta** ([IPHONE.md](IPHONE.md)); Bauen nach Freigabe des Plans, Mac-Beta hat Vorrang. iPad danach mit eigenem Plan | laufend |
 | Mac App Store | **Vorerst nein.** Direkt-Download plus Homebrew deckt die Zielgruppe ab; die Sandbox würde Systemton und Export einschränken. Nach 1.0 neu bewerten | nach 1.0 |
 | Windows/Linux | **Zurückgestellt.** Kein Port, sondern ein zweites Produkt (CoreML, MLX, SwiftUI gibt es dort nicht). Erst iPad/iPhone, danach neu bewerten – zuerst denkbar: schlanke Windows-Begleitung, die nur aufnimmt | nach 1.1 |
 | Geld verdienen | **Erst nach 1.0.** Kostenlos für private und studentische Nutzung, Pro-Lizenz für Organisationen, einmalig statt Abo, kein Server, keine Konten (Phase 8) | nach 1.0 |
