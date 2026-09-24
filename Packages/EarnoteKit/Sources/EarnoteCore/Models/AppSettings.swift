@@ -244,6 +244,8 @@ public struct AppSettings: Codable, Hashable, Sendable {
     public var openWindowAtLaunch = true
     /// Bibliothek über iCloud auf mehreren Geräten halten (Audio bleibt lokal). Gilt ab dem nächsten Start.
     public var syncWithCloud = false
+    /// iPhone (Weg B): Aufnahmen an den eigenen Mac übergeben, statt sie auf dem Gerät zu verarbeiten
+    public var processOnMac = false
     /// Gewähltes Mikrofon (Core-Audio-UID); nil = Systemstandard. Gilt pro Gerät.
     public var microphoneDeviceUID: String?
     /// Name des gewählten Mikrofons – damit es auch angezeigt werden kann, wenn es gerade nicht verbunden ist
@@ -280,6 +282,7 @@ public struct AppSettings: Codable, Hashable, Sendable {
         defaultCategoryID = try c.decodeIfPresent(UUID.self, forKey: .defaultCategoryID)
         openWindowAtLaunch = try c.decodeIfPresent(Bool.self, forKey: .openWindowAtLaunch) ?? d.openWindowAtLaunch
         syncWithCloud = (try? c.decodeIfPresent(Bool.self, forKey: .syncWithCloud)) ?? d.syncWithCloud
+        processOnMac = (try? c.decodeIfPresent(Bool.self, forKey: .processOnMac)) ?? d.processOnMac
         microphoneDeviceUID = try? c.decodeIfPresent(String.self, forKey: .microphoneDeviceUID)
         microphoneDeviceName = try? c.decodeIfPresent(String.self, forKey: .microphoneDeviceName)
     }

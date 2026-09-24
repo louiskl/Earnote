@@ -23,6 +23,8 @@ final class PhoneRecorder {
     @ObservationIgnored private var watchdog: Task<Void, Never>?
     /// Nach dem Stopp (die Aufnahme ist eingereiht) – z. B. Hintergrund-Verarbeitung anstoßen
     @ObservationIgnored var onStop: (UUID) -> Void = { _ in }
+    /// Was nach dem Stopp mit der Aufnahme geschieht (Weg B: an den Mac übergeben). Ohne: hier verarbeiten.
+    @ObservationIgnored var finish: ((UUID) -> Void)?
     /// Beginn, Pause, Ende – für die Live-Aktivität
     @ObservationIgnored var onChange: () -> Void = {}
 
@@ -96,7 +98,7 @@ final class PhoneRecorder {
             $0.pausedDuration = paused > 0 ? paused : nil
             $0.status = .queued
         }
-        library.enqueue(id)
+        if let finish { finish(id) } else { library.enqueue(id) }
         Log.info("Aufnahme beendet (iPhone)")
         onChange()
         onStop(id)

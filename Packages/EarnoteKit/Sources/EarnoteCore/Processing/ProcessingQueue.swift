@@ -46,6 +46,9 @@ public final class ProcessingQueue {
     @ObservationIgnored public var isHeld: @MainActor () -> Bool = { false }
     /// Bis die Warteschlange leer ist, trotz `isHeld` arbeiten („Jetzt verarbeiten“)
     @ObservationIgnored private var ignoresHold = false
+    /// Nach einem Neustart nur fortsetzen, was dieses Gerät verarbeitet – nicht Aufnahmen, die über iCloud kamen
+    /// und ein anderes Gerät bearbeitet (Weg B: der Mac)
+    @ObservationIgnored public var resumes: @MainActor (Recording) -> Bool = { _ in true }
     /// Es wartet Arbeit, die wegen `isHeld` noch nicht beginnt
     public private(set) var isWaitingForPower = false
 
@@ -101,7 +104,7 @@ public final class ProcessingQueue {
     /// Nach einem Absturz oder erzwungenem Beenden: unterbrochene Aufnahmen/Verarbeitungen wieder aufnehmen.
     public func resumeInterruptedWork() {
         guard let library else { return }
-        for r in library.recordings where r.status == .recording || r.status.isBusy {
+        for r in library.recordings where (r.status == .recording || r.status.isBusy) && resumes(r) {
             if r.status == .recording {
                 // Ende aus der tatsächlich aufgenommenen Länge ableiten, nicht aus dem Zeitpunkt des Neustarts
                 let recorded = recordedDuration(r.id)

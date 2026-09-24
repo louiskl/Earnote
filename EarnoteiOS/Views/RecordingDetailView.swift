@@ -7,6 +7,7 @@ struct RecordingDetailView: View {
     let id: UUID
     @Environment(LibraryStore.self) private var library
     @Environment(ProcessingQueue.self) private var queue
+    @Environment(HandoffSender.self) private var handoffs
     @Environment(\.dismiss) private var dismiss
     @SceneStorage("detail.mode") private var mode = Mode.note
     @State private var note: Summary?
@@ -84,6 +85,15 @@ struct RecordingDetailView: View {
         case .recording:
             ContentUnavailableView("Nimmt gerade auf", systemImage: "record.circle",
                                    description: Text("Nach dem Stopp entsteht hier die Notiz."))
+        case .waitingForMac where note == nil:
+            ContentUnavailableView {
+                Label("Wartet auf deinen Mac", systemImage: "laptopcomputer")
+            } description: {
+                Text(handoffs.pending[id]?.errorMessage
+                     ?? String(localized: "Sobald Earnote auf deinem Mac läuft, schreibt er die Notiz. Sie erscheint dann hier."))
+            } actions: {
+                Button("Auf dem iPhone verarbeiten") { handoffs.processHere(id) }.buttonStyle(.bordered)
+            }
         case .failed where note == nil:
             ContentUnavailableView {
                 Label("Verarbeitung fehlgeschlagen", systemImage: "exclamationmark.triangle")

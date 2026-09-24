@@ -143,6 +143,7 @@ private struct WaitingForPowerSection: View {
 struct RecordingRow: View {
     let recording: Recording
     @Environment(LibraryStore.self) private var library
+    @Environment(HandoffSender.self) private var handoffs
 
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
@@ -186,6 +187,14 @@ struct RecordingRow: View {
                 .font(.subheadline).foregroundStyle(.orange).lineLimit(2)
         case let status where status.isBusy:
             ProgressView(value: recording.progress) { Text(status.label).font(.caption) }
+        case .waitingForMac:
+            if handoffs.pending[recording.id]?.state == .failed {
+                Label("Dein Mac konnte sie nicht übernehmen", systemImage: "exclamationmark.triangle.fill")
+                    .font(.subheadline).foregroundStyle(.orange)
+            } else {
+                Label("Wartet auf deinen Mac", systemImage: "laptopcomputer")
+                    .font(.subheadline).foregroundStyle(.secondary)
+            }
         default:
             if let preview = recording.summaryPreview, !preview.isEmpty {
                 Text(preview).font(.subheadline).foregroundStyle(.secondary).lineLimit(2)
@@ -199,6 +208,7 @@ struct RecordingMenu: View {
     let id: UUID
     var onDelete: () -> Void
     @Environment(LibraryStore.self) private var library
+    @Environment(HandoffSender.self) private var handoffs
 
     var body: some View {
         Menu("Bereich", systemImage: "folder") {
@@ -210,6 +220,9 @@ struct RecordingMenu: View {
         }
         if library.recording(id)?.status == .failed {
             Button("Erneut versuchen", systemImage: "arrow.clockwise") { library.enqueue(id) }
+        }
+        if library.recording(id)?.status == .waitingForMac {
+            Button("Auf dem iPhone verarbeiten", systemImage: "iphone") { handoffs.processHere(id) }
         }
         Divider()
         Button("Löschen", systemImage: "trash", role: .destructive, action: onDelete)

@@ -15,6 +15,7 @@ struct SettingsSheet: View {
         NavigationStack {
             Form {
                 NoteWaySection()
+                MacSection()
                 Section("Aufnahme") {
                     Picker("Standardbereich", selection: $library.settings.defaultCategoryID) {
                         Text("Ohne Bereich").tag(UUID?.none)
@@ -67,8 +68,40 @@ struct SettingsSheet: View {
     }
 }
 
+/// Weg B (docs/IPHONE.md, Abschnitt 6a): Abgleich mit dem Mac über iCloud, auf Wunsch schreibt der Mac die Notizen
+struct MacSection: View {
+    @Environment(LibraryStore.self) private var library
+    @Environment(HandoffSender.self) private var handoffs
+
+    var body: some View {
+        @Bindable var library = library
+        Section {
+            Toggle("Mit dem Mac abgleichen (iCloud)", isOn: $library.settings.syncWithCloud)
+            if library.settings.syncWithCloud && !handoffs.macs.isEmpty {
+                Toggle("Notizen schreibt mein Mac", isOn: $library.settings.processOnMac)
+            }
+        } header: {
+            Text("Mac")
+        } footer: {
+            footer
+        }
+    }
+
+    @ViewBuilder private var footer: some View {
+        if !library.settings.syncWithCloud {
+            Text("Mit Earnote auf deinem Mac und derselben iCloud hast du deine Notizen auf beiden Geräten. Gilt ab dem nächsten Start.")
+        } else if handoffs.macs.isEmpty {
+            Text("Noch kein Mac gefunden. Öffne Earnote auf deinem Mac und schalte dort in den Einstellungen den Abgleich über iCloud ein.")
+        } else if library.settings.processOnMac {
+            Text("\(handoffs.macs.map(\.name).joined(separator: ", ")) schreibt die Notiz. Das Audio geht dafür über deine iCloud zum Mac und wird danach aus iCloud gelöscht.")
+        } else {
+            Text("Dein Mac kann die Notizen schreiben – das schont den Akku und nutzt die KI auf dem Mac.")
+        }
+    }
+}
+
 /// Wo die Notiz entsteht (docs/IPHONE.md, Abschnitt 2): auf dem iPhone, mit Cloud-KI und eigenem Schlüssel, oder gar nicht.
-/// Weg B (der Mac verarbeitet) folgt mit dem iCloud-Abgleich.
+/// Weg B (der Mac verarbeitet) steht in `MacSection`.
 struct NoteWaySection: View {
     @Environment(LibraryStore.self) private var library
     @State private var apiKey = ""

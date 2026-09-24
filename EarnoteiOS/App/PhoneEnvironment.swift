@@ -13,6 +13,9 @@ final class PhoneEnvironment {
     let recorder: PhoneRecorder
     let background: BackgroundProcessing
     let power = PhonePower()
+    /// Weg B: Aufnahmen an den eigenen Mac übergeben
+    let handoffs: HandoffSender
+    let cloudSync = CloudSyncStatus()
     /// Trinkgeld-Käufe, die beim letzten Start offen blieben, abschließen
     private let tipTransactions = TipJar.finishPendingTransactions()
     let liveActivity = LiveActivityController()
@@ -23,10 +26,12 @@ final class PhoneEnvironment {
         let settingsRepository = UserDefaultsSettingsRepository(defaults: defaults)
         let container: ModelContainer
         var openError: String?
+        // Wird gebraucht, bevor der Store steht – deshalb hier direkt gelesen (wie am Mac)
+        let syncsWithCloud = settingsRepository.loadSettings()?.syncWithCloud ?? false
         do {
-            // iCloud kommt mit Weg B (docs/IPHONE.md); bis dahin bleibt die Bibliothek auf dem iPhone
+            // iCloud ist aus, bis man es einschaltet (Einstellungen › Mac); gilt ab dem nächsten Start
             container = try LibraryContainer.make(url: storage.root.appendingPathComponent(LibraryContainer.fileName),
-                                                  syncsWithCloud: false)
+                                                  syncsWithCloud: syncsWithCloud)
         } catch {
             Log.error("Bibliothek öffnen: \(error)")
             openError = String(localized: "Die Bibliothek konnte nicht geöffnet werden (\(error.localizedDescription)). Änderungen werden in dieser Sitzung nicht gespeichert.")
@@ -57,8 +62,21 @@ final class PhoneEnvironment {
         self.queue = queue
         self.repository = repository
         recorder = PhoneRecorder(library: library)
+        let handoffs = HandoffSender(handoffs: repository, library: library, defaults: defaults)
+        queue.resumes = { recording in handoffs.resumesHere(recording) }
+        self.handoffs = handoffs
         background = BackgroundProcessing(queue: queue, library: library)
         background.registerChargingTask()
+        recorder.finish = { id in handoffs.finish(id) }
+        cloudSync.onImportFinished = { [weak library] in
+            Task {
+                // Neues vom Mac (Notizen, Geräte) sichtbar machen
+                await library?.mergeSyncDuplicates()
+                await library?.load()
+                await handoffs.refresh()
+            }
+        }
+        cloudSync.start(enabled: syncsWithCloud)
         // „Erst am Ladekabel“ und Stromsparmodus: Neues beginnt erst am Strom, Laufendes wird fertig
         queue.isHeld = { [weak library, power] in
             power.holdsProcessing(onlyWhenCharging: library?.settings.processOnlyOnPower ?? false)
@@ -112,6 +130,7 @@ final class PhoneEnvironment {
             library.categories = RecordingCategory.defaults
         }
         queue.resumeInterruptedWork()
+        await handoffs.refresh()
         #if DEBUG
         // Zum Testen im Simulator: EARNOTE_IMPORT=<Pfad> importiert eine Audiodatei vom Mac
         if let path = ProcessInfo.processInfo.environment["EARNOTE_IMPORT"], !path.isEmpty {
