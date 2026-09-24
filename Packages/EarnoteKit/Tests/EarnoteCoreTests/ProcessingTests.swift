@@ -41,7 +41,7 @@ final class ProcessingPipelineTests: XCTestCase {
         XCTAssertEqual(done.exports.first?.url, "fake://ok")
         XCTAssertEqual(destination.exports.get(), 1)
         XCTAssertEqual(state.statuses.get(), [.transcribing, .summarizing, .exporting, .done])
-        XCTAssertEqual(notes.get(), ["Notizen fertig"])
+        XCTAssertEqual(notes.get(), [t("Notizen fertig")])
 
         let library = folder.library
         let transcript = try await library.transcript(for: rec.id)
@@ -208,9 +208,9 @@ final class ProcessingPipelineTests: XCTestCase {
         let state = await run(pipeline(destinations: ["a": broken, "b": FakeDestination()], notes: notes),
                               rec, settings: .testing(destinations: ["a", "b"]))
         XCTAssertEqual(state.recording.status, .failed)
-        XCTAssertEqual(state.recording.errorMessage, "Export teilweise fehlgeschlagen:\nA: kaputt")
+        XCTAssertEqual(state.recording.errorMessage, t("Export teilweise fehlgeschlagen:") + "\nA: kaputt")
         XCTAssertEqual(state.recording.exports.filter(\.success).map(\.destinationID), ["b"], "Übrige Ziele laufen weiter")
-        XCTAssertEqual(notes.get(), ["Notizen fertig (mit Export-Fehlern)"])
+        XCTAssertEqual(notes.get(), [t("Notizen fertig (mit Export-Fehlern)")])
     }
 
     func testEmptyTranscriptReportsNoSpeech() async throws {
@@ -219,7 +219,7 @@ final class ProcessingPipelineTests: XCTestCase {
         let state = await run(pipeline(transcriber: FakeTranscriber { _ in [] }, llm: llm), rec)
         XCTAssertEqual(state.recording.status, .failed)
         XCTAssertEqual(state.recording.errorMessage,
-                       "Transkription fehlgeschlagen: \(TranscriptionError.noSpeech.localizedDescription)")
+                       ProcessingPipeline.failure("Transkription", TranscriptionError.noSpeech))
         let transcript = try await folder.library.transcript(for: rec.id)
         XCTAssertNil(transcript)
         XCTAssertTrue(llm.calls.get().isEmpty)
@@ -231,8 +231,8 @@ final class ProcessingPipelineTests: XCTestCase {
         let state = await run(pipeline(transcriber: transcriber), rec)
         XCTAssertEqual(state.recording.status, .failed)
         let message = try XCTUnwrap(state.recording.errorMessage)
-        XCTAssertTrue(message.hasPrefix("Transkription fehlgeschlagen: Die Aufnahme ist stumm"), message)
-        XCTAssertTrue(message.contains("Mikrofon"))
+        XCTAssertTrue(message.hasPrefix(t("Transkription")), message)
+        XCTAssertTrue(message.contains("-160 dB"), message)
         XCTAssertTrue(transcriber.transcribed.get().isEmpty, "Stumme Aufnahme wird gar nicht erst transkribiert")
     }
 

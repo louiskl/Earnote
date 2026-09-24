@@ -38,7 +38,7 @@ enum NoteDocument {
             do {
                 try writePDF(page.text, title: page.title, to: url)
             } catch {
-                library.lastError = "Das PDF konnte nicht gesichert werden: \(error.localizedDescription)"
+                library.lastError = String(localized: "Das PDF konnte nicht gesichert werden: \(error.localizedDescription)")
             }
         }
     }

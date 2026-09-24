@@ -137,7 +137,7 @@ struct ProcessingStateView: View {
             ContentUnavailableView {
                 Label("Verarbeitung fehlgeschlagen", systemImage: "exclamationmark.triangle")
             } description: {
-                Text(recording.errorMessage ?? "Unbekannter Fehler")
+                Text(recording.errorMessage ?? String(localized: "Unbekannter Fehler"))
             } actions: {
                 Button("Erneut versuchen") { library.enqueue(recording.id) }
             }

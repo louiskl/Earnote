@@ -166,10 +166,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
         if isRecording() {
             let alert = NSAlert()
-            alert.messageText = "Aufnahme läuft noch"
-            alert.informativeText = "Soll die Aufnahme gespeichert werden? Sie wird beim nächsten Start verarbeitet."
-            alert.addButton(withTitle: "Speichern & beenden")
-            alert.addButton(withTitle: "Abbrechen")
+            alert.messageText = String(localized: "Aufnahme läuft noch")
+            alert.informativeText = String(localized: "Soll die Aufnahme gespeichert werden? Sie wird beim nächsten Start verarbeitet.")
+            alert.addButton(withTitle: String(localized: "Speichern & beenden"))
+            alert.addButton(withTitle: String(localized: "Abbrechen"))
             guard alert.runModal() == .alertFirstButtonReturn else { return .terminateCancel }
             stopRecording()
         }

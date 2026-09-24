@@ -73,7 +73,7 @@ final class LibraryStore: RecordingLibrary {
                 .sorted { $0.startedAt > $1.startedAt }
         } catch {
             Log.error("Bibliothek laden: \(error.localizedDescription)")
-            lastError = "Die Bibliothek konnte nicht geladen werden: \(error.localizedDescription)"
+            lastError = String(localized: "Die Bibliothek konnte nicht geladen werden: \(error.localizedDescription)")
         }
         isLoaded = true
     }

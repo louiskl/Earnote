@@ -29,25 +29,25 @@ public struct LLMFactory: Sendable {
             return nil
         case .localModel, .appleIntelligence, .claudeCode, .codex:
             if let client = try platform?.makeClient(for: config) { return client }
-            throw LLMError(message: "„\(config.provider.label)“ ist auf diesem Gerät nicht verfügbar.")
+            throw LLMError(message: t("„\(config.provider.label)“ ist auf diesem Gerät nicht verfügbar."))
         case .ollama:
             return OllamaClient(baseURL: config.effectiveBaseURL, model: config.effectiveModel)
         case .anthropic:
             let key = apiKey(config.provider) ?? ""
-            guard !key.isEmpty else { throw LLMError(message: "Kein API-Schlüssel für Claude hinterlegt.") }
+            guard !key.isEmpty else { throw LLMError(message: t("Kein API-Schlüssel für Claude hinterlegt.")) }
             return AnthropicClient(apiKey: key, model: config.effectiveModel)
         case .openAI:
             let key = apiKey(config.provider) ?? ""
-            guard !key.isEmpty else { throw LLMError(message: "Kein API-Schlüssel für OpenAI hinterlegt.") }
+            guard !key.isEmpty else { throw LLMError(message: t("Kein API-Schlüssel für OpenAI hinterlegt.")) }
             return OpenAICompatibleClient(baseURL: "https://api.openai.com/v1", apiKey: key, model: config.effectiveModel)
         case .gemini:
             let key = apiKey(config.provider) ?? ""
-            guard !key.isEmpty else { throw LLMError(message: "Kein API-Schlüssel für Gemini hinterlegt.") }
+            guard !key.isEmpty else { throw LLMError(message: t("Kein API-Schlüssel für Gemini hinterlegt.")) }
             return OpenAICompatibleClient(baseURL: "https://generativelanguage.googleapis.com/v1beta/openai",
                                           apiKey: key, model: config.effectiveModel)
         case .mistral:
             let key = apiKey(config.provider) ?? ""
-            guard !key.isEmpty else { throw LLMError(message: "Kein API-Schlüssel für Mistral hinterlegt.") }
+            guard !key.isEmpty else { throw LLMError(message: t("Kein API-Schlüssel für Mistral hinterlegt.")) }
             return OpenAICompatibleClient(baseURL: "https://api.mistral.ai/v1", apiKey: key, model: config.effectiveModel)
         case .lmStudio, .openAICompatible:
             return OpenAICompatibleClient(baseURL: config.effectiveBaseURL, apiKey: apiKey(config.provider) ?? "",

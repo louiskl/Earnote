@@ -217,7 +217,7 @@ public struct ObsidianDestination: Destination {
     public init() {}
 
     public func export(_ p: ExportPayload) async throws -> String? {
-        guard !p.settings.obsidianVaultPath.isEmpty else { throw DestinationNotConfigured(hint: "Noch kein Obsidian-Vault ausgewählt.") }
+        guard !p.settings.obsidianVaultPath.isEmpty else { throw DestinationNotConfigured(hint: t("Noch kein Obsidian-Vault ausgewählt.")) }
         var folder = URL(fileURLWithPath: p.settings.obsidianVaultPath)
         if !p.settings.obsidianFolder.isEmpty { folder.appendPathComponent(p.settings.obsidianFolder) }
         if let c = p.category { folder.appendPathComponent(c.name) }

@@ -24,7 +24,7 @@ struct MicrophonePicker: View {
                 Text(device.name).tag(Optional(device.uid))
             }
             if let uid = library.settings.microphoneDeviceUID, inputs.device(uid) == nil {
-                Text("\(library.settings.microphoneDeviceName ?? "Gewähltes Mikrofon") (nicht verbunden)").tag(Optional(uid))
+                Text("\(library.settings.microphoneDeviceName ?? String(localized: "Gewähltes Mikrofon")) (nicht verbunden)").tag(Optional(uid))
             }
         }
         .disabled(recorder.isRecording)
@@ -120,7 +120,7 @@ struct MicrophoneMenu: View {
 
     private var currentName: String {
         if let uid = library.settings.microphoneDeviceUID {
-            return inputs.device(uid)?.name ?? "\(library.settings.microphoneDeviceName ?? "Mikrofon") (nicht verbunden)"
+            return inputs.device(uid)?.name ?? String(localized: "\(library.settings.microphoneDeviceName ?? String(localized: "Mikrofon")) (nicht verbunden)")
         }
         return inputs.defaultDevice?.name ?? "Mikrofon"
     }

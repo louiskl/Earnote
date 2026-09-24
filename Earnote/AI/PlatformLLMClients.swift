@@ -13,7 +13,7 @@ struct PlatformLLMClients: LLMClientProvider {
             #if canImport(FoundationModels)
             if #available(macOS 26.0, *) { return AppleIntelligenceClient() }
             #endif
-            throw LLMError(message: "Apple Intelligence benötigt macOS 26 oder neuer.")
+            throw LLMError(message: String(localized: "Apple Intelligence benötigt macOS 26 oder neuer."))
         case .claudeCode:
             return CLIClient(tool: .claude, model: config.model)
         case .codex:

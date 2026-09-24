@@ -40,7 +40,7 @@ struct RecordingRow: View {
                 if recording.status == .failed {
                     Image(systemName: "exclamationmark.triangle.fill")
                         .foregroundStyle(.orange)
-                        .help(recording.errorMessage ?? "Fehler bei der Verarbeitung")
+                        .help(recording.errorMessage ?? String(localized: "Fehler bei der Verarbeitung"))
                         .accessibilityLabel("Problem")
                 }
             }

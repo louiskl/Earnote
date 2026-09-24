@@ -201,18 +201,18 @@ public struct ProcessingPipeline: Sendable {
             await events.update(id) {
                 $0.status = failed.isEmpty ? .done : .failed
                 $0.progress = 1
-                $0.errorMessage = failed.isEmpty ? nil : "Export teilweise fehlgeschlagen:\n" + failed.joined(separator: "\n")
+                $0.errorMessage = failed.isEmpty ? nil : t("Export teilweise fehlgeschlagen:") + "\n" + failed.joined(separator: "\n")
             }
             let title = summary?.title ?? rec.title
-            notify(failures.isEmpty ? "Notizen fertig" : "Notizen fertig (mit Export-Fehlern)", title)
+            notify(failures.isEmpty ? t("Notizen fertig") : t("Notizen fertig (mit Export-Fehlern)"), title)
             Log.info("Fertig verarbeitet: \(title)")
         } catch let error where Task.isCancelled || error is CancellationError {
             // Gelöscht oder neu eingereiht – der Status wurde dort bereits gesetzt
             Log.info("Verarbeitung abgebrochen: \(rec.title)")
         } catch {
-            let msg = "\(step) fehlgeschlagen: \(error.localizedDescription)"
+            let msg = Self.failure(step, error)
             await events.update(id) { $0.status = .failed; $0.errorMessage = msg }
-            notify("Verarbeitung fehlgeschlagen", "\(rec.title): \(msg)")
+            notify(t("Verarbeitung fehlgeschlagen"), "\(rec.title): \(msg)")
             Log.error("Verarbeitung \(id): \(msg)")
         }
     }
@@ -245,7 +245,7 @@ public struct ProcessingPipeline: Sendable {
         if peak < -50 {
             // Völlige Stille ergibt -∞ dB; die Umwandlung in Int würde abstürzen
             throw TranscriptionError.unavailable(
-                "Die Aufnahme ist stumm (Pegel \(Int(max(peak, -160))) dB). Prüfe in den Systemeinstellungen, ob \(AppInfo.name) das Mikrofon verwenden darf und das richtige Eingabegerät ausgewählt ist.")
+                t("Die Aufnahme ist stumm (Pegel \(Int(max(peak, -160))) dB). Prüfe in den Systemeinstellungen, ob \(AppInfo.name) das Mikrofon verwenden darf und das richtige Eingabegerät ausgewählt ist."))
         }
 
         // Fast nur Stille: Whisper würde daraus Sätze erfinden – lieber gleich sagen, dass nichts zu hören war.
@@ -354,6 +354,11 @@ public struct ProcessingPipeline: Sendable {
 
     /// Wie lange ein Schritt gebraucht hat – die Grundlage für alle Geschwindigkeitsfragen.
     /// Mit `audioSeconds` steht auch das Verhältnis zur Aufnahmedauer im Protokoll („12× Echtzeit“).
+    /// „Transkription fehlgeschlagen: …“ – `step` bleibt fürs Protokoll deutsch, die Meldung folgt der Sprache der App.
+    static func failure(_ step: String, _ error: Error) -> String {
+        t("\(t(String.LocalizationValue(step))) fehlgeschlagen: \(error.localizedDescription)")
+    }
+
     static func logDuration(_ step: String, since start: Date, audioSeconds: Double? = nil) {
         let seconds = Date().timeIntervalSince(start)
         var line = String(format: "%@ fertig in %.0f s", step, seconds)

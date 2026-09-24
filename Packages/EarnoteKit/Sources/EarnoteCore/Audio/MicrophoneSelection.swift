@@ -131,7 +131,7 @@ public enum MicrophoneEvent: Equatable, Sendable {
     public var message: String {
         switch self {
         case .permissionDenied:
-            return "\(AppInfo.name) hat keinen Zugriff auf das Mikrofon. Bitte in den Systemeinstellungen erlauben."
+            return t("\(AppInfo.name) hat keinen Zugriff auf das Mikrofon. Bitte in den Systemeinstellungen erlauben.")
         case .noDevices:
             return t("Es ist kein Mikrofon verfügbar. Schließ ein Mikrofon an und versuche es erneut.")
         case .allFailed:

@@ -12,7 +12,7 @@ public final class ResamplingReader {
     public init(url: URL) throws {
         file = try AVAudioFile(forReading: url)
         guard let converter = AVAudioConverter(from: file.processingFormat, to: Self.outputFormat) else {
-            throw NSError(domain: AppInfo.name, code: 2, userInfo: [NSLocalizedDescriptionKey: "Audioformat wird nicht unterstützt"])
+            throw NSError(domain: AppInfo.name, code: 2, userInfo: [NSLocalizedDescriptionKey: t("Audioformat wird nicht unterstützt")])
         }
         converter.downmix = true
         self.converter = converter

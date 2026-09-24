@@ -17,8 +17,8 @@ public enum DeviceCapabilities {
     /// Warum das lokale Sprachmodell hier nicht läuft (nil = läuft).
     /// Voraussetzung: Apple Silicon mit mindestens 8 GB Arbeitsspeicher.
     public static var localModelUnsupportedReason: String? {
-        guard isAppleSilicon else { return "Das lokale Modell benötigt einen Mac mit Apple-Chip (M1 oder neuer)." }
-        return memoryGB >= 7.5 ? nil : "Dieser Mac hat zu wenig Arbeitsspeicher für das lokale Modell (mindestens 8 GB)."
+        guard isAppleSilicon else { return t("Das lokale Modell benötigt einen Mac mit Apple-Chip (M1 oder neuer).") }
+        return memoryGB >= 7.5 ? nil : t("Dieser Mac hat zu wenig Arbeitsspeicher für das lokale Modell (mindestens 8 GB).")
     }
 
     public static var supportsLocalModel: Bool { localModelUnsupportedReason == nil }

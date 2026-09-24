@@ -36,8 +36,7 @@ final class AppEnvironment {
         } catch {
             // Nicht einfach mit einer leeren Bibliothek weitermachen, ohne es zu sagen
             Log.error("Bibliothek öffnen: \(error)")
-            openError = "Die Bibliothek konnte nicht geöffnet werden (\(error.localizedDescription)). "
-                + "Änderungen werden in dieser Sitzung nicht gespeichert."
+            openError = String(localized: "Die Bibliothek konnte nicht geöffnet werden (\(error.localizedDescription)). Änderungen werden in dieser Sitzung nicht gespeichert.")
             container = try! LibraryContainer.makeInMemory()
         }
         let libraryRepository = SwiftDataLibraryRepository(modelContainer: container)

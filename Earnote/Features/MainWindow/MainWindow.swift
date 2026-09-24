@@ -293,7 +293,7 @@ struct MainWindow: View {
 
     private var deletionTitle: String {
         let name = pendingDeletion.flatMap { library.recording($0) }?.displayTitle
-        return name.map { "„\($0)“ löschen?" } ?? "Aufnahme löschen?"
+        return name.map { String(localized: "„\($0)“ löschen?") } ?? String(localized: "Aufnahme löschen?")
     }
 
     private var hintShown: Binding<Bool> {

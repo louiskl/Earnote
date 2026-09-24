@@ -176,7 +176,7 @@ final class RecordingController {
             session.onMicrophoneEvent = { [weak self, weak session] event in
                 self?.microphoneName = session?.microphone?.name
                 self?.lastError = event.message
-                self?.notify("Mikrofon", event.message)
+                self?.notify(String(localized: "Mikrofon"), event.message)
             }
             rec.hasSystemAudio = session.systemAudioActive
             isCapturingSystemAudio = session.systemAudioActive
@@ -193,7 +193,7 @@ final class RecordingController {
                 }
             }
             if let error = session.systemAudioError {
-                lastError = "Die Aufnahme läuft nur mit Mikrofon. Systemton konnte nicht gestartet werden: \(error) Prüfe die Systemaudio-Berechtigung für \(AppInfo.name) in den Systemeinstellungen."
+                lastError = String(localized: "Die Aufnahme läuft nur mit Mikrofon. Systemton konnte nicht gestartet werden: \(error) Prüfe die Systemaudio-Berechtigung für \(AppInfo.name) in den Systemeinstellungen.")
             }
             if case .low = space { lastError = space.message }
             recordingStartedByCall = byCall
@@ -233,8 +233,7 @@ final class RecordingController {
             try session.setPaused(false)
         } catch {
             // Z. B. Mikrofon inzwischen abgezogen: pausiert lassen, damit nichts stillschweigend fehlt
-            lastError = "Die Aufnahme konnte nicht fortgesetzt werden: \(error.localizedDescription)\n"
-                + "Prüfe das Mikrofon und versuche es erneut, oder stoppe die Aufnahme."
+            lastError = String(localized: "Die Aufnahme konnte nicht fortgesetzt werden: \(error.localizedDescription)\nPrüfe das Mikrofon und versuche es erneut, oder stoppe die Aufnahme.")
             Log.error("Fortsetzen fehlgeschlagen: \(error.localizedDescription)")
             return
         }
@@ -365,7 +364,7 @@ final class RecordingController {
     private func startLiveTranscript(session: RecordingSession, language: String) {
         live.reset()
         guard #available(macOS 26.0, *) else {
-            live.unavailable = "Die Live-Mitschrift benötigt macOS 26 oder neuer."
+            live.unavailable = String(localized: "Die Live-Mitschrift benötigt macOS 26 oder neuer.")
             return
         }
         #if canImport(FoundationModels)
@@ -383,7 +382,7 @@ final class RecordingController {
                     transcriber?.append(buffer)
                 }
             } catch {
-                live.unavailable = "Live-Mitschrift nicht möglich: \(error.localizedDescription)"
+                live.unavailable = String(localized: "Live-Mitschrift nicht möglich: \(error.localizedDescription)")
                 Log.error("Live-Mitschrift: \(error.localizedDescription)")
             }
         }
@@ -486,7 +485,7 @@ final class RecordingController {
         toldAboutSilence = true
         let message = String(localized: "Seit einer Minute ist nichts zu hören. Prüfe, ob das richtige Mikrofon gewählt ist und \(AppInfo.name) es verwenden darf (Systemeinstellungen › Datenschutz & Sicherheit › Mikrofon).")
         lastError = message
-        notify("Kein Ton", message)
+        notify(String(localized: "Kein Ton"), message)
         Log.error("Aufnahme ohne Pegel seit 60 s")
     }
 
@@ -501,7 +500,7 @@ final class RecordingController {
         toldAboutStall = true
         let message = String(localized: "Das Mikrofon liefert seit zehn Sekunden keinen Ton mehr. Prüfe die Verbindung – bei Bluetooth-Kopfhörern hilft meist, in den Einstellungen das eingebaute Mikrofon zu wählen.")
         lastError = message
-        notify("Kein Ton", message)
+        notify(String(localized: "Kein Ton"), message)
         Log.error("Mikrofon liefert seit \(Int(Date().timeIntervalSince(lastBufferAt))) s keine Puffer mehr")
     }
 
@@ -517,14 +516,14 @@ final class RecordingController {
             if !toldAboutLowSpace, let message = space.message {
                 toldAboutLowSpace = true
                 lastError = message
-                notify("Wenig Speicherplatz", message)
+                notify(String(localized: "Wenig Speicherplatz"), message)
             }
         case .critical:
             let message = String(localized: "Die Aufnahme wurde beendet, weil der Speicherplatz ausgeht. Das bisher Aufgenommene wird ganz normal verarbeitet.")
             Log.error("Aufnahme wegen Speicherplatz beendet")
             stopRecording()
             lastError = message
-            notify("Speicherplatz voll", message)
+            notify(String(localized: "Speicherplatz voll"), message)
         }
     }
 
@@ -538,10 +537,9 @@ final class RecordingController {
                     guard let self, self.isRecording else { return }
                     Log.info("Mac schläft ein – Aufnahme wird beendet")
                     self.stopRecording()
-                    let message = "Der Mac ist eingeschlafen, deshalb wurde die Aufnahme beendet und gespeichert. "
-                        + "Lass den Deckel offen, wenn weiter mitgeschrieben werden soll."
+                    let message = String(localized: "Der Mac ist eingeschlafen, deshalb wurde die Aufnahme beendet und gespeichert. Lass den Deckel offen, wenn weiter mitgeschrieben werden soll.")
                     self.lastError = message
-                    self.notify("Aufnahme beendet", message)
+                    self.notify(String(localized: "Aufnahme beendet"), message)
                 }
             }
     }
@@ -569,7 +567,7 @@ final class RecordingController {
         hideCallPrompt()
         if isRecording, recordingStartedByCall, library.settings.autoStopWhenCallEnds {
             stopRecording()
-            notify("Call beendet", "Die Aufnahme aus \(app) wird jetzt verarbeitet.")
+            notify(String(localized: "Call beendet"), String(localized: "Die Aufnahme aus \(app) wird jetzt verarbeitet."))
         }
     }
 }

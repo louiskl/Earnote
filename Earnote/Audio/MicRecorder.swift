@@ -235,7 +235,7 @@ final class MicRecorder {
         }
         guard switchDevice(reason: "Fortsetzen") else {
             lock.lock(); _paused = true; lock.unlock()
-            throw NSError(domain: AppInfo.name, code: 4, userInfo: [NSLocalizedDescriptionKey: "Kein Mikrofon hat reagiert"])
+            throw NSError(domain: AppInfo.name, code: 4, userInfo: [NSLocalizedDescriptionKey: String(localized: "Kein Mikrofon hat reagiert")])
         }
     }
 

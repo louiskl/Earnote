@@ -68,12 +68,12 @@ private struct DestinationSetup: View {
         case NotionDestination.id:
             NotionSetup(settings: $settings)
         case ObsidianDestination.id:
-            FolderRow(title: "Vault", path: $settings.obsidianVaultPath, prompt: "Kein Vault gewählt",
-                      message: "Wähle deinen Obsidian-Vault")
+            FolderRow(title: "Vault", path: $settings.obsidianVaultPath, prompt: String(localized: "Kein Vault gewählt"),
+                      message: String(localized: "Wähle deinen Obsidian-Vault"))
             TextField("Unterordner im Vault", text: $settings.obsidianFolder)
         case MarkdownDestination.id:
             FolderRow(title: "Ordner", path: $settings.markdownFolderPath,
-                      prompt: MarkdownDestination.defaultFolder.path, message: "Ordner für Markdown-Dateien")
+                      prompt: MarkdownDestination.defaultFolder.path, message: String(localized: "Ordner für Markdown-Dateien"))
         case RemindersDestination.id:
             TextField("Liste (leer = je Bereich eine eigene)", text: $settings.remindersList)
             Text("Beim ersten Export fragt macOS nach Zugriff auf Erinnerungen – bitte erlauben. Apps wie Structured lesen diese Listen mit, dort tauchen die Aufgaben also auch auf.")
@@ -81,8 +81,8 @@ private struct DestinationSetup: View {
         case ThingsDestination.id:
             TextField("Bereich in Things (leer = wie der Bereich in \(AppInfo.name))", text: $settings.thingsList)
         case LogseqDestination.id:
-            FolderRow(title: "Graph", path: $settings.logseqGraphPath, prompt: "Kein Graph gewählt",
-                      message: "Wähle den Ordner deines Logseq-Graphen")
+            FolderRow(title: "Graph", path: $settings.logseqGraphPath, prompt: String(localized: "Kein Graph gewählt"),
+                      message: String(localized: "Wähle den Ordner deines Logseq-Graphen"))
             Text("Die Seite landet im Unterordner „pages“ – Aufgaben werden zu TODO-Blöcken.")
                 .font(.callout).foregroundStyle(.secondary)
         case TodoistDestination.id:
@@ -105,7 +105,7 @@ private struct DestinationSetup: View {
 
 /// Ordnerauswahl: Pfad anzeigen, per Knopf einen anderen wählen.
 private struct FolderRow: View {
-    let title: String
+    let title: LocalizedStringKey
     @Binding var path: String
     let prompt: String
     let message: String
@@ -182,7 +182,7 @@ private struct NotionSetup: View {
         Keychain.notionToken = token.trimmingCharacters(in: .whitespacesAndNewlines)
         do {
             let workspace = try await NotionDestination.testToken()
-            status = "Verbunden mit \(workspace) – Datenbank wird angelegt …"
+            status = String(localized: "Verbunden mit \(workspace) – Datenbank wird angelegt …")
             let database = try await NotionDestination.createDatabase(parentLink: pageLink, categories: library.categories)
             settings.notionDatabaseID = database.id
             settings.notionDatabaseURL = database.url

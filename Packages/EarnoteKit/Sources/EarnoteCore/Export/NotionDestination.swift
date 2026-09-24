@@ -9,14 +9,14 @@ public struct NotionDestination: Destination {
     public init() {}
 
     private static func call(_ method: String, _ path: String, _ body: [String: Any]? = nil) async throws -> [String: Any] {
-        guard let token = Keychain.notionToken, !token.isEmpty else { throw DestinationNotConfigured(hint: "Notion ist noch nicht verbunden. In den Einstellungen unter „Ziele“ verbinden.") }
+        guard let token = Keychain.notionToken, !token.isEmpty else { throw DestinationNotConfigured(hint: t("Notion ist noch nicht verbunden. In den Einstellungen unter „Ziele“ verbinden.")) }
         do {
             return try await HTTP.json(api + path, method: method,
                                        headers: ["Authorization": "Bearer \(token)", "Notion-Version": version], body: body)
         } catch let e as LLMError where e.message.contains("object_not_found") || e.message.contains("HTTP 404") {
-            throw LLMError(message: "Notion findet die Seite/Datenbank nicht. Bitte die Seite in Notion über „•••“ › „Verbindungen“ mit deiner Integration teilen.")
+            throw LLMError(message: t("Notion findet die Seite/Datenbank nicht. Bitte die Seite in Notion über „•••“ › „Verbindungen“ mit deiner Integration teilen."))
         } catch let e as LLMError where e.message.contains("HTTP 401") {
-            throw LLMError(message: "Der Notion-Schlüssel ist ungültig.")
+            throw LLMError(message: t("Der Notion-Schlüssel ist ungültig."))
         }
     }
 
@@ -38,7 +38,7 @@ public struct NotionDestination: Destination {
     /// Legt unter der angegebenen Seite eine Datenbank mit dem App-Namen an.
     public static func createDatabase(parentLink: String, categories: [RecordingCategory]) async throws -> (id: String, url: String) {
         guard let parent = extractID(from: parentLink) else {
-            throw LLMError(message: "Im Link wurde keine Notion-Seiten-ID gefunden.")
+            throw LLMError(message: t("Im Link wurde keine Notion-Seiten-ID gefunden."))
         }
         let colors = ["blue", "purple", "green", "orange", "red", "pink", "yellow", "gray"]
         let options = categories.enumerated().map { ["name": $0.element.name, "color": colors[$0.offset % colors.count]] }
@@ -63,7 +63,7 @@ public struct NotionDestination: Destination {
     // MARK: Export
 
     public func export(_ p: ExportPayload) async throws -> String? {
-        guard !p.settings.notionDatabaseID.isEmpty else { throw LLMError(message: "Notion-Datenbank ist nicht eingerichtet") }
+        guard !p.settings.notionDatabaseID.isEmpty else { throw LLMError(message: t("Notion-Datenbank ist nicht eingerichtet")) }
 
         var blocks: [[String: Any]] = [[
             "object": "block", "type": "callout",
@@ -95,7 +95,7 @@ public struct NotionDestination: Destination {
         if p.includeTranscript {
             let toggle: [String: Any] = [
                 "object": "block", "type": "toggle",
-                "toggle": ["rich_text": Self.richText("Vollständiges Transkript", bold: true)],
+                "toggle": ["rich_text": Self.richText(t("Vollständiges Transkript"), bold: true)],
             ]
             let created = try await Self.append(pageID, [toggle])
             if let toggleID = created.first?["id"] as? String {

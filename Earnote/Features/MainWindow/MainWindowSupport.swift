@@ -171,7 +171,7 @@ enum AudioImportPanel {
         let panel = NSOpenPanel()
         panel.allowedContentTypes = [.audio, .mpeg4Movie, .quickTimeMovie]
         panel.allowsMultipleSelection = true
-        panel.message = "Audiodateien zum Transkribieren auswählen"
+        panel.message = String(localized: "Audiodateien zum Transkribieren auswählen")
         return panel.runModal() == .OK ? panel.urls : []
     }
 }

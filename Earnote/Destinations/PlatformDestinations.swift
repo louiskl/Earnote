@@ -12,17 +12,16 @@ struct AppDestinations: DestinationProvider {
         func coreInfo(_ id: String) -> [DestinationInfo] { shared.filter { $0.id == id } }
         return coreInfo(NotionDestination.id) + coreInfo(ObsidianDestination.id) + [
             DestinationInfo(id: AppleNotesDestination.id, name: "Apple Notizen", symbol: "note.text",
-                            detail: "Notiz im Ordner deiner Wahl, synchron über iCloud."),
+                            detail: String(localized: "Notiz im Ordner deiner Wahl, synchron über iCloud.")),
         ] + coreInfo(MarkdownDestination.id) + [
             DestinationInfo(id: BearDestination.id, name: "Bear", symbol: "pawprint.fill",
-                            detail: "Neue Notiz in Bear mit Tags."),
+                            detail: String(localized: "Neue Notiz in Bear mit Tags.")),
             DestinationInfo(id: CraftDestination.id, name: "Craft", symbol: "doc.richtext.fill",
                             detail: "Neues Dokument in einem Craft-Space."),
             DestinationInfo(id: RemindersDestination.id, name: "Apple Erinnerungen", symbol: "checklist",
-                            detail: "Offene Aufgaben aus der Notiz, je Bereich eine eigene Liste. "
-                                  + "Apps wie Structured lesen diese Listen mit."),
+                            detail: String(localized: "Offene Aufgaben aus der Notiz, je Bereich eine eigene Liste. Apps wie Structured lesen diese Listen mit.")),
             DestinationInfo(id: ThingsDestination.id, name: "Things", symbol: "checkmark.square",
-                            detail: "Offene Aufgaben als Projekt in Things, je Aufnahme eines."),
+                            detail: String(localized: "Offene Aufgaben als Projekt in Things, je Aufnahme eines.")),
         ]
     }
 
@@ -91,7 +90,7 @@ struct AppleNotesDestination: Destination {
             let result = NSAppleScript(source: script)?.executeAndReturnError(&error)
             if let error {
                 let msg = error[NSAppleScript.errorMessage] as? String ?? "\(error)"
-                throw LLMError(message: "Apple Notizen: \(msg). Bitte in Systemeinstellungen › Datenschutz › Automation erlauben.")
+                throw LLMError(message: String(localized: "Apple Notizen: \(msg). Bitte in Systemeinstellungen › Datenschutz › Automation erlauben."))
             }
             _ = result
             return nil
@@ -117,9 +116,9 @@ struct BearDestination: Destination {
             URLQueryItem(name: "open_note", value: "no"),
             URLQueryItem(name: "show_window", value: "no"),
         ]
-        guard let url = comps.url else { throw LLMError(message: "Bear-Link konnte nicht erstellt werden") }
+        guard let url = comps.url else { throw LLMError(message: String(localized: "Bear-Link konnte nicht erstellt werden")) }
         let ok = await MainActor.run { NSWorkspace.shared.open(url) }
-        if !ok { throw LLMError(message: "Bear konnte nicht geöffnet werden") }
+        if !ok { throw LLMError(message: String(localized: "Bear konnte nicht geöffnet werden")) }
         return nil
     }
 }
@@ -128,7 +127,7 @@ struct CraftDestination: Destination {
     static let id = "craft"
 
     func export(_ p: ExportPayload) async throws -> String? {
-        guard !p.settings.craftSpaceID.isEmpty else { throw DestinationNotConfigured(hint: "Noch keine Craft-Space-ID eingetragen.") }
+        guard !p.settings.craftSpaceID.isEmpty else { throw DestinationNotConfigured(hint: String(localized: "Noch keine Craft-Space-ID eingetragen.")) }
         var payload = p
         if p.transcript.count > 150_000 { payload.settings.includeTranscript = false }
         let body = MarkdownDocument.build(payload, frontmatter: false)
@@ -140,9 +139,9 @@ struct CraftDestination: Destination {
             URLQueryItem(name: "content", value: body),
             URLQueryItem(name: "folderId", value: ""),
         ]
-        guard let url = comps.url else { throw LLMError(message: "Craft-Link konnte nicht erstellt werden") }
+        guard let url = comps.url else { throw LLMError(message: String(localized: "Craft-Link konnte nicht erstellt werden")) }
         let ok = await MainActor.run { NSWorkspace.shared.open(url) }
-        if !ok { throw LLMError(message: "Craft konnte nicht geöffnet werden") }
+        if !ok { throw LLMError(message: String(localized: "Craft konnte nicht geöffnet werden")) }
         return nil
     }
 }

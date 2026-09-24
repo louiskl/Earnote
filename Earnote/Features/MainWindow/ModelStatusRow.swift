@@ -11,14 +11,14 @@ struct ModelStatusRow: View {
     /// Was gerade passiert (nil = nichts zu tun); `progress` nil = Dauer unbekannt
     var status: (title: String, detail: String, progress: Double?)? {
         if whisper.downloading != nil {
-            return ("Spracherkennung wird geladen", "Einmaliger Download", whisper.downloadProgress)
+            return (String(localized: "Spracherkennung wird geladen"), String(localized: "Einmaliger Download"), whisper.downloadProgress)
         }
         if whisper.preparing != nil {
-            return ("Spracherkennung wird für deinen Mac vorbereitet",
-                    "Einmalig, kann einige Minuten dauern. Aufnehmen geht trotzdem.", nil)
+            return (String(localized: "Spracherkennung wird für deinen Mac vorbereitet"),
+                    String(localized: "Einmalig, kann einige Minuten dauern. Aufnehmen geht trotzdem."), nil)
         }
         if localModel.isDownloading {
-            return ("KI-Modell wird geladen", "Einmaliger Download", localModel.progress)
+            return (String(localized: "KI-Modell wird geladen"), String(localized: "Einmaliger Download"), localModel.progress)
         }
         return nil
     }

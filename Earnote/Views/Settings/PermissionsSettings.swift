@@ -56,10 +56,10 @@ struct PermissionsSettings: View {
 
 /// Eine Freigabe: Name, Erklärung und rechts entweder „Erlaubt“ oder der Knopf zum Fragen.
 private struct PermissionRow: View {
-    let title: String
-    let detail: String
+    let title: LocalizedStringKey
+    let detail: LocalizedStringKey
     let granted: Bool
-    var grantedText = "Erlaubt"
+    var grantedText: LocalizedStringKey = "Erlaubt"
     let action: () -> Void
 
     var body: some View {

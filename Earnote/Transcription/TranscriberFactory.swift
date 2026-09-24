@@ -10,7 +10,7 @@ enum TranscriberFactory {
             #if canImport(FoundationModels)
             if #available(macOS 26.0, *) { return AppleSpeechTranscriber() }
             #endif
-            throw TranscriptionError.unavailable("Die Apple-Spracherkennung benötigt macOS 26. Bitte Whisper auswählen.")
+            throw TranscriptionError.unavailable(String(localized: "Die Apple-Spracherkennung benötigt macOS 26. Bitte Whisper auswählen."))
         case .whisperKit:
             guard let selected = WhisperModelManager.shared.installedFolder(for: settings.whisperModel) else {
                 throw TranscriptionError.modelMissing

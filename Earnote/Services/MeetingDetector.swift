@@ -35,14 +35,14 @@ final class MeetingDetector: ObservableObject {
         ("com.ringcentral", "RingCentral"),
         ("com.bigbluebutton", "BigBlueButton"),
         ("de.alfaview", "alfaview"),
-        ("com.google.Chrome", "Browser-Call (z. B. Google Meet)"),
-        ("com.apple.WebKit", "Browser-Call (Safari)"),
-        ("com.apple.Safari", "Browser-Call (Safari)"),
-        ("company.thebrowser", "Browser-Call (Arc)"),
-        ("org.mozilla.firefox", "Browser-Call (Firefox)"),
-        ("com.microsoft.edgemac", "Browser-Call (Edge)"),
-        ("com.brave.Browser", "Browser-Call (Brave)"),
-        ("com.vivaldi.Vivaldi", "Browser-Call (Vivaldi)"),
+        ("com.google.Chrome", "Chrome"),
+        ("com.apple.WebKit", "Safari"),
+        ("com.apple.Safari", "Safari"),
+        ("company.thebrowser", "Arc"),
+        ("org.mozilla.firefox", "Firefox"),
+        ("com.microsoft.edgemac", "Edge"),
+        ("com.brave.Browser", "Brave"),
+        ("com.vivaldi.Vivaldi", "Vivaldi"),
     ]
 
     func start() {

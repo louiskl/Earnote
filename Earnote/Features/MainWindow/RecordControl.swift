@@ -84,7 +84,7 @@ struct MicrophoneChoiceMenu: View {
                 Text(shortened(device.name)).tag(Optional(device.uid))
             }
             if let uid = library.settings.microphoneDeviceUID, inputs.device(uid) == nil {
-                Text("\(shortened(library.settings.microphoneDeviceName ?? "Gewähltes Mikrofon")) (nicht verbunden)")
+                Text("\(shortened(library.settings.microphoneDeviceName ?? String(localized: "Gewähltes Mikrofon"))) (nicht verbunden)")
                     .tag(Optional(uid))
             }
         }

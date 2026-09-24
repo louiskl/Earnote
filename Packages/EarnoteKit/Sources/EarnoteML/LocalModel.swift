@@ -132,7 +132,7 @@ public final class LocalModelManager: ObservableObject {
                 }
                 try Task.checkCancellation()
                 guard Self.filesComplete(model) else {
-                    throw LLMError(message: "Das Modell wurde nicht vollständig geladen. Bitte erneut versuchen.")
+                    throw LLMError(message: t("Das Modell wurde nicht vollständig geladen. Bitte erneut versuchen."))
                 }
                 try Data().write(to: Self.completeMarker(model))
                 isInstalled = Self.isInstalled(selected)
@@ -241,8 +241,7 @@ public struct LocalLLMClient: LLMClient {
                 if let reason = await MainActor.run(body: { LocalModelManager.shared.lastError }) {
                     throw LLMError(message: reason)
                 }
-                throw LLMError(message: "Das lokale Modell ist noch nicht geladen. "
-                    + "Öffne die Einstellungen unter „KI“ und klicke auf „Laden“.")
+                throw LLMError(message: t("Das lokale Modell ist noch nicht geladen. Öffne die Einstellungen unter „KI“ und klicke auf „Laden“."))
             }
         }
         let started = Date()

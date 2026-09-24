@@ -53,7 +53,7 @@ struct RecordingStageView: View {
     }
 
     private var source: some View {
-        Text([recorder.microphoneName ?? "Mikrofon", recorder.isCapturingSystemAudio ? "mit Systemton" : nil]
+        Text([recorder.microphoneName ?? String(localized: "Mikrofon"), recorder.isCapturingSystemAudio ? String(localized: "mit Systemton") : nil]
             .compactMap { $0 }
             .joined(separator: " · "))
             .font(.footnote)

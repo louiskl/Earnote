@@ -10,3 +10,9 @@
 "Älteres, größeres Modell: schreibt knapper, braucht aber doppelt so viel Arbeitsspeicher. Ab 16 GB." = "Older, larger model: writes more briefly but needs twice the memory. From 16 GB.";
 "Deutlich gründlicher, dafür langsamer. Ab 24 GB Arbeitsspeicher." = "Noticeably more thorough, but slower. From 24 GB of memory.";
 "Groß, aber flink: Es rechnet nur mit einem Teil seiner Größe. Ab 32 GB." = "Big but nimble: it only computes with a fraction of its size. From 32 GB.";
+
+/* 0.9.22: bisher fehlende Übersetzungen */
+"Das Modell konnte nicht vorbereitet werden: %@" = "The model could not be prepared: %@";
+"Das Modell wurde nicht vollständig geladen. Bitte erneut versuchen." = "The model was not downloaded completely. Please try again.";
+"Das lokale Modell ist noch nicht geladen. Öffne die Einstellungen unter „KI“ und klicke auf „Laden“." = "The local model is not downloaded yet. Open Settings › AI and click “Download”.";
+"Der Download ist fehlgeschlagen. Prüfe die Internetverbindung und versuch es noch einmal." = "The download failed. Check your internet connection and try again.";

@@ -41,8 +41,7 @@ struct AISettings: View {
                         Label("Deine Organisation erlaubt nur KI, die auf dem Mac bleibt.", systemImage: "building.2")
                     }
                     if provider.sendsDataOffDevice {
-                        Label("Das Transkript wird zur Zusammenfassung an \(provider.label) gesendet. "
-                              + "Für vertrauliche Gespräche ist die lokale KI die sichere Wahl.",
+                        Label("Das Transkript wird zur Zusammenfassung an \(provider.label) gesendet. Für vertrauliche Gespräche ist die lokale KI die sichere Wahl.",
                               systemImage: "exclamationmark.triangle")
                             .foregroundStyle(.orange)
                     }
@@ -184,11 +183,11 @@ struct AISettings: View {
         if provider.needsAPIKey { Keychain.setAPIKey(apiKey, for: provider) }
         do {
             if let list = try? await llm.listModels(library.settings.ai), !list.isEmpty { knownModels = list }
-            guard let client = try llm.make(library.settings.ai) else { testResult = "Keine KI ausgewählt"; return }
+            guard let client = try llm.make(library.settings.ai) else { testResult = String(localized: "Keine KI ausgewählt"); return }
             let answer = try await client.complete(system: "Antworte sehr kurz.", prompt: "Sag auf Deutsch Hallo und nenne dein Modell.")
             testResult = "✓ " + answer.prefix(120)
         } catch {
-            testResult = "Fehler: \(error.localizedDescription)"
+            testResult = String(localized: "Fehler: \(error.localizedDescription)")
         }
     }
 }

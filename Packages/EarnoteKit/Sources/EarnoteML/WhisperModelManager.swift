@@ -169,7 +169,7 @@ public final class WhisperModelManager: ObservableObject {
             Log.info("Whisper-Modell vorbereitet: \(model)")
             return true
         } catch {
-            lastError = "Das Modell konnte nicht vorbereitet werden: \(error.localizedDescription)"
+            lastError = t("Das Modell konnte nicht vorbereitet werden: \(error.localizedDescription)")
             Log.error(lastError!)
             return false
         }

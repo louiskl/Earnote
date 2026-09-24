@@ -118,7 +118,7 @@ final class RecordingSession {
         }
 
         if started.uid != primary.uid { return .fellBack(failed: primary.name, used: started.name) }
-        if plan.preferredMissing { return .preferredMissing(preferred: preferredName ?? "Gewähltes Mikrofon", used: started.name) }
+        if plan.preferredMissing { return .preferredMissing(preferred: preferredName ?? String(localized: "Gewähltes Mikrofon"), used: started.name) }
         return nil
     }
 

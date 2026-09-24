@@ -189,7 +189,7 @@ private struct MicrophoneCommandPicker: View {
             Text("Systemstandard (\(audioInputs.defaultDevice?.name ?? "keins"))").tag(String?.none)
             ForEach(audioInputs.sorted) { Text($0.name).tag(Optional($0.uid)) }
             if let uid = library.settings.microphoneDeviceUID, audioInputs.device(uid) == nil {
-                Text("\(library.settings.microphoneDeviceName ?? "Gewähltes Mikrofon") (nicht verbunden)").tag(Optional(uid))
+                Text("\(library.settings.microphoneDeviceName ?? String(localized: "Gewähltes Mikrofon")) (nicht verbunden)").tag(Optional(uid))
             }
         }
         .disabled(isRecording)
