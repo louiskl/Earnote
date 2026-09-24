@@ -1091,7 +1091,7 @@
 "Empfangen" = "Receiving";
 "Senden" = "Sending";
 "Abgleich" = "Sync";
-"Noch in Erprobung. Aufnahmedaten, Transkripte, Notizen, Bereiche und Wörterbuch stehen dann auf allen Macs mit derselben Apple-ID. Die Audiodateien bleiben immer lokal. Gilt ab dem nächsten Start von %@." = "Still being tested. Recording data, transcripts, notes, areas and the dictionary are then on every Mac with the same Apple ID. Audio files always stay local. Takes effect the next time %@ starts.";
+"Noch in Erprobung. Transkripte, Notizen, Bereiche und Wörterbuch stehen dann auf allen deinen Geräten mit derselben Apple-ID – auch auf dem iPhone. Die Audiodateien bleiben auf dem Gerät. Nimmt Earnote auf dem iPhone mit „Mit meinem Mac“ auf, schreibt dieser Mac die Notiz, solange %@ hier läuft. Gilt ab dem nächsten Start." = "Still in testing. Transcripts, notes, areas and dictionary then appear on all your devices with the same Apple ID – including your iPhone. Audio files stay on the device. When Earnote on your iPhone records with “With My Mac”, this Mac writes the notes while %@ is running here. Takes effect the next time you start the app.";
 
 /* Hilfe-Menü */
 "Earnote-Hilfe" = "Earnote Help";
