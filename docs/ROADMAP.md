@@ -403,7 +403,7 @@ heute für iOS – das bleibt die Eintrittskarte, und der iOS-Build läuft bei j
       Wörterbuch-Einträge werden vereint. Beide Macs behalten denselben Bereich (der älteste, bei
       Gleichstand die kleinste ID) – sonst löschte jeder den des anderen. Standardbereiche haben jetzt
       feste IDs. Läuft nur mit eingeschaltetem Sync. Am echten Mac-Paar noch nachzuweisen.
-- [ ] iOS-App-Target auf demselben Kern
+- [x] **iOS-App auf demselben Kern (24.09.2026)**: eigenes Projekt `EarnoteiOS.xcodeproj` (`scripts/generate_ios_xcodeproj.py`), baut mit EarnoteCore, WhisperKit und MLX, Grundgerüst läuft im Simulator
 - [ ] **iPad eigenständig** (M-Chip): Whisper + lokales Modell auf dem Gerät, „Increased Memory Limit“
 - [ ] **iPhone als Begleit-App**: nimmt auf, Mac verarbeitet, fertige Notiz wieder auf dem iPhone
 - [ ] Oberfläche für iPad und iPhone

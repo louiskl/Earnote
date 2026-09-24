@@ -1,0 +1,40 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 60;
+	objects = {
+		01E8C05BF515E52EF12A186E = {isa = PBXGroup; children = (22C88C49F9105724E47B8B95, ); path = "Views"; sourceTree = "<group>"; };
+		0258DFB5EB304990B7349295 = {isa = XCConfigurationList; buildConfigurations = (6AC3A3906FA6D45F0BCD1755, D5AC48D7F14737558820BFBD, ); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+		0841520893BACA8F489A582F = {isa = PBXProject; attributes = {BuildIndependentTargetsInParallel = 1; LastSwiftUpdateCheck = 2600; LastUpgradeCheck = 2600; }; buildConfigurationList = 0258DFB5EB304990B7349295; compatibilityVersion = "Xcode 14.0"; developmentRegion = de; hasScannedForEncodings = 0; knownRegions = (de, en, Base, ); mainGroup = 59B3F24F1E98659A4D5495D6; packageReferences = (A8819D40B9868FFD56856387, ); productRefGroup = 7920211DCD19FDC0AFDDEB92; projectDirPath = ""; projectRoot = ""; targets = (B63BAA815A08CF691250E72F, ); };
+		0AD7A50997197BD313206CAA = {isa = PBXBuildFile; fileRef = 908245A7C1EB4605CF0A89CA; };
+		1193D98623BAEDF03B6FC24B = {isa = PBXBuildFile; fileRef = 1F6977E88C12B5CB318D5E00; };
+		12B6C9854EEF32D6EE93F1B4 = {isa = PBXGroup; children = (1F6977E88C12B5CB318D5E00, ); path = "Resources"; sourceTree = "<group>"; };
+		168BDFA20EDD31215557A659 = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EarnoteiOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		1F6977E88C12B5CB318D5E00 = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Assets.xcassets"; sourceTree = "<group>"; };
+		22C88C49F9105724E47B8B95 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RootView.swift"; sourceTree = "<group>"; };
+		3A787C5DEE790A8B103D0171 = {isa = XCSwiftPackageProductDependency; productName = EarnoteCore; };
+		4D3B84233957440EEAF850CA = {isa = PBXGroup; children = (908245A7C1EB4605CF0A89CA, ); path = "App"; sourceTree = "<group>"; };
+		59B3F24F1E98659A4D5495D6 = {isa = PBXGroup; children = (B1BF2B4FEAA36E4B1B389CB1, EEED4C8440EFB748CAE42F9F, 7920211DCD19FDC0AFDDEB92, ); sourceTree = "<group>"; };
+		5E1083D8C4DEBF2CF8A87486 = {isa = XCSwiftPackageProductDependency; productName = EarnoteML; };
+		64726B78F1BB63FE1789CF34 = {isa = XCConfigurationList; buildConfigurations = (BA9D3B2189DD77F3875F8C01, EC94F59F02F1D3838B9CA753, ); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+		6AC3A3906FA6D45F0BCD1755 = {isa = XCBuildConfiguration; buildSettings = {ONLY_ACTIVE_ARCH = "YES"; SWIFT_OPTIMIZATION_LEVEL = "-Onone"; ENABLE_TESTABILITY = "YES"; SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG"; DEBUG_INFORMATION_FORMAT = "dwarf"; SDKROOT = "iphoneos"; }; name = Debug; };
+		6FA3C7C5AC57005F846605CE = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (DCF639A7E92F9B9E3AC550F3, CAD429ED8A42204AA03DE3B7, ); runOnlyForDeploymentPostprocessing = 0; };
+		7920211DCD19FDC0AFDDEB92 = {isa = PBXGroup; children = (168BDFA20EDD31215557A659, ); name = Products; sourceTree = "<group>"; };
+		908245A7C1EB4605CF0A89CA = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EarnoteiOSApp.swift"; sourceTree = "<group>"; };
+		931EFC9D93283B2A8D76A940 = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (0AD7A50997197BD313206CAA, 9F85619FC236D4C8644887D6, ); runOnlyForDeploymentPostprocessing = 0; };
+		9F85619FC236D4C8644887D6 = {isa = PBXBuildFile; fileRef = 22C88C49F9105724E47B8B95; };
+		A8819D40B9868FFD56856387 = {isa = XCLocalSwiftPackageReference; relativePath = "Packages/EarnoteKit"; };
+		B1BF2B4FEAA36E4B1B389CB1 = {isa = PBXGroup; children = (4D3B84233957440EEAF850CA, 12B6C9854EEF32D6EE93F1B4, 01E8C05BF515E52EF12A186E, ); path = "EarnoteiOS"; sourceTree = "<group>"; };
+		B63BAA815A08CF691250E72F = {isa = PBXNativeTarget; buildConfigurationList = 64726B78F1BB63FE1789CF34; buildPhases = (931EFC9D93283B2A8D76A940, 6FA3C7C5AC57005F846605CE, DF2594C50884C28B3AE88F63, ); buildRules = (); dependencies = (); name = EarnoteiOS; packageProductDependencies = (3A787C5DEE790A8B103D0171, 5E1083D8C4DEBF2CF8A87486, ); productName = EarnoteiOS; productReference = 168BDFA20EDD31215557A659; productType = "com.apple.product-type.application"; };
+		BA9D3B2189DD77F3875F8C01 = {isa = XCBuildConfiguration; buildSettings = {ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon"; ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = "AccentColor"; CODE_SIGN_STYLE = "Automatic"; CURRENT_PROJECT_VERSION = "922"; DEVELOPMENT_TEAM = ""; GENERATE_INFOPLIST_FILE = "YES"; INFOPLIST_KEY_CFBundleDisplayName = "Earnote"; INFOPLIST_KEY_NSMicrophoneUsageDescription = "Earnote nimmt Vorlesungen und Meetings auf, um daraus Notizen zu schreiben. Die Aufnahme bleibt auf deinem iPhone."; INFOPLIST_KEY_UIApplicationSceneManifest_Generation = "YES"; INFOPLIST_KEY_UILaunchScreen_Generation = "YES"; INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait"; IPHONEOS_DEPLOYMENT_TARGET = "26.0"; LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks"; MARKETING_VERSION = "0.9.22"; PRODUCT_BUNDLE_IDENTIFIER = "app.earnote.Earnote"; PRODUCT_NAME = "$(TARGET_NAME)"; SDKROOT = "iphoneos"; SUPPORTED_PLATFORMS = "iphoneos iphonesimulator"; SWIFT_EMIT_LOC_STRINGS = "YES"; SWIFT_VERSION = "6.0"; TARGETED_DEVICE_FAMILY = "1"; }; name = Debug; };
+		CAD429ED8A42204AA03DE3B7 = {isa = PBXBuildFile; productRef = 5E1083D8C4DEBF2CF8A87486; };
+		D5AC48D7F14737558820BFBD = {isa = XCBuildConfiguration; buildSettings = {SWIFT_COMPILATION_MODE = "wholemodule"; SWIFT_OPTIMIZATION_LEVEL = "-O"; DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym"; SDKROOT = "iphoneos"; VALIDATE_PRODUCT = "YES"; }; name = Release; };
+		DCF639A7E92F9B9E3AC550F3 = {isa = PBXBuildFile; productRef = 3A787C5DEE790A8B103D0171; };
+		DF2594C50884C28B3AE88F63 = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (1193D98623BAEDF03B6FC24B, ); runOnlyForDeploymentPostprocessing = 0; };
+		EC94F59F02F1D3838B9CA753 = {isa = XCBuildConfiguration; buildSettings = {ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon"; ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = "AccentColor"; CODE_SIGN_STYLE = "Automatic"; CURRENT_PROJECT_VERSION = "922"; DEVELOPMENT_TEAM = ""; GENERATE_INFOPLIST_FILE = "YES"; INFOPLIST_KEY_CFBundleDisplayName = "Earnote"; INFOPLIST_KEY_NSMicrophoneUsageDescription = "Earnote nimmt Vorlesungen und Meetings auf, um daraus Notizen zu schreiben. Die Aufnahme bleibt auf deinem iPhone."; INFOPLIST_KEY_UIApplicationSceneManifest_Generation = "YES"; INFOPLIST_KEY_UILaunchScreen_Generation = "YES"; INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait"; IPHONEOS_DEPLOYMENT_TARGET = "26.0"; LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks"; MARKETING_VERSION = "0.9.22"; PRODUCT_BUNDLE_IDENTIFIER = "app.earnote.Earnote"; PRODUCT_NAME = "$(TARGET_NAME)"; SDKROOT = "iphoneos"; SUPPORTED_PLATFORMS = "iphoneos iphonesimulator"; SWIFT_EMIT_LOC_STRINGS = "YES"; SWIFT_VERSION = "6.0"; TARGETED_DEVICE_FAMILY = "1"; }; name = Release; };
+		EEED4C8440EFB748CAE42F9F = {isa = PBXFileReference; lastKnownFileType = wrapper; path = "Packages/EarnoteKit"; sourceTree = "<group>"; };
+	};
+	rootObject = 0841520893BACA8F489A582F;
+}

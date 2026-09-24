@@ -40,5 +40,7 @@ Anlass: In Phase 1b liefen Tests vor dem Backup auf echten Daten, und ein Testim
   (ein einfaches `swift test` baut zusätzlich WhisperKit und MLX und dauert viele Minuten)
 - App-Tests (Datenübernahme, Whisper-Auswahl): `xcodebuild test -project Earnote.xcodeproj -scheme Earnote -destination 'platform=macOS'`
 - iOS-Beweis für den Kern: `cd Packages/EarnoteKit && xcodebuild build -scheme EarnoteCore -destination 'generic/platform=iOS'`
+- iPhone-App (Plan: [docs/IPHONE.md](docs/IPHONE.md), Oberfläche: DESIGN_GUIDELINES Abschnitt 30): eigenes Projekt `EarnoteiOS.xcodeproj` aus dem Ordner `EarnoteiOS/`, damit Mac-App und Release-Weg unberührt bleiben.
+  Neue/entfernte Dateien: `python3 scripts/generate_ios_xcodeproj.py`. Build: `xcodebuild -project EarnoteiOS.xcodeproj -scheme EarnoteiOS -destination 'platform=iOS Simulator,name=iPhone 17 Pro' build`
 - Release bauen: `./scripts/build_release.sh` → `dist/Earnote.dmg`
 - Veröffentlichen in einem Schritt (Mac, mit `DEVELOPER_ID`/`NOTARY_PROFILE` und angemeldeter `gh`): `./scripts/publish_release.sh` – baut, legt das GitHub-Release mit `docs/releases/<Version>.md` an, pusht appcast/README/Website und hebt den Homebrew-Tap

@@ -182,3 +182,29 @@ When uncertain, choose:
 native over custom · structural over decorative · dense over artificially spacious · semantic over ornamental · standard controls over bespoke controls · alignment over containers · typography over cards · system materials over fake glass · desktop patterns over mobile patterns · selection over push navigation · menus and shortcuts over hidden gestures · predictability over novelty · clarity over visual spectacle
 
 The desired result: **"This application belongs on macOS."** — not "This website happens to be running inside a Mac window."
+
+---
+
+## 30. IPHONE (ab 24.09.2026)
+The same philosophy applies to the iPhone app: **"This application belongs on iOS."** Native structure first, no custom design system. Plan and features: [IPHONE.md](IPHONE.md).
+
+**Structure**
+- Root is a `TabView` (Aufnahmen · Lernen · Suche with `role: .search`). Each tab owns one `NavigationStack`; the root never swaps layouts.
+- The running recording lives in `tabViewBottomAccessory` (like Now Playing in Music), not in a floating custom button.
+- Lists are `List` with system styles, grouped by day with `Section`. Swipe actions and context menus for row actions, never custom row buttons.
+- Details push onto the stack. Secondary tasks (settings, record screen, choosing an area) are sheets with detents. Settings are an in-app sheet with `Form`, opened from the toolbar.
+- Empty, loading and error states use `ContentUnavailableView` and `ProgressView`.
+
+**Visuals**
+- System typography with Dynamic Type everywhere; test at the largest accessibility size.
+- Semantic colors only; the brand red is the tint, nothing else. Light and Dark Mode.
+- Liquid Glass only where iOS 26 applies it itself (tab bar, toolbars, sheets). No glass or cards added by hand.
+- SF Symbols with meaning; no decorative icons.
+
+**Behavior**
+- One-handed use: primary actions reachable at the bottom (accessory, toolbar bottom bar).
+- Recording must be startable without looking: Live Activity buttons, Control Center control, App Intents (Siri, Shortcuts, Action button).
+- Haptics only to confirm start, stop and pause of a recording.
+- Respect Reduce Motion, VoiceOver (every control labeled, the record state spoken), Bold Text, Increased Contrast.
+
+**Review:** Section 28 applies unchanged, plus: Would this feel normal in Voice Memos, Notes, Music or Mail on iPhone?

@@ -255,7 +255,7 @@ Kommt bei der ersten Frage „zu langsam“ heraus, wird Weg B oder C auch auf n
 
 | Etappe | Inhalt | Ergebnis |
 |---|---|---|
-| **M0 – jetzt** | Plan freigeben, Entscheidungen aus Abschnitt 9, iOS-Abschnitt in den Design-Richtlinien, Projektgenerator kann ein iOS-Target | Freigabe |
+| **M0 – ✅ 24.09.2026** | Plan freigegeben, Entscheidungen aus Abschnitt 9, iOS-Abschnitt in den Design-Richtlinien (30), eigenes Projekt `EarnoteiOS.xcodeproj` mit Generator; Grundgerüst (Tabs, Aufnahme-Leiste) baut mit Kern, WhisperKit und MLX und läuft im Simulator | erledigt |
 | **M1 – Spike** | Messungen aus Abschnitt 7 | Entscheidung über Weg A |
 | **M2 – Aufnehmen & Lesen** | `EarnotePlatform`, iOS-Target, Aufnahme mit Bildschirm aus, Bibliothek, Notiz, Transkript, Sync lesen | erste TestFlight-Fassung (intern) |
 | **M3 – Notiz entsteht** | Wege A/B/C, Hintergrund-Verarbeitung, Live-Aktivität, Mitteilungen, Steuerelement, Intents | TestFlight für Kommilitonen |
