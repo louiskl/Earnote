@@ -3,17 +3,39 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 /// Tab „Aufnahmen“: alle Aufnahmen nach Tagen – wie in Sprachmemos. Bereiche und Filter stehen im Tab „Bereiche“.
+/// In breiter Größe (iPad) Liste und Notiz nebeneinander; schmale Fenster fallen von selbst auf den Stapel zurück.
 struct RecordingsView: View {
     @Binding var path: [UUID]
     @Environment(LibraryStore.self) private var library
+    @Environment(\.horizontalSizeClass) private var sizeClass
     @State private var showsSettings = false
     @State private var importing = false
 
     var body: some View {
-        NavigationStack(path: $path) {
-            RecordingList(filter: .all)
+        if sizeClass == .regular {
+            NavigationSplitView {
+                list(selection: Binding(get: { path.last }, set: { path = $0.map { [$0] } ?? [] }))
+            } detail: {
+                // Gelöschte Aufnahme: zurück zum Hinweis statt „nicht gefunden“
+                if let id = path.last, library.recording(id) != nil {
+                    // Eigener Stapel je Notiz: Karteikarten öffnen sich in der rechten Spalte
+                    NavigationStack { RecordingDetailView(id: id) }.id(id)
+                } else {
+                    ContentUnavailableView("Keine Aufnahme ausgewählt", systemImage: "waveform",
+                                           description: Text("Wähle links eine Aufnahme."))
+                }
+            }
+        } else {
+            NavigationStack(path: $path) {
+                list(selection: nil)
+                    .navigationDestination(for: UUID.self) { RecordingDetailView(id: $0) }
+            }
+        }
+    }
+
+    private func list(selection: Binding<UUID?>?) -> some View {
+        RecordingList(filter: .all, selection: selection)
                 .navigationTitle("Aufnahmen")
-                .navigationDestination(for: UUID.self) { RecordingDetailView(id: $0) }
                 .toolbar {
                     ToolbarItem(placement: .topBarLeading) {
                         Button("Einstellungen", systemImage: "gearshape") { showsSettings = true }
@@ -28,13 +50,14 @@ struct RecordingsView: View {
                     guard case .success(let urls) = result else { return }
                     AudioImport.run(urls, into: library, category: nil)
                 }
-        }
     }
 }
 
 /// Aufnahmen eines Filters nach Tagen – im Tab „Aufnahmen“ und in jedem Bereich
 struct RecordingList: View {
     let filter: LibraryFilter
+    /// Nur in der Split-Ansicht (iPad): Auswahl statt Navigationsstapel
+    var selection: Binding<UUID?>? = nil
     @Environment(LibraryStore.self) private var library
     @Environment(PhoneRecorder.self) private var recorder
     @Environment(ProcessingQueue.self) private var queue
@@ -54,7 +77,7 @@ struct RecordingList: View {
             } else if items.isEmpty {
                 empty
             } else {
-                List {
+                List(selection: selection) {
                     if filter == .all, queue.processingID == nil, queue.isWaitingForPower {
                         WaitingForPowerSection()
                     }

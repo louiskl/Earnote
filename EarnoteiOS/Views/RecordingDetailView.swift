@@ -134,6 +134,9 @@ struct RecordingDetailView: View {
                     }
                 }
                 .padding()
+                // Lesbare Zeilenlänge am iPad statt quer über den Bildschirm (DESIGN_GUIDELINES 31)
+                .frame(maxWidth: 700)
+                .frame(maxWidth: .infinity)
             }
         }
     }

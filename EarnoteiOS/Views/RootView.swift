@@ -2,7 +2,7 @@ import EarnoteCore
 import SwiftUI
 
 /// Feste Wurzel: drei Tabs, jeder mit eigenem Navigationsstapel. Die laufende Aufnahme sitzt im
-/// `tabViewBottomAccessory` – wie „Jetzt läuft“ in Musik.
+/// `tabViewBottomAccessory` – wie „Jetzt läuft“ in Musik. Am iPad wird daraus eine Seitenleiste (`sidebarAdaptable`).
 struct RootView: View {
     enum Tab: String, Hashable { case recordings, library, search }
 
@@ -29,6 +29,7 @@ struct RootView: View {
                 SearchView()
             }
         }
+        .tabViewStyle(.sidebarAdaptable)
         .tabViewBottomAccessory {
             RecordAccessory(showsRecorder: $showsRecorder)
         }
