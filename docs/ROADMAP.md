@@ -512,7 +512,7 @@ E-Mail aus einer Kanzlei, Praxis oder IT-Abteilung. Bis dahin gilt: Nachfragen s
 | Start von iPad/iPhone | **iPhone: Planung ab 24.09.2026 parallel zur Beta** ([IPHONE.md](IPHONE.md)); Bauen nach Freigabe des Plans, Mac-Beta hat Vorrang. iPad danach mit eigenem Plan | laufend |
 | Mac App Store | **Vorerst nein.** Direkt-Download plus Homebrew deckt die Zielgruppe ab; die Sandbox würde Systemton und Export einschränken. Nach 1.0 neu bewerten | nach 1.0 |
 | Windows/Linux | **Zurückgestellt.** Kein Port, sondern ein zweites Produkt (CoreML, MLX, SwiftUI gibt es dort nicht). Erst iPad/iPhone, danach neu bewerten – zuerst denkbar: schlanke Windows-Begleitung, die nur aufnimmt | nach 1.1 |
-| Geld verdienen | **Erst nach 1.0.** Kostenlos für private und studentische Nutzung, Pro-Lizenz für Organisationen, einmalig statt Abo, kein Server, keine Konten (Phase 8) | nach 1.0 |
+| Geld verdienen | **Nie ein Abo.** Für Menschen kostenlos und vollständig nutzbar; Geld aus Spenden (Ko-fi, GitHub Sponsors, am iPhone Trinkgeld per In-App-Kauf) und optionalen Einmalkäufen für Extras (24.09.2026). Pro-Lizenz für Organisationen bleibt Idee (Phase 8). Kein Server, keine Konten | laufend |
 | Lokales Standardmodell | Qwen3 4B auf allen Macs (Modellvergleich 23.09.2026) | ✅ entschieden |
 
 ## Erledigte Entscheidungen (Auszug)

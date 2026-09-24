@@ -1,6 +1,6 @@
 # Earnote für iPhone – Plan
 
-> Stand: 24.09.2026 · Entwurf zur Freigabe · gepflegt vom Architekten.
+> Stand: 24.09.2026 · **Grundentscheidungen freigegeben** (Abschnitt 9) · gepflegt vom Architekten.
 > Start parallel zur Mac-Beta. Die Beta hat Vorrang, gemeldete Fehler am Mac gehen vor.
 > iPad kommt als eigener Plan.
 
@@ -15,14 +15,14 @@ Notiz da, und unterwegs lernst du mit den Karteikarten. Die Bibliothek ist diese
 
 | # | Frage | Vorschlag | Warum |
 |---|---|---|---|
-| 1 | Begleiter oder eigenständig? | **Eigenständig**, mit Mac als Option | Mit iOS 26 transkribiert das iPhone selbst (SpeechAnalyzer), und neue iPhones schaffen ein 4B-Modell. Ein reiner Begleiter wäre ohne Mac nutzlos, und die meisten Studierenden haben nur ein iPhone. |
+| 1 | Begleiter oder eigenständig? | **Beides:** mit Mac ist das iPhone Begleiter (der Mac verarbeitet), ohne Mac eigenständig. Jederzeit umstellbar ✅ | Mit iOS 26 transkribiert das iPhone selbst (SpeechAnalyzer), und neue iPhones schaffen ein 4B-Modell. Ein reiner Begleiter wäre ohne Mac nutzlos, und die meisten Studierenden haben nur ein iPhone. |
 | 2 | Mindestversion | **iOS 26** (iPhone 11 und neuer) | SpeechAnalyzer, `BGContinuedProcessingTask`, Foundation Models, Liquid-Glass-Oberfläche. Der Kern ist ohnehin auf iOS 26 ausgelegt. |
 | 3 | Wo entsteht die Notiz? | **Drei Wege, automatisch vorgeschlagen** (Abschnitt 2) | Neue iPhones lokal, ältere über den Mac oder mit eigenem Cloud-Schlüssel |
 | 4 | Verteilung | **App Store + TestFlight** | Auf dem iPhone gibt es keinen anderen Weg. Datenschutz-Etikett: „Keine Daten erfasst“. |
 | 5 | Code | **Selbes Repo, selber Kern**, neues Target `Earnote iOS` | `EarnoteCore` baut schon für iOS, `EarnoteML` (WhisperKit, MLX) läuft auf iOS |
 | 6 | Sync | **iCloud, abschaltbar**; die App funktioniert auch ohne | Sync muss am Mac erst seinen Dauerlauf bestehen (Roadmap Phase 6) |
 | 7 | Audio | **Bleibt auf dem Gerät.** Einzige Ausnahme: Weg B (der Mac verarbeitet), die Datei wird danach gelöscht | Versprechen „Audio wird nie synchronisiert“ bleibt im Normalfall bestehen |
-| 8 | Geld | **Offen – muss vor der App-Store-Einreichung entschieden sein**, nicht vor dem Bauen | Siehe Abschnitt 9 |
+| 8 | Geld | **Kein Abo, nie.** App kostenlos und vollständig nutzbar; Trinkgeld und optionale Einmalkäufe für Extras ✅ | „Kein Abo“ ist der Unterschied zu Otter & Co. – siehe Abschnitt 9 |
 
 ---
 
@@ -34,8 +34,15 @@ Notiz da, und unterwegs lernst du mit den Karteikarten. Die Bibliothek ist diese
 | **B · Mit meinem Mac** | jedes iPhone + Mac mit Earnote | auf dem Mac (Whisper) | auf dem Mac (lokale KI) | Audio über die eigene iCloud zum eigenen Mac, danach gelöscht |
 | **C · Cloud-KI mit eigenem Schlüssel** | jedes iPhone | SpeechAnalyzer (auf dem Gerät) | Claude, OpenAI, Gemini, Mistral per API-Schlüssel | nur der Text an den gewählten Anbieter |
 
-- **Vorschlag im Onboarding:** Ab dem iPhone 15 Pro wird A empfohlen, sonst B, wenn Earnote auf einem Mac läuft, sonst C.
-  Wechseln geht jederzeit in den Einstellungen.
+- **Standard (freigegeben 24.09.2026):**
+  1. **Earnote läuft auf einem Mac derselben iCloud → Weg B.** Das iPhone ist Begleiter: Es nimmt auf, das Audio geht über
+     iCloud zum Mac, der Mac verarbeitet, die Notiz kommt zurück, das Audio wird danach aus iCloud gelöscht.
+  2. **Kein Mac, iPhone 15 Pro oder neuer → Weg A**, alles auf dem iPhone.
+  3. **Kein Mac, älteres iPhone → Weg C** mit eigenem Schlüssel (Gemini empfohlen). Ob ein kleineres lokales Modell
+     (z. B. Qwen3 1.7B) auf iPhones mit 6 GB brauchbar ist, klärt die Messung (Abschnitt 7).
+  
+  In den Einstellungen lässt sich der Weg jederzeit ändern, auch mit Mac: z. B. „auf dem iPhone verarbeiten“ oder
+  „mit Gemini“, wenn der Mac gerade nicht läuft.
 - **Abos (ChatGPT Plus, Claude Pro) gehen auf dem iPhone nicht.** Anbieter lassen fremde Apps nur mit
   API-Schlüssel zu, also mit Zahlung pro Nutzung. Auf dem Mac geht es, weil Earnote dort die installierten Programme
   Claude Code und Codex nutzt. Gemini hat ein kostenloses Kontingent und ist deshalb der einfachste
@@ -257,7 +264,22 @@ Kommt bei der ersten Frage „zu langsam“ heraus, wird Weg B oder C auch auf n
 
 ---
 
-## 9. Entscheidungen, die bei dir liegen
+## 9. Entscheidungen
+
+**Freigegeben am 24.09.2026:**
+
+1. ✅ **Mit Mac Begleiter, ohne Mac eigenständig**; Cloud-KI (Gemini u. a.) zum Verbinden; alles in den Einstellungen umstellbar.
+2. ✅ **Kein Abo.** Die App ist kostenlos und vollständig nutzbar. Geld kommt aus
+   - **Trinkgeld** in der App: einmalige In-App-Käufe („Kaffee spendieren“), weil Apple externe Spendenlinks auf dem
+     iPhone meist ablehnt;
+   - **optionalen Einmalkäufen für Extras**, die niemand braucht, um Earnote voll zu nutzen (welche, entscheiden wir
+     vor der Einreichung; Kernfunktionen kommen nie hinter eine Bezahlschranke).
+   Technisch: StoreKit 2, nur Verbrauchs- und Dauerkäufe, keine Abos, kein Server, kein Konto.
+3. ✅ **iCloud** zunächst aus; an, sobald im Onboarding ein Mac gefunden wird (Weg B braucht es).
+4. ✅ **iOS 26**, also iPhone 11 und neuer.
+5. Offen: Bundle-ID `app.earnote.Earnote` für die iPhone-App (gleicher iCloud-Container). Vorschlag: ja.
+
+**Ursprüngliche Fragen:**
 
 1. **Eigenständig mit drei Wegen** (Vorschlag) statt reiner Begleiter?
 2. **Geld:** Die iPhone-App ist entweder a) kostenlos wie am Mac, mit Spenden, oder b) als „Earnote Pro“ bezahlt, etwa als Einmalkauf,
