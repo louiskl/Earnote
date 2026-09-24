@@ -418,3 +418,41 @@ in den Einstellungen steht, wie viel gerade belegt ist.
 - [x] Domain gesichert (earnote.dev) · [ ] Instagram/TikTok-Namen gesichert
 - [ ] Demo-Video gedreht
 - [ ] Zwei Wochen Beta ohne Datenverlust und ohne Absturz
+
+---
+
+## 11. iPhone-Beta (TestFlight) – sobald der öffentliche Link da ist
+
+> Stand 25.09.2026. Voraussetzung: Beta-Prüfung durch, öffentlicher Link in App Store Connect › TestFlight › externe
+> Gruppe aktiviert, Limit 20–30. **„Mit meinem Mac“ nur versprechen, wenn Schema und 0.9.23 draußen sind** (erledigt 25.09.).
+
+**WhatsApp an Freunde** (du schickst es sowieso weiter – so muss niemand nachfragen):
+
+> Earnote gibt's jetzt auch fürs iPhone (Beta)! Handy in der Vorlesung auf den Tisch, Aufnahme starten, Bildschirm aus –
+> danach ist die Mitschrift da, mit Karteikarten. Kostenlos, ohne Konto.
+> 1. TestFlight aus dem App Store laden
+> 2. Diesen Link öffnen: <TESTFLIGHT-LINK>
+> 3. Wenn was nervt: Screenshot machen, in TestFlight „Feedback senden“ – das landet direkt bei mir
+> Wer einen Mac hat: Earnote dort auch installieren (earnote.dev), dann schreibt der Mac die Notiz.
+
+**Instagram-Story / Status** (ein Satz pro Folie, Bildschirmaufnahme dahinter):
+1. „90 Minuten Vorlesung.“ (Aufnahme-Blatt mit laufender Zeit)
+2. „Bildschirm aus. Handy in die Tasche.“ (Sperrbildschirm mit Live-Aktivität)
+3. „Danach: fertige Mitschrift.“ (Notiz scrollen)
+4. „Und Karteikarten zum Lernen.“ (Karteikarte umdrehen)
+5. „Kostenlos. Ohne Konto. Beta-Link in der Bio.“
+
+**Kurzvideo-Ideen** (TikTok/Reels/Shorts, 15–30 s, ohne Gesicht möglich):
+- *„POV: Du warst in der Vorlesung, aber nur körperlich“* – Aufnahme läuft, Schnitt, fertige Notiz und Karteikarten.
+- *„Ich hab mir eine App gebaut, weil Otter 17 € im Monat kostet“* – Preisvergleich, dann Earnote „0 €, läuft auf dem Handy“.
+- *„Klausurenphase: 12 Vorlesungen → 1 Lernzettel“* – Übersicht eines Fachs am Mac (Januar!).
+Immer mit dem Hinweis im Video oder in der Beschreibung: „Vorher fragen, ob du aufnehmen darfst.“
+
+**Was du in der Beta wissen willst** (in TestFlight unter „Was soll getestet werden“ und im Gespräch):
+- Hat die Aufnahme einmal aufgehört, obwohl du nichts gemacht hast?
+- Wie viel Akku hat eine 90-Minuten-Vorlesung gekostet?
+- Hast du verstanden, welchen Weg für die Notiz du nehmen sollst?
+- Würdest du Earnote jemandem empfehlen? Wem?
+
+**Nach der Beta, für den App Store:** zwei, drei ehrliche Sätze von Testern sammeln (mit Erlaubnis) – für die Website und
+als Antwort auf „ist das seriös?“.
