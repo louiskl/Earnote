@@ -444,7 +444,7 @@ in den Einstellungen steht, wie viel gerade belegt ist.
 
 **Kurzvideo-Ideen** (TikTok/Reels/Shorts, 15–30 s, ohne Gesicht möglich):
 - *„POV: Du warst in der Vorlesung, aber nur körperlich“* – Aufnahme läuft, Schnitt, fertige Notiz und Karteikarten.
-- *„Ich hab mir eine App gebaut, weil Otter 17 € im Monat kostet“* – Preisvergleich, dann Earnote „0 €, läuft auf dem Handy“.
+- *„Ich hab mir eine App gebaut, weil Otter Pro rund 17 $ im Monat kostet“ (Preis vor dem Dreh auf otter.ai prüfen)* – Preisvergleich, dann Earnote „0 €, läuft auf dem Handy“.
 - *„Klausurenphase: 12 Vorlesungen → 1 Lernzettel“* – Übersicht eines Fachs am Mac (Januar!).
 Immer mit dem Hinweis im Video oder in der Beschreibung: „Vorher fragen, ob du aufnehmen darfst.“
 
