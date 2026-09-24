@@ -481,6 +481,22 @@ final class ProcessingQueueTests: XCTestCase {
         XCTAssertEqual(library.recording(waiting.id)?.status, .waitingForMac, "Übergeben ist nicht beschäftigt")
         XCTAssertFalse(transcriber.transcribed.get().contains(onMac.id.uuidString))
     }
+
+    /// Über iCloud gekommen, ohne Audio hier: Das andere Gerät nimmt noch auf oder schreibt die Notiz selbst
+    func testResumeSkipsSyncedRecordingsWithoutLocalAudio() async throws {
+        let summarizing = Recording(title: "vom iPhone, wird dort zusammengefasst", startedAt: Date(), status: .summarizing)
+        let recording = Recording(title: "nimmt am iPhone noch auf", startedAt: Date(), status: .recording)
+        try await folder.library.insertRecording(summarizing)
+        try await folder.library.insertRecording(recording)
+
+        let library = try await TestLibrary(folder: folder, settings: .testing())
+        let queue = makeQueue(FakeTranscriber(), library: library)
+        queue.resumeInterruptedWork()
+
+        XCTAssertNil(queue.processingID)
+        XCTAssertEqual(library.recording(summarizing.id)?.status, .summarizing)
+        XCTAssertEqual(library.recording(recording.id)?.status, .recording)
+    }
 }
 
 /// Transkribieren während der Aufnahme (Phase 4a)

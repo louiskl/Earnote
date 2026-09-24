@@ -116,7 +116,7 @@ final class PhoneEnvironment {
         var s = settings
         s.transcriptionEngine = .apple
         s.language = Locale.current.language.languageCode?.identifier ?? "de"
-        if !DeviceCapabilities.supportsLocalModel && s.ai.provider == .localModel { s.ai.provider = .none }
+        if !NoteWay.worksHere(s.ai.provider) { s.ai.provider = .none }
         return s
     }
 

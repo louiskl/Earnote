@@ -42,6 +42,13 @@ final class GeminiTests: XCTestCase {
         XCTAssertFalse(GeminiClient.friendly(LLMError(message: raw)).message.hasPrefix("HTTP"))
     }
 
+    func testRecognizesOverload() {
+        let busy = LLMError(message: "HTTP 503: This model is currently experiencing high demand.")
+        XCTAssertTrue(GeminiClient.isOverloaded(busy))
+        XCTAssertFalse(GeminiClient.isOverloaded(LLMError(message: "HTTP 404: model no longer available")))
+        XCTAssertNotEqual(GeminiClient.friendly(busy).message, busy.message)
+    }
+
     func testEmptyModelUsesAlias() {
         XCTAssertEqual(GeminiClient(apiKey: "k", model: "").model, GeminiClient.defaultModel)
         XCTAssertEqual(AIProviderKind.gemini.defaultModel, GeminiClient.defaultModel)
