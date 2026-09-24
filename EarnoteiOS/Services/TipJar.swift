@@ -11,7 +11,7 @@ enum TipJar {
     /// Käufe, die beim letzten Mal nicht abgeschlossen wurden (App beendet, Bestätigung durch Eltern …), beim Start abschließen
     static func finishPendingTransactions() -> Task<Void, Never> {
         Task.detached {
-            for await update in Transaction.updates {
+            for await update in StoreKit.Transaction.updates {
                 await finish(update)
             }
         }
@@ -23,7 +23,7 @@ enum TipJar {
         return loaded.sorted { $0.price < $1.price }
     }
 
-    static func finish(_ result: VerificationResult<Transaction>) async {
+    static func finish(_ result: VerificationResult<StoreKit.Transaction>) async {
         switch result {
         case .verified(let transaction), .unverified(let transaction, _):
             await transaction.finish()
