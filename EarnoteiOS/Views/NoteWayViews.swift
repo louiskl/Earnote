@@ -28,7 +28,8 @@ enum NoteWay: Equatable {
 
     /// Anbieter unter „Weitere Anbieter“
     static var otherProviders: [AIProviderKind] {
-        var list: [AIProviderKind] = [.anthropic, .openAI, .mistral]
+        // OpenRouter zuerst: kostenlos wie Google, nur mit anderem Konto
+        var list: [AIProviderKind] = [.openRouter, .anthropic, .openAI, .mistral]
         if onDeviceProvider == .localModel && appleIntelligenceEligible { list.insert(.appleIntelligence, at: 0) }
         return list + [.none]
     }
@@ -308,12 +309,22 @@ struct OtherProvidersView: View {
                 Text("Diese Anbieter rechnen nach Nutzung über deinen eigenen API-Schlüssel ab. Nur der Text geht an sie, nie das Audio.")
             }
             if provider.needsAPIKey {
-                Section("API-Schlüssel für \(provider.label)") {
+                Section {
                     SecureField("Schlüssel einfügen", text: $apiKey)
                         .textContentType(.password)
                         .autocorrectionDisabled()
                         .textInputAutocapitalization(.never)
                         .onChange(of: apiKey) { Keychain.setAPIKey(apiKey, for: provider) }
+                    if provider == .openRouter {
+                        Link(destination: OpenRouterClient.keysPage) { Label("Schlüssel bei OpenRouter erstellen", systemImage: "key") }
+                        Link(destination: OpenRouterClient.privacyPage) { Label("Kostenlose Modelle freigeben", systemImage: "hand.raised") }
+                    }
+                } header: {
+                    Text("API-Schlüssel für \(provider.label)")
+                } footer: {
+                    if provider == .openRouter {
+                        Text("Kostenlos, ohne Kreditkarte. Earnote wählt selbst ein gutes kostenloses Modell. OpenRouter verlangt, dass du kostenlose Modelle in den Datenschutz-Einstellungen freigibst – deren Anbieter dürfen den Text zum Training nutzen. Für vertrauliche Aufnahmen nimm lieber „Auf diesem iPhone“ oder „Mit meinem Mac“.")
+                    }
                 }
             }
         }
@@ -332,10 +343,10 @@ struct NoteWayHelpView: View {
                     Text("Hast du Earnote auf dem Mac, nimm „Mit meinem Mac“: Das iPhone nimmt nur auf, der Mac schreibt die Notiz und schont deinen Akku. Ohne Mac: „Auf diesem iPhone“, wenn es angeboten wird – sonst „Kostenlos mit Google-Konto“.")
                 }
                 DisclosureGroup("Was kostet das?") {
-                    Text("Nichts. Auf dem iPhone und mit dem Mac rechnet die KI auf deinen eigenen Geräten. Google bietet ein kostenloses Kontingent, das für Vorlesungen reicht. Nur „Weitere Anbieter“ rechnen nach Nutzung über deinen eigenen Schlüssel ab.")
+                    Text("Nichts. Auf dem iPhone und mit dem Mac rechnet die KI auf deinen eigenen Geräten. Google und OpenRouter bieten ein kostenloses Kontingent, das für Vorlesungen reicht. Claude, OpenAI und Mistral rechnen nach Nutzung über deinen eigenen Schlüssel ab.")
                 }
                 DisclosureGroup("Was passiert mit meinen Daten?") {
-                    Text("Die Aufnahme verlässt dein iPhone nie – außer beim Weg „Mit meinem Mac“, dann geht sie über deine eigene iCloud zum Mac und wird danach gelöscht. Bei Google und den weiteren Anbietern geht nur der geschriebene Text dorthin, nie das Audio.")
+                    Text("Die Aufnahme verlässt dein iPhone nie – außer beim Weg „Mit meinem Mac“, dann geht sie über deine eigene iCloud zum Mac und wird danach gelöscht. Bei Google und den weiteren Anbietern geht nur der geschriebene Text dorthin, nie das Audio. Kostenlose Angebote (Google, OpenRouter) dürfen diesen Text nutzen, um ihre KI zu verbessern – für Vertrauliches nimm das iPhone oder den Mac.")
                 }
                 DisclosureGroup("Der Google-Schlüssel geht nicht") {
                     Text("Kopiere den Schlüssel noch einmal vollständig (er beginnt meist mit „AIza“) und füge ihn erneut ein. Meldet Earnote, das Kontingent sei aufgebraucht, warte ein paar Minuten. Hilft das nicht, erstelle auf aistudio.google.com einen neuen Schlüssel.")

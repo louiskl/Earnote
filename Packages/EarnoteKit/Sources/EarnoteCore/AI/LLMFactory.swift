@@ -48,6 +48,10 @@ public struct LLMFactory: Sendable {
             let key = apiKey(config.provider) ?? ""
             guard !key.isEmpty else { throw LLMError(message: t("Kein API-Schlüssel für Mistral hinterlegt.")) }
             return OpenAICompatibleClient(baseURL: "https://api.mistral.ai/v1", apiKey: key, model: config.effectiveModel)
+        case .openRouter:
+            let key = apiKey(config.provider) ?? ""
+            guard !key.isEmpty else { throw LLMError(message: t("Kein API-Schlüssel für OpenRouter hinterlegt.")) }
+            return OpenRouterClient(apiKey: key, model: config.effectiveModel)
         case .lmStudio, .openAICompatible:
             return OpenAICompatibleClient(baseURL: config.effectiveBaseURL, apiKey: apiKey(config.provider) ?? "",
                                           model: config.effectiveModel)
@@ -70,6 +74,8 @@ public struct LLMFactory: Sendable {
             return try await GeminiClient(apiKey: key, model: "").listModels()
         case .mistral:
             return try await OpenAICompatibleClient(baseURL: "https://api.mistral.ai/v1", apiKey: key, model: "").listModels()
+        case .openRouter:
+            return try await OpenRouterModels.freeCandidates()
         case .lmStudio, .openAICompatible:
             return try await OpenAICompatibleClient(baseURL: config.effectiveBaseURL, apiKey: key, model: "").listModels()
         default:
