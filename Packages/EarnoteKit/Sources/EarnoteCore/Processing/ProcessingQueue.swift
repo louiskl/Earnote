@@ -49,6 +49,11 @@ public final class ProcessingQueue {
     /// Nach einem Neustart nur fortsetzen, was dieses Gerät verarbeitet – nicht Aufnahmen, die über iCloud kamen
     /// und ein anderes Gerät bearbeitet (Weg B: der Mac)
     @ObservationIgnored public var resumes: @MainActor (Recording) -> Bool = { _ in true }
+    /// Nach einem vorübergehenden Fehler (Netz weg, Anbieter überlastet) von selbst erneut versuchen:
+    /// nach 5, 10 und 15 Minuten, danach bleibt die Aufnahme als fehlgeschlagen stehen
+    @ObservationIgnored public var retryDelay: TimeInterval = 300
+    @ObservationIgnored public var maxRetries = 3
+    @ObservationIgnored private var retries: [UUID: Int] = [:]
     /// Es wartet Arbeit, die wegen `isHeld` noch nicht beginnt
     public private(set) var isWaitingForPower = false
 
@@ -175,9 +180,31 @@ public final class ProcessingQueue {
         let category = library.category(rec.categoryID)
         let instruction = instructions.removeValue(forKey: id) ?? ""
         let request = requests.removeValue(forKey: id) ?? .ifMissing
-        await pipeline.process(rec, settings: settings, category: category, events: events,
-                               extraInstructions: instruction, request: request)
+        let temporary = await pipeline.process(rec, settings: settings, category: category, events: events,
+                                               extraInstructions: instruction, request: request)
         drafts[id] = nil
+        if temporary { scheduleRetry(id, instruction: instruction, request: request) } else { retries[id] = nil }
+    }
+
+    private func scheduleRetry(_ id: UUID, instruction: String, request: SummaryRequest) {
+        let attempt = (retries[id] ?? 0) + 1
+        guard attempt <= maxRetries else {
+            retries[id] = nil
+            return
+        }
+        retries[id] = attempt
+        let delay = retryDelay * Double(attempt)
+        let minutes = max(1, Int((delay / 60).rounded()))
+        library?.update(id) {
+            $0.errorMessage = [$0.errorMessage, t("Earnote versucht es in \(minutes) Minuten von selbst noch einmal.")]
+                .compactMap { $0 }.joined(separator: "\n")
+        }
+        Task { [weak self] in
+            try? await Task.sleep(for: .seconds(delay))
+            // Inzwischen von Hand erneut versucht, gelöscht oder anders erledigt: nichts tun
+            guard let self, self.library?.recording(id)?.status == .failed else { return }
+            self.enqueue(id, instruction: instruction, request: request)
+        }
     }
 
     private var events: ProcessingEvents {
