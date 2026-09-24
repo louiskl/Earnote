@@ -41,7 +41,7 @@ final class PhoneEnvironment {
         let audio = FileAudioStore(storage: storage)
         let llm = LLMFactory(platform: PlatformLLMClients())
         let pipeline = ProcessingPipeline(library: repository, audio: audio, transcribers: PlatformTranscribers(), llm: llm,
-                                          destinations: NoDestinations(), precondensed: PreCondensedStore(),
+                                          destinations: PhoneDestinations(), precondensed: PreCondensedStore(),
                                           notify: { Notifier.send($0, $1) })
         let queue = ProcessingQueue(pipeline: pipeline) {
             Task { await LocalLLMCache.shared.release() }
@@ -149,13 +149,6 @@ extension PhoneEnvironment {
     }
 }
 #endif
-
-/// Am iPhone gibt es keine direkten Ziele – geteilt wird über das Teilen-Menü.
-struct NoDestinations: DestinationProvider {
-    var all: [DestinationInfo] { [] }
-    func make(_ id: String) -> (any Destination)? { nil }
-    func setupProblem(_ id: String, _ settings: DestinationSettings) -> String? { nil }
-}
 
 enum Notifier {
     static func requestPermission() async -> Bool {

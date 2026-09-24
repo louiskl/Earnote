@@ -16,13 +16,29 @@ struct SettingsSheet: View {
             Form {
                 NoteWayPicker()
                 MacSection()
-                Section("Aufnahme") {
+                Section {
+                    Picker("Sprache der Aufnahme", selection: $library.settings.language) {
+                        ForEach(Self.recordingLanguages(current: library.settings.language), id: \.code) { Text($0.name).tag($0.code) }
+                    }
                     Picker("Standardbereich", selection: $library.settings.defaultCategoryID) {
                         Text("Ohne Bereich").tag(UUID?.none)
                         ForEach(library.categories) { Label($0.name, systemImage: $0.symbol).tag(Optional($0.id)) }
                     }
                     Toggle("Audio nach der Notiz behalten", isOn: $library.settings.keepAudioFiles)
                     NavigationLink("Wörterbuch") { GlossaryView() }
+                } header: {
+                    Text("Aufnahme")
+                } footer: {
+                    Text("Für eine englische Vorlesung stellst du die Sprache vorher auf Englisch. Das gilt für alle neuen Aufnahmen.")
+                }
+                Section {
+                    NavigationLink {
+                        ExportSettingsView()
+                    } label: {
+                        LabeledContent("Export", value: exportSummary)
+                    }
+                } footer: {
+                    Text("Fertige Notizen automatisch in Notion, Obsidian, einen Ordner, Todoist oder Erinnerungen legen.")
                 }
                 Section {
                     Toggle("Erst am Ladekabel verarbeiten", isOn: $library.settings.processOnlyOnPower)
@@ -65,6 +81,19 @@ struct SettingsSheet: View {
                 ToolbarItem(placement: .confirmationAction) { Button("Fertig") { dismiss() } }
             }
         }
+    }
+
+    /// Kurz, was eingeschaltet ist: „Notion, Obsidian“ oder „Aus“
+    private var exportSummary: String {
+        let names = PhoneDestinations().all.filter { library.settings.destinations.enabled.contains($0.id) }.map(\.name)
+        return names.isEmpty ? String(localized: "Aus") : names.joined(separator: ", ")
+    }
+
+    /// Apples Spracherkennung kennt kein „Automatisch“: Sie braucht eine feste Sprache
+    static func recordingLanguages(current: String) -> [(code: String, name: String)] {
+        let list = AppSettings.languages.filter { $0.code != "auto" }
+        if list.contains(where: { $0.code == current }) { return list }
+        return list + [(code: current, name: Locale.current.localizedString(forLanguageCode: current)?.localizedCapitalized ?? current)]
     }
 }
 
