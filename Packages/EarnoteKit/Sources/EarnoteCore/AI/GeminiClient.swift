@@ -54,8 +54,9 @@ public struct GeminiClient: LLMClient {
     /// Die rohen Fehler von Google sind englisch und technisch – Einsteiger sollen wissen, was zu tun ist
     static func friendly(_ error: LLMError) -> LLMError {
         let text = error.message.lowercased()
-        if text.contains("api key not valid") || text.contains("api_key_invalid") || text.hasPrefix("http 401")
-            || text.hasPrefix("http 403") {
+        // Google meldet falsche Schlüssel je nach Weg als 400 („Please pass a valid API key“), 401 oder 403
+        if text.contains("api key not valid") || text.contains("api_key_invalid") || text.contains("valid api key")
+            || text.hasPrefix("http 401") || text.hasPrefix("http 403") {
             return LLMError(message: t("Google nimmt den Gemini-Schlüssel nicht an. Prüfe, ob du ihn vollständig kopiert hast."))
         }
         if text.hasPrefix("http 429") || text.contains("resource_exhausted") || text.contains("quota") {

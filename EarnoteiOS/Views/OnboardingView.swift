@@ -87,41 +87,40 @@ struct OnboardingView: View {
     }
 
     private var noteWay: some View {
-        Form {
-            Section {
-                VStack(alignment: .leading, spacing: 10) {
-                    Image(systemName: "sparkles")
-                        .font(.system(size: 40))
-                        .foregroundStyle(.tint)
-                        .symbolEffect(.bounce, value: step == 3)
-                    Text("Wie soll die Notiz entstehen?").font(.title2.bold())
-                    Text(DeviceCapabilities.supportsLocalModel
-                         ? "Dein iPhone kann die Notiz selbst schreiben – ganz ohne Internet."
-                         : "Für die Notiz auf dem iPhone selbst reicht der Speicher nicht. Mit einem kostenlosen Gemini-Schlüssel geht es trotzdem – dabei geht nur der Text an Google, nie das Audio.")
-                        .foregroundStyle(.secondary)
-                }
-                .listRowBackground(Color.clear)
-            }
-            NoteWaySection()
-            // Weg B: Wer Earnote auf dem Mac hat, lässt ihn die Notizen schreiben, sobald er gefunden ist
-            MacSection()
-            Section {
-                PrimaryButton("Weiter") { step = 4 }
+        // Eigener Stapel: „Weitere Anbieter“ und „Welcher Weg passt zu mir?“ öffnen sich als Seiten
+        NavigationStack {
+            Form {
+                Section {
+                    VStack(alignment: .leading, spacing: 10) {
+                        Image(systemName: "sparkles")
+                            .font(.system(size: 40))
+                            .foregroundStyle(.tint)
+                            .symbolEffect(.bounce, value: step == 3)
+                        Text("Wie soll die Notiz entstehen?").font(.title2.bold())
+                        Text(NoteWay.onDeviceProvider != nil
+                             ? "Dein iPhone kann die Notiz selbst schreiben – ganz ohne Internet."
+                             : "Hast du Earnote auf dem Mac, schreibt er die Notiz. Sonst geht es kostenlos mit deinem Google-Konto – dabei geht nur der Text an Google, nie das Audio.")
+                            .foregroundStyle(.secondary)
+                    }
                     .listRowBackground(Color.clear)
-                    .listRowInsets(EdgeInsets())
+                }
+                NoteWayPicker()
+                Section {
+                    PrimaryButton("Weiter") { step = 4 }
+                        .listRowBackground(Color.clear)
+                        .listRowInsets(EdgeInsets())
+                }
             }
-        }
-        .scrollContentBackground(.hidden)
-        .onChange(of: library.settings.syncWithCloud) { _, syncs in
-            if syncs { library.settings.processOnMac = true }
+            .scrollContentBackground(.hidden)
+            .toolbarVisibility(.hidden, for: .navigationBar)
         }
         .onAppear {
             // Vorschlag je nach Gerät (docs/IPHONE.md, Abschnitt 2), nur beim ersten Mal. Der Mac-Weg greift, sobald
             // nach dem Einschalten von iCloud ein Mac gefunden ist; bis dahin gilt dieser Weg.
             guard !suggestedWay else { return }
             suggestedWay = true
-            if library.settings.ai.provider == .none || !NoteWaySection.providers.contains(library.settings.ai.provider) {
-                library.settings.ai.provider = DeviceCapabilities.supportsLocalModel ? .localModel : .gemini
+            if library.settings.ai.provider == .none || library.settings.ai.provider == .localModel && !DeviceCapabilities.supportsLocalModel {
+                library.settings.ai.provider = NoteWay.suggestedProvider
             }
         }
     }
