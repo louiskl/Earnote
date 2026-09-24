@@ -240,7 +240,7 @@ final class PhoneRecorder {
                     silentSince = silentSince ?? Date()
                     if !toldSilence, let since = silentSince, Date().timeIntervalSince(since) > 60 {
                         toldSilence = true
-                        let message = String(localized: "Seit einer Minute ist nichts zu hören. Prüfe, ob das richtige Mikrofon gewählt ist und \(AppInfo.name) es verwenden darf (Systemeinstellungen › Datenschutz & Sicherheit › Mikrofon).")
+                        let message = String(localized: "Seit einer Minute ist nichts zu hören. Prüfe, ob das richtige Mikrofon gewählt ist und \(AppInfo.name) es verwenden darf (Einstellungen › Datenschutz & Sicherheit › Mikrofon).")
                         self.lastError = message
                         Notifier.send(String(localized: "Kein Ton"), message)
                     }

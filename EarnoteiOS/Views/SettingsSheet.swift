@@ -1,5 +1,6 @@
 import EarnoteCore
 import EarnoteML
+import StoreKit
 import SwiftUI
 
 /// Einstellungen als Blatt: wo die Notiz entsteht, Aufnahme, Bereiche, Über.
@@ -7,6 +8,7 @@ struct SettingsSheet: View {
     @Environment(LibraryStore.self) private var library
     @Environment(\.dismiss) private var dismiss
     @Environment(\.loadDemoLibrary) private var loadDemoLibrary
+    @State private var tips: [Product] = []
 
     var body: some View {
         @Bindable var library = library
@@ -20,6 +22,13 @@ struct SettingsSheet: View {
                     }
                     Toggle("Audio nach der Notiz behalten", isOn: $library.settings.keepAudioFiles)
                     NavigationLink("Wörterbuch") { GlossaryView() }
+                }
+                Section {
+                    Toggle("Erst am Ladekabel verarbeiten", isOn: $library.settings.processOnlyOnPower)
+                } header: {
+                    Text("Akku")
+                } footer: {
+                    Text("Die Notiz entsteht dann, sobald das iPhone lädt, zum Beispiel nachts. Im Stromsparmodus wartet Earnote auch ohne diese Einstellung aufs Ladekabel.")
                 }
                 #if DEBUG
                 if let loadDemoLibrary {
@@ -37,8 +46,9 @@ struct SettingsSheet: View {
                     }
                 }
                 #endif
+                // Kein Spendenlink am iPhone: Apple lässt Trinkgeld nur als In-App-Kauf zu
+                if !tips.isEmpty { TipSection(products: tips) }
                 Section {
-                    // Kein Spendenlink am iPhone: Apple lässt Trinkgeld nur als In-App-Kauf zu (kommt später)
                     Link(destination: AppInfo.website) { Label("earnote.dev", systemImage: "safari") }
                     LabeledContent("Version", value: Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "–")
                 } header: {
@@ -47,6 +57,7 @@ struct SettingsSheet: View {
                     Text("Earnote ist kostenlos und quelloffen (MIT). Deine Aufnahmen bleiben auf deinem iPhone.")
                 }
             }
+            .task { tips = await TipJar.products() }
             .navigationTitle("Einstellungen")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

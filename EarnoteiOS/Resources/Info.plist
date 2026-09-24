@@ -11,6 +11,7 @@
 	<key>BGTaskSchedulerPermittedIdentifiers</key>
 	<array>
 		<string>app.earnote.Earnote.process.*</string>
+		<string>app.earnote.Earnote.charging</string>
 	</array>
 	<!-- Teilen › „Mit Earnote öffnen“ für Audio und Video -->
 	<key>CFBundleDocumentTypes</key>

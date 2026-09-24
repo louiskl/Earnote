@@ -2,7 +2,7 @@
 
 > Stand: 24.09.2026 · **Grundentscheidungen freigegeben** (Abschnitt 9) · gepflegt vom Architekten.
 > Start parallel zur Mac-Beta. Die Beta hat Vorrang, gemeldete Fehler am Mac gehen vor.
-> iPad kommt als eigener Plan.
+> iPad: eigener Plan in [IPAD.md](IPAD.md).
 
 ## Die Idee in einem Satz
 
@@ -68,7 +68,7 @@ Priorität: **1.1** = erste Version im App Store · **1.2** = direkt danach · *
 | Aufnahme übersteht App-Absturz und Neustart (Datei in Abschnitten, nichts geht verloren) | 1.1 |
 | Pegel, Warnung „seit einer Minute nichts zu hören“, Warnung bei wenig Speicher, sauberer Stopp bei vollem Speicher | 1.1 |
 | Einverständnis-Hinweis vor der ersten Aufnahme (§ 201 StGB) | 1.1 |
-| Stromsparmodus berücksichtigen (keine Live-Mitschrift, später verarbeiten) | 1.1 |
+| ✅ Stromsparmodus berücksichtigen: ohne Ladekabel wird erst später verarbeitet, „Jetzt verarbeiten“ in der Liste (Live-Mitschrift gibt es noch nicht) | 1.1 |
 | Live-Mitschrift während der Aufnahme (SpeechAnalyzer, einschaltbar) | 1.2 |
 | **Markieren „Das ist wichtig“** mit einem Tipp oder über die Action-Taste → erscheint als Prüfungshinweis in der Notiz | 1.2 |
 | Foto von Tafel oder Folie während der Aufnahme, erscheint an der richtigen Stelle im Transkript | später |
@@ -91,7 +91,7 @@ Priorität: **1.1** = erste Version im App Store · **1.2** = direkt danach · *
 |---|---|
 | Drei Wege A/B/C (Abschnitt 2), Vorschlag je nach Gerät | 1.1 |
 | Läuft nach dem Stopp im Hintergrund weiter (`BGContinuedProcessingTask`); wird es abgebrochen, geht es beim nächsten Öffnen weiter | 1.1 |
-| Option „Erst am Ladekabel verarbeiten“ (`BGProcessingTask`, z. B. nachts) | 1.1 |
+| ✅ Option „Erst am Ladekabel verarbeiten“ (`BGProcessingTask` mit `requiresExternalPower`, z. B. nachts) | 1.1 |
 | Modell-Download im WLAN mit Größenangabe (~2,5 GB), Platzprüfung, Löschen in den Einstellungen | 1.1 |
 | Dieselben Prüfungen wie am Mac: keine erfundenen Namen, Aufgaben, Fristen (`TaskCheck`, `QuestionCheck`) – kommen aus dem Kern | 1.1 |
 | Wörterbuch (Fachbegriffe) wird an Transkription und KI weitergegeben | 1.1 |
@@ -121,7 +121,7 @@ Priorität: **1.1** = erste Version im App Store · **1.2** = direkt danach · *
 | Funktion | Prio |
 |---|---|
 | Audio und Video aus der Dateien-App importieren | 1.1 |
-| **„Mit Earnote öffnen“** aus Sprachmemos, WhatsApp-Sprachnachrichten, Dateien (Share Extension) | 1.1 |
+| ✅ **„Mit Earnote teilen“** aus Sprachmemos, WhatsApp-Sprachnachrichten, Dateien (Share Extension `EarnoteShare`, Übergabe über den App-Group-Ordner) | 1.1 |
 
 ### Sync mit dem Mac
 | Funktion | Prio |
@@ -249,13 +249,48 @@ beide                     ──►  EarnoteML
 | Einstellungen | `SettingsRepository` pro Gerät (neu: Notiz-Weg A/B/C) |
 | Karteikarten-Lernstand | **neu im Schema** (`EarnoteSchemaV2`, CloudKit-Regeln), erst 1.1 lokal, 1.2 synchronisiert |
 
-### Übergabe an den Mac (Weg B)
+### Übergabe an den Mac (Weg B) – Kurzfassung, Entwurf in Abschnitt 6a
 - **Neu:** Das iPhone legt die Aufnahme mit dem Status `waitingForMac` an, die Audiodatei (AAC, ~30 MB pro Stunde) landet
   als Asset in der privaten iCloud-Datenbank (Feld mit `.externalStorage` an einem eigenen Übergabe-Modell).
 - Der Mac sieht beim Abgleich neue Übergaben, lädt das Audio, verarbeitet es und schreibt Transkript und Notiz zurück.
   Danach löscht er das Übergabe-Objekt, sodass das Audio aus iCloud verschwindet.
 - Ist kein Mac erreichbar, sagt das iPhone das nach 24 Stunden und bietet Weg A oder C an.
 - Dafür braucht es eine Schema-Stufe, die nach den CloudKit-Regeln gebaut und am Mac zuerst ausgerollt wird.
+
+---
+
+## 6a. Weg B im Detail (Entwurf zur Freigabe, 24.09.2026)
+
+**Ziel:** Das iPhone nimmt auf, der eigene Mac schreibt Transkript und Notiz, das Audio verschwindet danach aus iCloud.
+
+**Datenmodell – neue Stufe `EarnoteSchemaV2`** (leichte Migration, nur neue Modelle, CloudKit-Regeln aus CLAUDE.md):
+
+| Modell | Felder (alle optional oder mit Standardwert) | Zweck |
+|---|---|---|
+| `LibraryHandoff` | `id: UUID`, `recordingID: UUID?`, `createdAt`, `fromDevice: String`, `audio: Data?` (`.externalStorage`), `audioFormat = "m4a"`, `state = "waiting"` (String: waiting/claimed/failed), `claimedBy: String?`, `claimedAt: Date?`, `errorMessage: String?` | Das Audio auf dem Weg zum Mac. Keine Beziehung zur Aufnahme, nur die ID – so braucht es keine Inverse, und Löschen ist einfach |
+| `LibraryDevice` | `id: UUID`, `name`, `platform` (mac/iphone/ipad), `canProcess: Bool = false`, `lastSeen: Date` | Woran das iPhone erkennt, dass ein Mac da ist (Onboarding, Weg-Vorschlag). Der Mac meldet sich höchstens stündlich |
+
+- Neuer Status `RecordingStatus.waitingForMac` (Rohwert als String). Ältere Mac-Versionen kennen ihn nicht: Deshalb **zuerst der Mac mit V2 ausrollen**, erst danach schreibt das iPhone solche Aufnahmen. Beim Lesen fällt ein unbekannter Status auf `.queued` zurück.
+- Audio: Das iPhone nimmt als PCM auf (~170 MB/h). Vor der Übergabe wird nach AAC 64 kbit/s komprimiert (~30 MB/h, im Kern über `FormatConverter`). CloudKit-Assets vertragen das auch bei 3 Stunden.
+
+**Ablauf**
+1. iPhone: Stopp → Aufnahme mit `waitingForMac`, Audio komprimieren, `LibraryHandoff` anlegen. In der Liste steht „Wartet auf deinen Mac“, daneben „Auf dem iPhone verarbeiten“.
+2. Mac: Ein `HandoffWatcher` im App-Target reagiert auf Änderungen aus iCloud, setzt `claimedBy`/`claimedAt` und prüft nach 60 s, ob der Anspruch noch seiner ist. So verarbeiten zwei Macs nie dieselbe Aufnahme; Ansprüche älter als 2 h verfallen.
+3. Mac: Audio als importierte Datei in den eigenen `FileAudioStore`, einreihen, mit den **Einstellungen des Macs** verarbeiten (Whisper, lokale KI, Wörterbuch). Transkript und Notiz kommen über den normalen Abgleich zurück aufs iPhone.
+4. Mac: `LibraryHandoff` löschen, damit ist das Audio aus iCloud weg. „Audio behalten“ gilt auf dem Mac wie sonst auch.
+5. iPhone: Nach 24 h ohne Anspruch gibt es eine Mitteilung „Dein Mac hat die Aufnahme noch nicht abgeholt“ mit „Auf dem iPhone verarbeiten“ (Weg A oder C).
+
+**Wo der Code hingehört**
+- Kern (`EarnoteCore`): Schema V2 und Migration, `LibraryRepository` bekommt Snapshots `Handoff`/`Device` sowie `createHandoff`, `claimHandoff`, `finishHandoff`; die reine Regel „wer darf verarbeiten“ als Funktion mit Tests.
+- Mac-App: `HandoffWatcher`, das Melden als Gerät, der Status in der Seitenleiste.
+- iPhone: Komprimieren und Übergeben nach dem Stopp, neuer Weg „Mit meinem Mac“ im Picker der Einstellungen, iCloud-Berechtigung (`com.apple.developer.icloud-*`, Container `iCloud.app.earnote.Earnote`).
+
+**Reihenfolge:** B1 Kern + Tests → B2 Mac (Watcher, Release, Dauerlauf mit iCloud, Roadmap Phase 6) → B3 iPhone → B4 echte Geräte: 1 h hin, Notiz zurück, Audio weg.
+
+**Offene Fragen an dich:**
+1. Verarbeitet der Mac mit **seinen** Einstellungen (Vorschlag) oder mit denen des iPhones?
+2. Soll der Mac das Audio nach der Übergabe behalten dürfen (Einstellung „Audio behalten“ des Macs), oder immer löschen?
+3. Wartezeit bis zum Hinweis: 24 h (Vorschlag) oder kürzer, z. B. „heute Abend“?
 
 ---
 
@@ -285,7 +320,7 @@ Kommt bei der ersten Frage „zu langsam“ heraus, wird Weg B oder C auch auf n
 | **M1 – Spike** | Messungen aus Abschnitt 7 | Entscheidung über Weg A |
 | **M2 – ✅ 24.09.2026** | Aufnehmen mit Bildschirm aus (Hintergrund-Audio, Pause bei Anrufen, AirPods-Wechsel, übersteht Abstürze), Bibliothek, Notiz, Transkript mit Abspielen, Lernen (Karteikarten abfragen), Suche, Einstellungen, Onboarding, Import und „Mit Earnote öffnen“, englische Oberfläche. Im Simulator durchgespielt | erledigt, fehlt: Test am echten iPhone |
 | **M3 – teilweise ✅** | ✅ Weg A und C (lokale KI, Gemini/Claude/OpenAI/Mistral), Hintergrund-Verarbeitung (`BGContinuedProcessingTask`), Live-Aktivität mit Pause/Stopp (im Simulator getestet), Steuerelement fürs Kontrollzentrum, Siri/Kurzbefehle, Mitteilungen · offen: **Weg B** (Übergabe an den Mac über iCloud), App-Icon fürs iPhone | TestFlight für Kommilitonen |
-| **M4 – Lernen & Import** | Karteikarten lernen, Share Extension, Import | vollständige 1.1 |
+| **M4 – Lernen & Import – Code ✅** | ✅ Karteikarten lernen, Import, Share Extension, „Erst am Ladekabel“, Stromsparmodus, Trinkgeld (StoreKit 2) · offen: **Test am echten iPhone**, Trinkgeld-Produkte in App Store Connect anlegen | vollständige 1.1 |
 | **M5 – Einreichen** | Onboarding-Feinschliff, Datenschutz-Etikett, Screenshots, App Review | **Earnote 1.1 für iPhone im App Store** |
 
 ---
@@ -304,6 +339,9 @@ Kommt bei der ersten Frage „zu langsam“ heraus, wird Weg B oder C auch auf n
 3. ✅ **iCloud** zunächst aus; an, sobald im Onboarding ein Mac gefunden wird (Weg B braucht es).
 4. ✅ **iOS 26**, also iPhone 11 und neuer.
 5. Offen: Bundle-ID `app.earnote.Earnote` für die iPhone-App (gleicher iCloud-Container). Vorschlag: ja.
+6. **Trinkgeld eingebaut** (`EarnoteiOS/Services/TipJar.swift`, Einstellungen › „Earnote unterstützen“). In App Store Connect
+   drei **Verbrauchsartikel** anlegen: `app.earnote.Earnote.tip.small`, `.tip.medium`, `.tip.large` (z. B. 1,99 €, 4,99 €, 9,99 €).
+   Solange es sie nicht gibt, bleibt der Abschnitt unsichtbar. Freigeschaltet wird nichts.
 
 **Ursprüngliche Fragen:**
 

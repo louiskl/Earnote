@@ -8,6 +8,7 @@ struct RootView: View {
 
     @Environment(LibraryStore.self) private var library
     @Environment(PhoneRecorder.self) private var recorder
+    @Environment(\.scenePhase) private var scenePhase
     @SceneStorage("tab") private var tab: Tab = .recordings
     @State private var showsRecorder = false
     /// Navigationspfade der Tabs – damit Links aus Widgets direkt an die richtige Stelle springen
@@ -36,6 +37,11 @@ struct RootView: View {
         }
         // „Mit Earnote öffnen“ aus Sprachmemos, WhatsApp, Dateien (Dokumenttypen im Info.plist)
         .onOpenURL { url in open(url) }
+        // „Mit Earnote teilen“ (Share Extension): Dateien übernehmen, sobald die App vorn und die Bibliothek geladen ist
+        .onChange(of: scenePhase, initial: true) { _, phase in
+            if phase == .active { collectShared() }
+        }
+        .onChange(of: library.isLoaded) { collectShared() }
         .fullScreenCover(isPresented: .constant(library.isLoaded && !library.settings.onboardingCompleted)) {
             OnboardingView()
         }
@@ -49,6 +55,15 @@ struct RootView: View {
         } message: {
             Text(recorder.lastError ?? "")
         }
+    }
+
+    private func collectShared() {
+        guard library.isLoaded else { return }
+        let files = ShareInbox.pending()
+        guard !files.isEmpty else { return }
+        library.importAudio(files, category: nil)
+        files.forEach(ShareInbox.remove)
+        tab = .recordings
     }
 
     /// Dateien (Teilen › „Mit Earnote öffnen“) und Links aus Widgets (`EarnoteLink`)

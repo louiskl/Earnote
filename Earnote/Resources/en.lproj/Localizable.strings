@@ -1365,3 +1365,19 @@
 "Betriebssysteme" = "Operating Systems";
 "Übungsblatt 4 bis Freitag rechnen" = "Finish problem sheet 4 by Friday";
 "Klausurtermin am 12. Februar notieren" = "Note the exam date: 12 February";
+
+/* iPhone: Ladekabel, Trinkgeld, Teilen-Erweiterung */
+"Seit einer Minute ist nichts zu hören. Prüfe, ob das richtige Mikrofon gewählt ist und %@ es verwenden darf (Einstellungen › Datenschutz & Sicherheit › Mikrofon)." = "Nothing has been audible for a minute. Check that the right microphone is selected and that %@ is allowed to use it (Settings › Privacy & Security › Microphone).";
+"Erst am Ladekabel verarbeiten" = "Process only while charging";
+"Die Notiz entsteht dann, sobald das iPhone lädt, zum Beispiel nachts. Im Stromsparmodus wartet Earnote auch ohne diese Einstellung aufs Ladekabel." = "The note is then written as soon as the iPhone is charging, for example overnight. In Low Power Mode, Earnote waits for charging even without this setting.";
+"Eine Aufnahme wartet aufs Ladekabel" = "One recording is waiting for charging";
+"%lld Aufnahmen warten aufs Ladekabel" = "%lld recordings are waiting for charging";
+"Der Stromsparmodus ist an. Die Notiz entsteht, sobald das iPhone lädt." = "Low Power Mode is on. The note will be written as soon as the iPhone is charging.";
+"Die Notiz entsteht, sobald das iPhone lädt – auch nachts bei geschlossener App." = "The note will be written as soon as the iPhone is charging – even overnight with the app closed.";
+"Danke! Das hilft, Earnote kostenlos weiterzuentwickeln." = "Thank you! This helps keep Earnote free.";
+"Earnote bleibt kostenlos und vollständig nutzbar. Ein Trinkgeld schaltet nichts frei – es hilft nur bei der Weiterentwicklung." = "Earnote stays free and fully usable. A tip unlocks nothing – it only supports development.";
+"Wird übernommen …" = "Adding …";
+"Bei Earnote angekommen" = "Added to Earnote";
+"Öffne Earnote – dann entsteht die Notiz." = "Open Earnote to have the note written.";
+"Das geht leider nicht" = "That didn’t work";
+"Earnote kann nur Audio und Video übernehmen." = "Earnote can only take audio and video.";

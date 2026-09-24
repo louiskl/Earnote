@@ -12,6 +12,9 @@ final class PhoneEnvironment {
     let queue: ProcessingQueue
     let recorder: PhoneRecorder
     let background: BackgroundProcessing
+    let power = PhonePower()
+    /// Trinkgeld-Käufe, die beim letzten Start offen blieben, abschließen
+    private let tipTransactions = TipJar.finishPendingTransactions()
     let liveActivity = LiveActivityController()
     private(set) var widgets: WidgetPublisher?
     private let repository: any LibraryRepository
@@ -46,6 +49,7 @@ final class PhoneEnvironment {
         library.onSettingsChanged = { [weak queue] old, new in
             if old.ai.localModel != new.ai.localModel { LocalModels.apply(new) }
             if old.ai != new.ai { queue?.aiProviderChanged() }
+            if old.processOnlyOnPower != new.processOnlyOnPower { queue?.resume() }
         }
         LocalModels.apply(library.settings)
 
@@ -54,6 +58,12 @@ final class PhoneEnvironment {
         self.repository = repository
         recorder = PhoneRecorder(library: library)
         background = BackgroundProcessing(queue: queue, library: library)
+        background.registerChargingTask()
+        // „Erst am Ladekabel“ und Stromsparmodus: Neues beginnt erst am Strom, Laufendes wird fertig
+        queue.isHeld = { [weak library, power] in
+            power.holdsProcessing(onlyWhenCharging: library?.settings.processOnlyOnPower ?? false)
+        }
+        power.onChange = { [weak queue] in queue?.resume() }
         recorder.onChange = { [weak recorder, liveActivity] in
             if let recorder { liveActivity.update(recorder) }
         }
@@ -66,12 +76,17 @@ final class PhoneEnvironment {
         Task { await start() }
     }
 
-    /// Sobald die Warteschlange arbeitet (nach Stopp, Import, „Erneut versuchen“), darf sie im Hintergrund weitermachen
+    /// Sobald die Warteschlange arbeitet (nach Stopp, Import, „Erneut versuchen“), darf sie im Hintergrund weitermachen.
+    /// Wartet sie aufs Ladekabel, bittet sie iOS, sie am Strom zu wecken – auch wenn die App dann zu ist.
     private func watchQueue() {
-        withObservationTracking { _ = queue.processingID } onChange: { [weak self] in
+        withObservationTracking {
+            _ = queue.processingID
+            _ = queue.isWaitingForPower
+        } onChange: { [weak self] in
             Task { @MainActor in
                 guard let self else { return }
                 if self.queue.processingID != nil { self.background.begin() }
+                if self.queue.isWaitingForPower { self.background.scheduleCharging() }
                 self.watchQueue()
             }
         }

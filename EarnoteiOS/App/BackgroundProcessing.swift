@@ -10,7 +10,10 @@ final class BackgroundProcessing {
     private let queue: ProcessingQueue
     private weak var library: LibraryStore?
     private var active: BGContinuedProcessingTask?
+    private var charging: BGTask?
     private static let prefix = "app.earnote.Earnote.process"
+    /// „Erst am Ladekabel“: iOS weckt die App am Strom (oft nachts) – steht im Info.plist
+    private static let chargingIdentifier = "app.earnote.Earnote.charging"
 
     init(queue: ProcessingQueue, library: LibraryStore) {
         self.queue = queue
@@ -51,6 +54,45 @@ final class BackgroundProcessing {
             task.progress.completedUnitCount = 100
             task.setTaskCompleted(success: true)
             self?.active = nil
+        }
+    }
+
+    /// Muss beim Start registriert sein, bevor iOS die Aufgabe ausliefert
+    func registerChargingTask() {
+        BGTaskScheduler.shared.register(forTaskWithIdentifier: Self.chargingIdentifier, using: .main) { [weak self] task in
+            MainActor.assumeIsolated { self?.runCharging(task) }
+        }
+    }
+
+    /// Aufnahmen warten aufs Ladekabel: iOS bitten, die App am Strom zu wecken. Ein neuer Auftrag ersetzt den alten.
+    func scheduleCharging() {
+        let request = BGProcessingTaskRequest(identifier: Self.chargingIdentifier)
+        request.requiresExternalPower = true
+        request.requiresNetworkConnectivity = false
+        do {
+            try BGTaskScheduler.shared.submit(request)
+        } catch {
+            // Dann geht es weiter, sobald die App am Ladekabel geöffnet ist
+            Log.info("Verarbeitung am Ladekabel nicht angemeldet: \(error.localizedDescription)")
+        }
+    }
+
+    /// Am Strom geweckt: Beim Start hat `resumeInterruptedWork` die wartenden Aufnahmen schon eingereiht,
+    /// jetzt hält nichts mehr zurück. Läuft die Zeit ab, geht es beim nächsten Öffnen weiter.
+    private func runCharging(_ task: BGTask) {
+        charging = task
+        task.expirationHandler = { [weak self] in
+            MainActor.assumeIsolated { self?.charging = nil }
+        }
+        queue.resume()
+        Task { [weak self] in
+            // Die Bibliothek lädt beim Start im Hintergrund; erst danach steht die Warteschlange
+            try? await Task.sleep(for: .seconds(5))
+            while let self, self.charging === task, self.isWorking {
+                try? await Task.sleep(for: .seconds(2))
+            }
+            task.setTaskCompleted(success: true)
+            self?.charging = nil
         }
     }
 

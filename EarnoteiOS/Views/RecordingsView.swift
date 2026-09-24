@@ -37,6 +37,7 @@ struct RecordingList: View {
     let filter: LibraryFilter
     @Environment(LibraryStore.self) private var library
     @Environment(PhoneRecorder.self) private var recorder
+    @Environment(ProcessingQueue.self) private var queue
     @State private var pendingDeletion: UUID?
 
     private var items: [Recording] { library.recordings.filter { filter.matches($0) } }
@@ -54,6 +55,9 @@ struct RecordingList: View {
                 empty
             } else {
                 List {
+                    if filter == .all, queue.processingID == nil, queue.isWaitingForPower {
+                        WaitingForPowerSection()
+                    }
                     ForEach(LibraryListing.groupedByDay(items)) { section in
                         Section(section.title) {
                             ForEach(section.items) { recording in
@@ -103,6 +107,33 @@ struct RecordingList: View {
                     .buttonStyle(.glassProminent)
                     .controlSize(.large)
                 }
+            }
+        }
+    }
+}
+
+/// „Erst am Ladekabel“ oder Stromsparmodus: Die Aufnahmen warten – oder beginnen auf Wunsch gleich
+private struct WaitingForPowerSection: View {
+    @Environment(ProcessingQueue.self) private var queue
+    @Environment(PhonePower.self) private var power
+
+    var body: some View {
+        Section {
+            Label {
+                if queue.pending.count == 1 {
+                    Text("Eine Aufnahme wartet aufs Ladekabel")
+                } else {
+                    Text("\(queue.pending.count) Aufnahmen warten aufs Ladekabel")
+                }
+            } icon: {
+                Image(systemName: "powerplug")
+            }
+            Button("Jetzt verarbeiten", systemImage: "play.fill") { queue.processNow() }
+        } footer: {
+            if power.isLowPowerMode {
+                Text("Der Stromsparmodus ist an. Die Notiz entsteht, sobald das iPhone lädt.")
+            } else {
+                Text("Die Notiz entsteht, sobald das iPhone lädt – auch nachts bei geschlossener App.")
             }
         }
     }
