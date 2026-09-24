@@ -107,7 +107,7 @@ Priorität: **1.1** = erste Version im App Store · **1.2** = direkt danach · *
 | Übersicht über einen Bereich (vor der Prüfung) | 1.2 |
 | Bereiche anlegen, umbenennen, sortieren, Vorlagen | 1.1 |
 | Löschen mit Bestätigung, Wischgesten, Kontextmenüs | 1.1 |
-| Direkte Exporte (Obsidian, Notion …) wie am Mac | später – am iPhone reicht das Teilen-Menü |
+| Direkte Exporte (Obsidian, Notion …) wie am Mac | ✅ Einstellungen › Export; Sprache der Aufnahme unter Einstellungen › Aufnahme |
 
 ### Lernen
 | Funktion | Prio |
@@ -151,7 +151,7 @@ Wörterbuch · Cloud-Schlüssel (Schlüsselbund) · Über, Earnote unterstützen
 | Neu zusammenfassen mit Anweisung, auch neu transkribieren; Vereinfachen | nur Vereinfachen | **„Neu zusammenfassen …“** mit Anweisung |
 | Notiz bearbeiten, auf KI-Fassung zurücksetzen | – | **übernommen** |
 | Namen & Begriffe korrigieren, Wörterbuch | – | **übernommen** (Korrigieren in der Notiz, Wörterbuch in den Einstellungen) |
-| Export an Notion, Obsidian, Apple Notizen … | Teilen-Menü | bleibt beim **Teilen-Menü** (am iPhone der übliche Weg) |
+| Export an Notion, Obsidian, Apple Notizen … | Teilen-Menü | **Einstellungen › Export** wie am Mac: Notion, Obsidian, Markdown-Ordner (Standard: „Auf meinem iPhone › Earnote“), Logseq, Todoist, Apple Erinnerungen (`PhoneDestinations`; Ordner per Lesezeichen in `FolderAccess`). Apple Notizen, Bear, Craft, Things bleiben beim Teilen-Menü: nur per AppleScript oder App-Öffnen, geht im Hintergrund nicht |
 | Call-Erkennung, Systemton, Menüleiste, Kurzprotokoll per Mail | – | **nicht am iPhone** (gibt es dort nicht bzw. Teilen-Menü reicht) |
 | Live-Mitschrift während der Aufnahme | – | 1.2 (braucht echtes Gerät zum Testen) |
 

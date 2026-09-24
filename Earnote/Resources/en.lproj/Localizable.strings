@@ -1447,3 +1447,18 @@
 "Kostenlos, ohne Kreditkarte. Earnote wählt selbst ein gutes kostenloses Modell. OpenRouter verlangt, dass du kostenlose Modelle in den Datenschutz-Einstellungen freigibst – deren Anbieter dürfen den Text zum Training nutzen. Für vertrauliche Aufnahmen nimm lieber „Auf diesem iPhone“ oder „Mit meinem Mac“." = "Free, no credit card. Earnote picks a good free model itself. OpenRouter requires you to allow free models in its privacy settings – their providers may use the text for training. For confidential recordings, choose “On This iPhone” or “With My Mac” instead.";
 "Die Aufnahme verlässt dein iPhone nie – außer beim Weg „Mit meinem Mac“, dann geht sie über deine eigene iCloud zum Mac und wird danach gelöscht. Bei Google und den weiteren Anbietern geht nur der geschriebene Text dorthin, nie das Audio. Kostenlose Angebote (Google, OpenRouter) dürfen diesen Text nutzen, um ihre KI zu verbessern – für Vertrauliches nimm das iPhone oder den Mac." = "Your recording never leaves your iPhone – except with “With My Mac”, where it goes through your own iCloud to your Mac and is deleted afterwards. With Google and the other providers, only the written text is sent, never the audio. Free offers (Google, OpenRouter) may use that text to improve their AI – for confidential material, use your iPhone or Mac.";
 "Nichts. Auf dem iPhone und mit dem Mac rechnet die KI auf deinen eigenen Geräten. Google und OpenRouter bieten ein kostenloses Kontingent, das für Vorlesungen reicht. Claude, OpenAI und Mistral rechnen nach Nutzung über deinen eigenen Schlüssel ab." = "Nothing. On your iPhone and with your Mac, the AI runs on your own devices. Google and OpenRouter offer a free quota that's enough for lectures. Claude, OpenAI and Mistral bill by usage through your own key.";
+
+/* iPhone: Export und Sprache */
+"Wohin fertige Notizen gehen" = "Where finished notes go";
+"Ohne Ziel bleiben die Notizen in Earnote. Einzelne Notizen teilst du jederzeit über das Teilen-Menü." = "Without a destination, notes stay in Earnote. You can share any single note from the share menu at any time.";
+"Wähle den Ordner deines Obsidian-Vaults, meist in iCloud Drive › Obsidian." = "Choose your Obsidian vault folder, usually in iCloud Drive › Obsidian.";
+"Auf meinem iPhone › Earnote" = "On My iPhone › Earnote";
+"Eine Datei pro Notiz. Ohne eigenen Ordner findest du sie in der Dateien-App unter „Auf meinem iPhone › Earnote“." = "One file per note. Without a folder of your own, you'll find them in the Files app under “On My iPhone › Earnote”.";
+"Auf diesen Ordner darf Earnote nicht zugreifen. Wähle einen anderen." = "Earnote isn't allowed to access this folder. Please choose another one.";
+"Zurück zu „Auf meinem iPhone“" = "Back to “On My iPhone”";
+"Verbunden mit der Datenbank „Earnote“" = "Connected to the “Earnote” database";
+"Offene Aufgaben aus der Notiz, je Bereich eine eigene Liste." = "Open tasks from the note, one list per area.";
+"Wähle den Ordner in den Einstellungen unter „Export“ noch einmal aus." = "Choose the folder again in Settings under “Export”.";
+"Kein Zugriff mehr auf den Ordner – wähle ihn unter „Export“ noch einmal aus." = "No longer allowed to access the folder – choose it again under “Export”.";
+"Für eine englische Vorlesung stellst du die Sprache vorher auf Englisch. Das gilt für alle neuen Aufnahmen." = "For a lecture in another language, set the language beforehand. It applies to all new recordings.";
+"Fertige Notizen automatisch in Notion, Obsidian, einen Ordner, Todoist oder Erinnerungen legen." = "Automatically send finished notes to Notion, Obsidian, a folder, Todoist or Reminders.";
