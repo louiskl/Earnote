@@ -261,7 +261,7 @@ beide                     ──►  EarnoteML
 
 ## 6a. Weg B im Detail (24.09.2026)
 
-> **Stand:** B1 (Kern) und B2 (Mac) als Code da, **ungebaut** (in der Cloud gibt es kein Xcode). Die offenen Fragen unten sind
+> **Stand:** B1 (Kern), B2 (Mac) und B3 (iPhone) als Code da. Die CI baut Kern, Mac-App und iPhone-App (PR louiskl/earnote#6). Die offenen Fragen unten sind
 > vorerst mit den Vorschlägen beantwortet. Weiter geht es mit dem Bauen und den Kern-Tests am Mac, danach mit B3 (iPhone).
 
 **Ziel:** Das iPhone nimmt auf, der eigene Mac schreibt Transkript und Notiz, das Audio verschwindet danach aus iCloud.
@@ -297,7 +297,7 @@ beide                     ──►  EarnoteML
 |---|---|
 | **B1 Kern** | ✅ Code: `EarnoteSchemaV2` (+ leichte Migration), `Library/Handoff.swift` (Snapshots `Handoff`/`SyncedDevice`, `HandoffRules`, `HandoffRepository`), Status `waitingForMac`, Tests in `HandoffTests.swift` (Regeln, Speichern, Migration V1 → V2). **Offen:** `swift test` am Mac |
 | **B2 Mac** | ✅ Code: `Earnote/Services/HandoffWatcher.swift` meldet den Mac stündlich als Gerät, holt nach jedem iCloud-Empfang ab, verdrahtet in `AppEnvironment`. **Offen:** Build, CloudKit-Schema neu anlegen und nach Production übernehmen (ROADMAP „iCloud-Sync“, Schritt 5), Release |
-| **B3 iPhone** | offen: iCloud-Berechtigung und -Schalter, nach dem Stopp komprimieren (AAC) und übergeben, Weg „Mit meinem Mac“ in den Einstellungen und im Onboarding (nur, wenn `HandoffRules.processingMacs` nicht leer ist), Zeile „Wartet auf deinen Mac“, Hinweis nach 24 h und bei `failed` |
+| **B3 iPhone** | ✅ Code: `EarnoteiOS/App/HandoffSender.swift` (AAC über `AVAssetExportSession`, Übergabe, Rücknahme mit „Auf dem iPhone verarbeiten“, Mitteilung nach 24 h oder bei `failed`), Einstellungen und Onboarding › „Mac“ (iCloud-Schalter, „Notizen schreibt mein Mac“, sobald ein Mac gefunden ist), Status in Liste und Notiz, iCloud- und Push-Berechtigung. `ProcessingQueue.resumes` verhindert, dass iPhone und Mac dieselbe Aufnahme verarbeiten. **Offen:** am Gerät testen; das iPhone löscht sein eigenes Audio nach der fertigen Notiz noch nicht |
 | **B4 Geräte** | offen |
 
 **Bekanntes Risiko:** Mac-Versionen ohne V2 lesen `waitingForMac` als „Wartet“ und würden die Aufnahme ohne Audio verarbeiten
@@ -335,7 +335,7 @@ Kommt bei der ersten Frage „zu langsam“ heraus, wird Weg B oder C auch auf n
 | **M0 – ✅ 24.09.2026** | Plan freigegeben, Entscheidungen aus Abschnitt 9, iOS-Abschnitt in den Design-Richtlinien (30), eigenes Projekt `EarnoteiOS.xcodeproj` mit Generator; Grundgerüst (Tabs, Aufnahme-Leiste) baut mit Kern, WhisperKit und MLX und läuft im Simulator | erledigt |
 | **M1 – Spike** | Messungen aus Abschnitt 7 | Entscheidung über Weg A |
 | **M2 – ✅ 24.09.2026** | Aufnehmen mit Bildschirm aus (Hintergrund-Audio, Pause bei Anrufen, AirPods-Wechsel, übersteht Abstürze), Bibliothek, Notiz, Transkript mit Abspielen, Lernen (Karteikarten abfragen), Suche, Einstellungen, Onboarding, Import und „Mit Earnote öffnen“, englische Oberfläche. Im Simulator durchgespielt | erledigt, fehlt: Test am echten iPhone |
-| **M3 – teilweise ✅** | ✅ Weg A und C (lokale KI, Gemini/Claude/OpenAI/Mistral), Hintergrund-Verarbeitung (`BGContinuedProcessingTask`), Live-Aktivität mit Pause/Stopp (im Simulator getestet), Steuerelement fürs Kontrollzentrum, Siri/Kurzbefehle, Mitteilungen · offen: **Weg B** (Übergabe an den Mac über iCloud), App-Icon fürs iPhone | TestFlight für Kommilitonen |
+| **M3 – teilweise ✅** | ✅ Weg A und C (lokale KI, Gemini/Claude/OpenAI/Mistral), Hintergrund-Verarbeitung (`BGContinuedProcessingTask`), Live-Aktivität mit Pause/Stopp (im Simulator getestet), Steuerelement fürs Kontrollzentrum, Siri/Kurzbefehle, Mitteilungen · Weg B als Code (Abschnitt 6a), App-Icon ✅ · offen: Weg B am Gerät testen | TestFlight für Kommilitonen |
 | **M4 – Lernen & Import – Code ✅** | ✅ Karteikarten lernen, Import, Share Extension, „Erst am Ladekabel“, Stromsparmodus, Trinkgeld (StoreKit 2) · offen: **Test am echten iPhone**, Trinkgeld-Produkte in App Store Connect anlegen | vollständige 1.1 |
 | **M5 – Einreichen** | Onboarding-Feinschliff, Datenschutz-Etikett, Screenshots, App Review | **Earnote 1.1 für iPhone im App Store** |
 

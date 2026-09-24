@@ -103,6 +103,8 @@ struct OnboardingView: View {
                 .listRowBackground(Color.clear)
             }
             NoteWaySection()
+            // Weg B: Wer Earnote auf dem Mac hat, lässt ihn die Notizen schreiben, sobald er gefunden ist
+            MacSection()
             Section {
                 PrimaryButton("Weiter") { step = 4 }
                     .listRowBackground(Color.clear)
@@ -110,8 +112,12 @@ struct OnboardingView: View {
             }
         }
         .scrollContentBackground(.hidden)
+        .onChange(of: library.settings.syncWithCloud) { _, syncs in
+            if syncs { library.settings.processOnMac = true }
+        }
         .onAppear {
-            // Vorschlag je nach Gerät (docs/IPHONE.md, Abschnitt 2), nur beim ersten Mal; der Mac-Weg kommt mit dem iCloud-Abgleich
+            // Vorschlag je nach Gerät (docs/IPHONE.md, Abschnitt 2), nur beim ersten Mal. Der Mac-Weg greift, sobald
+            // nach dem Einschalten von iCloud ein Mac gefunden ist; bis dahin gilt dieser Weg.
             guard !suggestedWay else { return }
             suggestedWay = true
             if library.settings.ai.provider == .none || !NoteWaySection.providers.contains(library.settings.ai.provider) {
