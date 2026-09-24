@@ -10,16 +10,19 @@ struct RootView: View {
     @Environment(PhoneRecorder.self) private var recorder
     @SceneStorage("tab") private var tab: Tab = .recordings
     @State private var showsRecorder = false
+    /// Navigationspfade der Tabs – damit Links aus Widgets direkt an die richtige Stelle springen
+    @State private var recordingsPath: [UUID] = []
+    @State private var libraryPath = NavigationPath()
 
     var body: some View {
         @Bindable var library = library
         @Bindable var recorder = recorder
         TabView(selection: $tab) {
             SwiftUI.Tab("Aufnahmen", systemImage: "waveform", value: .recordings) {
-                RecordingsView()
+                RecordingsView(path: $recordingsPath)
             }
             SwiftUI.Tab("Bereiche", systemImage: "square.stack.fill", value: .library) {
-                LibraryView()
+                LibraryView(path: $libraryPath)
             }
             SwiftUI.Tab(value: .search, role: .search) {
                 SearchView()
@@ -32,11 +35,7 @@ struct RootView: View {
             RecordSheet()
         }
         // „Mit Earnote öffnen“ aus Sprachmemos, WhatsApp, Dateien (Dokumenttypen im Info.plist)
-        .onOpenURL { url in
-            guard url.isFileURL else { return }
-            AudioImport.run([url], into: library, category: nil)
-            tab = .recordings
-        }
+        .onOpenURL { url in open(url) }
         .fullScreenCover(isPresented: .constant(library.isLoaded && !library.settings.onboardingCompleted)) {
             OnboardingView()
         }
@@ -49,6 +48,32 @@ struct RootView: View {
             Button("OK", role: .cancel) {}
         } message: {
             Text(recorder.lastError ?? "")
+        }
+    }
+
+    /// Dateien (Teilen › „Mit Earnote öffnen“) und Links aus Widgets (`EarnoteLink`)
+    private func open(_ url: URL) {
+        if url.isFileURL {
+            AudioImport.run([url], into: library, category: nil)
+            tab = .recordings
+            return
+        }
+        guard url.scheme == EarnoteLink.scheme else { return }
+        switch url.host() {
+        case "recording":
+            guard let id = UUID(uuidString: url.lastPathComponent), library.recording(id) != nil else { return }
+            tab = .recordings
+            recordingsPath = [id]
+        case "tasks":
+            tab = .library
+            libraryPath = NavigationPath([LibraryFilter.openTasks])
+        case "record":
+            Task {
+                await recorder.start(category: nil)
+                if recorder.isRecording { showsRecorder = true }
+            }
+        default:
+            break
         }
     }
 }

@@ -131,6 +131,7 @@ def settings(d):
 target_settings = {
     "ASSETCATALOG_COMPILER_APPICON_NAME": "AppIcon",
     "ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME": "AccentColor",
+    "CODE_SIGN_ENTITLEMENTS": f"{NAME}/Resources/{NAME}.entitlements",
     "CODE_SIGN_STYLE": "Automatic",
     "CURRENT_PROJECT_VERSION": BUILD_NUMBER,
     "DEVELOPMENT_TEAM": os.environ.get("EARNOTE_TEAM", ""),
@@ -203,6 +204,7 @@ widget_settings = {k: target_settings[k] for k in ("CODE_SIGN_STYLE", "CURRENT_P
                    "IPHONEOS_DEPLOYMENT_TARGET", "MARKETING_VERSION", "SDKROOT", "SUPPORTED_PLATFORMS", "SWIFT_VERSION",
                    "TARGETED_DEVICE_FAMILY", "SWIFT_EMIT_LOC_STRINGS")}
 widget_settings.update({
+    "CODE_SIGN_ENTITLEMENTS": f"{WNAME}/{WNAME}.entitlements",
     "GENERATE_INFOPLIST_FILE": "YES",
     "INFOPLIST_FILE": f"{WNAME}/Info.plist",
     "INFOPLIST_KEY_CFBundleDisplayName": "Earnote",

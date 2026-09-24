@@ -4,6 +4,7 @@ import SwiftUI
 /// Tab „Bereiche“ – das Gegenstück zur Seitenleiste der Mac-App: Bibliothek (Alle, Offene Aufgaben, Ohne Bereich,
 /// Probleme) und die Bereiche mit Zählern. Ein Bereich zeigt seine Aufnahmen, die Übersicht und die Karteikarten.
 struct LibraryView: View {
+    @Binding var path: NavigationPath
     @Environment(LibraryStore.self) private var library
     @State private var creating = false
     @State private var editing: RecordingCategory?
@@ -11,7 +12,7 @@ struct LibraryView: View {
     private var counts: LibraryCounts { LibraryListing.counts(library.recordings) }
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $path) {
             List {
                 Section("Bibliothek") {
                     row(.all, "Alle Aufnahmen", symbol: "tray.full.fill", color: .accentColor)

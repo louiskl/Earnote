@@ -1346,3 +1346,22 @@
 "Worauf die Notiz in diesem Bereich achten soll, z. B. „Formeln immer mit Rechenweg“." = "What notes in this area should focus on, e.g. “always show formulas with the steps”.";
 "Zusammenfassung und Aufgaben" = "Summary and tasks";
 "z. B. „Mehr Beispiele“ oder „Nur die Formeln“" = "e.g. “More examples” or “Only the formulas”";
+
+/* iPhone-Widgets */
+"Startet mit einem Tipp eine Aufnahme." = "Starts a recording with one tap.";
+"Mit Earnote aufnehmen" = "Record with Earnote";
+"Letzte Notizen" = "Recent Notes";
+"Letzte Notiz" = "Latest Note";
+"Deine neuesten Notizen – ein Tipp öffnet sie." = "Your latest notes – tap to open.";
+"Noch keine Notiz" = "No notes yet";
+"Aufgaben" = "Tasks";
+"Aufgaben und Fristen aus deinen Notizen." = "Tasks and deadlines from your notes.";
+"%lld offene Aufgaben" = "%lld open tasks";
+"%lld offen" = "%lld open";
+"Alles erledigt" = "All done";
+"Eigenwerte und Eigenvektoren" = "Eigenvalues and Eigenvectors";
+"Charakteristisches Polynom, Eigenräume, Diagonalisierbarkeit." = "Characteristic polynomial, eigenspaces, diagonalizability.";
+"Scheduling-Verfahren" = "Scheduling Algorithms";
+"Betriebssysteme" = "Operating Systems";
+"Übungsblatt 4 bis Freitag rechnen" = "Finish problem sheet 4 by Friday";
+"Klausurtermin am 12. Februar notieren" = "Note the exam date: 12 February";

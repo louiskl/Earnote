@@ -13,6 +13,7 @@ final class PhoneEnvironment {
     let recorder: PhoneRecorder
     let background: BackgroundProcessing
     let liveActivity = LiveActivityController()
+    private(set) var widgets: WidgetPublisher?
     private let repository: any LibraryRepository
 
     init(storage: Storage = .standard, defaults: UserDefaults = .standard) {
@@ -61,6 +62,7 @@ final class PhoneEnvironment {
         RecordingCommands.togglePause = { [weak recorder] in recorder?.togglePause() }
         RecordingCommands.stop = { [weak recorder] in recorder?.stop() }
         watchQueue()
+        widgets = WidgetPublisher(library: library, recorder: recorder)
         Task { await start() }
     }
 

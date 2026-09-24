@@ -4,12 +4,13 @@ import UniformTypeIdentifiers
 
 /// Tab „Aufnahmen“: alle Aufnahmen nach Tagen – wie in Sprachmemos. Bereiche und Filter stehen im Tab „Bereiche“.
 struct RecordingsView: View {
+    @Binding var path: [UUID]
     @Environment(LibraryStore.self) private var library
     @State private var showsSettings = false
     @State private var importing = false
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $path) {
             RecordingList(filter: .all)
                 .navigationTitle("Aufnahmen")
                 .navigationDestination(for: UUID.self) { RecordingDetailView(id: $0) }

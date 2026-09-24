@@ -9,6 +9,9 @@ struct EarnoteWidgetBundle: WidgetBundle {
     var body: some Widget {
         RecordingLiveActivity()
         StartRecordingControl()
+        RecordWidget()
+        LatestNoteWidget()
+        TasksWidget()
     }
 }
 

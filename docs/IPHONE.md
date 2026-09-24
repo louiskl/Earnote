@@ -83,7 +83,7 @@ Priorität: **1.1** = erste Version im App Store · **1.2** = direkt danach · *
 | Mitteilung „Notiz fertig“ mit Titel; Tippen öffnet die Notiz | 1.1 |
 | **Steuerelement** fürs Kontrollzentrum und den Sperrbildschirm: „Aufnahme starten“ (ControlWidget) | 1.1 |
 | **App Intents:** „Aufnahme starten/stoppen“, „Letzte Notiz zeigen“; damit gehen Siri, Kurzbefehle und die Action-Taste | 1.1 |
-| Widget für den Home-Bildschirm: letzte Notizen, offene Aufgaben, fällige Karteikarten | 1.2 |
+| ✅ Widgets: „Aufnehmen“ (Home klein, Sperrbildschirm rund), „Letzte Notizen“ (klein, mittel, Sperrbildschirm), „Offene Aufgaben“ (klein, mittel, Sperrbildschirm rund/rechteckig/Zeile); Tippen springt in die Notiz bzw. die Aufgaben | 1.1 |
 | Apple Watch: Aufnahme starten/stoppen | später |
 
 ### Verarbeiten
