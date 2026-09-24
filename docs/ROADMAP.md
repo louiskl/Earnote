@@ -338,7 +338,7 @@ Nicht „wenn nichts mehr einfällt“, sondern wenn diese Punkte abgehakt sind:
 
 **Drumherum**
 - [x] Screenshots hell/dunkel in beiden Sprachen (Website, Stand 0.9.13) und Homebrew-Tap
-- [ ] Demo-Video ([Drehbuch](VIDEO.md) liegt bereit)
+- [x] Demo-Video (24.09.2026, auf Website und im README)
 - [ ] Markenrecherche Earnote abgeschlossen (liegt beim Nutzer)
 
 Erst wenn alle drei Blöcke stehen, wird aus 0.9.x die 1.0 – und erst danach beginnt Phase 6.
@@ -359,7 +359,7 @@ Erst wenn alle drei Blöcke stehen, wird aus 0.9.x die 1.0 – und erst danach b
 - [x] Inhalt: Was es macht · Screenshot in der jeweiligen Sprache · Download-Knopf auf das neueste Release ·
       „bleibt auf deinem Mac“ · Voraussetzungen · FAQ · Link zu GitHub
 - [x] **Impressum nach § 5 TMG** als eigene Seite (`impressum.html`), aus beiden Sprachen verlinkt
-- [ ] Demo-Video (30–60 s) – Drehbuch und Anleitung liegen bereit: [VIDEO.md](VIDEO.md)
+- [x] Demo-Video (75 s, `docs/assets/demo-en.mp4`) – als Hero auf beiden Sprachseiten
 - [x] Screenshots in Hell und Dunkel, deutsch und englisch (Stand 0.9.13, `docs/assets/`)
 
 **Verteilung**
@@ -370,7 +370,8 @@ Erst wenn alle drei Blöcke stehen, wird aus 0.9.x die 1.0 – und erst danach b
       und einem mindestens 30 Tage alten Repository auf – das kommt später.
 - [x] **Automatische Updates (0.9.4)**: Sparkle 2.10 – einmal am Tag Appcast prüfen, Änderungen zeigen,
       auf Zuspruch installieren. Update-Datei EdDSA-signiert, `build_release.sh` erzeugt sie mit.
-- [ ] Eintragen: AlternativeTo, openalternative.co, awesome-mac, Product Hunt, Show HN, r/macapps, r/Studium
+- [ ] Eintragen: ✅ AlternativeTo, openalternative.co, MacUpdate (eingereicht 24.09.) · awesome-mac PR #2951, awesome-macOS PR #1136 offen ·
+      Reddit: neues Konto wird gefiltert – erst Karma sammeln, dann r/LocalLLaMA, r/opensource, r/Studium, r/macapps · Product Hunt, Show HN nach 1.0
 - [ ] Hochschule: Fachschaften, Uni-Newsletter, Instagram/TikTok – die Zielgruppe sitzt dort, nicht auf HN
 
 **Beta**
