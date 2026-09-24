@@ -253,12 +253,16 @@ Kommt bei der ersten Frage „zu langsam“ heraus, wird Weg B oder C auch auf n
 
 ## 8. Etappen
 
+> **Stand 24.09.2026, Befunde aus dem Simulator:** Apples Spracherkennung lädt im Simulator ihr deutsches Modell nicht
+> („not subscribed“) – das muss am echten iPhone geprüft werden. Die Hintergrund-Aufgabe (`BGContinuedProcessingTask`)
+> lehnt der Simulator ab; auch das gilt nur am Gerät.
+
 | Etappe | Inhalt | Ergebnis |
 |---|---|---|
 | **M0 – ✅ 24.09.2026** | Plan freigegeben, Entscheidungen aus Abschnitt 9, iOS-Abschnitt in den Design-Richtlinien (30), eigenes Projekt `EarnoteiOS.xcodeproj` mit Generator; Grundgerüst (Tabs, Aufnahme-Leiste) baut mit Kern, WhisperKit und MLX und läuft im Simulator | erledigt |
 | **M1 – Spike** | Messungen aus Abschnitt 7 | Entscheidung über Weg A |
-| **M2 – Aufnehmen & Lesen** | `EarnotePlatform`, iOS-Target, Aufnahme mit Bildschirm aus, Bibliothek, Notiz, Transkript, Sync lesen | erste TestFlight-Fassung (intern) |
-| **M3 – Notiz entsteht** | Wege A/B/C, Hintergrund-Verarbeitung, Live-Aktivität, Mitteilungen, Steuerelement, Intents | TestFlight für Kommilitonen |
+| **M2 – ✅ 24.09.2026** | Aufnehmen mit Bildschirm aus (Hintergrund-Audio, Pause bei Anrufen, AirPods-Wechsel, übersteht Abstürze), Bibliothek, Notiz, Transkript mit Abspielen, Lernen (Karteikarten abfragen), Suche, Einstellungen, Onboarding, Import und „Mit Earnote öffnen“, englische Oberfläche. Im Simulator durchgespielt | erledigt, fehlt: Test am echten iPhone |
+| **M3 – teilweise ✅** | ✅ Weg A und C (lokale KI, Gemini/Claude/OpenAI/Mistral), Hintergrund-Verarbeitung (`BGContinuedProcessingTask`), Live-Aktivität mit Pause/Stopp (im Simulator getestet), Steuerelement fürs Kontrollzentrum, Siri/Kurzbefehle, Mitteilungen · offen: **Weg B** (Übergabe an den Mac über iCloud), App-Icon fürs iPhone | TestFlight für Kommilitonen |
 | **M4 – Lernen & Import** | Karteikarten lernen, Share Extension, Import | vollständige 1.1 |
 | **M5 – Einreichen** | Onboarding-Feinschliff, Datenschutz-Etikett, Screenshots, App Review | **Earnote 1.1 für iPhone im App Store** |
 

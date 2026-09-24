@@ -12,6 +12,7 @@ final class PhoneEnvironment {
     let queue: ProcessingQueue
     let recorder: PhoneRecorder
     let background: BackgroundProcessing
+    let liveActivity = LiveActivityController()
 
     init(storage: Storage = .standard, defaults: UserDefaults = .standard) {
         let settingsRepository = UserDefaultsSettingsRepository(defaults: defaults)
@@ -50,6 +51,13 @@ final class PhoneEnvironment {
         self.queue = queue
         recorder = PhoneRecorder(library: library)
         background = BackgroundProcessing(queue: queue, library: library)
+        recorder.onChange = { [weak recorder, liveActivity] in
+            if let recorder { liveActivity.update(recorder) }
+        }
+        // Kontrollzentrum, Live-Aktivität, Siri: dieselben Befehle wie die Knöpfe in der App
+        RecordingCommands.start = { [weak recorder] in await recorder?.start(category: nil) }
+        RecordingCommands.togglePause = { [weak recorder] in recorder?.togglePause() }
+        RecordingCommands.stop = { [weak recorder] in recorder?.stop() }
         watchQueue()
         Task { await start() }
     }

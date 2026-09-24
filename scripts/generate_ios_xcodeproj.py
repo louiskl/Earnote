@@ -138,6 +138,7 @@ target_settings = {
     "INFOPLIST_FILE": f"{NAME}/Resources/Info.plist",
     "INFOPLIST_KEY_NSSpeechRecognitionUsageDescription": "Earnote schreibt deine Aufnahmen mit der Spracherkennung auf deinem iPhone mit.",
     "INFOPLIST_KEY_CFBundleDisplayName": "Earnote",
+    "INFOPLIST_KEY_NSSupportsLiveActivities": "YES",
     "INFOPLIST_KEY_NSMicrophoneUsageDescription": "Earnote nimmt Vorlesungen und Meetings auf, um daraus Notizen zu schreiben. Die Aufnahme bleibt auf deinem iPhone.",
     "INFOPLIST_KEY_UIApplicationSceneManifest_Generation": "YES",
     "INFOPLIST_KEY_UILaunchScreen_Generation": "YES",
@@ -165,16 +166,73 @@ def config_list(name, debug, release):
     add(l, f"{{isa = XCConfigurationList; buildConfigurations = ({d}, {r}, ); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; }};")
     return l
 
+# Widget-Erweiterung: Live-Aktivität (Sperrbildschirm, Dynamic Island) und Steuerelement fürs Kontrollzentrum.
+# Die Dateien unter EarnoteiOS/Shared/ (Aktivität, Intents) kompiliert sie mit.
+WNAME = "EarnoteWidgets"
+WSRC = os.path.join(ROOT, WNAME)
+wfiles = sorted(f for f in os.listdir(WSRC) if not f.startswith("."))
+wrefs = {}
+for f in wfiles:
+    wrefs[f] = uid("wref", f)
+    add(wrefs[f], f'{{isa = PBXFileReference; lastKnownFileType = {ftype(f)}; path = "{f}"; sourceTree = "<group>"; }};')
+WGROUP = uid("wgroup")
+add(WGROUP, "{isa = PBXGroup; children = (" + "".join(f"{wrefs[f]}, " for f in wfiles) + f'); path = "{WNAME}"; sourceTree = "<group>"; }};')
+wbuilds = []
+for f in wfiles:
+    if f.endswith(".swift"):
+        wbuilds.append(uid("wbuild", f))
+        add(wbuilds[-1], f"{{isa = PBXBuildFile; fileRef = {wrefs[f]}; }};")
+for path in sources:
+    if path.startswith("Shared/"):
+        wbuilds.append(uid("wbuild", "shared", path))
+        add(wbuilds[-1], f"{{isa = PBXBuildFile; fileRef = {refs[path]}; }};")
+WSOURCES = uid("wphase", "sources")
+add(WSOURCES, "{isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (" + "".join(f"{b}, " for b in wbuilds)
+    + "); runOnlyForDeploymentPostprocessing = 0; };")
+# Dieselbe Übersetzungstabelle – Sperrbildschirm und Kontrollzentrum folgen der Sprache des iPhones
+WLOC_BUILD = uid("wbuild", "Localizable.strings")
+add(WLOC_BUILD, f'{{isa = PBXBuildFile; fileRef = {LOC_GROUP}; }};')
+WRESOURCES = uid("wphase", "resources")
+add(WRESOURCES, f"{{isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = ({WLOC_BUILD}, ); runOnlyForDeploymentPostprocessing = 0; }};")
+WPRODUCT = uid("wproduct")
+add(WPRODUCT, f'{{isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = {WNAME}.appex; sourceTree = BUILT_PRODUCTS_DIR; }};')
+add(PRODUCTS, f'{{isa = PBXGroup; children = ({PRODUCT}, {WPRODUCT}, ); name = Products; sourceTree = "<group>"; }};')
+add(MAIN, f'{{isa = PBXGroup; children = ({uid("group", ".")}, {WGROUP}, {SHARED_GROUP}, {PACKAGE_REF_FILE}, {PRODUCTS}, ); sourceTree = "<group>"; }};')
+widget_settings = {k: target_settings[k] for k in ("CODE_SIGN_STYLE", "CURRENT_PROJECT_VERSION", "DEVELOPMENT_TEAM",
+                   "IPHONEOS_DEPLOYMENT_TARGET", "MARKETING_VERSION", "SDKROOT", "SUPPORTED_PLATFORMS", "SWIFT_VERSION",
+                   "TARGETED_DEVICE_FAMILY", "SWIFT_EMIT_LOC_STRINGS")}
+widget_settings.update({
+    "GENERATE_INFOPLIST_FILE": "YES",
+    "INFOPLIST_FILE": f"{WNAME}/Info.plist",
+    "INFOPLIST_KEY_CFBundleDisplayName": "Earnote",
+    "LD_RUNPATH_SEARCH_PATHS": "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks",
+    "PRODUCT_BUNDLE_IDENTIFIER": "app.earnote.Earnote.Widgets",
+    "PRODUCT_NAME": "$(TARGET_NAME)",
+    "SKIP_INSTALL": "YES",
+})
+WTARGET = uid("wtarget")
+add(WTARGET, f"{{isa = PBXNativeTarget; buildConfigurationList = {config_list('widget', widget_settings, widget_settings)}; "
+             f"buildPhases = ({WSOURCES}, {WRESOURCES}, ); buildRules = (); dependencies = (); name = {WNAME}; productName = {WNAME}; "
+             f'productReference = {WPRODUCT}; productType = "com.apple.product-type.app-extension"; }};')
+EMBED_FILE = uid("embed", "file")
+add(EMBED_FILE, f"{{isa = PBXBuildFile; fileRef = {WPRODUCT}; settings = {{ATTRIBUTES = (RemoveHeadersOnCopy, ); }}; }};")
+EMBED = uid("embed", "phase")
+add(EMBED, f'{{isa = PBXCopyFilesBuildPhase; buildActionMask = 2147483647; dstPath = ""; dstSubfolderSpec = 13; files = ({EMBED_FILE}, ); '
+           f'name = "Embed Foundation Extensions"; runOnlyForDeploymentPostprocessing = 0; }};')
+PROJECT = uid("project")
+WPROXY, WDEPENDENCY = uid("wproxy"), uid("wdependency")
+add(WPROXY, f"{{isa = PBXContainerItemProxy; containerPortal = {PROJECT}; proxyType = 1; remoteGlobalIDString = {WTARGET}; remoteInfo = {WNAME}; }};")
+add(WDEPENDENCY, f"{{isa = PBXTargetDependency; target = {WTARGET}; targetProxy = {WPROXY}; }};")
+
 TARGET = uid("target")
 add(TARGET, f"{{isa = PBXNativeTarget; buildConfigurationList = {config_list('target', target_settings, target_settings)}; "
-            f"buildPhases = ({SOURCES}, {FRAMEWORKS}, {RESOURCES}, ); buildRules = (); dependencies = (); name = {NAME}; "
+            f"buildPhases = ({SOURCES}, {FRAMEWORKS}, {RESOURCES}, {EMBED}, ); buildRules = (); dependencies = ({WDEPENDENCY}, ); name = {NAME}; "
             f"packageProductDependencies = (" + "".join(f"{p}, " for p in pkg_products) + f"); productName = {NAME}; "
             f'productReference = {PRODUCT}; productType = "com.apple.product-type.application"; }};')
-PROJECT = uid("project")
 add(PROJECT, f"{{isa = PBXProject; attributes = {{BuildIndependentTargetsInParallel = 1; LastSwiftUpdateCheck = 2600; LastUpgradeCheck = 2600; }}; "
              f"buildConfigurationList = {config_list('project', project_debug, project_release)}; compatibilityVersion = \"Xcode 14.0\"; "
              f"developmentRegion = de; hasScannedForEncodings = 0; knownRegions = (de, en, Base, ); mainGroup = {MAIN}; "
-             f"packageReferences = ({PACKAGE}, ); productRefGroup = {PRODUCTS}; projectDirPath = \"\"; projectRoot = \"\"; targets = ({TARGET}, ); }};")
+             f"packageReferences = ({PACKAGE}, ); productRefGroup = {PRODUCTS}; projectDirPath = \"\"; projectRoot = \"\"; targets = ({TARGET}, {WTARGET}, ); }};")
 
 os.makedirs(os.path.join(PROJ, "project.xcworkspace"), exist_ok=True)
 with open(os.path.join(PROJ, "project.pbxproj"), "w") as f:
