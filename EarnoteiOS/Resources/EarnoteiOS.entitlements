@@ -7,5 +7,8 @@
 	<array>
 		<string>group.app.earnote.Earnote</string>
 	</array>
+	<!-- Das lokale Sprachmodell braucht mehr als die üblichen App-Grenzen (iPhones mit 8 GB) -->
+	<key>com.apple.developer.kernel.increased-memory-limit</key>
+	<true/>
 </dict>
 </plist>

@@ -38,7 +38,7 @@ struct SettingsSheet: View {
                 }
                 #endif
                 Section {
-                    Link(destination: AppInfo.sponsor) { Label("Earnote unterstützen", systemImage: "heart") }
+                    // Kein Spendenlink am iPhone: Apple lässt Trinkgeld nur als In-App-Kauf zu (kommt später)
                     Link(destination: AppInfo.website) { Label("earnote.dev", systemImage: "safari") }
                     LabeledContent("Version", value: Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "–")
                 } header: {

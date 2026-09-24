@@ -25,7 +25,7 @@ def add(key, body):
 
 def ftype(name):
     return {"swift": "sourcecode.swift", "plist": "text.plist.xml", "entitlements": "text.plist.entitlements",
-            "xcassets": "folder.assetcatalog", "strings": "text.plist.strings"}.get(name.rsplit(".", 1)[-1], "text")
+            "xcassets": "folder.assetcatalog", "strings": "text.plist.strings", "xcprivacy": "text.xml"}.get(name.rsplit(".", 1)[-1], "text")
 
 # Ordner als Gruppen, .xcassets als eine Datei
 sources, resources, groups = [], [], {}
@@ -36,6 +36,10 @@ for dirpath, dirnames, filenames in os.walk(SRC):
         dirnames[:] = []
         continue
     g = groups.setdefault(rel, {"dirs": [], "files": []})
+    for f in filenames:
+        # Datenschutz-Manifest gehört als Ressource ins Bundle
+        if f.endswith(".xcprivacy"):
+            resources.append(os.path.normpath(os.path.join(rel, f)))
     for d in dirnames:
         (g["files"] if d.endswith(".xcassets") else g["dirs"]).append(d if d.endswith(".xcassets") else os.path.normpath(os.path.join(rel, d)))
         if d.endswith(".xcassets"):
@@ -140,6 +144,8 @@ target_settings = {
     "INFOPLIST_FILE": f"{NAME}/Resources/Info.plist",
     "INFOPLIST_KEY_NSSpeechRecognitionUsageDescription": "Earnote schreibt deine Aufnahmen mit der Spracherkennung auf deinem iPhone mit.",
     "INFOPLIST_KEY_CFBundleDisplayName": "Earnote",
+    "INFOPLIST_KEY_ITSAppUsesNonExemptEncryption": "NO",
+    "INFOPLIST_KEY_LSApplicationCategoryType": "public.app-category.education",
     "INFOPLIST_KEY_NSSupportsLiveActivities": "YES",
     "INFOPLIST_KEY_NSMicrophoneUsageDescription": "Earnote nimmt Vorlesungen und Meetings auf, um daraus Notizen zu schreiben. Die Aufnahme bleibt auf deinem iPhone.",
     "INFOPLIST_KEY_UIApplicationSceneManifest_Generation": "YES",
