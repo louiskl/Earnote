@@ -36,6 +36,12 @@ final class GeminiTests: XCTestCase {
         XCTAssertEqual(GeminiClient.friendly(other).message, "Keine Verbindung")
     }
 
+    /// So antwortet Google auf einen falschen Schlüssel beim Einrichten (am iPhone gesehen, 24.09.2026)
+    func testInvalidKeyAs400IsFriendly() {
+        let raw = #"HTTP 400: [{ "error": { "code": 400, "message": "Please pass a valid API key", "status": "INVALID_ARGUMENT" } }]"#
+        XCTAssertFalse(GeminiClient.friendly(LLMError(message: raw)).message.hasPrefix("HTTP"))
+    }
+
     func testEmptyModelUsesAlias() {
         XCTAssertEqual(GeminiClient(apiKey: "k", model: "").model, GeminiClient.defaultModel)
         XCTAssertEqual(AIProviderKind.gemini.defaultModel, GeminiClient.defaultModel)

@@ -94,9 +94,17 @@ final class HandoffSender {
             }
             pending = byRecording
             // Fertig oder gescheitert: Der Mac ist durch, die Aufnahme gehört wieder niemandem
+            let finished = handedOff.filter { library.recording($0)?.status == .done }
             handedOff = handedOff.filter { id in
                 guard let status = library.recording(id)?.status else { return false }
                 return status != .done && status != .failed
+            }
+            // Die Notiz kam vom Mac – das eigene Audio braucht das iPhone nur, wenn „Audio behalten“ an ist
+            if !library.settings.keepAudioFiles {
+                for id in finished where library.hasAudio(id) {
+                    library.deleteAudio(id)
+                    Log.info("Audio nach der Notiz vom Mac gelöscht")
+                }
             }
         } catch {
             Log.error("Übergaben lesen: \(error.localizedDescription)")

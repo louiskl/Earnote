@@ -12,7 +12,7 @@ public enum TranscriptionEngineKind: String, Codable, CaseIterable, Identifiable
 }
 
 public enum AIProviderKind: String, Codable, CaseIterable, Identifiable, Sendable {
-    case localModel, appleIntelligence, ollama, lmStudio, anthropic, openAI, gemini, mistral, openAICompatible, claudeCode, codex, none
+    case localModel, appleIntelligence, ollama, lmStudio, anthropic, openAI, gemini, mistral, openRouter, openAICompatible, claudeCode, codex, none
     public var id: String { rawValue }
 
     public var label: String {
@@ -25,6 +25,7 @@ public enum AIProviderKind: String, Codable, CaseIterable, Identifiable, Sendabl
         case .openAI: return t("OpenAI / ChatGPT (API)")
         case .gemini: return t("Google Gemini (API)")
         case .mistral: return t("Mistral (API)")
+        case .openRouter: return t("OpenRouter (kostenlose Modelle)")
         case .openAICompatible: return t("OpenAI-kompatibel (eigener Server)")
         case .claudeCode: return t("Claude Code (dein Claude-Abo)")
         case .codex: return t("Codex CLI (dein ChatGPT-Abo)")
@@ -42,6 +43,7 @@ public enum AIProviderKind: String, Codable, CaseIterable, Identifiable, Sendabl
         case .openAI: return t("Benötigt einen API-Schlüssel von platform.openai.com.")
         case .gemini: return t("Benötigt einen API-Schlüssel von aistudio.google.com (kostenloses Kontingent).")
         case .mistral: return t("Europäischer Anbieter. Benötigt einen API-Schlüssel.")
+        case .openRouter: return t("Kostenlos mit einem Schlüssel von openrouter.ai. Die Anbieter kostenloser Modelle dürfen den Text zum Training nutzen.")
         case .openAICompatible: return t("Jeder Dienst mit OpenAI-kompatibler Schnittstelle (z. B. Groq, OpenRouter).")
         case .claudeCode: return t("Nutzt die installierte Claude-Code-App und dein bestehendes Abo.")
         case .codex: return t("Nutzt die installierte Codex-CLI und dein bestehendes ChatGPT-Abo.")
@@ -58,12 +60,13 @@ public enum AIProviderKind: String, Codable, CaseIterable, Identifiable, Sendabl
         case .openAI, .codex: return "circle.hexagongrid"
         case .gemini: return "diamond"
         case .mistral: return "wind"
+        case .openRouter: return "arrow.triangle.branch"
         case .openAICompatible: return "server.rack"
         case .none: return "text.alignleft"
         }
     }
 
-    public var needsAPIKey: Bool { [AIProviderKind.anthropic, .openAI, .gemini, .mistral, .openAICompatible].contains(self) }
+    public var needsAPIKey: Bool { [AIProviderKind.anthropic, .openAI, .gemini, .mistral, .openRouter, .openAICompatible].contains(self) }
     public var isLocal: Bool { [AIProviderKind.localModel, .appleIntelligence, .ollama, .lmStudio].contains(self) }
 
     /// Sendet das Transkript an einen fremden Server (wichtig für den Datenschutz-Hinweis)
@@ -79,7 +82,8 @@ public enum AIProviderKind: String, Codable, CaseIterable, Identifiable, Sendabl
         case .gemini: return GeminiClient.defaultModel
         case .mistral: return "mistral-medium-latest"
         case .ollama: return "qwen3:8b"
-        case .localModel, .lmStudio, .openAICompatible, .appleIntelligence, .claudeCode, .codex, .none: return ""
+        // OpenRouter: leer = Earnote wählt selbst ein kostenloses Modell (`OpenRouterModels`)
+        case .localModel, .lmStudio, .openRouter, .openAICompatible, .appleIntelligence, .claudeCode, .codex, .none: return ""
         }
     }
 
@@ -102,7 +106,8 @@ public enum AIProviderKind: String, Codable, CaseIterable, Identifiable, Sendabl
         // in einem Durchgang; längere werden geteilt (2 h 12 min: 15 statt 53 Minuten).
         case .localModel: return DeviceCapabilities.memoryGB >= 15 ? 32_000 : 12_000
         case .ollama, .lmStudio: return 24_000
-        case .openAICompatible: return 60_000
+        // Kostenlose Modelle haben oft nur 32.000 Token Kontext
+        case .openAICompatible, .openRouter: return 60_000
         default: return 400_000
         }
     }

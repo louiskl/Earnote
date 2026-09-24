@@ -157,3 +157,12 @@
 "Google nimmt den Gemini-Schlüssel nicht an. Prüfe, ob du ihn vollständig kopiert hast." = "Google doesn’t accept the Gemini key. Check that you copied all of it.";
 "Das kostenlose Kontingent von Gemini ist gerade aufgebraucht. Versuche es in ein paar Minuten erneut." = "Gemini’s free quota is used up for now. Try again in a few minutes.";
 "Google bietet das gewählte Gemini-Modell nicht mehr an. Wähle in den Einstellungen ein anderes Modell oder lass das Feld leer." = "Google no longer offers the selected Gemini model. Choose another model in Settings or leave the field empty.";
+
+/* OpenRouter */
+"OpenRouter (kostenlose Modelle)" = "OpenRouter (free models)";
+"Kostenlos mit einem Schlüssel von openrouter.ai. Die Anbieter kostenloser Modelle dürfen den Text zum Training nutzen." = "Free with a key from openrouter.ai. Providers of free models may use the text for training.";
+"Kein API-Schlüssel für OpenRouter hinterlegt." = "No API key for OpenRouter saved.";
+"OpenRouter bietet gerade kein kostenloses Modell an." = "OpenRouter currently offers no free model.";
+"OpenRouter nimmt den Schlüssel nicht an. Prüfe, ob du ihn vollständig kopiert hast." = "OpenRouter doesn't accept the key. Check that you copied it completely.";
+"Erlaube bei OpenRouter unter Einstellungen › Datenschutz die kostenlosen Modelle (openrouter.ai/settings/privacy) und versuche es erneut." = "Allow free models in OpenRouter under Settings › Privacy (openrouter.ai/settings/privacy) and try again.";
+"Das kostenlose Tageslimit von OpenRouter ist erreicht. Versuche es später erneut oder wähle einen anderen Weg." = "OpenRouter's free daily limit is reached. Try again later or choose another option.";
