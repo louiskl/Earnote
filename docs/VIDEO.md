@@ -24,22 +24,23 @@ einem Nachmittag Frust und einer Stunde Arbeit.
 
 **Nimm niemals deine echte Bibliothek auf.** Darin stehen echte Vorlesungen und Namen. Dafür gibt es
 eine vorbereitete Beispielbibliothek – sechs Aufnahmen über mehrere Tage, vier Bereiche, Aufgaben,
-Karteikarten, ein Teams-Meeting und eine Semester-Übersicht:
+Karteikarten, ein Teams-Meeting und eine Semester-Übersicht.
 
-```bash
-EARNOTE_SANDBOX=~/Desktop/earnote-demo EARNOTE_DEMO_LIBRARY=1 EARNOTE_APPEARANCE=light \
-  ~/Library/Developer/Xcode/DerivedData/Earnote-*/Build/Products/Debug/Earnote.app/Contents/MacOS/Earnote \
-  -AppleLanguages '(en-US)' -AppleLocale en_US
-```
+**Start per Doppelklick** (vorbereitet am 24.09.2026 auf dem Schreibtisch):
 
-Für die deutsche Fassung `-AppleLanguages '(de-DE)' -AppleLocale de_DE`, für Dunkel
-`EARNOTE_APPEARANCE=dark`. Ein neuer Ordner bei `EARNOTE_SANDBOX` heißt: frische Bibliothek.
+- `Earnote Demo (Englisch).command` – englische Oberfläche, Notizen auf Englisch
+- `Earnote Demo (Deutsch).command` – deutsche Fassung
 
-**Soll im Video eine Zeitmarke angeklickt werden**, braucht die oberste Aufnahme eine Tonspur:
-`EARNOTE_DEMO_AUDIO=/Pfad/zur/aufnahme.m4a` zusätzlich setzen. Am einfachsten: vorher selbst eine
-kurze Aufnahme im Testbereich machen und deren `mix.caf` nehmen.
+Vorher die normale Earnote-App beenden (sonst zwei Symbole in der Menüleiste). Die Startdateien schalten
+in der Demo die Call-Erkennung und den Systemton aus (kein Pop-up, keine Audio-Anzeige im Bild) und
+stellen die Notizsprache passend ein. Die Demo nutzt die schon geladene KI über einen Verweis im Ordner
+`~/Desktop/earnote-demo` – es wird nichts heruntergeladen. Die oberste Aufnahme („Eigenvalues“) hat eine
+gesprochene Tonspur (macOS-Stimme, 45 s über Eigenwerte), damit die Zeitmarken-Szene klappt. Frische
+Bibliothek: den Ordner `bibliothek-en` bzw. `bibliothek-de` löschen und neu starten.
 
-Der Demo-Modus steckt nur im Debug-Build – der liegt bereits gebaut in DerivedData.
+**Wichtig:** Die Demo ist ein Entwickler-Build ohne Apple-Signatur. Solche Builds nehmen **stumm** auf.
+Die Aufnahme-Szenen (Take 1–3) lassen sich trotzdem filmen, aus der Aufnahme wird aber keine Notiz –
+danach löschen. Das Entstehen einer Notiz zeigst du mit „Simplify“ (Take 4).
 
 ### Fenstergröße
 
@@ -102,16 +103,26 @@ Fachliches, das die KI später zusammenfassen kann. Zum Beispiel:
 
 Auf **Stopp** klicken. Die Aufnahme wandert in die Liste, der Status wechselt auf „Wird transkribiert".
 
-### Take 4 — Die Verarbeitung (10 Sek. Rohmaterial)
+### Take 4 — Die Notiz entsteht (15 Sek. Rohmaterial) ⭐
 
-Einfach laufen lassen und aufnehmen, wie der Fortschrittsbalken wandert und der Status von
-„Transkribiert" auf „Fasst zusammen" springt. Das kürzt du später auf zwei Sekunden – **hier
-entsteht der Zeitraffer, der dein Video ehrlich und trotzdem kurz macht.**
+Die Aufnahme „Eigenvalues“ öffnen, unten unter der Notiz auf **„Simplify“** klicken, im Fenster
+bestätigen. Die Notiz erscheint blass und **schreibt sich Wort für Wort vor deinen Augen** – das ist
+die stärkste Szene des Videos. Später auf fünf, sechs Sekunden raffen.
 
 ### Take 5 — Die fertige Notiz (12 Sek.)
 
 Die Notiz steht: Überschrift, Zusammenfassung, Themen, Aufgaben zum Abhaken. Langsam scrollen –
 **halb so schnell, wie es sich richtig anfühlt.** Dann eine Aufgabe abhaken.
+
+### Take 5b — Karteikarten (8 Sek.)
+
+Unter der Notiz **„Create flashcards“**. Oben zählt die Anzeige mit („2 of 5“), dann stehen die Karten
+da. Auf einer Karte **„Show answer“** klicken.
+
+### Take 5c — Lernzettel als PDF (6 Sek.)
+
+**„Save PDF …“**, das PDF in der Vorschau öffnen und kurz zeigen: Bereichsfarbe oben, unten
+„Made with Earnote · earnote.dev“. Das ist gleich Werbung im Video.
 
 ### Take 6 — Die Zeitmarke (8 Sek.)
 
@@ -139,12 +150,14 @@ Das ist dein Alleinstellungsmerkmal, und es braucht keine Erklärung, wenn man e
 | Aufnahme startet | 4 Sek. | Take 1 |
 | Es läuft | 5 Sek. | Take 2 |
 | Stopp | 3 Sek. | Take 3 |
-| Verarbeitung im Zeitraffer | 3 Sek. | Take 4, stark gerafft |
-| Die Notiz | 10 Sek. | Take 5 |
-| Zeitmarke anklicken | 7 Sek. | Take 6 |
-| Lokale KI | 5 Sek. | Take 7 |
+| Die Notiz schreibt sich | 6 Sek. | Take 4, gerafft |
+| Die Notiz | 7 Sek. | Take 5 |
+| Karteikarten | 5 Sek. | Take 5b |
+| PDF mit earnote.dev | 4 Sek. | Take 5c |
+| Zeitmarke anklicken | 6 Sek. | Take 6 |
+| Lokale KI | 4 Sek. | Take 7 |
 | Gesicht + Adresse | 5 Sek. | Kamera |
-| **Gesamt** | **50 Sek.** | |
+| **Gesamt** | **57 Sek.** | |
 
 ### Zooms
 
