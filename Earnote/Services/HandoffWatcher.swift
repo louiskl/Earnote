@@ -77,9 +77,11 @@ final class HandoffWatcher {
             if !HandoffRules.isStillMine(handoff, device: deviceID) {
                 guard try await handoffs.claimHandoff(handoff.id, by: deviceID, now: Date()) else { return }
                 // Haben zwei Macs zugleich beansprucht, hat CloudKit nach dem Abgleich einen Wert behalten
-                try await Task.sleep(for: .seconds(HandoffRules.claimSettle))
-                guard let current = try await handoffs.handoffs().first(where: { $0.id == handoff.id }),
-                      HandoffRules.isStillMine(current, device: deviceID) else { return }
+                if HandoffRules.mustSettleClaim(try await handoffs.devices(), me: deviceID) {
+                    try await Task.sleep(for: .seconds(HandoffRules.claimSettle))
+                    guard let current = try await handoffs.handoffs().first(where: { $0.id == handoff.id }),
+                          HandoffRules.isStillMine(current, device: deviceID) else { return }
+                }
             }
             guard let data = try await handoffs.handoffAudio(handoff.id), !data.isEmpty else {
                 throw CocoaError(.fileReadCorruptFile)

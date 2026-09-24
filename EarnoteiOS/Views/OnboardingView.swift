@@ -119,7 +119,7 @@ struct OnboardingView: View {
             // nach dem Einschalten von iCloud ein Mac gefunden ist; bis dahin gilt dieser Weg.
             guard !suggestedWay else { return }
             suggestedWay = true
-            if library.settings.ai.provider == .none || library.settings.ai.provider == .localModel && !DeviceCapabilities.supportsLocalModel {
+            if !NoteWay.worksHere(library.settings.ai.provider) {
                 library.settings.ai.provider = NoteWay.suggestedProvider
             }
         }

@@ -104,7 +104,8 @@ public final class ProcessingQueue {
     /// Nach einem Absturz oder erzwungenem Beenden: unterbrochene Aufnahmen/Verarbeitungen wieder aufnehmen.
     public func resumeInterruptedWork() {
         guard let library else { return }
-        for r in library.recordings where (r.status == .recording || r.status.isBusy) && resumes(r) {
+        // Ohne Audio auf diesem Gerät kam die Aufnahme über iCloud: Ein anderes Gerät nimmt sie auf oder verarbeitet sie
+        for r in library.recordings where (r.status == .recording || r.status.isBusy) && pipeline.audio.hasAudio(r) && resumes(r) {
             if r.status == .recording {
                 // Ende aus der tatsächlich aufgenommenen Länge ableiten, nicht aus dem Zeitpunkt des Neustarts
                 let recorded = recordedDuration(r.id)

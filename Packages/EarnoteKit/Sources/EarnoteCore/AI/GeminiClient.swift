@@ -8,6 +8,8 @@ public struct GeminiClient: LLMClient {
     public static let baseURL = "https://generativelanguage.googleapis.com/v1beta/openai"
     /// Zeigt immer auf das aktuelle Flash-Modell
     public static let defaultModel = "gemini-flash-latest"
+    /// Kleineres Modell, wenn das große gerade überlastet ist (HTTP 503 „high demand“)
+    static let lighterModel = "gemini-flash-lite-latest"
 
     public let apiKey: String
     public let model: String
@@ -24,6 +26,13 @@ public struct GeminiClient: LLMClient {
     public func complete(system: String, prompt: String) async throws -> String {
         do {
             return try await client(model).complete(system: system, prompt: prompt)
+        } catch let error as LLMError where Self.isOverloaded(error) && model != Self.lighterModel {
+            Log.info("Gemini: \(model) überlastet, nehme \(Self.lighterModel)")
+            do {
+                return try await client(Self.lighterModel).complete(system: system, prompt: prompt)
+            } catch let error as LLMError {
+                throw Self.friendly(error)
+            }
         } catch let error as LLMError where Self.isModelUnavailable(error) {
             let available = (try? await listModels()) ?? []
             guard let replacement = GeminiModels.best(available), replacement != model else { throw Self.friendly(error) }
@@ -51,6 +60,11 @@ public struct GeminiClient: LLMClient {
             || text.contains("not supported for generatecontent")
     }
 
+    static func isOverloaded(_ error: LLMError) -> Bool {
+        let text = error.message.lowercased()
+        return text.hasPrefix("http 503") || text.contains("high demand") || text.contains("overloaded")
+    }
+
     /// Die rohen Fehler von Google sind englisch und technisch – Einsteiger sollen wissen, was zu tun ist
     static func friendly(_ error: LLMError) -> LLMError {
         let text = error.message.lowercased()
@@ -61,6 +75,9 @@ public struct GeminiClient: LLMClient {
         }
         if text.hasPrefix("http 429") || text.contains("resource_exhausted") || text.contains("quota") {
             return LLMError(message: t("Das kostenlose Kontingent von Gemini ist gerade aufgebraucht. Versuche es in ein paar Minuten erneut."))
+        }
+        if isOverloaded(error) {
+            return LLMError(message: t("Google ist gerade überlastet. Versuche es in ein paar Minuten erneut."))
         }
         if isModelUnavailable(error) {
             return LLMError(message: t("Google bietet das gewählte Gemini-Modell nicht mehr an. Wähle in den Einstellungen ein anderes Modell oder lass das Feld leer."))

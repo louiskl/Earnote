@@ -36,6 +36,16 @@ enum NoteWay: Equatable {
 
     /// Vorschlag beim ersten Start: auf dem Gerät, sonst Google
     static var suggestedProvider: AIProviderKind { onDeviceProvider ?? .gemini }
+
+    /// Der Standard des Kerns („lokal, sonst Apple Intelligence“) passt nicht zu jedem iPhone – z. B. iPhone 15 (6 GB, ohne Apple Intelligence)
+    static func worksHere(_ provider: AIProviderKind) -> Bool {
+        switch provider {
+        case .none: false
+        case .localModel: DeviceCapabilities.supportsLocalModel
+        case .appleIntelligence: appleIntelligenceEligible
+        default: true
+        }
+    }
 }
 
 // MARK: - Auswahl

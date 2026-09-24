@@ -109,6 +109,11 @@ public enum HandoffRules {
         }
     }
 
+    /// Nur wenn ein weiterer Mac mitliest, kann er zeitgleich beanspruchen – sonst ist das Warten (`claimSettle`) unnötig
+    public static func mustSettleClaim(_ devices: [SyncedDevice], me: UUID, now: Date = Date()) -> Bool {
+        processingMacs(devices, now: now).contains { $0.id != me }
+    }
+
     public static func needsHeartbeat(lastSeen: Date?, now: Date = Date()) -> Bool {
         guard let lastSeen else { return true }
         return now.timeIntervalSince(lastSeen) > heartbeatInterval

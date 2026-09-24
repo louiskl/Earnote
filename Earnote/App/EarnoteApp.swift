@@ -116,8 +116,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
     var toggleRecording: (@MainActor () -> Void)?
     var globalShortcutEnabled = false
 
+    func application(_ application: NSApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
+        Log.info("Push nicht verfügbar: \(error.localizedDescription)")
+    }
+
     func applicationDidFinishLaunching(_ notification: Notification) {
         UNUserNotificationCenter.current().delegate = self
+        // Stille Push-Nachrichten von iCloud: Nur so erfährt der Mac sofort von Neuem (z. B. Aufnahmen vom iPhone).
+        // Ohne Push-Berechtigung (Build ohne iCloud) schlägt das still fehl.
+        NSApp.registerForRemoteNotifications()
         GlobalShortcut.action = { [weak self] in self?.toggleRecording?() }
         GlobalShortcut.apply(enabled: globalShortcutEnabled)
         #if DEBUG

@@ -53,6 +53,14 @@ final class HandoffRulesTests: XCTestCase {
         XCTAssertEqual(HandoffRules.processingMacs(devices, now: now).map(\.id), [mac])
     }
 
+    func testWaitsAfterClaimOnlyWhenAnotherMacListens() {
+        let me = SyncedDevice(id: mac, name: "MacBook", platform: .mac, canProcess: true, lastSeen: now)
+        let phone = SyncedDevice(id: UUID(), name: "iPhone", platform: .iphone, canProcess: true, lastSeen: now)
+        let other = SyncedDevice(id: UUID(), name: "iMac", platform: .mac, canProcess: true, lastSeen: now)
+        XCTAssertFalse(HandoffRules.mustSettleClaim([me, phone], me: mac, now: now))
+        XCTAssertTrue(HandoffRules.mustSettleClaim([me, phone, other], me: mac, now: now))
+    }
+
     func testHeartbeatAtMostHourly() {
         XCTAssertTrue(HandoffRules.needsHeartbeat(lastSeen: nil, now: now))
         XCTAssertFalse(HandoffRules.needsHeartbeat(lastSeen: now.addingTimeInterval(-600), now: now))
