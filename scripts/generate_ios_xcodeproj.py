@@ -47,6 +47,19 @@ for dirpath, dirnames, filenames in os.walk(SRC):
         if f.endswith(".swift"):
             sources.append(os.path.normpath(os.path.join(rel, f)))
 
+# Plattformneutrale Dateien der Mac-App, die das iPhone mitkompiliert (statt eines eigenen Moduls, das alles
+# `public` machen müsste). Wer hier etwas einträgt, hält die Datei frei von AppKit außerhalb von `#if os(macOS)`.
+SHARED = [
+    "Earnote/Stores/LibraryStore.swift",
+    "Earnote/Transcription/AppleSpeechTranscriber.swift",
+    "Earnote/Transcription/TranscriberFactory.swift",
+    "Earnote/AI/PlatformLLMClients.swift",
+    "Earnote/AI/AppleIntelligenceClient.swift",
+    "Earnote/AI/LocalModels.swift",
+]
+# Übersetzungen: dieselbe Tabelle wie am Mac (Deutsch steht im Code)
+LOCALIZED = {"en": "Earnote/Resources/en.lproj/Localizable.strings"}
+
 refs = {}
 for rel, g in groups.items():
     for f in g["files"]:
@@ -58,6 +71,22 @@ for rel, g in groups.items():
     add(uid("group", rel), "{isa = PBXGroup; children = (" + "".join(f"{c}, " for c in children)
         + f'); path = "{NAME if rel == "." else os.path.basename(rel)}"; sourceTree = "<group>"; }};')
 
+shared_refs = []
+for path in SHARED:
+    refs[path] = uid("shared", path)
+    add(refs[path], f'{{isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "{os.path.basename(path)}"; path = "{path}"; sourceTree = SOURCE_ROOT; }};')
+    shared_refs.append(refs[path])
+    sources.append(path)
+loc_children = []
+for language, path in LOCALIZED.items():
+    ref = uid("loc", language)
+    add(ref, f'{{isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = {language}; path = "{path}"; sourceTree = SOURCE_ROOT; }};')
+    loc_children.append(ref)
+LOC_GROUP = uid("locgroup")
+add(LOC_GROUP, "{isa = PBXVariantGroup; children = (" + "".join(f"{c}, " for c in loc_children) + '); name = Localizable.strings; sourceTree = "<group>"; };')
+SHARED_GROUP = uid("sharedgroup")
+add(SHARED_GROUP, "{isa = PBXGroup; children = (" + "".join(f"{c}, " for c in shared_refs) + f"{LOC_GROUP}, " + '); name = "Gemeinsam mit dem Mac"; sourceTree = "<group>"; };')
+
 PRODUCT = uid("product")
 add(PRODUCT, f'{{isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = {NAME}.app; sourceTree = BUILT_PRODUCTS_DIR; }};')
 PRODUCTS = uid("products")
@@ -65,7 +94,7 @@ add(PRODUCTS, f'{{isa = PBXGroup; children = ({PRODUCT}, ); name = Products; sou
 PACKAGE_REF_FILE = uid("pkgfile")
 add(PACKAGE_REF_FILE, '{isa = PBXFileReference; lastKnownFileType = wrapper; path = "Packages/EarnoteKit"; sourceTree = "<group>"; };')
 MAIN = uid("main")
-add(MAIN, f'{{isa = PBXGroup; children = ({uid("group", ".")}, {PACKAGE_REF_FILE}, {PRODUCTS}, ); sourceTree = "<group>"; }};')
+add(MAIN, f'{{isa = PBXGroup; children = ({uid("group", ".")}, {SHARED_GROUP}, {PACKAGE_REF_FILE}, {PRODUCTS}, ); sourceTree = "<group>"; }};')
 
 # Kern und ML aus dem lokalen Paket – dieselben wie in der Mac-App
 PACKAGE = uid("localpkg")
@@ -91,7 +120,9 @@ def build_file(path):
 
 SOURCES = phase("Sources", [build_file(s) for s in sources])
 FRAMEWORKS = phase("Frameworks", pkg_builds)
-RESOURCES = phase("Resources", [build_file(r) for r in resources])
+LOC_BUILD = uid("build", "Localizable.strings")
+add(LOC_BUILD, f'{{isa = PBXBuildFile; fileRef = {LOC_GROUP}; }};')
+RESOURCES = phase("Resources", [build_file(r) for r in resources] + [LOC_BUILD])
 
 def settings(d):
     return "{" + "".join(f'{k} = "{v}"; ' for k, v in d.items()) + "}"
@@ -103,6 +134,9 @@ target_settings = {
     "CURRENT_PROJECT_VERSION": BUILD_NUMBER,
     "DEVELOPMENT_TEAM": os.environ.get("EARNOTE_TEAM", ""),
     "GENERATE_INFOPLIST_FILE": "YES",
+    # Hintergrund-Audio und Hintergrundarbeit stehen hier; der Rest wird aus den INFOPLIST_KEY_* erzeugt
+    "INFOPLIST_FILE": f"{NAME}/Resources/Info.plist",
+    "INFOPLIST_KEY_NSSpeechRecognitionUsageDescription": "Earnote schreibt deine Aufnahmen mit der Spracherkennung auf deinem iPhone mit.",
     "INFOPLIST_KEY_CFBundleDisplayName": "Earnote",
     "INFOPLIST_KEY_NSMicrophoneUsageDescription": "Earnote nimmt Vorlesungen und Meetings auf, um daraus Notizen zu schreiben. Die Aufnahme bleibt auf deinem iPhone.",
     "INFOPLIST_KEY_UIApplicationSceneManifest_Generation": "YES",

@@ -14,10 +14,12 @@ struct PlatformLLMClients: LLMClientProvider {
             if #available(macOS 26.0, *) { return AppleIntelligenceClient() }
             #endif
             throw LLMError(message: String(localized: "Apple Intelligence benötigt macOS 26 oder neuer."))
+        #if os(macOS)
         case .claudeCode:
             return CLIClient(tool: .claude, model: config.model)
         case .codex:
             return CLIClient(tool: .codex, model: config.model)
+        #endif
         default:
             return nil
         }

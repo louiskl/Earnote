@@ -1,10 +1,14 @@
+#if os(macOS)
 import AppKit
+#endif
 import EarnoteCore
+import Foundation
 import Observation
 
 /// Die Bibliothek: Aufnahmen, Bereiche und Einstellungen samt aller Änderungen daran.
 /// Hält den aktuellen Stand im Speicher (für die Oberfläche) und schreibt jede Änderung der Reihe nach
 /// in die Bibliothek (`LibraryRepository`). Audio liegt im `AudioStore`.
+/// Wird auch in die iPhone-App kompiliert (scripts/generate_ios_xcodeproj.py) – deshalb kein AppKit außerhalb von `#if os(macOS)`.
 @MainActor
 @Observable
 final class LibraryStore: RecordingLibrary {
@@ -374,7 +378,7 @@ final class LibraryStore: RecordingLibrary {
                 fileName = try audio.importAudio(from: url, for: rec.id)
             } catch {
                 audio.deleteFolder(for: rec.id)
-                lastError = "Import fehlgeschlagen: \(error.localizedDescription)"
+                lastError = String(localized: "Import fehlgeschlagen: \(error.localizedDescription)")
                 continue
             }
             let attrs = try? FileManager.default.attributesOfItem(atPath: url.path)
@@ -508,7 +512,9 @@ final class LibraryStore: RecordingLibrary {
         write("Aufnahme löschen") { try await library.deleteRecording(id) }
     }
 
+    #if os(macOS)
     func revealInFinder(_ id: UUID) {
         NSWorkspace.shared.activateFileViewerSelecting([audio.folderURL(for: id)])
     }
+    #endif
 }

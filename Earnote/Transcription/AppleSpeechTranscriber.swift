@@ -26,6 +26,10 @@ struct AppleSpeechTranscriber: Transcriber {
                                             transcriptionOptions: [],
                                             reportingOptions: [],
                                             attributeOptions: [.audioTimeRange])
+        #if os(iOS)
+        // Auf iOS muss eine App ihre Sprachen reservieren, bevor sie das Sprachmodell laden darf
+        _ = try await AssetInventory.reserve(locale: locale)
+        #endif
         if let request = try await AssetInventory.assetInstallationRequest(supporting: [transcriber]) {
             Log.info("Lade Apple-Sprachmodell für \(locale.identifier) …")
             try await request.downloadAndInstall()

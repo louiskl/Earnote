@@ -215,6 +215,8 @@ public actor LocalLLMCache {
     }
 
     public func release() {
+        // Ohne geladenes Modell nichts anfassen: `Memory` weckt sonst MLX (und Metal) erst auf – im iOS-Simulator ein Absturz
+        guard container != nil else { return }
         container = nil
         Memory.clearCache()
     }
