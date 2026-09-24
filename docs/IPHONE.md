@@ -1,6 +1,6 @@
 # Earnote für iPhone – Plan
 
-> Stand: 24.09.2026 · **Grundentscheidungen freigegeben** (Abschnitt 9) · gepflegt vom Architekten.
+> Stand: 25.09.2026 · **in TestFlight** · **Grundentscheidungen freigegeben** (Abschnitt 9) · gepflegt vom Architekten.
 > Start parallel zur Mac-Beta. Die Beta hat Vorrang, gemeldete Fehler am Mac gehen vor.
 > iPad: eigener Plan in [IPAD.md](IPAD.md).
 
@@ -335,8 +335,9 @@ Kommt bei der ersten Frage „zu langsam“ heraus, wird Weg B oder C auch auf n
 | **M0 – ✅ 24.09.2026** | Plan freigegeben, Entscheidungen aus Abschnitt 9, iOS-Abschnitt in den Design-Richtlinien (30), eigenes Projekt `EarnoteiOS.xcodeproj` mit Generator; Grundgerüst (Tabs, Aufnahme-Leiste) baut mit Kern, WhisperKit und MLX und läuft im Simulator | erledigt |
 | **M1 – Spike** | Messungen aus Abschnitt 7 | Entscheidung über Weg A |
 | **M2 – ✅ 24.09.2026** | Aufnehmen mit Bildschirm aus (Hintergrund-Audio, Pause bei Anrufen, AirPods-Wechsel, übersteht Abstürze), Bibliothek, Notiz, Transkript mit Abspielen, Lernen (Karteikarten abfragen), Suche, Einstellungen, Onboarding, Import und „Mit Earnote öffnen“, englische Oberfläche. Im Simulator durchgespielt | erledigt, am echten iPhone geprüft |
-| **M3 – teilweise ✅** | ✅ Weg A und C (lokale KI, Gemini/Claude/OpenAI/Mistral), Hintergrund-Verarbeitung (`BGContinuedProcessingTask`), Live-Aktivität mit Pause/Stopp (im Simulator getestet), Steuerelement fürs Kontrollzentrum, Siri/Kurzbefehle, Mitteilungen · Weg B als Code (Abschnitt 6a), App-Icon ✅ · offen: Weg B am Gerät testen | TestFlight für Kommilitonen |
+| **M3 – teilweise ✅** | ✅ Weg A und C (lokale KI, Gemini/Claude/OpenAI/Mistral), Hintergrund-Verarbeitung (`BGContinuedProcessingTask`), Live-Aktivität mit Pause/Stopp (im Simulator getestet), Steuerelement fürs Kontrollzentrum, Siri/Kurzbefehle, Mitteilungen · Weg B als Code (Abschnitt 6a), App-Icon ✅ · ✅ Weg B am Gerät (B4) · ✅ TestFlight-Upload, Beta-Prüfung beantragt | TestFlight für Kommilitonen |
 | **M4 – Lernen & Import – Code ✅** | ✅ Karteikarten lernen, Import, Share Extension, „Erst am Ladekabel“, Stromsparmodus, Trinkgeld (StoreKit 2) · ✅ **am echten iPhone geprüft (24.09.2026):** Spracherkennung, Hintergrund, Ladekabel, Stromsparmodus, Teilen aus Sprachmemos und WhatsApp · offen: Trinkgeld-Produkte in App Store Connect anlegen | vollständige 1.1 |
+| **M4b – ✅ 25.09.2026** | Export wie am Mac (Notion, Obsidian, Ordner, Logseq, Todoist, Erinnerungen), Sprache der Aufnahme, OpenRouter, KI-Wahl nur mit Wegen, die auf dem Gerät gehen | erledigt |
 | **M5 – Einreichen** | Onboarding-Feinschliff, Datenschutz-Etikett, Screenshots, App Review | **Earnote 1.1 für iPhone im App Store** |
 
 ---

@@ -1,10 +1,14 @@
 # Earnote – Roadmap
 
-> Stand: 24.09.2026 (0.9.22) · gepflegt vom Architekten · Versionen sind Arbeitsstände, öffentlich wird erst 1.0.
+> Stand: 25.09.2026 (0.9.23, iPhone in TestFlight) · gepflegt vom Architekten · Versionen sind Arbeitsstände, öffentlich wird erst 1.0.
 > Beta läuft: [Releases](https://github.com/louiskl/Earnote/releases) · [Anleitung für Tester](BETA.md)
 > Leitlinien: [DESIGN_GUIDELINES.md](DESIGN_GUIDELINES.md) · Aufbau: [ARCHITECTURE.md](ARCHITECTURE.md)
 
 **Ziel von 1.0:** Eine ausgereifte, native Mac-App, mit der Studierende ohne Technik-Kenntnisse und ohne KI-Abo Vorlesungen, Meetings und Calls mitschreiben lassen – kostenlos, privat, lokal.
+
+**Seit 24.09.2026 zwei Spuren parallel:** Mac 1.0 (Beta mit Kommilitonen, Vorrang) und Earnote für iPhone (TestFlight).
+Zielgruppen: zuerst **Studierende** (Mac + iPhone), danach **Schülerinnen und Schüler** (iPad + iPhone, meist ohne Mac) –
+Einordnung und Geschäftsmodell in [STRATEGIE.md](STRATEGIE.md).
 
 ## Überblick
 
@@ -33,10 +37,11 @@
 | 4l | Während der Beta: lokale KI lädt beim ersten Start von selbst, „Earnote empfehlen …“, Website mit gemessenen Zeiten | 0.9.20 | ✅ fertig |
 | 4m | Während der Beta: lange Vorlesungen 4× schneller (Abschnitte 32k), gleichmäßige Gliederung, Vorverdichten auf Akku, Systemton-Umschalter | 0.9.21 | ✅ fertig |
 | 4n | Englische Oberfläche vollständig (≈90 Texte), Call-Erkennung im Browser, „Earnote unterstützen“ | 0.9.22 | ✅ fertig |
-| **Beta** | **Zwei Wochen mit Kommilitonen, danach 1.0** | 0.9.13–0.9.22 | ▶ **läuft seit 22.09.2026** |
+| 4o | Mac holt Aufnahmen vom iPhone ab (Weg B), Push für iCloud, Schema V2 in Production, OpenRouter, Gemini weicht bei Überlastung aus | 0.9.23 | ✅ fertig |
+| **Beta** | **Zwei Wochen mit Kommilitonen, danach 1.0** | 0.9.13–0.9.23 | ▶ **läuft seit 22.09.2026** |
 | 5 | Launch: Website, Demo-Video, Homebrew, Beta mit Kommilitonen, Markenrecherche | 1.0 RC | ▶ teils fertig (Website, Homebrew, Updates) |
 | 🚀 | **Launch Earnote 1.0 für Mac** | 1.0 | |
-| 6 | iPad eigenständig, iPhone als Begleit-App, iCloud-Sync | 1.1 | nach Launch |
+| 6 | iPhone (eigenständig oder mit Mac), iCloud-Sync, danach iPad | 1.1 | ▶ **iPhone in TestFlight seit 24.09.2026**, iPad geplant |
 | 7 | Mac App Store prüfen (Sandbox), Kurs-Gruppen teilen | 1.2 | nach Launch |
 | 8 | Geschäftsmodell: kostenlos für Menschen, kostenpflichtig für Organisationen, nie ein Server | – | nach 1.0 |
 
@@ -381,6 +386,11 @@ Erst wenn alle drei Blöcke stehen, wird aus 0.9.x die 1.0 – und erst danach b
 
 > **24.09.2026: Start des iPhone-Plans parallel zur Beta beschlossen** (Nutzer). Plan, Funktionsliste,
 > Onboarding und Architektur: **[IPHONE.md](IPHONE.md)**. Die Mac-Beta hat weiter Vorrang. iPad: **[IPAD.md](IPAD.md)** (Entwurf).
+>
+> **Stand 25.09.2026:** Die iPhone-App ist in TestFlight (Beta-Prüfung für externe Tester beantragt). Weg B
+> (iPhone nimmt auf, Mac schreibt die Notiz) ist am echten Gerätepaar nachgewiesen, das Schema V2 in Production,
+> 0.9.23 bringt dem Mac Push und das Abholen. Der Satz unten („Warum erst nach 1.0“) war die ursprüngliche Planung –
+> überholt, weil der Kern schon für iOS bereitstand und Studierende vor allem ein iPhone dabeihaben.
 
 **Warum erst nach 1.0:** iCloud-Sync und eine zweite Oberfläche verdoppeln die Fehlerfläche. Solange die
 Mac-App noch täglich wächst, würde jede Änderung zweimal anfallen. Der Kern (`EarnoteCore`) baut schon
@@ -404,9 +414,23 @@ heute für iOS – das bleibt die Eintrittskarte, und der iOS-Build läuft bei j
       Gleichstand die kleinste ID) – sonst löschte jeder den des anderen. Standardbereiche haben jetzt
       feste IDs. Läuft nur mit eingeschaltetem Sync. Am echten Mac-Paar noch nachzuweisen.
 - [x] **iOS-App auf demselben Kern (24.09.2026)**: eigenes Projekt `EarnoteiOS.xcodeproj` (`scripts/generate_ios_xcodeproj.py`), baut mit EarnoteCore, WhisperKit und MLX, Grundgerüst läuft im Simulator
-- [ ] **iPad eigenständig** (M-Chip): Whisper + lokales Modell auf dem Gerät, „Increased Memory Limit“
-- [ ] **iPhone als Begleit-App**: nimmt auf, Mac verarbeitet, fertige Notiz wieder auf dem iPhone
-- [ ] Oberfläche für iPad und iPhone
+- [x] **iPhone-App (24.09.2026)**: Aufnehmen mit Bildschirm aus, Live-Aktivität, Kontrollzentrum/Action-Taste,
+      Widgets, Bibliothek mit Bereichen, Karteikarten, PDF/Anki, Teilen-Erweiterung, Onboarding, Liquid Glass –
+      am echten iPhone 15 geprüft. Details [IPHONE.md](IPHONE.md)
+- [x] **KI-Wahl für Einsteiger am iPhone**: „Auf diesem iPhone“, „Mit meinem Mac“, „Kostenlos mit Google“ (drei Schritte),
+      OpenRouter und weitere Anbieter; nur Wege, die auf dem Gerät gehen (iPhone 15 ohne Apple Intelligence)
+- [x] **Export am iPhone (25.09.2026)**: Notion, Obsidian, Markdown-Ordner („Auf meinem iPhone › Earnote“), Logseq,
+      Todoist, Erinnerungen; Sprache der Aufnahme wählbar
+- [x] **iPhone als Begleit-App (Weg B, 24.09.2026 am Gerät)**: nimmt auf, Mac verarbeitet, Notiz zurück, Audio aus
+      iCloud gelöscht – ca. 1–1,5 min vom Stopp bis zur Notiz (Befunde: [IPHONE.md](IPHONE.md), B4)
+- [x] **TestFlight (24.09.2026)**: Upload per `scripts/publish_ios_testflight.sh` bzw. Xcode „Distribute App“,
+      Datenschutzseite `earnote.dev/datenschutz.html#app`
+- [ ] Externe TestFlight-Gruppe mit öffentlichem Link, 20–30 Tester (nach der Beta-Prüfung)
+- [ ] Trinkgeld-Produkte in App Store Connect anlegen (`app.earnote.Earnote.tip.small/.medium/.large`)
+- [ ] iPhone 1.1 im App Store: Screenshots, Datenschutz-Etikett „Keine Daten erfasst“, App Review
+- [ ] **iPad** (gleiche App): Seitenleiste, Split-Ansicht, Tastatur – Plan [IPAD.md](IPAD.md). Wichtig für Schüler:
+      die meisten Schul-iPads haben **keinen M-Chip** (z. B. iPad 10. Gen., A14, 4 GB) – dort Apples Spracherkennung
+      und Google/OpenRouter oder der Mac, kein lokales Modell
 
 ## Phase 7 – Nach dem Launch (1.2)
 
@@ -509,7 +533,8 @@ E-Mail aus einer Kanzlei, Praxis oder IT-Abteilung. Bis dahin gilt: Nachfragen s
 | Frage | Empfehlung | Fällig bis |
 |---|---|---|
 | Launch-Termin | Launch Ende Oktober zum Semesterstart – nur wenn die Beta keine groben Fehler zeigt; sonst Anfang Januar vor der Klausurenphase | nach der Beta (~06.10.2026) |
-| Start von iPad/iPhone | **iPhone: Planung ab 24.09.2026 parallel zur Beta** ([IPHONE.md](IPHONE.md)); Bauen nach Freigabe des Plans, Mac-Beta hat Vorrang. iPad danach mit eigenem Plan | laufend |
+| Start von iPad/iPhone | **iPhone läuft (TestFlight seit 24.09.2026)**, Mac-Beta hat Vorrang. iPad nach iPhone 1.1 – oder früher, falls Schüler als Zielgruppe vorgezogen werden ([STRATEGIE.md](STRATEGIE.md)) | laufend |
+| Zielgruppe Schüler | **Ja, als zweite Zielgruppe nach den Studierenden** – über iPad und iPhone, ohne Mac. Braucht: iPad-Oberfläche, einfache Sprache (gibt es: „Vereinfachen“), Lernzettel/Karteikarten, klare Regeln zum Aufnehmen im Unterricht | Entscheidung Nutzer |
 | Mac App Store | **Vorerst nein.** Direkt-Download plus Homebrew deckt die Zielgruppe ab; die Sandbox würde Systemton und Export einschränken. Nach 1.0 neu bewerten | nach 1.0 |
 | Windows/Linux | **Zurückgestellt.** Kein Port, sondern ein zweites Produkt (CoreML, MLX, SwiftUI gibt es dort nicht). Erst iPad/iPhone, danach neu bewerten – zuerst denkbar: schlanke Windows-Begleitung, die nur aufnimmt | nach 1.1 |
 | Geld verdienen | **Nie ein Abo.** Für Menschen kostenlos und vollständig nutzbar; Geld aus Spenden (Ko-fi, GitHub Sponsors, am iPhone Trinkgeld per In-App-Kauf) und optionalen Einmalkäufen für Extras (24.09.2026). Pro-Lizenz für Organisationen bleibt Idee (Phase 8). Kein Server, keine Konten | laufend |
