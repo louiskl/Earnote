@@ -78,11 +78,41 @@
             wurde – diese Zahl sehe ich, sie enthält aber keine Angaben zu einzelnen Personen.
         </p>
 
-        <h3 style="margin-top:32px">Die App selbst</h3>
+        <h3 id="app" style="margin-top:32px">Die App (Mac und iPhone)</h3>
         <p class="lead">
-            Earnote verarbeitet Aufnahmen, Transkripte und Notizen <strong>ausschließlich auf deinem
-            Mac</strong>. Es gibt kein Konto, keine Telemetrie und keinen Server, der zu Earnote gehört.
-            Details – auch zur täglichen Update-Prüfung und zum optionalen iCloud-Abgleich – stehen in den
+            Earnote verarbeitet Aufnahmen, Transkripte und Notizen <strong>auf deinem Gerät</strong>.
+            Es gibt kein Konto, keine Werbung, keine Telemetrie und keinen Server, der zu Earnote gehört.
+            Ich erhalte keine deiner Aufnahmen, Transkripte oder Notizen. Die Spracherkennung läuft auf dem Gerät
+            (am Mac mit Whisper, am iPhone mit Apples Spracherkennung auf dem Gerät).
+        </p>
+        <p class="lead">
+            Daten verlassen dein Gerät nur in diesen Fällen, und nur wenn du sie einschaltest:
+        </p>
+        <ul class="lead">
+            <li><strong>iCloud-Abgleich</strong> (standardmäßig aus): Transkripte, Notizen und Bereiche liegen
+                dann zusätzlich in deiner <strong>privaten</strong> iCloud, sichtbar nur für deine Geräte mit
+                derselben Apple-ID. Nutzt du am iPhone „Mit meinem Mac“, liegt auch das Audio
+                vorübergehend in deiner privaten iCloud, bis dein Mac es verarbeitet hat; danach wird es dort gelöscht. Es gilt die Datenschutzerklärung von Apple.</li>
+            <li><strong>Cloud-KI</strong> (Google Gemini, OpenRouter, Claude, OpenAI, Mistral): Dann geht der
+                <strong>Text</strong> des Transkripts an den gewählten Anbieter, nie das Audio. Du richtest den
+                Anbieter mit deinem eigenen Schlüssel ein; es gelten dessen Bedingungen. Bei kostenlosen Angeboten
+                (z.&nbsp;B. Googles kostenlosem Kontingent oder kostenlosen Modellen bei OpenRouter) dürfen die
+                Anbieter den Text zum Verbessern ihrer KI verwenden. Für Vertrauliches nimm die KI auf dem Gerät.</li>
+            <li><strong>Modelle laden</strong>: Spracherkennung und lokale KI werden einmalig von Hugging Face
+                geladen. Dabei wird nichts über dich übertragen außer der technisch nötigen IP-Adresse.</li>
+            <li><strong>Update-Prüfung</strong> (nur Mac, abschaltbar): einmal am Tag eine Anfrage an earnote.dev.</li>
+        </ul>
+        <p class="lead">
+            <strong>App Store und TestFlight:</strong> Installation, Käufe (freiwilliges Trinkgeld) und
+            Testversionen laufen über Apple. Nimmst du an TestFlight teil, stellt Apple mir Absturzberichte
+            und das Feedback bereit, das du selbst abschickst, mit den Angaben, die Apple dort nennt
+            (z.&nbsp;B. Gerätemodell, Systemversion und bei Feedback deine E-Mail-Adresse). Ich nutze das nur,
+            um Fehler zu beheben. Es gilt zusätzlich die Datenschutzerklärung von Apple.
+        </p>
+        <p class="lead">
+            Löschen: Eine Aufnahme löschst du in der App, dabei verschwinden Audio, Transkript und Notiz zusammen.
+            Löschst du die App, sind alle Daten auf dem Gerät weg; Daten in deiner iCloud entfernst du in den
+            iCloud-Einstellungen deines Geräts. Mehr Details in den
             <a href="DATENSCHUTZ.md">ausführlichen Datenschutzhinweisen zur App</a>.
         </p>
 
@@ -109,7 +139,7 @@
         </p>
 
         <p class="fine" style="margin-top:40px">
-            Stand: 22. September 2026. Dieser Text beschreibt den tatsächlichen Stand der Seite nach bestem
+            Stand: 24. September 2026. Dieser Text beschreibt den tatsächlichen Stand der Seite nach bestem
             Wissen und ersetzt keine Rechtsberatung.
         </p>
 
