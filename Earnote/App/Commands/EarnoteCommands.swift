@@ -152,6 +152,7 @@ struct EarnoteCommands: Commands {
             Divider()
             // Weitersagen ist, wie Earnote zu Kommilitonen kommt – ohne Werbung, ohne Nachfragen in der App
             Button("Earnote empfehlen …") { Recommendation.share() }
+            Button("Earnote unterstützen …") { NSWorkspace.shared.open(AppInfo.sponsor) }
         }
 
         CommandGroup(before: .sidebar) {

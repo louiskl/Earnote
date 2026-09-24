@@ -121,6 +121,7 @@ is for. Version 1.0 follows after two weeks of testing with real lectures.
 ### Contributing
 
 PRs are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) and the [roadmap](docs/ROADMAP.md).
+Earnote is free. If it saves you time, you can [support it](https://github.com/sponsors/louiskl) ♥
 
 ---
 
@@ -158,6 +159,7 @@ PRs are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) and the [roadmap](docs/R
 
 > ⚖️ Bitte vor jeder Aufnahme das Einverständnis aller Beteiligten einholen (§ 201 StGB).
 
+**Unterstützen:** Earnote ist kostenlos. Wenn es dir Zeit spart, kannst du es [hier unterstützen](https://github.com/sponsors/louiskl) ♥
 **Beta-Tester:** Die Kurzanleitung steht in [docs/BETA.md](docs/BETA.md).
 **Datenschutz:** Was wo liegt und wann die App ins Netz geht, steht in [docs/DATENSCHUTZ.md](docs/DATENSCHUTZ.md).
 

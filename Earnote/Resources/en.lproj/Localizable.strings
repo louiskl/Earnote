@@ -1157,6 +1157,8 @@
 "Seite %lld von %lld" = "Page %1$lld of %2$lld";
 "Seite %lld" = "Page %lld";
 "Earnote empfehlen …" = "Recommend Earnote …";
+"Earnote unterstützen …" = "Support Earnote …";
+"Earnote unterstützen" = "Support Earnote";
 "Kennst du Earnote? Die Mac-App nimmt Vorlesungen auf und schreibt die Mitschrift – mit Karteikarten und Lernzettel als PDF. Läuft komplett auf dem Mac, kostenlos und ohne Konto." = "Have you tried Earnote? The Mac app records lectures and writes the notes for you – with flashcards and PDF study sheets. Runs entirely on your Mac, free and without an account.";
 "Für Zoom, Teams, Meet und Videos. Im Hörsaal brauchst du ihn nicht – bei erkannten Calls nimmt Earnote ihn immer mit." = "For Zoom, Teams, Meet and videos. You don’t need it in a lecture hall – for detected calls Earnote always records it.";
 "Auch im Stromsparmodus schon während der Aufnahme zusammenfassen" = "Summarize during recording in Low Power Mode too";

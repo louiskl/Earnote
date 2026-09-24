@@ -268,6 +268,7 @@ struct AboutSettings: View {
             Text("Kostenlose, quelloffene Notizen für Vorlesungen, Meetings und Calls.\nLokal transkribiert – deine Aufnahmen bleiben auf deinem Mac.")
                 .multilineTextAlignment(.center)
             Link("Quellcode auf GitHub", destination: AppInfo.repository)
+            Link("Earnote unterstützen", destination: AppInfo.sponsor)
             FeedbackButtons()
             Text("MIT-Lizenz").font(.callout).foregroundStyle(.tertiary)
         }
