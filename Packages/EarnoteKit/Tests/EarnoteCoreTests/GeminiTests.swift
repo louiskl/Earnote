@@ -24,10 +24,14 @@ final class GeminiTests: XCTestCase {
     }
 
     func testBeginnerFriendlyErrors() {
-        let key = GeminiClient.friendly(LLMError(message: "HTTP 400: API key not valid. Please pass a valid API key."))
-        XCTAssertTrue(key.message.contains("Schlüssel"))
-        let quota = GeminiClient.friendly(LLMError(message: "HTTP 429: RESOURCE_EXHAUSTED"))
-        XCTAssertTrue(quota.message.contains("Kontingent"))
+        // Sprachunabhängig prüfen: Die Tests laufen auch mit englischer Oberfläche
+        let rawKey = "HTTP 400: API key not valid. Please pass a valid API key."
+        let key = GeminiClient.friendly(LLMError(message: rawKey))
+        XCTAssertNotEqual(key.message, rawKey, "Falscher Schlüssel wird übersetzt")
+        let rawQuota = "HTTP 429: RESOURCE_EXHAUSTED"
+        let quota = GeminiClient.friendly(LLMError(message: rawQuota))
+        XCTAssertNotEqual(quota.message, rawQuota, "Kontingent wird übersetzt")
+        XCTAssertNotEqual(key.message, quota.message)
         let other = LLMError(message: "Keine Verbindung")
         XCTAssertEqual(GeminiClient.friendly(other).message, "Keine Verbindung")
     }
