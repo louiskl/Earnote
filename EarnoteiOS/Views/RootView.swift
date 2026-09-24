@@ -4,7 +4,7 @@ import SwiftUI
 /// Feste Wurzel: drei Tabs, jeder mit eigenem Navigationsstapel. Die laufende Aufnahme sitzt im
 /// `tabViewBottomAccessory` – wie „Jetzt läuft“ in Musik.
 struct RootView: View {
-    enum Tab: String, Hashable { case recordings, learn, search }
+    enum Tab: String, Hashable { case recordings, library, search }
 
     @Environment(LibraryStore.self) private var library
     @Environment(PhoneRecorder.self) private var recorder
@@ -18,8 +18,8 @@ struct RootView: View {
             SwiftUI.Tab("Aufnahmen", systemImage: "waveform", value: .recordings) {
                 RecordingsView()
             }
-            SwiftUI.Tab("Lernen", systemImage: "rectangle.on.rectangle.angled", value: .learn) {
-                LearnView()
+            SwiftUI.Tab("Bereiche", systemImage: "square.stack.fill", value: .library) {
+                LibraryView()
             }
             SwiftUI.Tab(value: .search, role: .search) {
                 SearchView()

@@ -2,97 +2,108 @@ import EarnoteCore
 import SwiftUI
 import UniformTypeIdentifiers
 
-/// Tab „Aufnahmen“: nach Tagen gruppiert, Filter nach Bereich, Einstellungen in der Symbolleiste.
+/// Tab „Aufnahmen“: alle Aufnahmen nach Tagen – wie in Sprachmemos. Bereiche und Filter stehen im Tab „Bereiche“.
 struct RecordingsView: View {
     @Environment(LibraryStore.self) private var library
-    @Environment(PhoneRecorder.self) private var recorder
-    @SceneStorage("recordings.category") private var categoryFilter = ""
     @State private var showsSettings = false
-    @State private var pendingDeletion: UUID?
     @State private var importing = false
-
-    private var filtered: [Recording] {
-        guard let id = UUID(uuidString: categoryFilter) else { return library.recordings }
-        return library.recordings.filter { $0.categoryID == id }
-    }
 
     var body: some View {
         NavigationStack {
-            Group {
-                if !library.isLoaded {
-                    ProgressView()
-                } else if filtered.isEmpty {
-                    ContentUnavailableView {
-                        Label("Noch keine Aufnahme", systemImage: "waveform")
-                            .symbolEffect(.variableColor.iterative.reversing)
-                    } description: {
-                        Text("Tippe unten auf „Aufnehmen“. Danach steht hier deine Notiz.")
-                    } actions: {
-                        if !recorder.isRecording {
-                            Button("Jetzt aufnehmen", systemImage: "record.circle") {
-                                Task { await recorder.start(category: UUID(uuidString: categoryFilter).flatMap { library.category($0) }) }
-                            }
-                            .buttonStyle(.glassProminent)
-                            .controlSize(.large)
-                        }
+            RecordingList(filter: .all)
+                .navigationTitle("Aufnahmen")
+                .navigationDestination(for: UUID.self) { RecordingDetailView(id: $0) }
+                .toolbar {
+                    ToolbarItem(placement: .topBarLeading) {
+                        Button("Einstellungen", systemImage: "gearshape") { showsSettings = true }
                     }
-                } else {
-                    List {
-                        ForEach(LibraryListing.groupedByDay(filtered)) { section in
-                            Section(section.title) {
-                                ForEach(section.items) { recording in
-                                    NavigationLink(value: recording.id) {
-                                        RecordingRow(recording: recording)
-                                    }
-                                    .swipeActions {
-                                        Button("Löschen", systemImage: "trash", role: .destructive) { pendingDeletion = recording.id }
-                                    }
-                                    .contextMenu { RecordingMenu(id: recording.id, onDelete: { pendingDeletion = recording.id }) }
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button("Importieren", systemImage: "square.and.arrow.down") { importing = true }
+                    }
+                }
+                .sheet(isPresented: $showsSettings) { SettingsSheet() }
+                // Audio und Video aus der Dateien-App (Sprachmemos, Aufnahmen anderer Apps)
+                .fileImporter(isPresented: $importing, allowedContentTypes: [.audio, .movie], allowsMultipleSelection: true) { result in
+                    guard case .success(let urls) = result else { return }
+                    AudioImport.run(urls, into: library, category: nil)
+                }
+        }
+    }
+}
+
+/// Aufnahmen eines Filters nach Tagen – im Tab „Aufnahmen“ und in jedem Bereich
+struct RecordingList: View {
+    let filter: LibraryFilter
+    @Environment(LibraryStore.self) private var library
+    @Environment(PhoneRecorder.self) private var recorder
+    @State private var pendingDeletion: UUID?
+
+    private var items: [Recording] { library.recordings.filter { filter.matches($0) } }
+
+    private var category: RecordingCategory? {
+        if case .category(let id) = filter { return library.category(id) }
+        return nil
+    }
+
+    var body: some View {
+        Group {
+            if !library.isLoaded {
+                ProgressView()
+            } else if items.isEmpty {
+                empty
+            } else {
+                List {
+                    ForEach(LibraryListing.groupedByDay(items)) { section in
+                        Section(section.title) {
+                            ForEach(section.items) { recording in
+                                NavigationLink(value: recording.id) {
+                                    RecordingRow(recording: recording)
                                 }
+                                .swipeActions {
+                                    Button("Löschen", systemImage: "trash", role: .destructive) { pendingDeletion = recording.id }
+                                }
+                                .contextMenu { RecordingMenu(id: recording.id, onDelete: { pendingDeletion = recording.id }) }
                             }
                         }
                     }
                 }
             }
-            .navigationTitle(title)
-            .navigationDestination(for: UUID.self) { RecordingDetailView(id: $0) }
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button("Einstellungen", systemImage: "gearshape") { showsSettings = true }
-                }
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button("Importieren", systemImage: "square.and.arrow.down") { importing = true }
-                }
-                ToolbarItem(placement: .topBarTrailing) {
-                    Menu("Bereich", systemImage: categoryFilter.isEmpty ? "line.3.horizontal.decrease.circle"
-                                                                         : "line.3.horizontal.decrease.circle.fill") {
-                        Picker("Bereich", selection: $categoryFilter) {
-                            Text("Alle Aufnahmen").tag("")
-                            ForEach(library.categories) { Label($0.name, systemImage: $0.symbol).tag($0.id.uuidString) }
-                        }
-                    }
-                }
+        }
+        .confirmationDialog("Aufnahme löschen?", isPresented: Binding(get: { pendingDeletion != nil },
+                                                                       set: { if !$0 { pendingDeletion = nil } }),
+                            titleVisibility: .visible) {
+            Button("Löschen", role: .destructive) {
+                if let id = pendingDeletion { library.delete(id) }
             }
-            .sheet(isPresented: $showsSettings) { SettingsSheet() }
-            // Audio und Video aus der Dateien-App (Sprachmemos, Aufnahmen anderer Apps)
-            .fileImporter(isPresented: $importing, allowedContentTypes: [.audio, .movie], allowsMultipleSelection: true) { result in
-                guard case .success(let urls) = result else { return }
-                AudioImport.run(urls, into: library, category: UUID(uuidString: categoryFilter).flatMap { library.category($0) })
-            }
-            .confirmationDialog("Aufnahme löschen?", isPresented: Binding(get: { pendingDeletion != nil },
-                                                                           set: { if !$0 { pendingDeletion = nil } }),
-                                titleVisibility: .visible) {
-                Button("Löschen", role: .destructive) {
-                    if let id = pendingDeletion { library.delete(id) }
-                }
-            } message: {
-                Text("Aufnahme, Transkript und Notiz werden gelöscht.")
-            }
+        } message: {
+            Text("Aufnahme, Transkript und Notiz werden gelöscht.")
         }
     }
 
-    private var title: String {
-        UUID(uuidString: categoryFilter).flatMap { library.category($0)?.name } ?? String(localized: "Aufnahmen")
+    @ViewBuilder private var empty: some View {
+        switch filter {
+        case .openTasks:
+            ContentUnavailableView("Keine offenen Aufgaben", systemImage: "checkmark.circle",
+                                   description: Text("Aufgaben aus deinen Notizen erscheinen hier, bis du sie abhakst."))
+        case .problems:
+            ContentUnavailableView("Keine Probleme", systemImage: "checkmark.seal",
+                                   description: Text("Alle Aufnahmen wurden verarbeitet."))
+        default:
+            ContentUnavailableView {
+                Label("Noch keine Aufnahme", systemImage: "waveform")
+                    .symbolEffect(.variableColor.iterative.reversing)
+            } description: {
+                Text("Tippe unten auf „Aufnehmen“. Danach steht hier deine Notiz.")
+            } actions: {
+                if !recorder.isRecording {
+                    Button("Jetzt aufnehmen", systemImage: "record.circle") {
+                        Task { await recorder.start(category: category) }
+                    }
+                    .buttonStyle(.glassProminent)
+                    .controlSize(.large)
+                }
+            }
+        }
     }
 }
 
@@ -183,16 +194,21 @@ enum AudioImport {
     }
 }
 
-/// Symbol des Bereichs weiß auf einem Kreis in dessen Farbe – wie die Listen in Erinnerungen
+/// Zeichen des Bereichs (Emoji wie am Mac) auf einem Kreis in dessen Farbe – wie die Listen in Erinnerungen
 struct CategoryBadge: View {
     let category: RecordingCategory?
+    var size: CGFloat = 36
 
     var body: some View {
-        Image(systemName: category?.symbol ?? "waveform")
-            .font(.system(size: 16, weight: .semibold))
-            .foregroundStyle(.white)
-            .frame(width: 36, height: 36)
-            .background(category.map { Color(hex: $0.colorHex) } ?? Color.gray, in: .circle)
-            .accessibilityHidden(true)
+        Group {
+            if let category {
+                Text(category.displayEmoji).font(.system(size: size * 0.5))
+            } else {
+                Image(systemName: "waveform").font(.system(size: size * 0.42, weight: .semibold)).foregroundStyle(.secondary)
+            }
+        }
+        .frame(width: size, height: size)
+        .background(category.map { Color(hex: $0.colorHex).opacity(0.22) } ?? Color.secondary.opacity(0.15), in: .circle)
+        .accessibilityHidden(true)
     }
 }

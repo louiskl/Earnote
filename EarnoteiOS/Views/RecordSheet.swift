@@ -9,12 +9,12 @@ struct RecordSheet: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                BrandGlow(intensity: recorder.isPaused ? 0.25 : 1)
+                BrandGlow(intensity: recorder.isPaused ? 0.25 : 1, level: { [recorder] in recorder.isPaused ? 0 : recorder.level })
                 VStack(spacing: 24) {
                     Spacer()
                     status
                     ElapsedText()
-                        .font(.system(size: 72, weight: .thin, design: .rounded).monospacedDigit())
+                        .font(.system(size: 64, weight: .semibold, design: .rounded).monospacedDigit())
                         .accessibilityLabel("Laufzeit")
                     LevelMeter()
                         .frame(height: 64)

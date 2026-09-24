@@ -5,17 +5,24 @@ import SwiftUI
 struct BrandGlow: View {
     /// 0…1 – z. B. schwächer, solange eine Aufnahme pausiert
     var intensity: Double = 1
+    /// Pegel 0…1, jedes Bild abgefragt – der Verlauf atmet dann mit der Stimme (Aufnahme)
+    var level: (() -> Float)?
+    @State private var smoothed = Smoothed()
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
         TimelineView(.animation(minimumInterval: 1 / 30, paused: reduceMotion)) { context in
             let t = reduceMotion ? 0 : context.date.timeIntervalSinceReferenceDate
+            let energy = reduceMotion ? 0 : smoothed.next(Double(level?() ?? 0))
             let base = Color(uiColor: .systemBackground)
-            let strength = colorScheme == .dark ? 0.55 : 0.38
+            let strength = (colorScheme == .dark ? 0.55 : 0.38) * (1 + 0.6 * energy)
+            let swing = 1 + 1.8 * energy
             MeshGradient(width: 3, height: 3, points: [
                 [0, 0], [0.5, 0], [1, 0],
-                [0, Float(0.45 + 0.08 * sin(t * 0.5))], [Float(0.5 + 0.12 * cos(t * 0.4)), Float(0.45 + 0.1 * sin(t * 0.6))], [1, Float(0.5 + 0.08 * cos(t * 0.35))],
+                [0, Float(0.45 + 0.08 * swing * sin(t * 0.5))],
+                [Float(0.5 + 0.12 * swing * cos(t * 0.4)), Float(0.45 - 0.12 * energy + 0.1 * sin(t * 0.6))],
+                [1, Float(0.5 + 0.08 * swing * cos(t * 0.35))],
                 [0, 1], [0.5, 1], [1, 1],
             ], colors: [
                 .orange.opacity(strength * 0.8), .accentColor.opacity(strength), .pink.opacity(strength * 0.7),
@@ -27,6 +34,15 @@ struct BrandGlow: View {
         .animation(.easeInOut(duration: 0.6), value: intensity)
         .ignoresSafeArea()
         .accessibilityHidden(true)
+    }
+}
+
+/// Glättet den Pegel, damit der Verlauf ruhig atmet statt zu flackern
+private final class Smoothed {
+    private var value = 0.0
+    func next(_ target: Double) -> Double {
+        value += (min(1, target) - value) * 0.12
+        return value
     }
 }
 

@@ -1,67 +1,7 @@
 import EarnoteCore
 import SwiftUI
 
-/// Tab „Lernen“: Karteikarten aus allen Notizen, nach Bereich. Die Karten stehen in der Notiz selbst
-/// (Abschnitt „Karteikarten“) – hier werden sie nur gesammelt und abgefragt.
-struct LearnView: View {
-    @Environment(LibraryStore.self) private var library
-    @State private var cards: [UUID?: [Flashcard]] = [:]
-    @State private var isLoading = true
-
-    var body: some View {
-        NavigationStack {
-            Group {
-                if isLoading {
-                    ProgressView()
-                } else if cards.isEmpty {
-                    ContentUnavailableView("Noch keine Karteikarten", systemImage: "rectangle.on.rectangle.angled",
-                                           description: Text("Öffne eine Notiz und wähle „Karteikarten erstellen“. Danach lernst du sie hier."))
-                } else {
-                    List {
-                        Section {
-                            NavigationLink(value: LearnDeck(title: String(localized: "Alle Karten"), cards: cards.values.flatMap { $0 })) {
-                                LabeledContent("Alle Karten", value: "\(cards.values.reduce(0) { $0 + $1.count })")
-                            }
-                        }
-                        Section("Bereiche") {
-                            ForEach(sortedKeys, id: \.self) { key in
-                                let name = key.flatMap { library.category($0)?.name } ?? String(localized: "Ohne Bereich")
-                                NavigationLink(value: LearnDeck(title: name, cards: cards[key] ?? [])) {
-                                    LabeledContent {
-                                        Text("\(cards[key]?.count ?? 0)")
-                                    } label: {
-                                        Label { Text(name) } icon: { CategoryBadge(category: key.flatMap { library.category($0) }) }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            .navigationTitle("Lernen")
-            .navigationDestination(for: LearnDeck.self) { FlashcardSession(deck: $0) }
-            .task(id: library.recordings.map(\.summaryPreview).hashValue) { await load() }
-        }
-    }
-
-    /// In der Reihenfolge der Bereiche, „Ohne Bereich“ zuletzt
-    private var sortedKeys: [UUID?] {
-        func position(_ id: UUID?) -> Int { id.flatMap { id in library.categories.firstIndex { $0.id == id } } ?? .max }
-        return cards.keys.sorted { position($0) < position($1) }
-    }
-
-    private func load() async {
-        var byCategory: [UUID?: [Flashcard]] = [:]
-        for recording in library.recordings where recording.status == .done {
-            guard let note = await library.summary(recording.id) else { continue }
-            let found = Flashcards.entries(note.markdown).map(\.card)
-            if !found.isEmpty { byCategory[recording.categoryID, default: []] += found }
-        }
-        cards = byCategory
-        isLoading = false
-    }
-}
-
+/// Karten zum Abfragen – aus einer Notiz oder allen Notizen eines Bereichs (`FlashcardDeck.load`)
 struct LearnDeck: Hashable {
     let title: String
     let cards: [Flashcard]

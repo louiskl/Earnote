@@ -139,6 +139,28 @@ Wörterbuch · Cloud-Schlüssel (Schlüsselbund) · Über, Earnote unterstützen
 
 ---
 
+## 3a. Abgleich mit der Mac-App (24.09.2026)
+
+| Mac-App | iPhone vorher | Entscheidung |
+|---|---|---|
+| Seitenleiste: Alle, Offene Aufgaben, Ohne Bereich, Probleme, Bereiche mit Zählern | nur Filter-Menü | **Tab „Bereiche“** als Gegenstück zur Seitenleiste – ersetzt den Tab „Lernen“, der am Mac kein Gegenstück hatte |
+| Bereich anlegen aus Vorlagen, Emoji, Farbe, Anweisungen für die KI | nur Name | **Bereichs-Editor** wie am Mac, Vorlagen beim Anlegen |
+| Übersicht über einen Bereich | – | **im Bereich**: „Übersicht erstellen“ |
+| Karteikarten erzeugen, in der Notiz, als Anki-Datei | erzeugen, eigener Lern-Tab | **in Notiz und Bereich**: erzeugen, lernen, als Anki-Datei teilen |
+| Lernzettel als PDF mit Fußzeile | – | **PDF teilen** (gleicher Aufbau, Fußzeile „Erstellt mit Earnote · earnote.dev“) |
+| Neu zusammenfassen mit Anweisung, auch neu transkribieren; Vereinfachen | nur Vereinfachen | **„Neu zusammenfassen …“** mit Anweisung |
+| Notiz bearbeiten, auf KI-Fassung zurücksetzen | – | **übernommen** |
+| Namen & Begriffe korrigieren, Wörterbuch | – | **übernommen** (Korrigieren in der Notiz, Wörterbuch in den Einstellungen) |
+| Export an Notion, Obsidian, Apple Notizen … | Teilen-Menü | bleibt beim **Teilen-Menü** (am iPhone der übliche Weg) |
+| Call-Erkennung, Systemton, Menüleiste, Kurzprotokoll per Mail | – | **nicht am iPhone** (gibt es dort nicht bzw. Teilen-Menü reicht) |
+| Live-Mitschrift während der Aufnahme | – | 1.2 (braucht echtes Gerät zum Testen) |
+
+**Aufnahme-Bildschirm:** Uhr in normaler, runder Schrift statt dünn; der Verlauf dahinter bewegt sich mit dem Pegel;
+die Live-Aktivität zeigt einen Pegel (iOS erlaubt dort nur Aktualisierungen im Sekundentakt, deshalb ruhige Balken
+statt Echtzeit). Vorbilder: Apple Sprachmemos (Aufnahme, Liste), Bevel (runde Zahlen, ruhige Verläufe), unsere Mac-App.
+
+---
+
 ## 4. Onboarding (erster Start)
 
 Kurz, fünf Schritte, jeder überspringbar außer dem Mikrofon.

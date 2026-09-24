@@ -10,6 +10,8 @@ struct RecordingActivityAttributes: ActivityAttributes {
         var countingSince: Date
         /// Gesetzt, solange pausiert – dann steht die Uhr auf diesem Wert
         var pausedElapsed: TimeInterval?
+        /// Letzte Pegel 0…1, alle ~1,5 s ergänzt (öfter lässt iOS eine Live-Aktivität nicht zeichnen)
+        var levels: [Double] = []
 
         var isPaused: Bool { pausedElapsed != nil }
     }

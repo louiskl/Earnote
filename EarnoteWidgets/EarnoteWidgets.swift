@@ -28,7 +28,11 @@ struct RecordingLiveActivity: Widget {
                     }
                 }
                 Spacer()
-                Elapsed(state: context.state).font(.title3.monospacedDigit())
+                VStack(alignment: .trailing, spacing: 4) {
+                    Elapsed(state: context.state).font(.title3.weight(.semibold).monospacedDigit())
+                        .fontDesign(.rounded)
+                    Levels(levels: context.state.levels).frame(width: 64, height: 16)
+                }
                 Controls(state: context.state)
             }
             .padding()
@@ -41,7 +45,10 @@ struct RecordingLiveActivity: Widget {
                     Elapsed(state: context.state).font(.title3.monospacedDigit()).padding(.trailing, 4)
                 }
                 DynamicIslandExpandedRegion(.center) {
-                    Text(context.attributes.categoryName ?? String(localized: "Aufnahme")).font(.headline).lineLimit(1)
+                    VStack(spacing: 6) {
+                        Text(context.attributes.categoryName ?? String(localized: "Aufnahme")).font(.headline).lineLimit(1)
+                        Levels(levels: context.state.levels).frame(height: 18)
+                    }
                 }
                 DynamicIslandExpandedRegion(.bottom) {
                     Controls(state: context.state).padding(.top, 4)
@@ -65,6 +72,23 @@ private struct RecordingIcon: View {
         Image(systemName: isPaused ? "pause.circle.fill" : "record.circle")
             .foregroundStyle(brand)
             .accessibilityLabel(isPaused ? "Pausiert" : "Nimmt auf")
+    }
+}
+
+/// Pegel als ruhige Balken – die neuesten rechts
+private struct Levels: View {
+    let levels: [Double]
+
+    var body: some View {
+        HStack(alignment: .center, spacing: 2) {
+            ForEach(Array(levels.enumerated()), id: \.offset) { index, level in
+                Capsule()
+                    .fill(brand.opacity(0.4 + 0.6 * Double(index + 1) / Double(max(1, levels.count))))
+                    .frame(maxWidth: .infinity)
+                    .frame(height: max(3, 16 * level))
+            }
+        }
+        .accessibilityHidden(true)
     }
 }
 

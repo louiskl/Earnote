@@ -19,7 +19,7 @@ struct SettingsSheet: View {
                         ForEach(library.categories) { Label($0.name, systemImage: $0.symbol).tag(Optional($0.id)) }
                     }
                     Toggle("Audio nach der Notiz behalten", isOn: $library.settings.keepAudioFiles)
-                    NavigationLink("Bereiche") { CategoriesView() }
+                    NavigationLink("Wörterbuch") { GlossaryView() }
                 }
                 #if DEBUG
                 if let loadDemoLibrary {
@@ -125,42 +125,48 @@ private struct LocalModelRow: View {
     }
 }
 
-/// Bereiche anlegen, umbenennen, sortieren und löschen
-struct CategoriesView: View {
+/// Wörterbuch: richtige Schreibweisen von Namen und Fachbegriffen – Spracherkennung und KI bekommen sie mit
+struct GlossaryView: View {
     @Environment(LibraryStore.self) private var library
-    @State private var renaming: RecordingCategory?
-    @State private var name = ""
+    @State private var term = ""
 
     var body: some View {
         List {
-            ForEach(library.categories) { category in
-                Button { rename(category) } label: {
-                    Label { Text(category.name).foregroundStyle(.primary) } icon: { CategoryBadge(category: category) }
+            Section {
+                HStack {
+                    TextField("Neuer Begriff, z. B. Eigenwert", text: $term)
+                        .autocorrectionDisabled()
+                        .onSubmit(add)
+                    Button("Hinzufügen", systemImage: "plus.circle.fill", action: add)
+                        .labelStyle(.iconOnly)
+                        .disabled(term.trimmingCharacters(in: .whitespaces).isEmpty)
+                }
+            } footer: {
+                Text("Namen von Lehrenden, Fachbegriffe, Abkürzungen – Earnote schreibt sie dann richtig.")
+            }
+            if !library.glossary.isEmpty {
+                Section {
+                    ForEach(library.glossary) { entry in
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(entry.term)
+                            if !entry.variants.isEmpty {
+                                Text(entry.variants.joined(separator: ", ")).font(.caption).foregroundStyle(.secondary)
+                            }
+                        }
+                    }
+                    .onDelete { offsets in
+                        for index in offsets { library.deleteGlossaryTerm(library.glossary[index].id) }
+                    }
                 }
             }
-            .onMove { from, to in
-                var ids = library.categories.map(\.id)
-                ids.move(fromOffsets: from, toOffset: to)
-                library.setCategoryOrder(ids)
-            }
-            .onDelete { offsets in
-                for index in offsets { library.deleteCategory(library.categories[index].id) }
-            }
         }
-        .navigationTitle("Bereiche")
-        .toolbar {
-            EditButton()
-            Button("Neuer Bereich", systemImage: "plus") { rename(library.addCategory()) }
-        }
-        .alert("Bereich umbenennen", isPresented: Binding(get: { renaming != nil }, set: { if !$0 { renaming = nil } })) {
-            TextField("Name", text: $name)
-            Button("Sichern") { if let renaming { library.renameCategory(renaming.id, to: name) } }
-            Button("Abbrechen", role: .cancel) {}
-        }
+        .navigationTitle("Wörterbuch")
     }
 
-    private func rename(_ category: RecordingCategory) {
-        name = category.name
-        renaming = category
+    private func add() {
+        let trimmed = term.trimmingCharacters(in: .whitespaces)
+        guard !trimmed.isEmpty else { return }
+        library.addGlossaryTerm(GlossaryTerm(term: trimmed))
+        term = ""
     }
 }

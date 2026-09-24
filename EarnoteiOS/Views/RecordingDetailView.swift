@@ -15,6 +15,11 @@ struct RecordingDetailView: View {
     @State private var confirmsDeletion = false
     @State private var renaming = false
     @State private var newTitle = ""
+    @State private var shareFile: ShareFile?
+    @State private var editingNote = false
+    @State private var resummarizing = false
+    @State private var correcting = false
+    @State private var deck: LearnDeck?
 
     enum Mode: String { case note, transcript }
 
@@ -44,6 +49,13 @@ struct RecordingDetailView: View {
                 dismiss()
             }
         }
+        .sheet(item: $shareFile) { ActivitySheet(url: $0.url).presentationDetents([.medium, .large]) }
+        .sheet(isPresented: $editingNote) {
+            if let note { NoteEditor(id: id, markdown: note.markdown) { Task { await reload() } } }
+        }
+        .sheet(isPresented: $resummarizing) { ResummarizeSheet(id: id) }
+        .sheet(isPresented: $correcting) { CorrectTermSheet(id: id) { Task { await reload() } } }
+        .navigationDestination(item: $deck) { FlashcardSession(deck: $0) }
         .alert("Umbenennen", isPresented: $renaming) {
             TextField("Titel", text: $newTitle)
             Button("Sichern") { library.rename(id, to: newTitle) }
@@ -90,6 +102,12 @@ struct RecordingDetailView: View {
                         Text("Transkript").tag(Mode.transcript)
                     }
                     .pickerStyle(.segmented)
+                    if let progress = library.flashcardProgress[id] {
+                        ProgressView(value: Double(progress.done), total: Double(max(1, progress.of))) {
+                            Label("Karteikarten entstehen …", systemImage: "rectangle.on.rectangle.angled")
+                                .font(.subheadline)
+                        }
+                    }
                     if mode == .note {
                         if let note {
                             NoteContentView(markdown: note.markdown) { line in
@@ -118,21 +136,55 @@ struct RecordingDetailView: View {
                 }
             }
             Menu("Mehr", systemImage: "ellipsis") {
-                if note != nil {
-                    Button("Karteikarten erstellen", systemImage: "rectangle.on.rectangle.angled") {
-                        Task { _ = await library.makeFlashcards(id) }
+                if let note {
+                    Section {
+                        Button("Lernzettel als PDF", systemImage: "doc.richtext") { sharePDF(note) }
+                        if cards(note).isEmpty {
+                            Button("Karteikarten erzeugen", systemImage: "rectangle.on.rectangle.angled") {
+                                Task { _ = await library.makeFlashcards(id) }
+                            }
+                            .disabled(library.makingFlashcards.contains(id))
+                        } else {
+                            Button("Karteikarten lernen", systemImage: "rectangle.on.rectangle.angled") {
+                                deck = LearnDeck(title: note.title, cards: cards(note))
+                            }
+                            Button("Als Anki-Datei teilen", systemImage: "square.and.arrow.up.on.square") {
+                                if let url = try? AnkiExport.file(title: note.title, cards: cards(note)) { shareFile = ShareFile(url: url) }
+                            }
+                        }
                     }
-                    .disabled(library.makingFlashcards.contains(id))
-                    Button("Vereinfachen", systemImage: "text.badge.minus") {
-                        library.reprocess(id, retranscribe: false, instruction: String(localized: "Erkläre die Inhalte einfacher und kürzer."), fromNote: true)
+                    Section {
+                        Button("Notiz bearbeiten", systemImage: "pencil") { editingNote = true }
+                        Button("Namen & Begriffe korrigieren …", systemImage: "character.cursor.ibeam") { correcting = true }
+                        if recording?.isNoteEdited == true {
+                            Button("Auf KI-Fassung zurücksetzen", systemImage: "arrow.uturn.backward") {
+                                library.restoreGeneratedNote(id)
+                                Task { await reload() }
+                            }
+                        }
+                        Button("Vereinfachen", systemImage: "text.badge.minus") {
+                            library.reprocess(id, retranscribe: false, instruction: String(localized: "Erkläre die Inhalte einfacher und kürzer."), fromNote: true)
+                        }
+                        Button("Neu zusammenfassen …", systemImage: "arrow.clockwise") { resummarizing = true }
                     }
                 }
-                Button("Umbenennen", systemImage: "pencil") {
-                    newTitle = recording?.displayTitle ?? ""
-                    renaming = true
+                Section {
+                    Button("Umbenennen", systemImage: "pencil.line") {
+                        newTitle = recording?.displayTitle ?? ""
+                        renaming = true
+                    }
+                    RecordingMenu(id: id, onDelete: { confirmsDeletion = true })
                 }
-                RecordingMenu(id: id, onDelete: { confirmsDeletion = true })
             }
+        }
+    }
+
+    private func cards(_ note: Summary) -> [Flashcard] { Flashcards.entries(note.markdown).map(\.card) }
+
+    private func sharePDF(_ note: Summary) {
+        let kicker = recording.flatMap { library.category($0.categoryID)?.name }
+        if let url = try? NotePDF.make(title: note.title, kicker: kicker, meta: subtitle, markdown: note.markdown) {
+            shareFile = ShareFile(url: url)
         }
     }
 
@@ -345,5 +397,117 @@ private struct PlayerBar: View {
             .padding(.horizontal)
             .padding(.bottom, 8)
         }
+    }
+}
+
+// MARK: - Blätter der Notiz
+
+/// Notiz von Hand bearbeiten (Markdown). Die KI-Fassung bleibt erhalten und lässt sich wiederherstellen.
+private struct NoteEditor: View {
+    let id: UUID
+    @State var markdown: String
+    var onSave: () -> Void
+    @Environment(LibraryStore.self) private var library
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        NavigationStack {
+            TextEditor(text: $markdown)
+                .font(.body.monospaced())
+                .padding(.horizontal)
+                .navigationTitle("Notiz bearbeiten")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) { Button("Abbrechen") { dismiss() } }
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button("Sichern") {
+                            library.updateSummaryText(id, markdown: markdown)
+                            dismiss()
+                            onSave()
+                        }
+                    }
+                }
+        }
+    }
+}
+
+/// Neu zusammenfassen – optional mit eigener Anweisung und neuer Transkription (wie am Mac)
+private struct ResummarizeSheet: View {
+    let id: UUID
+    @Environment(LibraryStore.self) private var library
+    @Environment(\.dismiss) private var dismiss
+    @State private var instruction = ""
+    @State private var retranscribe = false
+
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section {
+                    TextField("z. B. „Mehr Beispiele“ oder „Nur die Formeln“", text: $instruction, axis: .vertical)
+                        .lineLimit(2...5)
+                } header: {
+                    Text("Anweisung (freiwillig)")
+                } footer: {
+                    Text("Gilt nur für diesen Durchgang.")
+                }
+                if library.hasAudio(id) {
+                    Toggle("Auch neu transkribieren", isOn: $retranscribe)
+                }
+            }
+            .navigationTitle("Neu zusammenfassen")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) { Button("Abbrechen") { dismiss() } }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Starten") {
+                        library.reprocess(id, retranscribe: retranscribe, instruction: instruction)
+                        dismiss()
+                    }
+                }
+            }
+        }
+        .presentationDetents([.medium])
+    }
+}
+
+/// Falsch verstandene Namen und Fachbegriffe ersetzen – in Titel, Notiz und Transkript; auf Wunsch fürs Wörterbuch merken
+private struct CorrectTermSheet: View {
+    let id: UUID
+    var onDone: () -> Void
+    @Environment(LibraryStore.self) private var library
+    @Environment(\.dismiss) private var dismiss
+    @State private var wrong = ""
+    @State private var right = ""
+    @State private var remember = true
+
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section {
+                    TextField("Falsch, z. B. „Eigen Werte“", text: $wrong)
+                    TextField("Richtig, z. B. „Eigenwerte“", text: $right)
+                }
+                Section {
+                    Toggle("Ins Wörterbuch aufnehmen", isOn: $remember)
+                } footer: {
+                    Text("Dann schreibt Earnote den Begriff auch in künftigen Aufnahmen richtig.")
+                }
+            }
+            .autocorrectionDisabled()
+            .navigationTitle("Korrigieren")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) { Button("Abbrechen") { dismiss() } }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Ersetzen") {
+                        library.correctTerm(id, wrong: wrong, right: right, remember: remember)
+                        dismiss()
+                        onDone()
+                    }
+                    .disabled(wrong.trimmingCharacters(in: .whitespaces).isEmpty || right.trimmingCharacters(in: .whitespaces).isEmpty)
+                }
+            }
+        }
+        .presentationDetents([.medium])
     }
 }
