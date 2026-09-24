@@ -214,7 +214,7 @@ struct GoogleSetupSheet: View {
                     Step(number: 2, text: "Tippe auf „Create API key“ und kopiere den Schlüssel.")
                     Step(number: 3, text: "Komm zurück und füge ihn hier ein.")
                 } footer: {
-                    Text("Kostenlos, ohne Kreditkarte. Earnote schickt nur den Text der Aufnahme an Google, nie das Audio.")
+                    Text("Kostenlos, ohne Kreditkarte, ab 18 Jahren (Bedingung von Google). Earnote schickt nur den Text der Aufnahme an Google, nie das Audio.")
                 }
                 Section {
                     PasteButton(payloadType: String.self) { strings in
@@ -333,7 +333,7 @@ struct OtherProvidersView: View {
                     Text("API-Schlüssel für \(provider.label)")
                 } footer: {
                     if provider == .openRouter {
-                        Text("Kostenlos, ohne Kreditkarte. Earnote wählt selbst ein gutes kostenloses Modell. OpenRouter verlangt, dass du kostenlose Modelle in den Datenschutz-Einstellungen freigibst – deren Anbieter dürfen den Text zum Training nutzen. Für vertrauliche Aufnahmen nimm lieber „Auf diesem iPhone“ oder „Mit meinem Mac“.")
+                        Text("Kostenlos, ohne Kreditkarte, ab 18 Jahren (Bedingung von OpenRouter). Earnote wählt selbst ein gutes kostenloses Modell. OpenRouter verlangt, dass du kostenlose Modelle in den Datenschutz-Einstellungen freigibst – deren Anbieter dürfen den Text zum Training nutzen. Für vertrauliche Aufnahmen nimm lieber „Auf diesem iPhone“ oder „Mit meinem Mac“.")
                     }
                 }
             }
@@ -353,10 +353,10 @@ struct NoteWayHelpView: View {
                     Text("Hast du Earnote auf dem Mac, nimm „Mit meinem Mac“: Das iPhone nimmt nur auf, der Mac schreibt die Notiz und schont deinen Akku. Ohne Mac: „Auf diesem iPhone“, wenn es angeboten wird – sonst „Kostenlos mit Google-Konto“.")
                 }
                 DisclosureGroup("Was kostet das?") {
-                    Text("Nichts. Auf dem iPhone und mit dem Mac rechnet die KI auf deinen eigenen Geräten. Google und OpenRouter bieten ein kostenloses Kontingent, das für Vorlesungen reicht. Claude, OpenAI und Mistral rechnen nach Nutzung über deinen eigenen Schlüssel ab.")
+                    Text("Nichts. Auf dem iPhone und mit dem Mac rechnet die KI auf deinen eigenen Geräten. Google und OpenRouter bieten ein kostenloses Kontingent, das für Vorlesungen reicht – beide erst ab 18 Jahren. Claude, OpenAI und Mistral rechnen nach Nutzung über deinen eigenen Schlüssel ab.")
                 }
                 DisclosureGroup("Was passiert mit meinen Daten?") {
-                    Text("Die Aufnahme verlässt dein iPhone nie – außer beim Weg „Mit meinem Mac“, dann geht sie über deine eigene iCloud zum Mac und wird danach gelöscht. Bei Google und den weiteren Anbietern geht nur der geschriebene Text dorthin, nie das Audio. Kostenlose Angebote (Google, OpenRouter) dürfen diesen Text nutzen, um ihre KI zu verbessern – für Vertrauliches nimm das iPhone oder den Mac.")
+                    Text("Die Aufnahme verlässt dein iPhone nie – außer beim Weg „Mit meinem Mac“, dann geht sie über deine eigene iCloud zum Mac und wird danach gelöscht. Bei Google und den weiteren Anbietern geht nur der geschriebene Text dorthin, nie das Audio. Google nutzt ihn in der EU, der Schweiz und Großbritannien auch im kostenlosen Kontingent nicht zum Training, anderswo schon. Bei OpenRouter dürfen die Anbieter kostenloser Modelle ihn nutzen. Für Vertrauliches nimm das iPhone oder den Mac.")
                 }
                 DisclosureGroup("Der Google-Schlüssel geht nicht") {
                     Text("Kopiere den Schlüssel noch einmal vollständig (er beginnt meist mit „AIza“) und füge ihn erneut ein. Meldet Earnote, das Kontingent sei aufgebraucht, warte ein paar Minuten. Hilft das nicht, erstelle auf aistudio.google.com einen neuen Schlüssel.")
