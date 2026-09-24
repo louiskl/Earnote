@@ -1365,3 +1365,36 @@
 "Betriebssysteme" = "Operating Systems";
 "Übungsblatt 4 bis Freitag rechnen" = "Finish problem sheet 4 by Friday";
 "Klausurtermin am 12. Februar notieren" = "Note the exam date: 12 February";
+
+/* iPhone: Ladekabel, Trinkgeld, Teilen-Erweiterung */
+"Seit einer Minute ist nichts zu hören. Prüfe, ob das richtige Mikrofon gewählt ist und %@ es verwenden darf (Einstellungen › Datenschutz & Sicherheit › Mikrofon)." = "Nothing has been audible for a minute. Check that the right microphone is selected and that %@ is allowed to use it (Settings › Privacy & Security › Microphone).";
+"Erst am Ladekabel verarbeiten" = "Process only while charging";
+"Die Notiz entsteht dann, sobald das iPhone lädt, zum Beispiel nachts. Im Stromsparmodus wartet Earnote auch ohne diese Einstellung aufs Ladekabel." = "The note is then written as soon as the iPhone is charging, for example overnight. In Low Power Mode, Earnote waits for charging even without this setting.";
+"Eine Aufnahme wartet aufs Ladekabel" = "One recording is waiting for charging";
+"%lld Aufnahmen warten aufs Ladekabel" = "%lld recordings are waiting for charging";
+"Der Stromsparmodus ist an. Die Notiz entsteht, sobald das iPhone lädt." = "Low Power Mode is on. The note will be written as soon as the iPhone is charging.";
+"Die Notiz entsteht, sobald das iPhone lädt – auch nachts bei geschlossener App." = "The note will be written as soon as the iPhone is charging – even overnight with the app closed.";
+"Danke! Das hilft, Earnote kostenlos weiterzuentwickeln." = "Thank you! This helps keep Earnote free.";
+"Earnote bleibt kostenlos und vollständig nutzbar. Ein Trinkgeld schaltet nichts frei – es hilft nur bei der Weiterentwicklung." = "Earnote stays free and fully usable. A tip unlocks nothing – it only supports development.";
+"Wird übernommen …" = "Adding …";
+"Bei Earnote angekommen" = "Added to Earnote";
+"Öffne Earnote – dann entsteht die Notiz." = "Open Earnote to have the note written.";
+"Das geht leider nicht" = "That didn’t work";
+"Earnote kann nur Audio und Video übernehmen." = "Earnote can only take audio and video.";
+"Der Mac konnte die Aufnahme nicht übernehmen (%@)." = "The Mac couldn’t take over the recording (%@).";
+
+/* iPhone: Weg B (Übergabe an den Mac) */
+"Die Aufnahme konnte nicht an deinen Mac übergeben werden. Sie wird jetzt auf dem iPhone verarbeitet." = "The recording couldn’t be handed to your Mac. It is now being processed on the iPhone.";
+"Dein Mac hat die Aufnahme nicht übernommen" = "Your Mac didn’t take the recording";
+"Öffne die Aufnahme und tippe auf „Auf dem iPhone verarbeiten“." = "Open the recording and tap “Process on iPhone”.";
+"Auf dem iPhone verarbeiten" = "Process on iPhone";
+"Sobald Earnote auf deinem Mac läuft, schreibt er die Notiz. Sie erscheint dann hier." = "As soon as Earnote is running on your Mac, it writes the note. It will then appear here.";
+"Dein Mac konnte sie nicht übernehmen" = "Your Mac couldn’t take it";
+"Mit dem Mac abgleichen (iCloud)" = "Sync with Mac (iCloud)";
+"Notizen schreibt mein Mac" = "My Mac writes the notes";
+"Mac" = "Mac";
+"Mit Earnote auf deinem Mac und derselben iCloud hast du deine Notizen auf beiden Geräten. Gilt ab dem nächsten Start." = "With Earnote on your Mac and the same iCloud, your notes are on both devices. Takes effect the next time the app starts.";
+"Noch kein Mac gefunden. Öffne Earnote auf deinem Mac und schalte dort in den Einstellungen den Abgleich über iCloud ein." = "No Mac found yet. Open Earnote on your Mac and turn on iCloud sync in its settings.";
+"%@ schreibt die Notiz. Das Audio geht dafür über deine iCloud zum Mac und wird danach aus iCloud gelöscht." = "%@ writes the note. The audio travels to the Mac via your iCloud and is then deleted from iCloud.";
+"Dein Mac kann die Notizen schreiben – das schont den Akku und nutzt die KI auf dem Mac." = "Your Mac can write the notes – that saves battery and uses the AI on your Mac.";
+"Wartet auf deinen Mac" = "Waiting for your Mac";

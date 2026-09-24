@@ -12,9 +12,16 @@ final class LiveActivityController {
 
     init() {
         // Überbleibsel einer abgestürzten Sitzung räumen
-        for stale in Activity<RecordingActivityAttributes>.activities {
-            Task { await stale.end(nil, dismissalPolicy: .immediate) }
+        Task.detached {
+            for stale in Activity<RecordingActivityAttributes>.activities {
+                await stale.end(nil, dismissalPolicy: .immediate)
+            }
         }
+    }
+
+    /// `Activity` ist nicht `Sendable` – deshalb wandert nur die ID in die Task, die Aktivität wird dort gesucht
+    nonisolated private static func running(_ id: String) -> Activity<RecordingActivityAttributes>? {
+        Activity<RecordingActivityAttributes>.activities.first { $0.id == id }
     }
 
     func update(_ recorder: PhoneRecorder) {
@@ -24,8 +31,8 @@ final class LiveActivityController {
                                                              pausedElapsed: recorder.isPaused ? elapsed : nil,
                                                              levels: recorder.isPaused ? levels.map { _ in 0 } : levels)
         let content = ActivityContent(state: state, staleDate: nil)
-        if let activity {
-            Task { await activity.update(content) }
+        if let id = activity?.id {
+            Task.detached { await Self.running(id)?.update(content) }
         } else if ActivityAuthorizationInfo().areActivitiesEnabled {
             do {
                 activity = try Activity.request(attributes: RecordingActivityAttributes(categoryName: recorder.categoryName),
@@ -55,9 +62,9 @@ final class LiveActivityController {
         ticker?.cancel()
         ticker = nil
         levels = levels.map { _ in 0 }
-        guard let activity else { return }
-        self.activity = nil
-        Task { await activity.end(nil, dismissalPolicy: .immediate) }
+        guard let id = activity?.id else { return }
+        activity = nil
+        Task.detached { await Self.running(id)?.end(nil, dismissalPolicy: .immediate) }
     }
 }
 

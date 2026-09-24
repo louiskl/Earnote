@@ -61,6 +61,7 @@ SHARED = [
     "Earnote/AI/AppleIntelligenceClient.swift",
     "Earnote/AI/LocalModels.swift",
     "Earnote/App/DemoLibrary.swift",
+    "Earnote/Services/CloudSyncStatus.swift",
 ]
 # Übersetzungen: dieselbe Tabelle wie am Mac (Deutsch steht im Code)
 LOCALIZED = {"en": "Earnote/Resources/en.lproj/Localizable.strings"}
@@ -223,25 +224,71 @@ WTARGET = uid("wtarget")
 add(WTARGET, f"{{isa = PBXNativeTarget; buildConfigurationList = {config_list('widget', widget_settings, widget_settings)}; "
              f"buildPhases = ({WSOURCES}, {WRESOURCES}, ); buildRules = (); dependencies = (); name = {WNAME}; productName = {WNAME}; "
              f'productReference = {WPRODUCT}; productType = "com.apple.product-type.app-extension"; }};')
-EMBED_FILE = uid("embed", "file")
+
+# Teilen-Erweiterung: „Mit Earnote teilen“ aus Sprachmemos, WhatsApp, Dateien. Legt die Datei in den gemeinsamen
+# Ordner (EarnoteiOS/Shared/ShareInbox.swift), die App übernimmt sie beim nächsten Öffnen.
+SNAME = "EarnoteShare"
+SSRC = os.path.join(ROOT, SNAME)
+sfiles = sorted(f for f in os.listdir(SSRC) if not f.startswith("."))
+srefs = {}
+for f in sfiles:
+    srefs[f] = uid("sref", f)
+    add(srefs[f], f'{{isa = PBXFileReference; lastKnownFileType = {ftype(f)}; path = "{f}"; sourceTree = "<group>"; }};')
+SGROUP = uid("sgroup")
+add(SGROUP, "{isa = PBXGroup; children = (" + "".join(f"{srefs[f]}, " for f in sfiles) + f'); path = "{SNAME}"; sourceTree = "<group>"; }};')
+sbuilds = []
+for f in sfiles:
+    if f.endswith(".swift"):
+        sbuilds.append(uid("sbuild", f))
+        add(sbuilds[-1], f"{{isa = PBXBuildFile; fileRef = {srefs[f]}; }};")
+for path in ["Shared/ShareInbox.swift", "Shared/WidgetSnapshot.swift"]:
+    sbuilds.append(uid("sbuild", "shared", path))
+    add(sbuilds[-1], f"{{isa = PBXBuildFile; fileRef = {refs[path]}; }};")
+SSOURCES = uid("sphase", "sources")
+add(SSOURCES, "{isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (" + "".join(f"{b}, " for b in sbuilds)
+    + "); runOnlyForDeploymentPostprocessing = 0; };")
+SLOC_BUILD = uid("sbuild", "Localizable.strings")
+add(SLOC_BUILD, f'{{isa = PBXBuildFile; fileRef = {LOC_GROUP}; }};')
+SRESOURCES = uid("sphase", "resources")
+add(SRESOURCES, f"{{isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = ({SLOC_BUILD}, ); runOnlyForDeploymentPostprocessing = 0; }};")
+SPRODUCT = uid("sproduct")
+add(SPRODUCT, f'{{isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = {SNAME}.appex; sourceTree = BUILT_PRODUCTS_DIR; }};')
+add(PRODUCTS, f'{{isa = PBXGroup; children = ({PRODUCT}, {WPRODUCT}, {SPRODUCT}, ); name = Products; sourceTree = "<group>"; }};')
+add(MAIN, f'{{isa = PBXGroup; children = ({uid("group", ".")}, {WGROUP}, {SGROUP}, {SHARED_GROUP}, {PACKAGE_REF_FILE}, {PRODUCTS}, ); sourceTree = "<group>"; }};')
+share_settings = dict(widget_settings)
+share_settings.update({
+    "CODE_SIGN_ENTITLEMENTS": f"{SNAME}/{SNAME}.entitlements",
+    "INFOPLIST_FILE": f"{SNAME}/Info.plist",
+    "PRODUCT_BUNDLE_IDENTIFIER": "app.earnote.Earnote.Share",
+})
+STARGET = uid("starget")
+add(STARGET, f"{{isa = PBXNativeTarget; buildConfigurationList = {config_list('share', share_settings, share_settings)}; "
+             f"buildPhases = ({SSOURCES}, {SRESOURCES}, ); buildRules = (); dependencies = (); name = {SNAME}; productName = {SNAME}; "
+             f'productReference = {SPRODUCT}; productType = "com.apple.product-type.app-extension"; }};')
+
+EMBED_FILE, SEMBED_FILE = uid("embed", "file"), uid("embed", "share")
 add(EMBED_FILE, f"{{isa = PBXBuildFile; fileRef = {WPRODUCT}; settings = {{ATTRIBUTES = (RemoveHeadersOnCopy, ); }}; }};")
+add(SEMBED_FILE, f"{{isa = PBXBuildFile; fileRef = {SPRODUCT}; settings = {{ATTRIBUTES = (RemoveHeadersOnCopy, ); }}; }};")
 EMBED = uid("embed", "phase")
-add(EMBED, f'{{isa = PBXCopyFilesBuildPhase; buildActionMask = 2147483647; dstPath = ""; dstSubfolderSpec = 13; files = ({EMBED_FILE}, ); '
+add(EMBED, f'{{isa = PBXCopyFilesBuildPhase; buildActionMask = 2147483647; dstPath = ""; dstSubfolderSpec = 13; files = ({EMBED_FILE}, {SEMBED_FILE}, ); '
            f'name = "Embed Foundation Extensions"; runOnlyForDeploymentPostprocessing = 0; }};')
 PROJECT = uid("project")
 WPROXY, WDEPENDENCY = uid("wproxy"), uid("wdependency")
 add(WPROXY, f"{{isa = PBXContainerItemProxy; containerPortal = {PROJECT}; proxyType = 1; remoteGlobalIDString = {WTARGET}; remoteInfo = {WNAME}; }};")
 add(WDEPENDENCY, f"{{isa = PBXTargetDependency; target = {WTARGET}; targetProxy = {WPROXY}; }};")
+SPROXY, SDEPENDENCY = uid("sproxy"), uid("sdependency")
+add(SPROXY, f"{{isa = PBXContainerItemProxy; containerPortal = {PROJECT}; proxyType = 1; remoteGlobalIDString = {STARGET}; remoteInfo = {SNAME}; }};")
+add(SDEPENDENCY, f"{{isa = PBXTargetDependency; target = {STARGET}; targetProxy = {SPROXY}; }};")
 
 TARGET = uid("target")
 add(TARGET, f"{{isa = PBXNativeTarget; buildConfigurationList = {config_list('target', target_settings, target_settings)}; "
-            f"buildPhases = ({SOURCES}, {FRAMEWORKS}, {RESOURCES}, {EMBED}, ); buildRules = (); dependencies = ({WDEPENDENCY}, ); name = {NAME}; "
+            f"buildPhases = ({SOURCES}, {FRAMEWORKS}, {RESOURCES}, {EMBED}, ); buildRules = (); dependencies = ({WDEPENDENCY}, {SDEPENDENCY}, ); name = {NAME}; "
             f"packageProductDependencies = (" + "".join(f"{p}, " for p in pkg_products) + f"); productName = {NAME}; "
             f'productReference = {PRODUCT}; productType = "com.apple.product-type.application"; }};')
 add(PROJECT, f"{{isa = PBXProject; attributes = {{BuildIndependentTargetsInParallel = 1; LastSwiftUpdateCheck = 2600; LastUpgradeCheck = 2600; }}; "
              f"buildConfigurationList = {config_list('project', project_debug, project_release)}; compatibilityVersion = \"Xcode 14.0\"; "
              f"developmentRegion = de; hasScannedForEncodings = 0; knownRegions = (de, en, Base, ); mainGroup = {MAIN}; "
-             f"packageReferences = ({PACKAGE}, ); productRefGroup = {PRODUCTS}; projectDirPath = \"\"; projectRoot = \"\"; targets = ({TARGET}, {WTARGET}, ); }};")
+             f"packageReferences = ({PACKAGE}, ); productRefGroup = {PRODUCTS}; projectDirPath = \"\"; projectRoot = \"\"; targets = ({TARGET}, {WTARGET}, {STARGET}, ); }};")
 
 os.makedirs(os.path.join(PROJ, "project.xcworkspace"), exist_ok=True)
 with open(os.path.join(PROJ, "project.pbxproj"), "w") as f:

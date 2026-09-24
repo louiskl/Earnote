@@ -1,5 +1,6 @@
 import EarnoteCore
 import EarnoteML
+import StoreKit
 import SwiftUI
 
 /// Einstellungen als Blatt: wo die Notiz entsteht, Aufnahme, Bereiche, Über.
@@ -7,12 +8,14 @@ struct SettingsSheet: View {
     @Environment(LibraryStore.self) private var library
     @Environment(\.dismiss) private var dismiss
     @Environment(\.loadDemoLibrary) private var loadDemoLibrary
+    @State private var tips: [Product] = []
 
     var body: some View {
         @Bindable var library = library
         NavigationStack {
             Form {
                 NoteWaySection()
+                MacSection()
                 Section("Aufnahme") {
                     Picker("Standardbereich", selection: $library.settings.defaultCategoryID) {
                         Text("Ohne Bereich").tag(UUID?.none)
@@ -20,6 +23,13 @@ struct SettingsSheet: View {
                     }
                     Toggle("Audio nach der Notiz behalten", isOn: $library.settings.keepAudioFiles)
                     NavigationLink("Wörterbuch") { GlossaryView() }
+                }
+                Section {
+                    Toggle("Erst am Ladekabel verarbeiten", isOn: $library.settings.processOnlyOnPower)
+                } header: {
+                    Text("Akku")
+                } footer: {
+                    Text("Die Notiz entsteht dann, sobald das iPhone lädt, zum Beispiel nachts. Im Stromsparmodus wartet Earnote auch ohne diese Einstellung aufs Ladekabel.")
                 }
                 #if DEBUG
                 if let loadDemoLibrary {
@@ -37,8 +47,9 @@ struct SettingsSheet: View {
                     }
                 }
                 #endif
+                // Kein Spendenlink am iPhone: Apple lässt Trinkgeld nur als In-App-Kauf zu
+                if !tips.isEmpty { TipSection(products: tips) }
                 Section {
-                    // Kein Spendenlink am iPhone: Apple lässt Trinkgeld nur als In-App-Kauf zu (kommt später)
                     Link(destination: AppInfo.website) { Label("earnote.dev", systemImage: "safari") }
                     LabeledContent("Version", value: Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "–")
                 } header: {
@@ -47,6 +58,7 @@ struct SettingsSheet: View {
                     Text("Earnote ist kostenlos und quelloffen (MIT). Deine Aufnahmen bleiben auf deinem iPhone.")
                 }
             }
+            .task { tips = await TipJar.products() }
             .navigationTitle("Einstellungen")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -56,8 +68,40 @@ struct SettingsSheet: View {
     }
 }
 
+/// Weg B (docs/IPHONE.md, Abschnitt 6a): Abgleich mit dem Mac über iCloud, auf Wunsch schreibt der Mac die Notizen
+struct MacSection: View {
+    @Environment(LibraryStore.self) private var library
+    @Environment(HandoffSender.self) private var handoffs
+
+    var body: some View {
+        @Bindable var library = library
+        Section {
+            Toggle("Mit dem Mac abgleichen (iCloud)", isOn: $library.settings.syncWithCloud)
+            if library.settings.syncWithCloud && !handoffs.macs.isEmpty {
+                Toggle("Notizen schreibt mein Mac", isOn: $library.settings.processOnMac)
+            }
+        } header: {
+            Text("Mac")
+        } footer: {
+            footer
+        }
+    }
+
+    @ViewBuilder private var footer: some View {
+        if !library.settings.syncWithCloud {
+            Text("Mit Earnote auf deinem Mac und derselben iCloud hast du deine Notizen auf beiden Geräten. Gilt ab dem nächsten Start.")
+        } else if handoffs.macs.isEmpty {
+            Text("Noch kein Mac gefunden. Öffne Earnote auf deinem Mac und schalte dort in den Einstellungen den Abgleich über iCloud ein.")
+        } else if library.settings.processOnMac {
+            Text("\(handoffs.macs.map(\.name).joined(separator: ", ")) schreibt die Notiz. Das Audio geht dafür über deine iCloud zum Mac und wird danach aus iCloud gelöscht.")
+        } else {
+            Text("Dein Mac kann die Notizen schreiben – das schont den Akku und nutzt die KI auf dem Mac.")
+        }
+    }
+}
+
 /// Wo die Notiz entsteht (docs/IPHONE.md, Abschnitt 2): auf dem iPhone, mit Cloud-KI und eigenem Schlüssel, oder gar nicht.
-/// Weg B (der Mac verarbeitet) folgt mit dem iCloud-Abgleich.
+/// Weg B (der Mac verarbeitet) steht in `MacSection`.
 struct NoteWaySection: View {
     @Environment(LibraryStore.self) private var library
     @State private var apiKey = ""

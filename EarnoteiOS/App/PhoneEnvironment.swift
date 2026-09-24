@@ -12,6 +12,12 @@ final class PhoneEnvironment {
     let queue: ProcessingQueue
     let recorder: PhoneRecorder
     let background: BackgroundProcessing
+    let power = PhonePower()
+    /// Weg B: Aufnahmen an den eigenen Mac übergeben
+    let handoffs: HandoffSender
+    let cloudSync = CloudSyncStatus()
+    /// Trinkgeld-Käufe, die beim letzten Start offen blieben, abschließen
+    private let tipTransactions = TipJar.finishPendingTransactions()
     let liveActivity = LiveActivityController()
     private(set) var widgets: WidgetPublisher?
     private let repository: any LibraryRepository
@@ -20,10 +26,12 @@ final class PhoneEnvironment {
         let settingsRepository = UserDefaultsSettingsRepository(defaults: defaults)
         let container: ModelContainer
         var openError: String?
+        // Wird gebraucht, bevor der Store steht – deshalb hier direkt gelesen (wie am Mac)
+        let syncsWithCloud = settingsRepository.loadSettings()?.syncWithCloud ?? false
         do {
-            // iCloud kommt mit Weg B (docs/IPHONE.md); bis dahin bleibt die Bibliothek auf dem iPhone
+            // iCloud ist aus, bis man es einschaltet (Einstellungen › Mac); gilt ab dem nächsten Start
             container = try LibraryContainer.make(url: storage.root.appendingPathComponent(LibraryContainer.fileName),
-                                                  syncsWithCloud: false)
+                                                  syncsWithCloud: syncsWithCloud)
         } catch {
             Log.error("Bibliothek öffnen: \(error)")
             openError = String(localized: "Die Bibliothek konnte nicht geöffnet werden (\(error.localizedDescription)). Änderungen werden in dieser Sitzung nicht gespeichert.")
@@ -46,6 +54,7 @@ final class PhoneEnvironment {
         library.onSettingsChanged = { [weak queue] old, new in
             if old.ai.localModel != new.ai.localModel { LocalModels.apply(new) }
             if old.ai != new.ai { queue?.aiProviderChanged() }
+            if old.processOnlyOnPower != new.processOnlyOnPower { queue?.resume() }
         }
         LocalModels.apply(library.settings)
 
@@ -53,7 +62,26 @@ final class PhoneEnvironment {
         self.queue = queue
         self.repository = repository
         recorder = PhoneRecorder(library: library)
+        let handoffs = HandoffSender(handoffs: repository, library: library, defaults: defaults)
+        queue.resumes = { recording in handoffs.resumesHere(recording) }
+        self.handoffs = handoffs
         background = BackgroundProcessing(queue: queue, library: library)
+        background.registerChargingTask()
+        recorder.finish = { id in handoffs.finish(id) }
+        cloudSync.onImportFinished = { [weak library] in
+            Task {
+                // Neues vom Mac (Notizen, Geräte) sichtbar machen
+                await library?.mergeSyncDuplicates()
+                await library?.load()
+                await handoffs.refresh()
+            }
+        }
+        cloudSync.start(enabled: syncsWithCloud)
+        // „Erst am Ladekabel“ und Stromsparmodus: Neues beginnt erst am Strom, Laufendes wird fertig
+        queue.isHeld = { [weak library, power] in
+            power.holdsProcessing(onlyWhenCharging: library?.settings.processOnlyOnPower ?? false)
+        }
+        power.onChange = { [weak queue] in queue?.resume() }
         recorder.onChange = { [weak recorder, liveActivity] in
             if let recorder { liveActivity.update(recorder) }
         }
@@ -66,12 +94,17 @@ final class PhoneEnvironment {
         Task { await start() }
     }
 
-    /// Sobald die Warteschlange arbeitet (nach Stopp, Import, „Erneut versuchen“), darf sie im Hintergrund weitermachen
+    /// Sobald die Warteschlange arbeitet (nach Stopp, Import, „Erneut versuchen“), darf sie im Hintergrund weitermachen.
+    /// Wartet sie aufs Ladekabel, bittet sie iOS, sie am Strom zu wecken – auch wenn die App dann zu ist.
     private func watchQueue() {
-        withObservationTracking { _ = queue.processingID } onChange: { [weak self] in
+        withObservationTracking {
+            _ = queue.processingID
+            _ = queue.isWaitingForPower
+        } onChange: { [weak self] in
             Task { @MainActor in
                 guard let self else { return }
                 if self.queue.processingID != nil { self.background.begin() }
+                if self.queue.isWaitingForPower { self.background.scheduleCharging() }
                 self.watchQueue()
             }
         }
@@ -97,6 +130,7 @@ final class PhoneEnvironment {
             library.categories = RecordingCategory.defaults
         }
         queue.resumeInterruptedWork()
+        await handoffs.refresh()
         #if DEBUG
         // Zum Testen im Simulator: EARNOTE_IMPORT=<Pfad> importiert eine Audiodatei vom Mac
         if let path = ProcessInfo.processInfo.environment["EARNOTE_IMPORT"], !path.isEmpty {

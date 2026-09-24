@@ -12,6 +12,8 @@ struct EarnoteiOSApp: App {
                 .environment(environment.library)
                 .environment(environment.recorder)
                 .environment(environment.queue)
+                .environment(environment.power)
+                .environment(environment.handoffs)
                 #if DEBUG
                 .environment(\.loadDemoLibrary) { await environment.loadDemoLibrary() }
                 #endif

@@ -380,7 +380,7 @@ Erst wenn alle drei Blöcke stehen, wird aus 0.9.x die 1.0 – und erst danach b
 ## Phase 6 – iPad & iPhone (1.1)
 
 > **24.09.2026: Start des iPhone-Plans parallel zur Beta beschlossen** (Nutzer). Plan, Funktionsliste,
-> Onboarding und Architektur: **[IPHONE.md](IPHONE.md)**. Die Mac-Beta hat weiter Vorrang. Das iPad bekommt einen eigenen Plan.
+> Onboarding und Architektur: **[IPHONE.md](IPHONE.md)**. Die Mac-Beta hat weiter Vorrang. iPad: **[IPAD.md](IPAD.md)** (Entwurf).
 
 **Warum erst nach 1.0:** iCloud-Sync und eine zweite Oberfläche verdoppeln die Fehlerfläche. Solange die
 Mac-App noch täglich wächst, würde jede Änderung zweimal anfallen. Der Kern (`EarnoteCore`) baut schon

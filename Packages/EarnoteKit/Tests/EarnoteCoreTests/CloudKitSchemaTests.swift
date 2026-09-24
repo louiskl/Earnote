@@ -7,7 +7,7 @@ import XCTest
 /// merkt man das sonst erst, wenn der Sync bei einem Nutzer nicht anläuft.
 final class CloudKitSchemaTests: XCTestCase {
     private var entities: [Schema.Entity] {
-        Schema(versionedSchema: EarnoteSchemaV1.self).entities
+        Schema(versionedSchema: EarnoteSchemaLatest.self).entities
     }
 
     func testEveryAttributeIsOptionalOrHasADefault() {
@@ -37,7 +37,7 @@ final class CloudKitSchemaTests: XCTestCase {
     /// doppelt auftauchen könnten. Transkript, Notiz und Export hängen dagegen an genau einer Aufnahme
     /// und werden nie einzeln gesucht – sie kommen mit der Aufnahme oder gar nicht.
     func testModelsTheAppAddressesCarryTheirOwnIdentifier() {
-        let needsID = ["LibraryRecording", "LibraryCategory", "LibraryGlossaryTerm"]
+        let needsID = ["LibraryRecording", "LibraryCategory", "LibraryGlossaryTerm", "LibraryHandoff", "LibraryDevice"]
         for entity in entities where needsID.contains(entity.name) {
             XCTAssertTrue(entity.attributes.contains { $0.name == "id" },
                           "\(entity.name) hat keine eigene id – ohne sie lassen sich Duplikate nach dem Sync nicht erkennen")

@@ -460,6 +460,27 @@ final class ProcessingQueueTests: XCTestCase {
         let stored = try await folder.library.recording(crashed.id)
         XCTAssertEqual(stored?.status, .done)
     }
+
+    /// Weg B: Aufnahmen, die ein anderes Gerät bearbeitet, setzt dieses Gerät nach einem Neustart nicht fort
+    func testResumeSkipsRecordingsAnotherDeviceProcesses() async throws {
+        let mine = try await folder.importedRecording(title: "meine")
+        let onMac = try await folder.importedRecording(title: "beim Mac")
+        try await folder.library.updateRecording(onMac.id) { $0.status = .transcribing }
+        let waiting = try await folder.importedRecording(title: "übergeben")
+        try await folder.library.updateRecording(waiting.id) { $0.status = .waitingForMac }
+
+        let library = try await TestLibrary(folder: folder, settings: .testing())
+        let transcriber = FakeTranscriber()
+        let queue = makeQueue(transcriber, library: library)
+        let onMacID = onMac.id
+        queue.resumes = { $0.id != onMacID }
+        queue.resumeInterruptedWork()
+
+        await waitUntil { library.recording(mine.id)?.status == .done }
+        XCTAssertEqual(library.recording(onMac.id)?.status, .transcribing, "Gehört dem Mac")
+        XCTAssertEqual(library.recording(waiting.id)?.status, .waitingForMac, "Übergeben ist nicht beschäftigt")
+        XCTAssertFalse(transcriber.transcribed.get().contains(onMac.id.uuidString))
+    }
 }
 
 /// Transkribieren während der Aufnahme (Phase 4a)

@@ -37,6 +37,7 @@ struct RecordingList: View {
     let filter: LibraryFilter
     @Environment(LibraryStore.self) private var library
     @Environment(PhoneRecorder.self) private var recorder
+    @Environment(ProcessingQueue.self) private var queue
     @State private var pendingDeletion: UUID?
 
     private var items: [Recording] { library.recordings.filter { filter.matches($0) } }
@@ -54,6 +55,9 @@ struct RecordingList: View {
                 empty
             } else {
                 List {
+                    if filter == .all, queue.processingID == nil, queue.isWaitingForPower {
+                        WaitingForPowerSection()
+                    }
                     ForEach(LibraryListing.groupedByDay(items)) { section in
                         Section(section.title) {
                             ForEach(section.items) { recording in
@@ -108,10 +112,38 @@ struct RecordingList: View {
     }
 }
 
+/// „Erst am Ladekabel“ oder Stromsparmodus: Die Aufnahmen warten – oder beginnen auf Wunsch gleich
+private struct WaitingForPowerSection: View {
+    @Environment(ProcessingQueue.self) private var queue
+    @Environment(PhonePower.self) private var power
+
+    var body: some View {
+        Section {
+            Label {
+                if queue.pending.count == 1 {
+                    Text("Eine Aufnahme wartet aufs Ladekabel")
+                } else {
+                    Text("\(queue.pending.count) Aufnahmen warten aufs Ladekabel")
+                }
+            } icon: {
+                Image(systemName: "powerplug")
+            }
+            Button("Jetzt verarbeiten", systemImage: "play.fill") { queue.processNow() }
+        } footer: {
+            if power.isLowPowerMode {
+                Text("Der Stromsparmodus ist an. Die Notiz entsteht, sobald das iPhone lädt.")
+            } else {
+                Text("Die Notiz entsteht, sobald das iPhone lädt – auch nachts bei geschlossener App.")
+            }
+        }
+    }
+}
+
 /// Eine Zeile: Titel, Zeit und Länge bzw. Stand der Verarbeitung, eine Zeile Vorschau.
 struct RecordingRow: View {
     let recording: Recording
     @Environment(LibraryStore.self) private var library
+    @Environment(HandoffSender.self) private var handoffs
 
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
@@ -155,6 +187,14 @@ struct RecordingRow: View {
                 .font(.subheadline).foregroundStyle(.orange).lineLimit(2)
         case let status where status.isBusy:
             ProgressView(value: recording.progress) { Text(status.label).font(.caption) }
+        case .waitingForMac:
+            if handoffs.pending[recording.id]?.state == .failed {
+                Label("Dein Mac konnte sie nicht übernehmen", systemImage: "exclamationmark.triangle.fill")
+                    .font(.subheadline).foregroundStyle(.orange)
+            } else {
+                Label("Wartet auf deinen Mac", systemImage: "laptopcomputer")
+                    .font(.subheadline).foregroundStyle(.secondary)
+            }
         default:
             if let preview = recording.summaryPreview, !preview.isEmpty {
                 Text(preview).font(.subheadline).foregroundStyle(.secondary).lineLimit(2)
@@ -168,6 +208,7 @@ struct RecordingMenu: View {
     let id: UUID
     var onDelete: () -> Void
     @Environment(LibraryStore.self) private var library
+    @Environment(HandoffSender.self) private var handoffs
 
     var body: some View {
         Menu("Bereich", systemImage: "folder") {
@@ -179,6 +220,9 @@ struct RecordingMenu: View {
         }
         if library.recording(id)?.status == .failed {
             Button("Erneut versuchen", systemImage: "arrow.clockwise") { library.enqueue(id) }
+        }
+        if library.recording(id)?.status == .waitingForMac {
+            Button("Auf dem iPhone verarbeiten", systemImage: "iphone") { handoffs.processHere(id) }
         }
         Divider()
         Button("Löschen", systemImage: "trash", role: .destructive, action: onDelete)

@@ -5,9 +5,10 @@ import XCTest
 final class LibrarySchemaTests: XCTestCase {
     /// Regeln, die CloudKit später verlangt – so weit sie über die Schema-API prüfbar sind.
     func testSchemaIsCloudKitCompatible() {
-        let schema = Schema(versionedSchema: EarnoteSchemaV1.self)
+        let schema = Schema(versionedSchema: EarnoteSchemaLatest.self)
         XCTAssertEqual(Set(schema.entities.map(\.name)),
-                       ["LibraryRecording", "LibraryTranscript", "LibraryNote", "LibraryCategory", "LibraryGlossaryTerm", "LibraryExport"])
+                       ["LibraryRecording", "LibraryTranscript", "LibraryNote", "LibraryCategory", "LibraryGlossaryTerm", "LibraryExport",
+                        "LibraryHandoff", "LibraryDevice"])
         for entity in schema.entities {
             XCTAssertTrue(entity.uniquenessConstraints.isEmpty, "\(entity.name): keine #Unique-Regeln")
             for attribute in entity.attributes {

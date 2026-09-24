@@ -123,8 +123,8 @@ private struct LevelMeter: View {
             HStack(alignment: .center, spacing: 4) {
                 ForEach(history.indices, id: \.self) { i in
                     Capsule()
-                        .fill(.tint.opacity(0.35 + 0.65 * Double(i) / Double(history.count)))
-                        .frame(height: max(5, CGFloat(history[i]) * 64))
+                        .fill(.tint.opacity(opacity(i)))
+                        .frame(height: height(i))
                 }
             }
             .frame(maxWidth: .infinity)
@@ -135,5 +135,14 @@ private struct LevelMeter: View {
             }
         }
         .accessibilityHidden(true)
+    }
+
+    // Eigene Funktionen: als ein Ausdruck braucht der Compiler zu lange (Xcode 26.6)
+    private func opacity(_ i: Int) -> Double {
+        0.35 + 0.65 * Double(i) / Double(history.count)
+    }
+
+    private func height(_ i: Int) -> CGFloat {
+        max(5, CGFloat(history[i]) * 64)
     }
 }
