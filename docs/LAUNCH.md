@@ -126,7 +126,7 @@ antworten. Beste Zeit: Dienstag bis Donnerstag, vormittags US-Zeit.
 > Übersicht zusammen.
 >
 > Das Besondere: Es läuft **komplett auf dem eigenen Mac**. Keine Aufnahme geht in eine Cloud, kein
-> Konto, kein Abo, Quelltext offen. Kostet nichts und wird auch nichts kosten.
+> Konto, kein Abo, Quelltext offen. Die Mac-App ist kostenlos.
 >
 > Voraussetzung ist leider ein Mac mit M-Chip (macOS 15+), weil Transkription und KI lokal rechnen.
 >
@@ -216,7 +216,8 @@ HN verzeiht keine Werbesprache. Nüchtern, technisch, ehrlich über Grenzen.
 |---|---|
 | [AlternativeTo](https://alternativeto.net) | Als Alternative zu Otter.ai, Granola, Fireflies.ai eintragen |
 | [openalternative.co](https://openalternative.co) | Open-Source-Alternative zu Otter.ai |
-| [awesome-mac](https://github.com/jaywcjlove/awesome-mac) | PR [#2951](https://github.com/jaywcjlove/awesome-mac/pull/2951) offen (Note-taking) |
+| [awesome-mac](https://github.com/jaywcjlove/awesome-mac) | PR [#2951](https://github.com/jaywcjlove/awesome-mac/pull/2951) offen (Note-taking) – die Liste nimmt neue Einträge nur in allen vier Sprachen (EN/ZH/JA/KO) auf |
+| [MacUpdate](https://www.macupdate.com/submit-app) | kostenlos als Entwickler eintragen, Kategorie Productivity |
 | [awesome-macOS](https://github.com/iCHAIT/awesome-macOS) | PR [#1136](https://github.com/iCHAIT/awesome-macOS/pull/1136) offen (Productivity) |
 | Homebrew | läuft bereits über den eigenen Tap |
 
@@ -224,6 +225,38 @@ Kurztext für alle Verzeichnisse:
 
 > Earnote records lectures, meetings and calls and writes structured notes — transcription and AI run
 > locally on your Mac. Free, open source, no account.
+
+### Felder zum Kopieren (AlternativeTo, openalternative, MacUpdate)
+
+| Feld | Text |
+|---|---|
+| Name | Earnote |
+| Website | https://earnote.dev |
+| Quelltext | https://github.com/louiskl/Earnote |
+| Lizenz / Preis | MIT · kostenlos (Free, Open Source) |
+| Plattform | macOS 15+, Apple Silicon |
+| Kategorie | Productivity › Note-taking / Transcription |
+| Tags | note-taking, transcription, meeting-notes, lecture-notes, whisper, local-ai, privacy, offline, flashcards, open-source |
+| Alternative zu | Otter.ai, Granola, Fireflies.ai, Notion AI Meeting Notes, tl;dv, MacWhisper, Notta |
+| Video | https://earnote.dev/assets/demo-en.mp4 |
+| Bilder | Screenshots aus `docs/assets/` |
+
+**Beschreibung (lang, englisch):**
+
+> Earnote records lectures, meetings and calls and turns them into structured notes – entirely on your
+> Mac. Speech recognition (Whisper) and the AI model run locally: nothing is uploaded, there is no
+> account and no subscription.
+>
+> - Watch the note being written; transcription keeps up during the recording
+> - Flashcards (Anki export), PDF study sheets and an overview per course before exams
+> - Tasks, deadlines and names that were not actually said are filtered out
+> - Detects Zoom, Teams and Meet calls and offers to take notes
+> - Exports to Markdown, Obsidian, Notion, Apple Notes, Bear, Things and more
+>
+> Built by a student for students, free and open source (MIT).
+
+**Pro-Punkte für AlternativeTo („Likes“):** Free · Open Source · Works offline · No account required ·
+Privacy focused · Local AI · Flashcards · Anki export
 
 ---
 
