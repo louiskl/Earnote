@@ -70,3 +70,38 @@ jobs:
           -derivedDataPath build
           -clonedSourcePackagesDirPath build/SourcePackages
           -skipMacroValidation -skipPackagePluginValidation
+
+  ios:
+    name: iPhone-App bauen
+    runs-on: macos-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Xcode-Version anzeigen
+        run: xcodebuild -version
+
+      - name: Metal-Werkzeuge laden
+        run: xcodebuild -downloadComponent MetalToolchain
+
+      - name: Projekt ist aktuell
+        # Wer Dateien anlegt, muss den Generator laufen lassen – sonst fehlen sie im Build
+        run: python3 scripts/generate_ios_xcodeproj.py && git diff --exit-code EarnoteiOS.xcodeproj
+
+      - name: Pakete cachen
+        uses: actions/cache@v5
+        with:
+          path: build-ios/SourcePackages
+          key: ios-spm-${{ runner.os }}-${{ hashFiles('Packages/EarnoteKit/Package.resolved') }}
+          restore-keys: ios-spm-${{ runner.os }}-
+
+      # App, Widgets und Teilen-Erweiterung für den Simulator, ohne Signatur
+      - name: App bauen
+        run: >
+          xcodebuild build -quiet
+          -project EarnoteiOS.xcodeproj -scheme EarnoteiOS -configuration Debug
+          -destination 'generic/platform=iOS Simulator'
+          -derivedDataPath build-ios
+          -clonedSourcePackagesDirPath build-ios/SourcePackages
+          -skipMacroValidation -skipPackagePluginValidation
+          CODE_SIGNING_ALLOWED=NO
