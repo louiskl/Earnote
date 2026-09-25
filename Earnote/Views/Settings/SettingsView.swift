@@ -57,7 +57,7 @@ struct GeneralSettings: View {
                     LabeledContent("Stand") { Text(cloudSync.text).foregroundStyle(.secondary) }
                 }
             } footer: {
-                Text("Noch in Erprobung. Aufnahmedaten, Transkripte, Notizen, Bereiche und Wörterbuch stehen dann auf allen Macs mit derselben Apple-ID. Die Audiodateien bleiben immer lokal. Gilt ab dem nächsten Start von \(AppInfo.name).")
+                Text("Noch in Erprobung. Transkripte, Notizen, Bereiche und Wörterbuch stehen dann auf allen deinen Geräten mit derselben Apple-ID – auch auf dem iPhone. Die Audiodateien bleiben auf dem Gerät. Nimmt Earnote auf dem iPhone mit „Mit meinem Mac“ auf, schreibt dieser Mac die Notiz, solange \(AppInfo.name) hier läuft. Gilt ab dem nächsten Start.")
             }
             Section("Start") {
                 Toggle("\(AppInfo.name) beim Start des Macs automatisch öffnen", isOn: $launchAtLogin)
