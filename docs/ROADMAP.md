@@ -474,8 +474,7 @@ heute für iOS – das bleibt die Eintrittskarte, und der iOS-Build läuft bei j
       Gerät, Fragen zur Notiz, „Wichtig“-Knopf + Klausur-Radar, Übersetzen
 - [ ] Auf dem iPhone prüfen: Kauf (Sandbox), Sprecher mit 2–3 echten Stimmen (Dauer, Akku), Fragen und Übersetzen
       mit echter KI, „Wichtig“ auf dem Sperrbildschirm
-- [ ] Mac: Pro gibt es dort nicht (kein App Store, keine In-App-Käufe) – offen, ob die Funktionen am Mac frei
-      kommen oder erst mit dem Mac App Store (Offene Entscheidungen)
+- [x] Mac: Pro-Funktionen frei, Dankeschön-Paket gegen Ko-fi/GitHub Sponsors (entschieden 25.09., PR #30)
 
 ## Phase 7 – Prüfen und aufräumen (0.9.25)
 
@@ -656,7 +655,7 @@ Mac zur Verarbeitung gibt – das ist der Punkt, an dem es sich lohnen könnte, 
 - [ ] Beim Schnitt zwischen offen und geschlossen aufpassen: Der Kern bleibt MIT, spätere
       Organisations-Funktionen kommen in ein eigenes, geschlossenes Modul (**Open Core**).
       Einmal unter MIT Veröffentlichtes bleibt frei – künftige Teile dürfen anders lizenziert werden.
-- [ ] Vor allem anderen: **Markenrecherche abschließen.** Ohne Namensrechte lässt sich nichts verkaufen.
+- [x] Markenrecherche abgeschlossen – frei (25.09.2026)
 
 ### Wann
 
