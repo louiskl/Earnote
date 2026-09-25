@@ -23,6 +23,9 @@ struct MainWindow: View {
     /// Bereich, für den gerade eine Übersicht erstellt wird (Blatt)
     @State private var summarizingCategoryID: UUID?
     @State private var radarCategoryID: UUID?
+    // Farbe des Dankeschön-Pakets: beobachten, damit ein Wechsel in den Einstellungen sofort wirkt
+    @AppStorage(MacSkin.key) private var skinRaw = ""
+    @AppStorage(MacSkin.supporterKey) private var isSupporter = false
     @State private var pendingDeletion: UUID?
     @State private var confirmDiscard = false
     @State private var showOnboarding = false
@@ -198,7 +201,7 @@ struct MainWindow: View {
     }
 
     private var windowTint: Color {
-        activeCategory?.tint ?? .accentColor
+        activeCategory?.tint ?? MacSkin.current().tint
     }
 
     private var context: MainWindowContext {

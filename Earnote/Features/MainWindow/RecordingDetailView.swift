@@ -75,6 +75,7 @@ private struct RecordingDetailContent: View {
         // Nebeneinander blättert das Transkript – zwei Ansichten können nicht denselben Zähler führen.
         NoteView(recording: recording, editRequest: editRequest, onEditStarted: onEditStarted,
                  searchText: searchText, cursor: mode == .note ? searchCursor : nil)
+            .modifier(NoteDesign())
     }
 
     private func transcript(_ recording: LibraryRecording) -> some View {

@@ -31,6 +31,8 @@ struct MenuBarLabel: View {
 /// Das Fenster aus der Menüleiste: aufnehmen, sehen was läuft, ins Hauptfenster wechseln.
 /// Bewusst schmal (300 pt) – lange Bereichs- und Mikrofonnamen werden gekürzt, nie umgebrochen.
 struct MenuBarView: View {
+    @AppStorage(MacSkin.key) private var skinRaw = ""
+    @AppStorage(MacSkin.supporterKey) private var isSupporter = false
     @Environment(LibraryStore.self) private var library
     @Environment(RecordingController.self) private var recorder
     @Environment(\.openWindow) private var openWindow
@@ -54,7 +56,7 @@ struct MenuBarView: View {
             RecordControl(categoryID: activeCategory?.id, maxNameLength: 26)
                 .controlSize(.large)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .tint(activeCategory?.tint ?? .accentColor)
+                .tint(activeCategory?.tint ?? MacSkin.current().tint)
             if recorder.isRecording {
                 LiveSummary(meter: recorder.meter, isPaused: recorder.isPaused,
                             categoryName: activeCategoryName)
@@ -62,8 +64,8 @@ struct MenuBarView: View {
                        systemImage: "exclamationmark.bubble", action: recorder.markImportant)
                     .disabled(recorder.isPaused)
                     .help("Diese Stelle kommt als „Wichtig für die Klausur“ in die Notiz")
-                    .tint(activeCategory?.tint ?? .accentColor)
-                    .environment(\.categoryTint, activeCategory?.tint ?? .accentColor)
+                    .tint(activeCategory?.tint ?? MacSkin.current().tint)
+                    .environment(\.categoryTint, activeCategory?.tint ?? MacSkin.current().tint)
             } else {
                 categoryPicker
                 MicrophoneChoiceMenu(maxNameLength: 26)

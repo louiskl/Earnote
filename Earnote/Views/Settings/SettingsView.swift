@@ -11,6 +11,7 @@ struct SettingsView: View {
     var body: some View {
         TabView(selection: $tab) {
             GeneralSettings().tabItem { Label("Allgemein", systemImage: "gearshape") }.tag("allgemein")
+            AppearanceSettings().tabItem { Label("Aussehen", systemImage: "paintpalette") }.tag("aussehen")
             RecordingSettings().tabItem { Label("Aufnahme", systemImage: "mic") }.tag("aufnahme")
             PermissionsSettings().tabItem { Label("Berechtigungen", systemImage: "lock.shield") }.tag("rechte")
             TranscriptionSettings().tabItem { Label("Transkription", systemImage: "waveform") }.tag("transkription")
@@ -37,12 +38,6 @@ struct GeneralSettings: View {
                     Label("Einige Einstellungen gibt deine Organisation vor.", systemImage: "building.2")
                         .foregroundStyle(.secondary)
                 }
-            }
-            Section {
-                Picker("Erscheinungsbild", selection: $library.settings.appearance) {
-                    ForEach(AppearanceChoice.allCases) { Text($0.label).tag($0) }
-                }
-                .pickerStyle(.segmented)
             }
             Section {
                 Toggle("Einmal am Tag nach Updates suchen", isOn: $library.settings.checkForUpdates)

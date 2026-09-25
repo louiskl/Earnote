@@ -57,6 +57,7 @@ struct EarnoteApp: App {
     var body: some Scene {
         WindowGroup(id: "main") {
             MainWindow()
+                .defaultAppStorage(AppEnvironment.preferences)
                 .environment(\.speakerDiarizer, environment.diarizer)
                 .environment(environment.library)
                 .environment(environment.recorder)
@@ -80,6 +81,7 @@ struct EarnoteApp: App {
 
         Settings {
             SettingsView(llm: environment.llm)
+                .defaultAppStorage(AppEnvironment.preferences)
                 .environment(environment.updates)
                 .environment(environment.cloudSync)
                 .environment(environment.library)
@@ -89,6 +91,7 @@ struct EarnoteApp: App {
 
         MenuBarExtra {
             MenuBarView()
+                .defaultAppStorage(AppEnvironment.preferences)
                 .environment(environment.library)
                 .environment(environment.recorder)
                 .environment(environment.recorder.audioInputs)
@@ -128,6 +131,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
         NSApp.registerForRemoteNotifications()
         GlobalShortcut.action = { [weak self] in self?.toggleRecording?() }
         GlobalShortcut.apply(enabled: globalShortcutEnabled)
+        DockIcon.apply()
         #if DEBUG
         // Nur für Tests: hell oder dunkel prüfen, ohne die Systemeinstellung des Nutzers zu ändern
         switch ProcessInfo.processInfo.environment["EARNOTE_APPEARANCE"] {
