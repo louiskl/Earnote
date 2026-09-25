@@ -93,7 +93,8 @@ struct ProView: View {
         List {
             Section {
                 VStack(spacing: 10) {
-                    Image("IconPreview-Standard")
+                    // Das Symbol, das auch auf dem Home-Bildschirm steht – nicht immer das rote
+                    AppIconChoice.current.preview
                         .resizable()
                         .frame(width: 72, height: 72)
                         .clipShape(.rect(cornerRadius: 16))
@@ -167,10 +168,14 @@ struct ProView: View {
                 .controlSize(.large)
                 .disabled(buying)
             } else if loaded {
-                Text("Der App Store ist gerade nicht erreichbar. Versuch es später noch einmal.")
+                Label("Der App Store ist gerade nicht erreichbar. Versuch es später noch einmal.", systemImage: "wifi.exclamationmark")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
+                    .padding(.horizontal, 18)
+                    .padding(.vertical, 12)
+                    // Ohne Fläche lag der Text direkt über der Liste und war nicht zu lesen
+                    .glassEffect(in: .rect(cornerRadius: 20))
             }
         }
         .padding(.horizontal, 24)
