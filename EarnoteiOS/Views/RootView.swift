@@ -1,40 +1,108 @@
 import EarnoteCore
 import SwiftUI
+import UniformTypeIdentifiers
 
 /// Feste Wurzel: drei Tabs, jeder mit eigenem Navigationsstapel. Die laufende Aufnahme sitzt im
-/// `tabViewBottomAccessory` – wie „Jetzt läuft“ in Musik.
+/// `tabViewBottomAccessory` – wie „Jetzt läuft“ in Musik. Am iPad wird daraus eine Seitenleiste (`sidebarAdaptable`).
 struct RootView: View {
-    enum Tab: String, Hashable { case recordings, library, search }
+    /// Tabs am iPhone; am iPad zusätzlich jeder Filter und jeder Bereich als Eintrag der Seitenleiste (wie am Mac)
+    enum Tab: Hashable, RawRepresentable {
+        case recordings, library, search
+        case filter(LibraryFilter)
+
+        init?(rawValue: String) {
+            switch rawValue {
+            case "recordings": self = .recordings
+            case "library": self = .library
+            case "search": self = .search
+            default:
+                guard rawValue.hasPrefix("filter:"), let filter = LibraryFilter(rawValue: String(rawValue.dropFirst(7))) else { return nil }
+                self = .filter(filter)
+            }
+        }
+
+        var rawValue: String {
+            switch self {
+            case .recordings: "recordings"
+            case .library: "library"
+            case .search: "search"
+            case .filter(let filter): "filter:" + filter.rawValue
+            }
+        }
+    }
 
     @Environment(LibraryStore.self) private var library
     @Environment(PhoneRecorder.self) private var recorder
     @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.horizontalSizeClass) private var sizeClass
     @SceneStorage("tab") private var tab: Tab = .recordings
     @State private var showsRecorder = false
     /// Navigationspfade der Tabs – damit Links aus Widgets direkt an die richtige Stelle springen
     @State private var recordingsPath: [UUID] = []
     @State private var libraryPath = NavigationPath()
+    @State private var filterPaths: [LibraryFilter: [UUID]] = [:]
+    @State private var showsSettings = false
+    @State private var importing = false
 
     var body: some View {
         @Bindable var library = library
         @Bindable var recorder = recorder
         TabView(selection: $tab) {
             SwiftUI.Tab("Aufnahmen", systemImage: "waveform", value: .recordings) {
-                RecordingsView(path: $recordingsPath)
+                RecordingsView(path: $recordingsPath, showsSettings: $showsSettings, importing: $importing)
             }
             SwiftUI.Tab("Bereiche", systemImage: "square.stack.fill", value: .library) {
                 LibraryView(path: $libraryPath)
             }
+            // In der Seitenleiste stehen die Bereiche einzeln – der Sammel-Tab wäre dort doppelt
+            .defaultVisibility(.hidden, for: .sidebar)
             SwiftUI.Tab(value: .search, role: .search) {
                 SearchView()
             }
+            // Nur mit Platz (iPad, breites Fenster): Am iPhone und in schmalen Fenstern landeten sie sonst in der Tab-Leiste
+            if sizeClass == .regular {
+            TabSection("Bibliothek") {
+                filterTab(.openTasks, "Offene Aufgaben", symbol: "checklist")
+                filterTab(.uncategorized, "Ohne Bereich", symbol: "tray")
+                // Wie am Mac nur, wenn es etwas zu tun gibt
+                if LibraryListing.counts(library.recordings).problems > 0 {
+                    filterTab(.problems, "Probleme", symbol: "exclamationmark.triangle")
+                }
+            }
+            TabSection("Bereiche") {
+                ForEach(library.categories) { category in
+                    filterTab(.category(category.id), category.name, symbol: category.symbol)
+                }
+            }
+            }
         }
+        .tabViewStyle(.sidebarAdaptable)
         .tabViewBottomAccessory {
             RecordAccessory(showsRecorder: $showsRecorder)
         }
         .sheet(isPresented: $showsRecorder) {
             RecordSheet()
         }
+        .sheet(isPresented: $showsSettings) { SettingsSheet() }
+        // Audio und Video aus der Dateien-App (Sprachmemos, Aufnahmen anderer Apps)
+        .fileImporter(isPresented: $importing, allowedContentTypes: [.audio, .movie], allowsMultipleSelection: true) { result in
+            guard case .success(let urls) = result else { return }
+            AudioImport.run(urls, into: library, category: nil)
+            tab = .recordings
+        }
+        // Am iPad: Audiodateien ins Fenster ziehen
+        .dropDestination(for: URL.self) { urls, _ in
+            let audio = urls.filter { UTType(filenameExtension: $0.pathExtension)?.conforms(to: .audiovisualContent) == true }
+            guard !audio.isEmpty else { return false }
+            AudioImport.run(audio, into: library, category: nil)
+            tab = .recordings
+            return true
+        }
+        // Menüleiste und Tastenkürzel am iPad (`PhoneCommands`) – je Fenster
+        .focusedSceneValue(\.phoneActions, PhoneActions(
+            showSettings: { showsSettings = true },
+            importAudio: { importing = true },
+            search: { tab = .search }))
         // „Mit Earnote öffnen“ aus Sprachmemos, WhatsApp, Dateien (Dokumenttypen im Info.plist)
         .onOpenURL { url in open(url) }
         // „Mit Earnote teilen“ (Share Extension): Dateien übernehmen, sobald die App vorn und die Bibliothek geladen ist
@@ -55,6 +123,16 @@ struct RootView: View {
         } message: {
             Text(recorder.lastError ?? "")
         }
+    }
+
+    /// Ein Eintrag der Seitenleiste: Liste des Filters, daneben die Notiz
+    private func filterTab(_ filter: LibraryFilter, _ title: String, symbol: String) -> some TabContent<Tab> {
+        SwiftUI.Tab(LocalizedStringKey(title), systemImage: symbol, value: Tab.filter(filter)) {
+            RecordingSplit(path: Binding(get: { filterPaths[filter] ?? [] }, set: { filterPaths[filter] = $0 })) {
+                FilteredRecordingsView(filter: filter, selection: $0)
+            }
+        }
+        .badge(LibraryListing.counts(library.recordings).count(for: filter))
     }
 
     private func collectShared() {

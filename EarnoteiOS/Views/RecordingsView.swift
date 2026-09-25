@@ -3,31 +3,57 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 /// Tab „Aufnahmen“: alle Aufnahmen nach Tagen – wie in Sprachmemos. Bereiche und Filter stehen im Tab „Bereiche“.
+/// In breiter Größe (iPad) Liste und Notiz nebeneinander; schmale Fenster fallen von selbst auf den Stapel zurück.
 struct RecordingsView: View {
     @Binding var path: [UUID]
-    @Environment(LibraryStore.self) private var library
-    @State private var showsSettings = false
-    @State private var importing = false
+    @Binding var showsSettings: Bool
+    @Binding var importing: Bool
 
     var body: some View {
-        NavigationStack(path: $path) {
-            RecordingList(filter: .all)
-                .navigationTitle("Aufnahmen")
-                .navigationDestination(for: UUID.self) { RecordingDetailView(id: $0) }
-                .toolbar {
-                    ToolbarItem(placement: .topBarLeading) {
-                        Button("Einstellungen", systemImage: "gearshape") { showsSettings = true }
-                    }
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Button("Importieren", systemImage: "square.and.arrow.down") { importing = true }
-                    }
+        RecordingSplit(path: $path) { list(selection: $0) }
+    }
+
+    private func list(selection: Binding<UUID?>?) -> some View {
+        RecordingList(filter: .all, selection: selection)
+            .navigationTitle("Aufnahmen")
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button("Einstellungen", systemImage: "gearshape") { showsSettings = true }
                 }
-                .sheet(isPresented: $showsSettings) { SettingsSheet() }
-                // Audio und Video aus der Dateien-App (Sprachmemos, Aufnahmen anderer Apps)
-                .fileImporter(isPresented: $importing, allowedContentTypes: [.audio, .movie], allowsMultipleSelection: true) { result in
-                    guard case .success(let urls) = result else { return }
-                    AudioImport.run(urls, into: library, category: nil)
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Importieren", systemImage: "square.and.arrow.down") { importing = true }
                 }
+            }
+    }
+}
+
+/// Liste und Notiz: in breiter Größe (iPad) nebeneinander, sonst als Stapel. Entschieden wird nur nach Größenklasse,
+/// nie nach Gerät (DESIGN_GUIDELINES 31) – Slide Over und schmale Fenster am iPad bekommen den Stapel.
+struct RecordingSplit<Content: View>: View {
+    @Binding var path: [UUID]
+    @ViewBuilder var list: (Binding<UUID?>?) -> Content
+    @Environment(LibraryStore.self) private var library
+    @Environment(\.horizontalSizeClass) private var sizeClass
+
+    var body: some View {
+        if sizeClass == .regular {
+            NavigationSplitView {
+                list(Binding(get: { path.last }, set: { path = $0.map { [$0] } ?? [] }))
+            } detail: {
+                // Gelöschte Aufnahme: zurück zum Hinweis statt „nicht gefunden“
+                if let id = path.last, library.recording(id) != nil {
+                    // Eigener Stapel je Notiz: Karteikarten öffnen sich in der rechten Spalte
+                    NavigationStack { RecordingDetailView(id: id) }.id(id)
+                } else {
+                    ContentUnavailableView("Keine Aufnahme ausgewählt", systemImage: "waveform",
+                                           description: Text("Wähle links eine Aufnahme."))
+                }
+            }
+        } else {
+            NavigationStack(path: $path) {
+                list(nil)
+                    .navigationDestination(for: UUID.self) { RecordingDetailView(id: $0) }
+            }
         }
     }
 }
@@ -35,6 +61,8 @@ struct RecordingsView: View {
 /// Aufnahmen eines Filters nach Tagen – im Tab „Aufnahmen“ und in jedem Bereich
 struct RecordingList: View {
     let filter: LibraryFilter
+    /// Nur in der Split-Ansicht (iPad): Auswahl statt Navigationsstapel
+    var selection: Binding<UUID?>? = nil
     @Environment(LibraryStore.self) private var library
     @Environment(PhoneRecorder.self) private var recorder
     @Environment(ProcessingQueue.self) private var queue
@@ -54,7 +82,7 @@ struct RecordingList: View {
             } else if items.isEmpty {
                 empty
             } else {
-                List {
+                List(selection: selection) {
                     if filter == .all, queue.processingID == nil, queue.isWaitingForPower {
                         WaitingForPowerSection()
                     }
@@ -159,12 +187,15 @@ struct RecordingRow: View {
                 .lineLimit(2)
             HStack(spacing: 6) {
                 Text(recording.startedAt, format: .dateTime.hour().minute())
+                    .fixedSize()
                 if recording.duration < 1 && recording.status != .recording {
                     Text("·")
                     Text("Übersicht")
                 } else if recording.status != .recording {
                     Text("·")
                     Text(Duration.seconds(recording.duration).formatted(.units(allowed: recording.duration < 60 ? Set([.seconds]) : Set([.hours, .minutes]), width: .abbreviated)))
+                        // In schmalen Spalten (iPad-Liste) lieber den Bereich kürzen als die Dauer umbrechen
+                        .fixedSize()
                 }
                 if let category = library.category(recording.categoryID) {
                     Text("·")
@@ -173,6 +204,7 @@ struct RecordingRow: View {
             }
             .font(.subheadline)
             .foregroundStyle(.secondary)
+            .lineLimit(1)
             status
         }
         .padding(.vertical, 2)
@@ -209,8 +241,14 @@ struct RecordingMenu: View {
     var onDelete: () -> Void
     @Environment(LibraryStore.self) private var library
     @Environment(HandoffSender.self) private var handoffs
+    @Environment(\.supportsMultipleWindows) private var supportsMultipleWindows
+    @Environment(\.openWindow) private var openWindow
 
     var body: some View {
+        if supportsMultipleWindows {
+            Button("In neuem Fenster öffnen", systemImage: "macwindow.badge.plus") { openWindow(id: NoteWindow.id, value: id) }
+            Divider()
+        }
         Menu("Bereich", systemImage: "folder") {
             Picker("Bereich", selection: Binding(get: { library.recording(id)?.categoryID },
                                                  set: { library.setCategory(id, $0) })) {

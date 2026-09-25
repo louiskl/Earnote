@@ -21,6 +21,10 @@ struct RecordingDetailView: View {
     @State private var resummarizing = false
     @State private var correcting = false
     @State private var deck: LearnDeck?
+    /// iPad: Transkript neben der Notiz, wie ⌘3 am Mac (eigene Spalte statt `inspector` – der ließ in der
+    /// Split-Ansicht die Kopfzeile der Notiz verschwinden)
+    @SceneStorage("detail.transcriptBeside") private var transcriptBeside = false
+    @Environment(\.horizontalSizeClass) private var sizeClass
 
     enum Mode: String { case note, transcript }
 
@@ -38,6 +42,7 @@ struct RecordingDetailView: View {
         .navigationSubtitle(subtitle)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar { toolbar }
+
         .safeAreaInset(edge: .bottom) {
             if player.isLoaded { PlayerBar(player: player) }
         }
@@ -105,6 +110,47 @@ struct RecordingDetailView: View {
         case let status where status.isBusy && note == nil:
             ProcessingView(recording: recording, draft: queue.drafts[id])
         default:
+            if sizeClass == .regular, transcriptBeside, let transcript {
+                HStack(spacing: 0) {
+                    ScrollView {
+                        noteContent
+                            .padding()
+                            .frame(maxWidth: 700)
+                            .frame(maxWidth: .infinity)
+                    }
+                    Divider()
+                    ScrollView {
+                        TranscriptContentView(transcript: transcript) { player.play(from: $0) }.padding()
+                    }
+                    .frame(width: 340)
+                    .background(.background.secondary)
+                }
+            } else {
+                singleColumn
+            }
+        }
+    }
+
+    /// Notiz (oder Karteikarten-Fortschritt) ohne Umschalter – für die Spalte neben dem Transkript
+    @ViewBuilder private var noteContent: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            if let progress = library.flashcardProgress[id] {
+                ProgressView(value: Double(progress.done), total: Double(max(1, progress.of))) {
+                    Label("Karteikarten entstehen …", systemImage: "rectangle.on.rectangle.angled").font(.subheadline)
+                }
+            }
+            if let note {
+                NoteContentView(markdown: note.markdown) { line in
+                    library.toggleTask(id, in: note.markdown, line: line)
+                    Task { await reload() }
+                }
+            } else {
+                Text("Keine Notiz – nur das Transkript.").foregroundStyle(.secondary)
+            }
+        }
+    }
+
+    @ViewBuilder private var singleColumn: some View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
                     Picker("Ansicht", selection: $mode) {
@@ -134,12 +180,17 @@ struct RecordingDetailView: View {
                     }
                 }
                 .padding()
+                // Lesbare Zeilenlänge am iPad statt quer über den Bildschirm (DESIGN_GUIDELINES 31)
+                .frame(maxWidth: 700)
+                .frame(maxWidth: .infinity)
             }
-        }
     }
 
     @ToolbarContentBuilder private var toolbar: some ToolbarContent {
         ToolbarItemGroup(placement: .topBarTrailing) {
+            if sizeClass == .regular, transcript != nil {
+                Toggle("Transkript daneben", systemImage: "sidebar.right", isOn: $transcriptBeside)
+            }
             if let note {
                 ShareLink(item: "# \(note.title)\n\n\(note.markdown)", subject: Text(note.title)) {
                     Label("Teilen", systemImage: "square.and.arrow.up")

@@ -216,7 +216,7 @@ The iPad is not a big iPhone and not a small Mac: **"This application belongs on
 **Structure**
 - One app for iPhone and iPad. The root stays one `TabView`, now with `.tabViewStyle(.sidebarAdaptable)`: tabs on iPhone and in compact width, a sidebar on iPad. Sidebar entries mirror the Mac sidebar (All, Open Tasks, Uncategorized, Problems, areas). Never a second, iPad-only root.
 - In regular width the recordings tab is a `NavigationSplitView` (list | note). Compact width (Slide Over, narrow Stage Manager windows) falls back to the stack automatically – never branch on device type, only on size class.
-- The transcript sits in an `inspector` next to the note when there is room; in compact width it stays the segmented picker from section 30.
+- The transcript sits next to the note when there is room (toggle „Transkript daneben“, like ⌘3 on the Mac) – as a second column inside the detail, **not** `inspector`: inside a `NavigationSplitView` detail the inspector swallowed the note’s navigation bar (iPadOS 26). In compact width it stays the segmented picker from section 30.
 - Every window size and orientation works. Test at full screen, half, a third, and a small Stage Manager window.
 
 **Input**

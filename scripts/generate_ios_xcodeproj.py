@@ -152,8 +152,12 @@ target_settings = {
     "INFOPLIST_KEY_NSRemindersFullAccessUsageDescription": "Earnote legt offene Aufgaben aus deinen Notizen als Erinnerungen an, wenn du das unter Export einschaltest.",
     "INFOPLIST_KEY_NSMicrophoneUsageDescription": "Earnote nimmt Vorlesungen und Meetings auf, um daraus Notizen zu schreiben. Die Aufnahme bleibt auf deinem iPhone.",
     "INFOPLIST_KEY_UIApplicationSceneManifest_Generation": "YES",
+    # Mehrere Fenster am iPad (Notiz im eigenen Fenster); am iPhone ohne Wirkung
+    "INFOPLIST_KEY_UIApplicationSupportsMultipleScenes": "YES",
     "INFOPLIST_KEY_UILaunchScreen_Generation": "YES",
-    "INFOPLIST_KEY_UISupportedInterfaceOrientations": "UIInterfaceOrientationPortrait",
+    # iPhone im Hochformat, iPad in jeder Ausrichtung (Pflicht für Split View und Stage Manager, DESIGN_GUIDELINES 31)
+    "INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone": "UIInterfaceOrientationPortrait",
+    "INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad": "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight",
     "IPHONEOS_DEPLOYMENT_TARGET": "26.0",
     "LD_RUNPATH_SEARCH_PATHS": "$(inherited) @executable_path/Frameworks",
     "MARKETING_VERSION": MARKETING_VERSION,
@@ -163,7 +167,7 @@ target_settings = {
     "SUPPORTED_PLATFORMS": "iphoneos iphonesimulator",
     "SWIFT_EMIT_LOC_STRINGS": "YES",
     "SWIFT_VERSION": "6.0",
-    "TARGETED_DEVICE_FAMILY": "1",
+    "TARGETED_DEVICE_FAMILY": "1,2",
 }
 project_debug = {"ONLY_ACTIVE_ARCH": "YES", "SWIFT_OPTIMIZATION_LEVEL": "-Onone", "ENABLE_TESTABILITY": "YES",
                  "SWIFT_ACTIVE_COMPILATION_CONDITIONS": "DEBUG", "DEBUG_INFORMATION_FORMAT": "dwarf", "SDKROOT": "iphoneos"}
