@@ -22,6 +22,7 @@ struct RecordingDetailView: View {
     @State private var correcting = false
     @State private var deck: LearnDeck?
     @State private var chatting = false
+    @State private var translating = false
     /// iPad: Transkript neben der Notiz, wie ⌘3 am Mac (eigene Spalte statt `inspector` – der ließ in der
     /// Split-Ansicht die Kopfzeile der Notiz verschwinden)
     @SceneStorage("detail.transcriptBeside") private var transcriptBeside = false
@@ -58,6 +59,9 @@ struct RecordingDetailView: View {
             }
         }
         .sheet(item: $shareFile) { ActivitySheet(url: $0.url).presentationDetents([.medium, .large]) }
+        .sheet(isPresented: $translating, onDismiss: { Task { await reload() } }) {
+            if let note { TranslationSheet(id: id, note: note, transcript: transcript) }
+        }
         .sheet(isPresented: $chatting, onDismiss: { Task { await reload() } }) {
             if let note { NoteChatView(id: id, note: note, transcript: transcript) }
         }
@@ -231,6 +235,7 @@ struct RecordingDetailView: View {
                                 Task { await reload() }
                             }
                         }
+                        Button("Übersetzen …", systemImage: "character.bubble") { translating = true }
                         Button("Vereinfachen", systemImage: "text.badge.minus") {
                             library.reprocess(id, retranscribe: false, instruction: String(localized: "Erkläre die Inhalte einfacher und kürzer."), fromNote: true)
                         }
