@@ -9,6 +9,7 @@ struct SettingsSheet: View {
     @Environment(\.loadDemoLibrary) private var loadDemoLibrary
     @AppStorage(AppSkin.key) private var skin: AppSkin = .standard
     @AppStorage(TipJar.supporterKey) private var isSupporter = false
+    @AppStorage(Pro.key) private var isPro = false
 
     var body: some View {
         @Bindable var library = library
@@ -48,6 +49,13 @@ struct SettingsSheet: View {
                     Text("Die Notiz entsteht dann, sobald das iPhone lädt, zum Beispiel nachts. Im Stromsparmodus wartet Earnote auch ohne diese Einstellung aufs Ladekabel.")
                 }
                 #if DEBUG
+                Section {
+                    Toggle(isOn: $isPro) { Text(verbatim: "Pro freischalten") }
+                } header: {
+                    Text(verbatim: "Test: Pro")
+                } footer: {
+                    Text(verbatim: "Nur in Test-Fassungen – zum Ausprobieren ohne Kauf.")
+                }
                 if let loadDemoLibrary {
                     Section {
                         Button("Beispieldaten laden", systemImage: "sparkles.rectangle.stack") {
@@ -63,6 +71,17 @@ struct SettingsSheet: View {
                     }
                 }
                 #endif
+                Section {
+                    NavigationLink {
+                        ProView()
+                    } label: {
+                        LabeledContent {
+                            if isPro { Text("Freigeschaltet") }
+                        } label: {
+                            Label("Earnote Pro", systemImage: "star.circle")
+                        }
+                    }
+                }
                 // Kein Spendenlink am iPhone: Apple lässt Trinkgeld nur als In-App-Kauf zu (Dankeschön-Paket)
                 Section {
                     NavigationLink {
