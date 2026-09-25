@@ -23,6 +23,10 @@ struct RecordingDetailView: View {
     @State private var deck: LearnDeck?
     @State private var chatting = false
     @State private var translating = false
+    @State private var namingSpeakers = false
+    @State private var detectingSpeakers = false
+    @State private var showsPro: Pro.Feature?
+    @Environment(\.speakerDiarizer) private var diarizer
     /// iPad: Transkript neben der Notiz, wie ⌘3 am Mac (eigene Spalte statt `inspector` – der ließ in der
     /// Split-Ansicht die Kopfzeile der Notiz verschwinden)
     @SceneStorage("detail.transcriptBeside") private var transcriptBeside = false
@@ -59,6 +63,20 @@ struct RecordingDetailView: View {
             }
         }
         .sheet(item: $shareFile) { ActivitySheet(url: $0.url).presentationDetents([.medium, .large]) }
+        .sheet(isPresented: $namingSpeakers, onDismiss: { Task { await reload() } }) {
+            if let transcript { SpeakerNamesSheet(id: id, transcript: transcript, note: note) }
+        }
+        .sheet(item: $showsPro) { ProSheet(highlight: $0) }
+        .overlay(alignment: .top) {
+            if detectingSpeakers {
+                Label("Sprecher werden erkannt …", systemImage: "person.2.wave.2")
+                    .font(.subheadline)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 8)
+                    .glassEffect(in: .capsule)
+                    .padding(.top, 8)
+            }
+        }
         .sheet(isPresented: $translating, onDismiss: { Task { await reload() } }) {
             if let note { TranslationSheet(id: id, note: note, transcript: transcript) }
         }
@@ -195,6 +213,22 @@ struct RecordingDetailView: View {
             }
     }
 
+    /// Sprecher nachträglich erkennen (Earnote Pro): Stimmen ins Transkript eintragen, dann die Notiz neu schreiben
+    private func detectSpeakers() async {
+        guard Pro.isUnlocked || Pro.triesLeft(.speakers) > 0 else { showsPro = .speakers; return }
+        guard let diarizer, let transcript, let recording, let url = library.audio.playbackURL(for: recording) else { return }
+        detectingSpeakers = true
+        defer { detectingSpeakers = false }
+        let result = await ProcessingPipeline.withSpeakers(transcript, audio: url, diarizer: diarizer)
+        guard Speakers.names(in: result).count >= 2 else {
+            library.lastError = String(localized: "Earnote hat in dieser Aufnahme nur eine Stimme erkannt.")
+            return
+        }
+        await library.saveTranscript(id, result)
+        await reload()
+        library.reprocess(id, retranscribe: false)
+    }
+
     @ToolbarContentBuilder private var toolbar: some ToolbarContent {
         ToolbarItemGroup(placement: .topBarTrailing) {
             if sizeClass == .regular, transcript != nil {
@@ -236,6 +270,12 @@ struct RecordingDetailView: View {
                             }
                         }
                         Button("Übersetzen …", systemImage: "character.bubble") { translating = true }
+                        if let transcript, Speakers.names(in: transcript).isEmpty {
+                            Button("Sprecher erkennen", systemImage: "person.2.wave.2") { Task { await detectSpeakers() } }
+                                .disabled(detectingSpeakers || recording.flatMap { library.audio.playbackURL(for: $0) } == nil)
+                        } else if transcript != nil {
+                            Button("Sprecher benennen …", systemImage: "person.2.wave.2") { namingSpeakers = true }
+                        }
                         Button("Vereinfachen", systemImage: "text.badge.minus") {
                             library.reprocess(id, retranscribe: false, instruction: String(localized: "Erkläre die Inhalte einfacher und kürzer."), fromNote: true)
                         }
@@ -369,7 +409,12 @@ struct TranscriptContentView: View {
 
     var body: some View {
         LazyVStack(alignment: .leading, spacing: 12) {
-            ForEach(transcript.segments) { segment in
+            ForEach(transcript.segments.indices, id: \.self) { index in
+                let segment = transcript.segments[index]
+                // Name, sobald ein anderer Sprecher dran ist (Sprechererkennung, Earnote Pro)
+                if let speaker = segment.speaker, index == 0 || transcript.segments[index - 1].speaker != speaker {
+                    Text(speaker).font(.subheadline.weight(.semibold)).padding(.top, 4)
+                }
                 Button { onPlay(segment.start) } label: {
                     HStack(alignment: .firstTextBaseline, spacing: 10) {
                         Text(Duration.seconds(segment.start).formatted(.time(pattern: .minuteSecond)))

@@ -46,10 +46,14 @@ public struct ProcessingPipeline: Sendable {
     public let notify: @Sendable (String, String) -> Void
     /// Was während der Aufnahme schon verdichtet wurde (siehe `LiveCondenser`)
     public let precondensed: PreCondensedStore
+    /// Sprechererkennung (Earnote Pro, iPhone/iPad) – nil: Transkript ohne erkannte Sprecher
+    public let diarizer: (any SpeakerDiarizer)?
 
     public init(library: any LibraryRepository, audio: any AudioStore, transcribers: any TranscriberProvider, llm: LLMFactory,
                 destinations: any DestinationProvider, precondensed: PreCondensedStore = PreCondensedStore(),
+                diarizer: (any SpeakerDiarizer)? = nil,
                 notify: @escaping @Sendable (String, String) -> Void) {
+        self.diarizer = diarizer
         self.library = library
         self.audio = audio
         self.transcribers = transcribers
@@ -106,9 +110,12 @@ public struct ProcessingPipeline: Sendable {
             let summarySpan = (transcript == nil && fromNote == nil ? 0.6 : 0.0)...0.95
             if transcript == nil, fromNote == nil {
                 let started = Date()
-                let fresh = try await transcribe(rec, settings: settings, hints: Glossary.speechHints(glossary),
+                var fresh = try await transcribe(rec, settings: settings, hints: Glossary.speechHints(glossary),
                                                  span: 0...0.6, events: events)
                 Self.logDuration("Transkription", since: started, audioSeconds: fresh.segments.last?.end)
+                if settings.detectSpeakers, let diarizer, let url = audio.playbackURL(for: rec) {
+                    fresh = await Self.withSpeakers(fresh, audio: url, diarizer: diarizer)
+                }
                 // Nach jedem längeren Schritt prüfen, ob die Aufnahme inzwischen gelöscht oder neu gestartet wurde,
                 // damit kein veralteter Stand gespeichert wird.
                 try Task.checkCancellation()
@@ -233,6 +240,19 @@ public struct ProcessingPipeline: Sendable {
                     .dataNotAllowed, .internationalRoamingOff].contains(error.code)
         }
         return false
+    }
+
+    /// Sprecher erkennen und eintragen. Klappt das nicht, bleibt das Transkript ohne Sprecher – die Notiz entsteht trotzdem.
+    public static func withSpeakers(_ transcript: Transcript, audio: URL, diarizer: any SpeakerDiarizer) async -> Transcript {
+        let started = Date()
+        do {
+            guard let turns = try await diarizer.diarize(audio, progress: { _ in }) else { return transcript }
+            logDuration("Sprechererkennung", since: started, audioSeconds: transcript.segments.last?.end)
+            return Speakers.assign(turns, to: transcript)
+        } catch {
+            Log.error("Sprechererkennung: \(error)")
+            return transcript
+        }
     }
 
     private func transcribe(_ rec: Recording, settings: AppSettings, hints: [String], span: ClosedRange<Double>,

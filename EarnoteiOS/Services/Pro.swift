@@ -11,12 +11,13 @@ enum Pro {
     static let freeTries = 3
 
     enum Feature: String, CaseIterable, Identifiable {
-        case chat, examRadar, translate
+        case speakers, chat, examRadar, translate
 
         var id: Self { self }
 
         var title: LocalizedStringKey {
             switch self {
+            case .speakers: "Sprechererkennung"
             case .chat: "Fragen zur Notiz"
             case .examRadar: "Klausur-Radar"
             case .translate: "Übersetzen"
@@ -25,6 +26,7 @@ enum Pro {
 
         var detail: LocalizedStringKey {
             switch self {
+            case .speakers: "Wer hat was gesagt? Earnote unterscheidet die Stimmen, du gibst ihnen Namen – aus dem Meeting wird ein Protokoll."
             case .chat: "Frag nach, was du nicht verstanden hast – die KI kennt die Notiz und die passenden Stellen der Aufnahme."
             case .examRadar: "Tippe in der Vorlesung auf „Wichtig“, auch auf dem Sperrbildschirm. Vor der Prüfung siehst du je Fach alles, was drankommt."
             case .translate: "Englische Vorlesung, deutsche Notiz – oder umgekehrt. Übersetzt Notiz und ganzes Transkript in 12 Sprachen."
@@ -33,6 +35,7 @@ enum Pro {
 
         var symbol: String {
             switch self {
+            case .speakers: "person.2.wave.2"
             case .chat: "bubble.left.and.text.bubble.right"
             case .examRadar: "scope"
             case .translate: "character.bubble"
@@ -54,6 +57,16 @@ enum Pro {
         guard triesLeft(feature) > 0 else { return false }
         UserDefaults.standard.set(freeTries - triesLeft(feature) + 1, forKey: triesKey(feature))
         return true
+    }
+
+    /// Sprechererkennung nur mit Pro – ohne Pro kostet jede Aufnahme einen Probeversuch, danach bleibt es ohne Sprecher
+    struct GatedDiarizer: SpeakerDiarizer {
+        let inner: any SpeakerDiarizer
+
+        func diarize(_ audio: URL, progress: @escaping @Sendable (Double) -> Void) async throws -> [SpeakerTurn]? {
+            guard Pro.use(.speakers) else { return nil }
+            return try await inner.diarize(audio, progress: progress)
+        }
     }
 
     static func product() async -> Product? {

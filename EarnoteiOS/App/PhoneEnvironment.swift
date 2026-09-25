@@ -21,6 +21,8 @@ final class PhoneEnvironment {
     let liveActivity = LiveActivityController()
     private(set) var widgets: WidgetPublisher?
     private let repository: any LibraryRepository
+    /// Sprechererkennung (Earnote Pro) – für neue Aufnahmen in der Warteschlange und „Sprecher erkennen“ in der Notiz
+    let diarizer: any SpeakerDiarizer
 
     init(storage: Storage = .standard, defaults: UserDefaults = .standard) {
         let settingsRepository = UserDefaultsSettingsRepository(defaults: defaults)
@@ -40,8 +42,11 @@ final class PhoneEnvironment {
         let repository = SwiftDataLibraryRepository(modelContainer: container)
         let audio = FileAudioStore(storage: storage)
         let llm = LLMFactory(platform: PlatformLLMClients())
+        let diarizer = Pro.GatedDiarizer(inner: FluidSpeakerDiarizer())
+        self.diarizer = diarizer
         let pipeline = ProcessingPipeline(library: repository, audio: audio, transcribers: PlatformTranscribers(), llm: llm,
                                           destinations: PhoneDestinations(), precondensed: PreCondensedStore(),
+                                          diarizer: diarizer,
                                           notify: { Notifier.send($0, $1) })
         let queue = ProcessingQueue(pipeline: pipeline) {
             Task { await LocalLLMCache.shared.release() }

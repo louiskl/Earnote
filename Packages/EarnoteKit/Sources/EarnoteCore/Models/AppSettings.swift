@@ -235,6 +235,8 @@ public struct AppSettings: Codable, Hashable, Sendable {
     public var condenseOnBattery = false
     /// Aufnahmen erst verarbeiten, wenn der Mac am Netzteil hängt
     public var processOnlyOnPower = false
+    /// Verschiedene Stimmen im Transkript unterscheiden (Earnote Pro, iPhone/iPad)
+    public var detectSpeakers = false
     public var recordSystemAudio = true
     /// Aufnahme mit ⌃⌥⌘R aus jeder App starten und stoppen
     public var globalShortcut = false
@@ -270,6 +272,7 @@ public struct AppSettings: Codable, Hashable, Sendable {
         livePreviewOnBattery = (try? c.decodeIfPresent(Bool.self, forKey: .livePreviewOnBattery)) ?? d.livePreviewOnBattery
         condenseOnBattery = (try? c.decodeIfPresent(Bool.self, forKey: .condenseOnBattery)) ?? d.condenseOnBattery
         processOnlyOnPower = (try? c.decodeIfPresent(Bool.self, forKey: .processOnlyOnPower)) ?? d.processOnlyOnPower
+        detectSpeakers = (try? c.decodeIfPresent(Bool.self, forKey: .detectSpeakers)) ?? d.detectSpeakers
         transcriptionEngine = (try? c.decodeIfPresent(TranscriptionEngineKind.self, forKey: .transcriptionEngine)) ?? d.transcriptionEngine
         whisperModel = try c.decodeIfPresent(String.self, forKey: .whisperModel) ?? d.whisperModel
         language = try c.decodeIfPresent(String.self, forKey: .language) ?? d.language
