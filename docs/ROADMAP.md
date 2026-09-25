@@ -390,7 +390,7 @@ Nicht „wenn nichts mehr einfällt“, sondern wenn diese Punkte abgehakt sind:
 **Drumherum**
 - [x] Screenshots hell/dunkel in beiden Sprachen (Website, Stand 0.9.13) und Homebrew-Tap
 - [x] Demo-Video (24.09.2026, auf Website und im README)
-- [ ] Markenrecherche Earnote abgeschlossen (liegt beim Nutzer)
+- [x] Markenrecherche Earnote abgeschlossen – frei (25.09.2026)
 
 Erst wenn alle drei Blöcke stehen, wird aus 0.9.x die 1.0 – und erst danach beginnt Phase 6.
 
@@ -399,7 +399,7 @@ Erst wenn alle drei Blöcke stehen, wird aus 0.9.x die 1.0 – und erst danach b
 ## Phase 5 – Launch (1.0 RC → 1.0)
 
 **Name & Recht** (liegt beim Nutzer)
-- [ ] Markenrecherche Earnote (DPMA, EUIPO, USPTO; Klassen 9 und 42)
+- [x] Markenrecherche Earnote (DPMA, EUIPO, USPTO; Klassen 9, 41, 42) – frei (25.09.2026)
 - [x] Domain: **earnote.dev** (22.09.2026) – gekauft vor Abschluss der Markenrecherche
 - [x] Instagram-/TikTok-Namen gesichert (25.09.2026)
 - [x] Impressum und Datenschutzhinweis für die Website (`docs/impressum.html`, verlinkt aus beiden Sprachen)
@@ -533,7 +533,7 @@ Puffer: 09.–13.10. für eine Ablehnung (beim ersten Mal mit In-App-Käufen hä
 - [x] Bank- und Steuerdaten in App Store Connect (vor 25.09.)
 - [ ] Vertrag für kostenpflichtige Apps auf „Aktiv“ prüfen (W-8BEN eingereicht 25.09., in Bearbeitung)
 - [ ] Small Business Program (15 % statt 30 % Provision)
-- [ ] Markenrecherche „Earnote“ (DPMA, EUIPO/TMview; Klassen 9, 42, 41)
+- [x] Markenrecherche „Earnote“ (DPMA, TMview, USPTO; Klassen 9, 41, 42): **keine Treffer** (25.09.2026). Anmeldung (DPMA ~290 €) bewusst aufgeschoben – ab dem Launch gilt Werktitelschutz (§ 5 MarkenG); anmelden, sobald Earnote Geld bringt oder vor großer Werbung
 - [x] Instagram-/TikTok-Namen gesichert (25.09.2026)
 
 **Was dafür später kommt:** Mac-Beta-Rückmeldungen nach dem 04.10. → erstes Update nach dem Launch ·
