@@ -248,8 +248,11 @@ public struct LocalLLMClient: LLMClient {
         }
         let started = Date()
         let answer = try await LocalLLMCache.shared.use { container in
+            // Qwen3 ohne „2507-Instruct“ (z. B. 1.7B) denkt sonst erst still bis zu 4 000 Token lang nach, bevor die Notiz
+            // beginnt – am iPhone minutenlang. Die Vorlage des Modells schaltet das damit ab; andere Modelle ignorieren es.
             let session = ChatSession(container, instructions: system,
-                                      generateParameters: GenerateParameters(maxTokens: 4_000, temperature: 0.3, topP: 0.9))
+                                      generateParameters: GenerateParameters(maxTokens: 4_000, temperature: 0.3, topP: 0.9),
+                                      additionalContext: ["enable_thinking": false])
             var text = ""
             var reported = Date.distantPast
             for try await chunk in session.streamResponse(to: prompt) {
