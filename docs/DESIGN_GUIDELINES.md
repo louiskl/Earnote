@@ -210,6 +210,17 @@ The same philosophy applies to the iPhone app: **"This application belongs on iO
 - Haptics only to confirm start, stop and pause of a recording.
 - Respect Reduce Motion, VoiceOver (every control labeled, the record state spoken), Bold Text, Increased Contrast.
 
+**Learned in the 0.9.25 review (25.09.2026)**
+- Never put a long title *and* several toolbar buttons into the same navigation bar: iOS 26 folds the buttons into an
+  overflow “…” menu (Ask/Share disappeared). Detail screens with content show the title in the content (`NoteHeader`),
+  like Voice Memos; the bar keeps at most three actions.
+- A `NavigationLink(value:)` inside a view pushed with `navigationDestination(isPresented:)` may not resolve. Use a
+  destination link there.
+- Test every screen at the largest accessibility text size: drop decorative badges and icons and let metadata wrap
+  instead of truncating (`dynamicTypeSize.isAccessibilitySize`).
+- Glass buttons tint their whole label – set `.tint(.primary)` when the label has a title and a subtitle.
+- Pro limits are stated honestly and in the same words everywhere (`ProTriesNote`), never “0 left” without a way on.
+
 **Review:** Section 28 applies unchanged, plus: Would this feel normal in Voice Memos, Notes, Music or Mail on iPhone?
 
 ## 31. IPAD (Entwurf ab 24.09.2026)
