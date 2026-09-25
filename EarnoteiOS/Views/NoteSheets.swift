@@ -147,7 +147,7 @@ struct NamesSheet: View {
                 speakerSection
             }
             .autocorrectionDisabled()
-            .navigationTitle("Namen korrigieren")
+            .navigationTitle("Korrigieren")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button("Abbrechen") { dismiss() } }
@@ -156,6 +156,7 @@ struct NamesSheet: View {
                 }
             }
         }
+        .presentationDetents(speakers.isEmpty ? [.medium, .large] : [.large])
     }
 
     @ViewBuilder private var speakerSection: some View {

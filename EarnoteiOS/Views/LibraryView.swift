@@ -102,7 +102,8 @@ struct FilteredRecordingsView: View {
             .paper()
             .navigationTitle(title)
             .toolbar {
-                if category != nil {
+                // Nur zum Lernen: Wer Earnote für die Arbeit nutzt, sieht kein Klausur-Radar (Einstiegsfrage)
+                if category != nil, library.settings.usage?.isLearning ?? true {
                     // Anschauen kostet keinen Probeversuch – die zählen beim Markieren
                     Button("Klausur-Radar", systemImage: "scope") {
                         if Pro.isUnlocked || Pro.triesLeft(.examRadar) > 0 { showsRadar = true } else { showsPro = true }

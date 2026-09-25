@@ -241,6 +241,7 @@ struct RecordingMenu: View {
     let id: UUID
     /// In der Notiz steht der Bereich im Titelmenü – dort nicht doppelt
     var showsCategory = true
+    var showsWindow = true
     var onDelete: () -> Void
     @Environment(LibraryStore.self) private var library
     @Environment(HandoffSender.self) private var handoffs
@@ -248,7 +249,7 @@ struct RecordingMenu: View {
     @Environment(\.openWindow) private var openWindow
 
     var body: some View {
-        if supportsMultipleWindows {
+        if supportsMultipleWindows && showsWindow {
             Button("In neuem Fenster öffnen", systemImage: "macwindow.badge.plus") { openWindow(id: NoteWindow.id, value: id) }
             Divider()
         }

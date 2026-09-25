@@ -2,7 +2,7 @@ import AVFoundation
 import EarnoteCore
 import SwiftUI
 
-/// Erster Start in fünf Schritten (docs/IPHONE.md, Abschnitt 4). Nur das Mikrofon ist Pflicht.
+/// Erster Start in sechs Schritten (docs/IPHONE.md, Abschnitt 4). Nur das Mikrofon ist Pflicht.
 struct OnboardingView: View {
     @Environment(LibraryStore.self) private var library
     @State private var step = 0
@@ -15,10 +15,11 @@ struct OnboardingView: View {
             BrandGlow(intensity: step == 0 ? 1 : 0.35)
             TabView(selection: $step) {
                 welcome.tag(0)
-                microphone.tag(1)
-                notifications.tag(2)
-                noteWay.tag(3)
-                done.tag(4)
+                usage.tag(1)
+                microphone.tag(2)
+                notifications.tag(3)
+                noteWay.tag(4)
+                done.tag(5)
             }
             .tabViewStyle(.page(indexDisplayMode: .always))
             .indexViewStyle(.page(backgroundDisplayMode: .interactive))
@@ -43,6 +44,22 @@ struct OnboardingView: View {
         }
     }
 
+    /// Einstiegsfrage (ROADMAP Phase 7): Jede Gruppe bekommt ihre Bereiche und sieht nur, was zu ihr passt
+    private var usage: some View {
+        Page(symbol: "person.crop.circle.badge.questionmark", effect: .bounce, title: "Wofür nutzt du Earnote?",
+             text: "Danach richtet Earnote die passenden Bereiche ein. Ändern kannst du es jederzeit.") {
+            ForEach(Usage.allCases) { choice in
+                UsageButton(usage: choice) {
+                    apply(choice)
+                    step = 2
+                }
+            }
+            Button("Überspringen") { step = 2 }
+                .font(.subheadline)
+                .padding(.top, 4)
+        }
+    }
+
     private var microphone: some View {
         Page(symbol: "mic.fill", effect: .bounce, title: "Mikrofon erlauben",
              text: "Damit Earnote aufnehmen kann. Die Aufnahme bleibt auf deinem iPhone.") {
@@ -51,7 +68,7 @@ struct OnboardingView: View {
                     .foregroundStyle(.green)
                     .font(.headline)
                     .transition(.scale.combined(with: .opacity))
-                PrimaryButton("Weiter") { step = 2 }
+                PrimaryButton("Weiter") { step = 3 }
             } else {
                 PrimaryButton("Mikrofon erlauben") {
                     Task {
@@ -59,7 +76,7 @@ struct OnboardingView: View {
                         withAnimation(.bouncy) { microphoneAllowed = allowed }
                         if allowed {
                             try? await Task.sleep(for: .milliseconds(600))
-                            step = 2
+                            step = 3
                         }
                     }
                 }
@@ -77,10 +94,10 @@ struct OnboardingView: View {
             PrimaryButton("Mitteilungen erlauben") {
                 Task {
                     _ = await Notifier.requestPermission()
-                    step = 3
+                    step = 4
                 }
             }
-            Button("Später") { step = 3 }
+            Button("Später") { step = 4 }
                 .buttonStyle(.glass)
                 .controlSize(.large)
         }
@@ -95,7 +112,7 @@ struct OnboardingView: View {
                         Image(systemName: "sparkles")
                             .font(.system(size: 40))
                             .foregroundStyle(.tint)
-                            .symbolEffect(.bounce, value: step == 3)
+                            .symbolEffect(.bounce, value: step == 4)
                         Text("Wie soll die Notiz entstehen?").font(.title2.bold())
                         Text(NoteWay.onDeviceProvider != nil
                              ? "Dein iPhone kann die Notiz selbst schreiben – ganz ohne Internet."
@@ -106,7 +123,7 @@ struct OnboardingView: View {
                 }
                 NoteWayPicker()
                 Section {
-                    PrimaryButton("Weiter") { step = 4 }
+                    PrimaryButton("Weiter") { step = 5 }
                         .listRowBackground(Color.clear)
                         .listRowInsets(EdgeInsets())
                 }
@@ -122,6 +139,23 @@ struct OnboardingView: View {
             if !NoteWay.worksHere(library.settings.ai.provider) {
                 library.settings.ai.provider = NoteWay.suggestedProvider
             }
+        }
+    }
+
+    /// Bereiche und Voreinstellungen zur Antwort. Die Standardbereiche werden nur ersetzt, solange nichts aufgenommen
+    /// und nichts abgeglichen ist – sonst verschwänden Bereiche auch auf dem Mac. Andernfalls kommen die neuen dazu.
+    private func apply(_ usage: Usage) {
+        library.settings.usage = usage
+        if usage == .school { library.settings.ai.simpleNotes = true }
+        if usage == .work { library.settings.detectSpeakers = true }
+        let templates = CategoryTemplate.suggested(for: usage)
+        let untouched = Set(library.categories.map(\.id)) == Set(RecordingCategory.defaults.map(\.id))
+        if untouched && library.recordings.isEmpty && !library.settings.syncWithCloud {
+            let categories = templates.compactMap { id in CategoryTemplate.all.first { $0.id == id }?.makeCategory() }
+            library.categories = categories
+            library.settings.defaultCategoryID = categories.first?.id
+        } else {
+            _ = library.addCategories(templates: Set(templates), subjects: [])
         }
     }
 
@@ -201,6 +235,49 @@ private struct Feature: View {
         } icon: {
             Image(systemName: symbol).foregroundStyle(.tint).frame(width: 28)
         }
+    }
+}
+
+/// Eine Antwort auf „Wofür nutzt du Earnote?“ – Symbol, Titel, was dazugehört
+private struct UsageButton: View {
+    let usage: Usage
+    let action: () -> Void
+
+    private var symbol: String {
+        switch usage {
+        case .university: "graduationcap"
+        case .school: "backpack"
+        case .work: "briefcase"
+        }
+    }
+
+    private var detail: LocalizedStringKey {
+        switch usage {
+        case .university: "Vorlesungen, Seminare, Lerngruppen"
+        case .school: "Unterricht, Oberstufe, Berufsschule"
+        case .work: "Meetings, Calls, Gespräche"
+        }
+    }
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 14) {
+                Image(systemName: symbol)
+                    .font(.title2)
+                    .foregroundStyle(.tint)
+                    .frame(width: 32)
+                    .accessibilityHidden(true)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(usage.label).font(.headline)
+                    Text(detail).font(.subheadline).foregroundStyle(.secondary)
+                }
+                Spacer(minLength: 0)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .contentShape(.rect)
+        }
+        .buttonStyle(.glass)
+        .controlSize(.large)
     }
 }
 

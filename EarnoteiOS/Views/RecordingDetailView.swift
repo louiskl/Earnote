@@ -14,6 +14,8 @@ struct RecordingDetailView: View {
     @State private var transcript: Transcript?
     @State private var player = AudioPlayer()
     @State private var confirmsDeletion = false
+    @State private var renaming = false
+    @State private var newTitle = ""
     @State private var shareFile: ShareFile?
     @State private var editingNote = false
     @State private var rewriting = false
@@ -43,16 +45,15 @@ struct RecordingDetailView: View {
             }
         }
         .paper()
-        // Titel antippen: Umbenennen und Bereich – wie in Dateien und Notizen, statt zwei Einträgen im Menü „Mehr“
-        .navigationTitle(Binding(get: { recording?.displayTitle ?? "" },
-                                 set: { if !$0.trimmingCharacters(in: .whitespaces).isEmpty { library.rename(id, to: $0) } }))
-        .navigationSubtitle(subtitle)
+        // Mit Notiz steht der Titel groß im Inhalt (`NoteHeader`, wie in Sprachmemos) – die Leiste bleibt frei für
+        // Fragen, Teilen und Mehr. Ein langer Titel oder ein Titelmenü klappte dort sonst alle Knöpfe in „…“ (iOS 26).
+        .navigationTitle(recording?.displayTitle ?? "")
+        .navigationSubtitle(showsHeader ? "" : subtitle)
         .navigationBarTitleDisplayMode(.inline)
-        .toolbarTitleMenu {
-            RenameButton()
-            Menu("Bereich", systemImage: "folder") { CategoryPicker(id: id) }
+        .toolbar {
+            if showsHeader { ToolbarItem(placement: .principal) { Color.clear.frame(width: 1, height: 1) } }
+            toolbar
         }
-        .toolbar { toolbar }
 
         .safeAreaInset(edge: .bottom) {
             if player.isLoaded { PlayerBar(player: player) }
@@ -95,6 +96,37 @@ struct RecordingDetailView: View {
         }
         .sheet(isPresented: $rewriting) { RewriteSheet(id: id) { Task { await reload() } } }
         .navigationDestination(item: $deck) { FlashcardSession(deck: $0) }
+        .alert("Umbenennen", isPresented: $renaming) {
+            TextField("Titel", text: $newTitle)
+            Button("Sichern") {
+                if !newTitle.trimmingCharacters(in: .whitespaces).isEmpty { library.rename(id, to: newTitle) }
+            }
+            Button("Abbrechen", role: .cancel) {}
+        }
+    }
+
+    /// Kopf im Inhalt, sobald es eine Notiz oder ein Transkript zu lesen gibt
+    private var showsHeader: Bool {
+        guard let recording else { return false }
+        return !(recording.status == .recording || (note == nil && (recording.status.isBusy
+            || recording.status == .failed || recording.status == .waitingForMac)))
+    }
+
+    private var header: some View {
+        NoteHeader(title: recording?.displayTitle ?? "", meta: meta, id: id) {
+            newTitle = recording?.displayTitle ?? ""
+            renaming = true
+        }
+    }
+
+    /// „24. Sept., 09:03 · 1 Std. 25 Min.“ – der Bereich steht als eigenes Menü daneben
+    private var meta: String {
+        guard let r = recording else { return "" }
+        var parts = [r.startedAt.formatted(.dateTime.day().month(.abbreviated).hour().minute())]
+        if r.duration >= 1 {
+            parts.append(Duration.seconds(r.duration).formatted(.units(allowed: r.duration < 60 ? Set([.seconds]) : Set([.hours, .minutes]), width: .abbreviated)))
+        }
+        return parts.joined(separator: " · ")
     }
 
     /// „24. Sept. · 1 Std. 25 Min. · Vorlesung“
@@ -139,8 +171,9 @@ struct RecordingDetailView: View {
             ProcessingView(recording: recording, draft: queue.drafts[id])
         default:
             if showsBoth, let transcript {
-                VStack(spacing: 0) {
-                    modePicker.padding([.horizontal, .top])
+                VStack(alignment: .leading, spacing: 12) {
+                    header.padding([.horizontal, .top])
+                    modePicker.padding(.horizontal)
                     HStack(spacing: 0) {
                         ScrollView {
                             noteContent
@@ -194,6 +227,7 @@ struct RecordingDetailView: View {
     @ViewBuilder private var singleColumn: some View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
+                    header
                     modePicker
                     // „Beides“ ohne Platz (Fenster schmaler gezogen): dann die Notiz
                     if mode != .transcript {
@@ -229,15 +263,19 @@ struct RecordingDetailView: View {
 
     /// Höchstens drei Knöpfe (Regel 4): Fragen, Teilen, Mehr. „Mehr“ hat drei Gruppen mit zusammen höchstens 8 Einträgen.
     @ToolbarContentBuilder private var toolbar: some ToolbarContent {
-        ToolbarItemGroup(placement: .topBarTrailing) {
-            if note != nil {
+        if note != nil {
+            ToolbarItem(placement: .topBarTrailing) {
                 Button("Fragen zur Notiz", systemImage: "bubble.left.and.text.bubble.right") { chatting = true }
             }
-            if let note {
+        }
+        if let note {
+            ToolbarItem(placement: .topBarTrailing) {
                 ShareLink(item: "# \(note.title)\n\n\(note.markdown)", subject: Text(note.title)) {
                     Label("Teilen", systemImage: "square.and.arrow.up")
                 }
             }
+        }
+        ToolbarItem(placement: .topBarTrailing) {
             Menu("Mehr", systemImage: "ellipsis") {
                 if let note {
                     Section("Lernen") {
@@ -252,7 +290,8 @@ struct RecordingDetailView: View {
                     }
                 }
                 Section {
-                    RecordingMenu(id: id, showsCategory: false, onDelete: { confirmsDeletion = true })
+                    // Bereich und Umbenennen stehen im Kopf der Notiz, das eigene Fenster im Kontextmenü der Liste
+                    RecordingMenu(id: id, showsCategory: !showsHeader, showsWindow: false, onDelete: { confirmsDeletion = true })
                 }
             }
         }
@@ -294,6 +333,46 @@ struct RecordingDetailView: View {
         if mode != .note || transcript == nil { transcript = await library.transcript(id) }
         if let recording, recording.status != .recording, let url = library.audio.playbackURL(for: recording) {
             player.load(url)
+        }
+    }
+}
+
+/// Titel (antippen benennt um, wie in Sprachmemos), darunter Datum, Dauer und der Bereich als Menü
+private struct NoteHeader: View {
+    let title: String
+    let meta: String
+    let id: UUID
+    var rename: () -> Void
+    @Environment(LibraryStore.self) private var library
+
+    private var category: RecordingCategory? { library.category(library.recording(id)?.categoryID) }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Button(action: rename) {
+                Text(title)
+                    .font(.title2.bold())
+                    .foregroundStyle(.primary)
+                    .multilineTextAlignment(.leading)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            .buttonStyle(.plain)
+            .accessibilityAddTraits(.isHeader)
+            .accessibilityHint("Umbenennen")
+            HStack(spacing: 6) {
+                Text(meta).foregroundStyle(.secondary)
+                Text("·").foregroundStyle(.secondary).accessibilityHidden(true)
+                Menu {
+                    CategoryPicker(id: id)
+                } label: {
+                    HStack(spacing: 3) {
+                        Text(category?.name ?? String(localized: "Ohne Bereich")).lineLimit(1)
+                        Image(systemName: "chevron.up.chevron.down").imageScale(.small)
+                    }
+                }
+                .accessibilityLabel("Bereich: \(category?.name ?? String(localized: "Ohne Bereich"))")
+            }
+            .font(.subheadline)
         }
     }
 }
