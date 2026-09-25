@@ -152,6 +152,8 @@ target_settings = {
     "INFOPLIST_KEY_NSRemindersFullAccessUsageDescription": "Earnote legt offene Aufgaben aus deinen Notizen als Erinnerungen an, wenn du das unter Export einschaltest.",
     "INFOPLIST_KEY_NSMicrophoneUsageDescription": "Earnote nimmt Vorlesungen und Meetings auf, um daraus Notizen zu schreiben. Die Aufnahme bleibt auf deinem iPhone.",
     "INFOPLIST_KEY_UIApplicationSceneManifest_Generation": "YES",
+    # Mehrere Fenster am iPad (Notiz im eigenen Fenster); am iPhone ohne Wirkung
+    "INFOPLIST_KEY_UIApplicationSupportsMultipleScenes": "YES",
     "INFOPLIST_KEY_UILaunchScreen_Generation": "YES",
     # iPhone im Hochformat, iPad in jeder Ausrichtung (Pflicht für Split View und Stage Manager, DESIGN_GUIDELINES 31)
     "INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone": "UIInterfaceOrientationPortrait",

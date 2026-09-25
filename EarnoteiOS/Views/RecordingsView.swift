@@ -241,8 +241,14 @@ struct RecordingMenu: View {
     var onDelete: () -> Void
     @Environment(LibraryStore.self) private var library
     @Environment(HandoffSender.self) private var handoffs
+    @Environment(\.supportsMultipleWindows) private var supportsMultipleWindows
+    @Environment(\.openWindow) private var openWindow
 
     var body: some View {
+        if supportsMultipleWindows {
+            Button("In neuem Fenster öffnen", systemImage: "macwindow.badge.plus") { openWindow(id: NoteWindow.id, value: id) }
+            Divider()
+        }
         Menu("Bereich", systemImage: "folder") {
             Picker("Bereich", selection: Binding(get: { library.recording(id)?.categoryID },
                                                  set: { library.setCategory(id, $0) })) {

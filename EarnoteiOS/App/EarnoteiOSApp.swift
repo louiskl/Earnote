@@ -9,16 +9,35 @@ struct EarnoteiOSApp: App {
     var body: some Scene {
         WindowGroup {
             RootView()
-                .environment(environment.library)
-                .environment(environment.recorder)
-                .environment(environment.queue)
-                .environment(environment.power)
-                .environment(environment.handoffs)
+                .earnoteEnvironment(environment)
                 #if DEBUG
                 .environment(\.loadDemoLibrary) { await environment.loadDemoLibrary() }
                 #endif
         }
         .commands { PhoneCommands(recorder: environment.recorder) }
+
+        // iPad: eine Notiz im eigenen Fenster, z. B. neben den Folien der Vorlesung (DESIGN_GUIDELINES 31)
+        WindowGroup("Notiz", id: NoteWindow.id, for: UUID.self) { $id in
+            if let id {
+                NavigationStack { RecordingDetailView(id: id) }
+                    .earnoteEnvironment(environment)
+            }
+        }
+    }
+}
+
+enum NoteWindow {
+    static let id = "note"
+}
+
+extension View {
+    /// Dieselben Stores in jedem Fenster
+    func earnoteEnvironment(_ environment: PhoneEnvironment) -> some View {
+        self.environment(environment.library)
+            .environment(environment.recorder)
+            .environment(environment.queue)
+            .environment(environment.power)
+            .environment(environment.handoffs)
     }
 }
 
