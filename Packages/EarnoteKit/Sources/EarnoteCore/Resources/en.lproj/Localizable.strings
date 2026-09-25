@@ -169,3 +169,6 @@
 "Google ist gerade überlastet. Versuche es in ein paar Minuten erneut." = "Google is overloaded right now. Try again in a few minutes.";
 "Earnote versucht es in %lld Minuten von selbst noch einmal." = "Earnote will try again by itself in %lld minutes.";
 "Sprecher %lld" = "Speaker %lld";
+"Unterricht" = "Class";
+"Schulstunden, Kurse, Berufsschule" = "School lessons, courses, vocational school";
+"Fasse den Unterricht so zusammen, dass man damit für die nächste Arbeit lernen kann: wichtige Begriffe mit kurzer Erklärung, Beispiele, Hausaufgaben und angekündigte Tests." = "Summarise the class so it can be used to study for the next test: key terms with a short explanation, examples, homework and announced tests.";

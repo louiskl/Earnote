@@ -56,6 +56,9 @@ public struct CategoryTemplate: Identifiable, Hashable, Sendable {
         CategoryTemplate(id: "seminar", group: .study, emoji: "🧪", name: t("Seminar & Übung"),
                          detail: t("Diskussionen, Übungsaufgaben, Referate"), colorHex: "#06B6D4",
                          instructions: t("Halte die besprochenen Aufgaben, Lösungswege und Diskussionsbeiträge verständlich fest. Markiere Abgaben und Termine.")),
+        CategoryTemplate(id: "lesson", group: .study, emoji: "🏫", name: t("Unterricht"),
+                         detail: t("Schulstunden, Kurse, Berufsschule"), colorHex: "#F59E0B",
+                         instructions: t("Fasse den Unterricht so zusammen, dass man damit für die nächste Arbeit lernen kann: wichtige Begriffe mit kurzer Erklärung, Beispiele, Hausaufgaben und angekündigte Tests.")),
         CategoryTemplate(id: "studygroup", group: .study, emoji: "📚", name: t("Lerngruppe"),
                          detail: t("Gemeinsam lernen und wiederholen"), colorHex: "#10B981",
                          instructions: t("Fasse die erklärten Inhalte so zusammen, dass man damit lernen kann. Halte offene Fragen und Aufgabenverteilungen fest.")),
@@ -73,6 +76,15 @@ public struct CategoryTemplate: Identifiable, Hashable, Sendable {
 
     /// Vorausgewählt für Neue: deckt die häufigsten Fälle ab, ohne zu überladen.
     public static let suggested: Set<String> = ["lecture", "memo"]
+
+    /// Bereiche nach der Einstiegsfrage „Wofür nutzt du Earnote?“ – der erste ist der Standardbereich
+    public static func suggested(for usage: Usage) -> [String] {
+        switch usage {
+        case .university: ["lecture", "seminar", "studygroup", "memo"]
+        case .school: ["lesson", "studygroup", "memo"]
+        case .work: ["meeting", "oneonone", "client", "call"]
+        }
+    }
 
     /// Emojis und Farben, die Fächer nacheinander bekommen – so sind sie in der Seitenleiste sofort unterscheidbar.
     public static let subjectEmojis = ["📐", "📊", "🧬", "⚖️", "💻", "🌍", "📖", "🧮", "🧪", "🎨", "🏛️", "🔬"]

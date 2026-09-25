@@ -15,9 +15,10 @@ known = app_keys | core_keys | ml_keys
 print(f"Englische Einträge: App {len(app_keys)}, Core {len(core_keys)}, ML {len(ml_keys)}")
 
 german = re.compile(r'[äöüßÄÖÜ]|(?:\b(?:der|die|das|und|nicht|mit|für|ist|wird|kann|noch|beim|zum|vom|eine|einen|dein|deine)\b)')
-pattern = re.compile(r'(?:\bt\(|String\(localized:\s*|Text\(|\.help\(|Label\(|Button\()\s*"((?:[^"\\]|\\.)+)"')
+pattern = re.compile(r'(?:\bt\(|String\(localized:\s*|Text\(|\.help\(|Label\(|Button\(|Toggle\(|Picker\(|Menu\(|Section\(|TextField\(|NavigationLink\(|navigationTitle\(|LabeledContent\(|ContentUnavailableView\(|Link\(|PrimaryButton\()\s*"((?:[^"\\]|\\.)+)"')
 missing = collections.defaultdict(list)
-for f in list(pathlib.Path('Earnote').rglob('*.swift')) + list(pathlib.Path('Packages/EarnoteKit/Sources').rglob('*.swift')):
+apps = ['Earnote', 'EarnoteiOS', 'EarnoteWidgets', 'EarnoteShare', 'Packages/EarnoteKit/Sources']
+for f in [f for d in apps for f in pathlib.Path(d).rglob('*.swift')]:
     if '.build' in str(f) or 'DemoLibrary' in str(f):
         continue
     text = f.read_text()

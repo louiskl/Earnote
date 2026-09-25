@@ -11,17 +11,22 @@ struct ExamRadarView: View {
 
     var body: some View {
         List {
+            if !notes.isEmpty {
+                // Einsteiger wissen sonst nicht, woher die Punkte kommen
+                Section {} footer: {
+                    Text("Alles, was in deinen Notizen als prüfungsrelevant gilt – dazu, was du mit „Wichtig“ markiert hast. Neueste Vorlesung zuerst.")
+                }
+            }
             ForEach(notes, id: \.id) { note in
                 Section {
                     ForEach(note.items, id: \.self) { item in
-                        Label {
-                            NoteContentView(markdown: item) { _ in }
-                        } icon: {
-                            Image(systemName: "scope").foregroundStyle(.tint)
-                        }
+                        NoteContentView(markdown: item) { _ in }
                     }
                 } header: {
-                    NavigationLink(value: note.id) {
+                    // Ziel direkt statt `value:` – das Radar liegt per `isPresented` im Stapel, dort griff der Wert-Link nicht
+                    NavigationLink {
+                        RecordingDetailView(id: note.id)
+                    } label: {
                         HStack(alignment: .firstTextBaseline) {
                             Text(note.title).multilineTextAlignment(.leading)
                             Spacer()

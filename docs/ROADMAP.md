@@ -86,7 +86,7 @@ Was nicht überall gleich ist – und warum. Jede Zeile ist entweder **Plattform
 | 6a | iPhone-App: Aufnahme, Notiz, Export-Ziele, Abgleich mit dem Mac (Weg B), TestFlight | 0.9.22–0.9.23 | ✅ fertig |
 | 6b | iPad: Seitenleiste, Liste und Notiz nebeneinander, Menüleiste, Tastenkürzel, Fenster | 0.9.23 | ✅ fertig (Test auf M1-iPads läuft) |
 | 6c | Dankeschön-Paket (Farben, Designs, App-Symbole), „Neu in Earnote“, Bewertung, **Earnote Pro** (Sprecher, Fragen, Klausur-Radar, Übersetzen) | 0.9.24 | ✅ gebaut, ▶ Test auf dem iPhone |
-| **7** | **Prüfen und aufräumen** – 0.9.24 auf Geräten testen, Menüs und Einstellungen ordnen, Einstiegsfrage „Wofür nutzt du Earnote?“ | 0.9.25 | ▶ als Nächstes |
+| **7** | **Prüfen und aufräumen** – 0.9.24 auf Geräten testen, Menüs und Einstellungen ordnen, Einstiegsfrage „Wofür nutzt du Earnote?“ | 0.9.25 | ▶ gebaut ([#29](https://github.com/louiskl/Earnote/pull/29)), Test auf Geräten offen |
 | 🚀 | **Launch: Mac 1.0 + iPhone/iPad im App Store** | 1.0 / 1.1 | Semesterstart |
 | 8 | Pro, zweite Welle – nur nach Aufräumen und Launch, eine Funktion nach der anderen | 1.2+ | geplant |
 | 9 | Mac App Store prüfen (Sandbox), Kurs-Gruppen teilen | später | nach Launch |
@@ -490,18 +490,27 @@ kommt, wird geordnet (Regel 8). Ziel: Eine Erstnutzerin findet sich sofort zurec
 | Symbolleiste der Notiz | Fragen · Teilen · Mehr (+ iPad: Transkript daneben) | ok |
 | Aufnahme-Blatt | Wichtig · Pause · Stopp | ok |
 
-**Aufräumen**
-- [ ] **Notiz-Menü neu ordnen:** drei Gruppen – *Lernen* (Lernzettel, Karteikarten, Übersetzen) · *Bearbeiten*
-      (Bearbeiten, Begriffe & Sprecher, Neu schreiben …) · *Aufnahme* (Umbenennen, Bereich, Löschen). „Vereinfachen“,
-      „Neu zusammenfassen“ und „Auf KI-Fassung zurücksetzen“ werden **ein** Eintrag „Neu schreiben …“ mit Auswahl.
-      „Namen & Begriffe korrigieren“ und „Sprecher benennen“ werden **ein** Eintrag „Namen korrigieren …“.
-- [ ] **Einstellungen kürzen:** oben nur *So entsteht die Notiz*, *Aufnahme*, *Export*. Darunter eine Gruppe
-      *Earnote* mit Pro, Aussehen, Unterstützen, Über. *Akku* und *Mac* unter „Weitere Optionen“, sobald eingerichtet.
-- [ ] **Einstiegsfrage im Onboarding: „Wofür nutzt du Earnote?“** – Uni · Schule · Arbeit/Meetings. Setzt passende
-      Bereiche, Notiz-Stil und blendet Unpassendes aus (Klausur-Radar nur bei Uni/Schule, Sprechererkennung
-      vorgeschlagen bei Meetings). Später änderbar. Der stärkste Hebel gegen Überladung: Jede Gruppe sieht nur ihres.
+**Aufräumen** (PR [#29](https://github.com/louiskl/Earnote/pull/29), im Simulator durchgesehen: iPhone hell/dunkel, größte Schrift, iPad)
+- [x] **Notiz-Menü:** 7 statt ~15 Einträge in drei Gruppen – *Lernen* (Lernzettel, Karteikarten ▸, Übersetzen) ·
+      *Bearbeiten* (Notiz bearbeiten, Namen korrigieren …, Neu schreiben …) · Löschen. „Neu schreiben …“ fasst Vereinfachen,
+      Neu zusammenfassen und die KI-Fassung zusammen, „Namen korrigieren …“ Begriffe und Sprecher.
+- [x] **Notiz-Kopf im Inhalt:** Titel groß (antippen benennt um), Bereich als Menü daneben. Dabei behoben: iOS 26 klappte
+      Fragen/Teilen/Mehr bei langem Titel in ein „…“ zusammen – „Fragen zur Notiz“ war am iPhone praktisch unsichtbar.
+- [x] **iPad:** „Beides“ als dritte Stelle im Umschalter statt eines vierten Knopfs
+- [x] **Einstellungen:** oben Notiz-Weg, Aufnahme, Export; Gruppe *Earnote* (Pro, Aussehen, Unterstützen, Über);
+      ganz unten „Weitere Optionen“ (Mac-Abgleich, Audio behalten, Akku, Einstiegsfrage). Google gewählt ohne
+      Schlüssel warnt jetzt orange statt ein Häkchen zu zeigen.
+- [x] **Einstiegsfrage „Wofür nutzt du Earnote?“** – Uni · Schule · Arbeit: passende Bereiche (neu: „Unterricht“),
+      Schule schaltet „Einfach erklärt“ ein, Arbeit die Sprechererkennung und blendet das Klausur-Radar aus
+- [x] **Onboarding:** spricht alle an (nicht nur Vorlesungen), einheitliche Knöpfe, kein ✨, Abschluss „Alles bereit“
+- [x] **Größte Schrift:** Liste und Notiz-Kopf brechen um statt abzuschneiden
+- [x] **Pro-Blätter:** Probeversuche ehrlich („noch 2 Mal kostenlos“, bei 0 der Weg zu Pro); Übersetzen als halbes Blatt;
+      Pro-Seite mit dem eigenen App-Symbol und lesbarem Hinweis, wenn der App Store nicht antwortet
+- [x] **Klausur-Radar:** erklärt sich selbst; Titel einer Vorlesung öffnete die Notiz nicht (behoben)
+- [x] **Mac:** gleiche Begriffe („Neu schreiben …“, „Namen korrigieren …“)
 - [ ] Rückmeldungen der TestFlight-Tester und der M1-iPad-Tester einarbeiten
-- [ ] Review nach DESIGN_GUIDELINES Abschnitt 28 + 30 über **alle** Blätter (Pro, Chat, Übersetzen, Radar)
+- [ ] Bereichs-Emojis erscheinen im Simulator als „?“ – am echten iPhone prüfen, vor den App-Store-Screenshots klären
+- [ ] Offen für eine spätere Runde: Aufnahme-Blatt und Live-Aktivität am echten Gerät durchsehen, VoiceOver-Durchgang
 
 ## 🚀 Launch – Mac 1.0 und iPhone/iPad im App Store
 

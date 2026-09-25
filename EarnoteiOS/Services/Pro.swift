@@ -93,7 +93,8 @@ struct ProView: View {
         List {
             Section {
                 VStack(spacing: 10) {
-                    Image("IconPreview-Standard")
+                    // Das Symbol, das auch auf dem Home-Bildschirm steht – nicht immer das rote
+                    AppIconChoice.current.preview
                         .resizable()
                         .frame(width: 72, height: 72)
                         .clipShape(.rect(cornerRadius: 16))
@@ -167,10 +168,14 @@ struct ProView: View {
                 .controlSize(.large)
                 .disabled(buying)
             } else if loaded {
-                Text("Der App Store ist gerade nicht erreichbar. Versuch es später noch einmal.")
+                Label("Der App Store ist gerade nicht erreichbar. Versuch es später noch einmal.", systemImage: "wifi.exclamationmark")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
+                    .padding(.horizontal, 18)
+                    .padding(.vertical, 12)
+                    // Ohne Fläche lag der Text direkt über der Liste und war nicht zu lesen
+                    .glassEffect(in: .rect(cornerRadius: 20))
             }
         }
         .padding(.horizontal, 24)
@@ -184,6 +189,33 @@ struct ProView: View {
         case .success(let verification): await TipJar.finish(verification)
         case .userCancelled, .pending: break
         default: failed = true
+        }
+    }
+}
+
+/// Unter einer Pro-Funktion: wie oft sie noch kostenlos geht – und wenn nicht mehr, der Weg zu Pro statt einer Überraschung
+struct ProTriesNote: View {
+    let feature: Pro.Feature
+    @AppStorage(Pro.key) private var isPro = false
+    @State private var showsPro = false
+
+    var body: some View {
+        if !isPro {
+            let left = Pro.triesLeft(feature)
+            Group {
+                if left > 0 {
+                    Text(left == 1 ? "Ohne Pro: noch 1 Mal kostenlos." : "Ohne Pro: noch \(left) Mal kostenlos.")
+                        .foregroundStyle(.secondary)
+                } else {
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("Die kostenlosen Versuche sind aufgebraucht.").foregroundStyle(.secondary)
+                        Button("Earnote Pro ansehen") { showsPro = true }
+                            .foregroundStyle(.tint)
+                    }
+                }
+            }
+            .font(.footnote)
+            .sheet(isPresented: $showsPro) { ProSheet(highlight: feature) }
         }
     }
 }

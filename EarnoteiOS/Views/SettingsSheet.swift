@@ -17,7 +17,6 @@ struct SettingsSheet: View {
         NavigationStack {
             Form {
                 NoteWayPicker()
-                MacSection()
                 Section {
                     Picker("Sprache der Aufnahme", selection: $library.settings.language) {
                         ForEach(Self.recordingLanguages(current: library.settings.language), id: \.code) { Text($0.name).tag($0.code) }
@@ -26,7 +25,6 @@ struct SettingsSheet: View {
                         Text("Ohne Bereich").tag(UUID?.none)
                         ForEach(library.categories) { Label($0.name, systemImage: $0.symbol).tag(Optional($0.id)) }
                     }
-                    Toggle("Audio nach der Notiz behalten", isOn: $library.settings.keepAudioFiles)
                     Toggle(isOn: Binding(get: { library.settings.detectSpeakers }, set: { on in
                         // Einschalten ohne Pro geht, solange Probeversuche übrig sind (je Aufnahme einer)
                         if on && !Pro.isUnlocked && Pro.triesLeft(.speakers) == 0 { showsPro = true } else { library.settings.detectSpeakers = on }
@@ -49,12 +47,41 @@ struct SettingsSheet: View {
                 } footer: {
                     Text("Fertige Notizen automatisch in Notion, Obsidian, einen Ordner, Todoist oder Erinnerungen legen.")
                 }
+                // Alles rund um Earnote selbst in einer Gruppe, statt über die ganze Seite verteilt (ROADMAP Phase 7)
+                // Kein Spendenlink am iPhone: Apple lässt Trinkgeld nur als In-App-Kauf zu (Dankeschön-Paket)
+                Section("Earnote") {
+                    NavigationLink {
+                        ProView()
+                    } label: {
+                        LabeledContent {
+                            if isPro { Text("Freigeschaltet") }
+                        } label: {
+                            Label("Earnote Pro", systemImage: "star.circle")
+                        }
+                    }
+                    NavigationLink {
+                        AppearanceView()
+                    } label: {
+                        LabeledContent {
+                            Text(isSupporter || skin.isFree ? skin.name : AppSkin.standard.name)
+                        } label: {
+                            Label("Aussehen", systemImage: "paintpalette")
+                        }
+                    }
+                    NavigationLink {
+                        SupporterView()
+                    } label: {
+                        Label("Earnote unterstützen", systemImage: "gift")
+                    }
+                    NavigationLink {
+                        AboutView()
+                    } label: {
+                        Label("Über Earnote", systemImage: "info.circle")
+                    }
+                }
+                // Wie „Erweitert“ in den iOS-Einstellungen: ganz unten, für die wenigen, die es suchen
                 Section {
-                    Toggle("Erst am Ladekabel verarbeiten", isOn: $library.settings.processOnlyOnPower)
-                } header: {
-                    Text("Akku")
-                } footer: {
-                    Text("Die Notiz entsteht dann, sobald das iPhone lädt, zum Beispiel nachts. Im Stromsparmodus wartet Earnote auch ohne diese Einstellung aufs Ladekabel.")
+                    NavigationLink("Weitere Optionen") { MoreOptionsView() }
                 }
                 #if DEBUG
                 Section {
@@ -79,50 +106,6 @@ struct SettingsSheet: View {
                     }
                 }
                 #endif
-                Section {
-                    NavigationLink {
-                        ProView()
-                    } label: {
-                        LabeledContent {
-                            if isPro { Text("Freigeschaltet") }
-                        } label: {
-                            Label("Earnote Pro", systemImage: "star.circle")
-                        }
-                    }
-                }
-                // Kein Spendenlink am iPhone: Apple lässt Trinkgeld nur als In-App-Kauf zu (Dankeschön-Paket)
-                Section {
-                    NavigationLink {
-                        AppearanceView()
-                    } label: {
-                        LabeledContent {
-                            Text(isSupporter || skin.isFree ? skin.name : AppSkin.standard.name)
-                        } label: {
-                            Label("Aussehen", systemImage: "paintpalette")
-                        }
-                    }
-                    NavigationLink {
-                        SupporterView()
-                    } label: {
-                        Label("Earnote unterstützen", systemImage: "gift")
-                    }
-                } footer: {
-                    Text("Farben und App-Symbole gibt es als Dankeschön für ein Trinkgeld. Earnote bleibt für alle kostenlos.")
-                }
-                Section {
-                    // Mundpropaganda ist der wichtigste Weg zu neuen Nutzern (docs/STRATEGIE.md) – sobald die App im
-                    // App Store ist, hier den App-Store-Link statt der Website teilen
-                    ShareLink(item: AppInfo.website,
-                              message: Text("Kennst du Earnote? Die App nimmt Vorlesungen auf und schreibt die Mitschrift – mit Karteikarten und Lernzettel als PDF. Kostenlos und ohne Konto, für iPhone und Mac.")) {
-                        Label("Earnote empfehlen", systemImage: "heart.text.square")
-                    }
-                    Link(destination: AppInfo.website) { Label("earnote.dev", systemImage: "safari") }
-                    LabeledContent("Version", value: Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "–")
-                } header: {
-                    Text("Über")
-                } footer: {
-                    Text("Earnote ist kostenlos und quelloffen (MIT). Deine Aufnahmen bleiben auf deinem iPhone.")
-                }
             }
             .sheet(isPresented: $showsPro) { ProSheet(highlight: .speakers) }
             .navigationTitle("Einstellungen")
@@ -144,6 +127,72 @@ struct SettingsSheet: View {
         let list = AppSettings.languages.filter { $0.code != "auto" }
         if list.contains(where: { $0.code == current }) { return list }
         return list + [(code: current, name: Locale.current.localizedString(forLanguageCode: current)?.localizedCapitalized ?? current)]
+    }
+}
+
+/// Seltenes, das die meisten nie ändern: Mac-Abgleich, Audio behalten, Akku, Einstiegsfrage
+private struct MoreOptionsView: View {
+    @Environment(LibraryStore.self) private var library
+
+    var body: some View {
+        @Bindable var library = library
+        Form {
+            MacSection()
+            Section {
+                Toggle("Audio nach der Notiz behalten", isOn: $library.settings.keepAudioFiles)
+            } footer: {
+                Text("Aus: Nach der fertigen Notiz wird die Tonaufnahme gelöscht. Transkript und Notiz bleiben, nur Anhören geht dann nicht mehr.")
+            }
+            Section {
+                Toggle("Erst am Ladekabel verarbeiten", isOn: $library.settings.processOnlyOnPower)
+            } header: {
+                Text("Akku")
+            } footer: {
+                Text("Die Notiz entsteht dann, sobald das iPhone lädt, zum Beispiel nachts. Im Stromsparmodus wartet Earnote auch ohne diese Einstellung aufs Ladekabel.")
+            }
+            Section {
+                Picker("Earnote nutzen für", selection: $library.settings.usage) {
+                    Text("Nicht festgelegt").tag(Usage?.none)
+                    ForEach(Usage.allCases) { Text($0.label).tag(Optional($0)) }
+                }
+            } footer: {
+                Text("Bei „Arbeit“ blendet Earnote Klausur-Radar und Prüfungshinweise aus.")
+            }
+        }
+        .navigationTitle("Weitere Optionen")
+        .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+/// Über Earnote: weiterempfehlen, Website, Version
+private struct AboutView: View {
+    var body: some View {
+        Form {
+            Section {
+                // Mundpropaganda ist der wichtigste Weg zu neuen Nutzern (docs/STRATEGIE.md) – sobald die App im
+                // App Store ist, hier den App-Store-Link statt der Website teilen
+                ShareLink(item: AppInfo.website,
+                          message: Text("Kennst du Earnote? Die App nimmt Vorlesungen auf und schreibt die Mitschrift – mit Karteikarten und Lernzettel als PDF. Kostenlos und ohne Konto, für iPhone und Mac.")) {
+                    Label("Earnote empfehlen", systemImage: "heart.text.square")
+                }
+                Link(destination: AppInfo.website) { Label("earnote.dev", systemImage: "safari") }
+                LabeledContent("Version", value: Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "–")
+            } footer: {
+                Text("Earnote ist kostenlos und quelloffen (MIT). Deine Aufnahmen bleiben auf deinem iPhone.")
+            }
+        }
+        .navigationTitle("Über Earnote")
+        .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+extension Usage {
+    var label: LocalizedStringKey {
+        switch self {
+        case .university: "Uni"
+        case .school: "Schule"
+        case .work: "Arbeit"
+        }
     }
 }
 

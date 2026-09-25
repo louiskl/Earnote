@@ -144,10 +144,10 @@ struct RecordingActionItems: View {
             .disabled(!hasNote || busy)
         Button("Auf KI-Fassung zurücksetzen", action: noteActions.restoreGenerated)
             .disabled(recording?.isNoteEdited != true)
-        Button("Namen & Begriffe korrigieren …", action: noteActions.correctTerms)
+        Button("Namen korrigieren …", action: noteActions.correctTerms)
             .disabled(!hasNote || busy)
         Divider()
-        Button("Neu zusammenfassen …", action: noteActions.summarizeAgain)
+        Button("Neu schreiben …", action: noteActions.summarizeAgain)
             .disabled(recording == nil || busy)
         Button("Neu transkribieren") { library.reprocess(recordingID, retranscribe: true) }
             .disabled(recording == nil || busy || !library.hasAudio(recordingID))

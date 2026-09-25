@@ -2,7 +2,7 @@ import AVFoundation
 import EarnoteCore
 import SwiftUI
 
-/// Erster Start in fünf Schritten (docs/IPHONE.md, Abschnitt 4). Nur das Mikrofon ist Pflicht.
+/// Erster Start in sechs Schritten (docs/IPHONE.md, Abschnitt 4). Nur das Mikrofon ist Pflicht.
 struct OnboardingView: View {
     @Environment(LibraryStore.self) private var library
     @State private var step = 0
@@ -15,10 +15,11 @@ struct OnboardingView: View {
             BrandGlow(intensity: step == 0 ? 1 : 0.35)
             TabView(selection: $step) {
                 welcome.tag(0)
-                microphone.tag(1)
-                notifications.tag(2)
-                noteWay.tag(3)
-                done.tag(4)
+                usage.tag(1)
+                microphone.tag(2)
+                notifications.tag(3)
+                noteWay.tag(4)
+                done.tag(5)
             }
             .tabViewStyle(.page(indexDisplayMode: .always))
             .indexViewStyle(.page(backgroundDisplayMode: .interactive))
@@ -30,8 +31,8 @@ struct OnboardingView: View {
     // MARK: Schritte
 
     private var welcome: some View {
-        Page(symbol: "waveform", effect: .variableColor, title: "Earnote schreibt deine Vorlesungen mit",
-             text: "Aufnehmen, iPhone weglegen – danach steht die Notiz da.") {
+        Page(symbol: "waveform", effect: .variableColor, title: "Earnote schreibt für dich mit",
+             text: "Vorlesung, Unterricht oder Meeting: aufnehmen, iPhone weglegen – danach steht die Notiz da.") {
             VStack(alignment: .leading, spacing: 14) {
                 Feature(symbol: "text.page", text: "Zusammenfassung und Aufgaben")
                 Feature(symbol: "rectangle.on.rectangle.angled", text: "Karteikarten zum Lernen")
@@ -43,6 +44,22 @@ struct OnboardingView: View {
         }
     }
 
+    /// Einstiegsfrage (ROADMAP Phase 7): Jede Gruppe bekommt ihre Bereiche und sieht nur, was zu ihr passt
+    private var usage: some View {
+        Page(symbol: "hand.wave.fill", effect: .wiggle, title: "Wofür nutzt du Earnote?",
+             text: "Danach richtet Earnote die passenden Bereiche ein. Ändern kannst du es jederzeit.") {
+            ForEach(Usage.allCases) { choice in
+                UsageButton(usage: choice) {
+                    apply(choice)
+                    step = 2
+                }
+            }
+            Button("Überspringen") { step = 2 }
+                .buttonStyle(.glass)
+                .controlSize(.large)
+        }
+    }
+
     private var microphone: some View {
         Page(symbol: "mic.fill", effect: .bounce, title: "Mikrofon erlauben",
              text: "Damit Earnote aufnehmen kann. Die Aufnahme bleibt auf deinem iPhone.") {
@@ -51,7 +68,7 @@ struct OnboardingView: View {
                     .foregroundStyle(.green)
                     .font(.headline)
                     .transition(.scale.combined(with: .opacity))
-                PrimaryButton("Weiter") { step = 2 }
+                PrimaryButton("Weiter") { step = 3 }
             } else {
                 PrimaryButton("Mikrofon erlauben") {
                     Task {
@@ -59,7 +76,7 @@ struct OnboardingView: View {
                         withAnimation(.bouncy) { microphoneAllowed = allowed }
                         if allowed {
                             try? await Task.sleep(for: .milliseconds(600))
-                            step = 2
+                            step = 3
                         }
                     }
                 }
@@ -77,10 +94,10 @@ struct OnboardingView: View {
             PrimaryButton("Mitteilungen erlauben") {
                 Task {
                     _ = await Notifier.requestPermission()
-                    step = 3
+                    step = 4
                 }
             }
-            Button("Später") { step = 3 }
+            Button("Später") { step = 4 }
                 .buttonStyle(.glass)
                 .controlSize(.large)
         }
@@ -92,10 +109,10 @@ struct OnboardingView: View {
             Form {
                 Section {
                     VStack(alignment: .leading, spacing: 10) {
-                        Image(systemName: "sparkles")
+                        Image(systemName: "text.page")
                             .font(.system(size: 40))
                             .foregroundStyle(.tint)
-                            .symbolEffect(.bounce, value: step == 3)
+                            .symbolEffect(.bounce, value: step == 4)
                         Text("Wie soll die Notiz entstehen?").font(.title2.bold())
                         Text(NoteWay.onDeviceProvider != nil
                              ? "Dein iPhone kann die Notiz selbst schreiben – ganz ohne Internet."
@@ -106,13 +123,15 @@ struct OnboardingView: View {
                 }
                 NoteWayPicker()
                 Section {
-                    PrimaryButton("Weiter") { step = 4 }
+                    PrimaryButton("Weiter") { step = 5 }
                         .listRowBackground(Color.clear)
                         .listRowInsets(EdgeInsets())
                 }
             }
             .scrollContentBackground(.hidden)
             .toolbarVisibility(.hidden, for: .navigationBar)
+            // Der Schimmer der anderen Seiten soll durchscheinen – sonst legt der Stapel eine weiße Fläche darüber
+            .containerBackground(.clear, for: .navigation)
         }
         .onAppear {
             // Vorschlag je nach Gerät (docs/IPHONE.md, Abschnitt 2), nur beim ersten Mal. Der Mac-Weg greift, sobald
@@ -125,10 +144,27 @@ struct OnboardingView: View {
         }
     }
 
+    /// Bereiche und Voreinstellungen zur Antwort. Die Standardbereiche werden nur ersetzt, solange nichts aufgenommen
+    /// und nichts abgeglichen ist – sonst verschwänden Bereiche auch auf dem Mac. Andernfalls kommen die neuen dazu.
+    private func apply(_ usage: Usage) {
+        library.settings.usage = usage
+        if usage == .school { library.settings.ai.simpleNotes = true }
+        if usage == .work { library.settings.detectSpeakers = true }
+        let templates = CategoryTemplate.suggested(for: usage)
+        let untouched = Set(library.categories.map(\.id)) == Set(RecordingCategory.defaults.map(\.id))
+        if untouched && library.recordings.isEmpty && !library.settings.syncWithCloud {
+            let categories = templates.compactMap { id in CategoryTemplate.all.first { $0.id == id }?.makeCategory() }
+            library.categories = categories
+            library.settings.defaultCategoryID = categories.first?.id
+        } else {
+            _ = library.addCategories(templates: Set(templates), subjects: [])
+        }
+    }
+
     private var done: some View {
-        Page(symbol: "checkmark.seal.fill", effect: .bounce, title: "Fertig",
-             text: "Bitte hole vor jeder Aufnahme das Einverständnis aller Beteiligten ein – in Vorlesungen die Erlaubnis der Lehrperson.") {
-            PrimaryButton("Erste Aufnahme") {
+        Page(symbol: "checkmark.seal.fill", effect: .bounce, title: "Alles bereit",
+             text: "Eine Bitte: Frag vor jeder Aufnahme alle, ob du aufnehmen darfst – in Vorlesungen die Lehrperson.") {
+            PrimaryButton("Loslegen") {
                 library.settings.onboardingCompleted = true
             }
             .disabled(!microphoneAllowed)
@@ -162,13 +198,16 @@ private struct Page<Content: View>: View {
                 .glassEffect(.regular.tint(skin.tint.opacity(0.12)), in: .circle)
                 .accessibilityHidden(true)
                 .padding(.bottom, 8)
+            // Nie abschneiden: Lieber werden die Abstände kleiner (große Schrift, viel Inhalt wie bei der Einstiegsfrage)
             Text(title)
                 .font(.largeTitle.bold())
                 .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
             Text(text)
                 .font(.title3)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
             Spacer()
             VStack(spacing: 14) { content }
             Spacer().frame(height: 56)
@@ -201,6 +240,54 @@ private struct Feature: View {
         } icon: {
             Image(systemName: symbol).foregroundStyle(.tint).frame(width: 28)
         }
+    }
+}
+
+/// Eine Antwort auf „Wofür nutzt du Earnote?“ – Symbol, Titel, was dazugehört
+private struct UsageButton: View {
+    let usage: Usage
+    let action: () -> Void
+    @Environment(\.skin) private var skin
+
+    private var symbol: String {
+        switch usage {
+        case .university: "graduationcap"
+        case .school: "backpack"
+        case .work: "briefcase"
+        }
+    }
+
+    private var detail: LocalizedStringKey {
+        switch usage {
+        case .university: "Vorlesungen und Seminare"
+        case .school: "Unterricht, Oberstufe, Berufsschule"
+        case .work: "Meetings, Calls, Gespräche"
+        }
+    }
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 14) {
+                Image(systemName: symbol)
+                    .font(.title2)
+                    .foregroundStyle(skin.tint)
+                    .frame(width: 32)
+                    .accessibilityHidden(true)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(usage.label).font(.headline).foregroundStyle(.primary)
+                    Text(detail).font(.subheadline).foregroundStyle(.secondary)
+                }
+                .multilineTextAlignment(.leading)
+                .fixedSize(horizontal: false, vertical: true)
+                Spacer(minLength: 0)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .contentShape(.rect)
+        }
+        .buttonStyle(.glass)
+        .controlSize(.large)
+        // Glas färbt die Beschriftung sonst ganz in der Akzentfarbe – Titel sollen schwarz lesbar bleiben
+        .tint(.primary)
     }
 }
 

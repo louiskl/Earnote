@@ -91,7 +91,8 @@ struct RecordingList: View {
                         Section(section.title) {
                             ForEach(section.items) { recording in
                                 NavigationLink(value: recording.id) {
-                                    RecordingRow(recording: recording)
+                                    // Im Bereich selbst wäre sein Name in jeder Zeile doppelt
+                                    RecordingRow(recording: recording, showsCategory: category == nil)
                                 }
                                 .swipeActions {
                                     Button("Löschen", systemImage: "trash", role: .destructive) { pendingDeletion = recording.id }
@@ -171,21 +172,40 @@ private struct WaitingForPowerSection: View {
 /// Eine Zeile: Titel, Zeit und Länge bzw. Stand der Verarbeitung, eine Zeile Vorschau.
 struct RecordingRow: View {
     let recording: Recording
+    var showsCategory = true
     @Environment(LibraryStore.self) private var library
     @Environment(HandoffSender.self) private var handoffs
+    @Environment(\.dynamicTypeSize) private var typeSize
+
+    /// Größte Schrift (Barrierefreiheit): kein Symbol, dafür darf alles umbrechen – wie in Mail und Notizen
+    private var isLarge: Bool { typeSize.isAccessibilitySize }
+
+    private var category: RecordingCategory? { showsCategory ? library.category(recording.categoryID) : nil }
 
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
-            CategoryBadge(category: library.category(recording.categoryID))
+            if !isLarge { CategoryBadge(category: library.category(recording.categoryID)) }
             details
         }
+    }
+
+    private var durationText: String? {
+        guard recording.status != .recording else { return nil }
+        if recording.duration < 1 { return String(localized: "Übersicht") }
+        return Duration.seconds(recording.duration).formatted(.units(allowed: recording.duration < 60 ? Set([.seconds]) : Set([.hours, .minutes]), width: .abbreviated))
     }
 
     private var details: some View {
         VStack(alignment: .leading, spacing: 3) {
             Text(recording.displayTitle)
                 .font(.headline)
-                .lineLimit(2)
+                .lineLimit(isLarge ? 4 : 2)
+            if isLarge {
+                Text([recording.startedAt.formatted(.dateTime.hour().minute()), durationText,
+                      category?.name].compactMap { $0 }.joined(separator: " · "))
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            } else {
             HStack(spacing: 6) {
                 Text(recording.startedAt, format: .dateTime.hour().minute())
                     .fixedSize()
@@ -198,7 +218,7 @@ struct RecordingRow: View {
                         // In schmalen Spalten (iPad-Liste) lieber den Bereich kürzen als die Dauer umbrechen
                         .fixedSize()
                 }
-                if let category = library.category(recording.categoryID) {
+                if let category {
                     Text("·")
                     Text(category.name).lineLimit(1)
                 }
@@ -206,7 +226,9 @@ struct RecordingRow: View {
             .font(.subheadline)
             .foregroundStyle(.secondary)
             .lineLimit(1)
-            status
+            }
+            // Das Symbol vor dem Text wird bei größter Schrift riesig und nimmt dem Text die halbe Zeile
+            if isLarge { status.labelStyle(.titleOnly) } else { status }
         }
         .padding(.vertical, 2)
     }
@@ -217,7 +239,7 @@ struct RecordingRow: View {
             Label("Nimmt auf", systemImage: "record.circle").font(.subheadline).foregroundStyle(.tint)
         case .failed:
             Label(recording.errorMessage ?? String(localized: "Fehler bei der Verarbeitung"), systemImage: "exclamationmark.triangle.fill")
-                .font(.subheadline).foregroundStyle(.orange).lineLimit(2)
+                .font(.subheadline).foregroundStyle(.orange).lineLimit(isLarge ? 6 : 2)
         case let status where status.isBusy:
             ProgressView(value: recording.progress) { Text(status.label).font(.caption) }
         case .waitingForMac:
@@ -230,7 +252,7 @@ struct RecordingRow: View {
             }
         default:
             if let preview = recording.summaryPreview, !preview.isEmpty {
-                Text(preview).font(.subheadline).foregroundStyle(.secondary).lineLimit(2)
+                Text(preview).font(.subheadline).foregroundStyle(.secondary).lineLimit(isLarge ? 3 : 2)
             }
         }
     }
@@ -239,6 +261,9 @@ struct RecordingRow: View {
 /// Aktionen für eine Aufnahme – im Kontextmenü der Liste und im Menü der Notiz
 struct RecordingMenu: View {
     let id: UUID
+    /// In der Notiz steht der Bereich im Titelmenü – dort nicht doppelt
+    var showsCategory = true
+    var showsWindow = true
     var onDelete: () -> Void
     @Environment(LibraryStore.self) private var library
     @Environment(HandoffSender.self) private var handoffs
@@ -246,16 +271,12 @@ struct RecordingMenu: View {
     @Environment(\.openWindow) private var openWindow
 
     var body: some View {
-        if supportsMultipleWindows {
+        if supportsMultipleWindows && showsWindow {
             Button("In neuem Fenster öffnen", systemImage: "macwindow.badge.plus") { openWindow(id: NoteWindow.id, value: id) }
             Divider()
         }
-        Menu("Bereich", systemImage: "folder") {
-            Picker("Bereich", selection: Binding(get: { library.recording(id)?.categoryID },
-                                                 set: { library.setCategory(id, $0) })) {
-                Text("Ohne Bereich").tag(UUID?.none)
-                ForEach(library.categories) { Label($0.name, systemImage: $0.symbol).tag(Optional($0.id)) }
-            }
+        if showsCategory {
+            Menu("Bereich", systemImage: "folder") { CategoryPicker(id: id) }
         }
         if library.recording(id)?.status == .failed {
             Button("Erneut versuchen", systemImage: "arrow.clockwise") { library.enqueue(id) }
@@ -265,6 +286,20 @@ struct RecordingMenu: View {
         }
         Divider()
         Button("Löschen", systemImage: "trash", role: .destructive, action: onDelete)
+    }
+}
+
+/// Bereich einer Aufnahme wählen – im Kontextmenü der Liste und im Titelmenü der Notiz
+struct CategoryPicker: View {
+    let id: UUID
+    @Environment(LibraryStore.self) private var library
+
+    var body: some View {
+        Picker("Bereich", systemImage: "folder", selection: Binding(get: { library.recording(id)?.categoryID },
+                                                                    set: { library.setCategory(id, $0) })) {
+            Text("Ohne Bereich").tag(UUID?.none)
+            ForEach(library.categories) { Label($0.name, systemImage: $0.symbol).tag(Optional($0.id)) }
+        }
     }
 }
 

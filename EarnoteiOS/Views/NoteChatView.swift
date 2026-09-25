@@ -73,11 +73,7 @@ struct NoteChatView: View {
                 }
                 .buttonStyle(.bordered)
             }
-            if !Pro.isUnlocked {
-                Text("Ohne Pro: noch \(Pro.triesLeft(.chat)) kostenlose Gespräche.")
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
-            }
+            ProTriesNote(feature: .chat)
         }
     }
 

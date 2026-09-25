@@ -68,7 +68,7 @@ struct SummarizeAgainSheet: View {
                 Spacer()
                 Button("Abbrechen") { dismiss() }
                     .keyboardShortcut(.cancelAction)
-                Button(fromNote ? "Vereinfachen" : "Neu zusammenfassen") {
+                Button(fromNote ? "Vereinfachen" : "Neu schreiben") {
                     library.setCategory(recordingID, categoryID)
                     library.reprocess(recordingID, retranscribe: retranscribe, instruction: instruction, fromNote: fromNote)
                     dismiss()
