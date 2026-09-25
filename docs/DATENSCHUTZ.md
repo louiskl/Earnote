@@ -31,9 +31,10 @@ Dort steht auch, wie viel Platz sie belegen, und dort löschst du den Ton alter 
    - **„Mit meinem Mac“ am iPhone**: Die Aufnahme (Audio) liegt vorübergehend in deiner privaten iCloud, bis dein
      Mac sie verarbeitet hat; danach löscht der Mac sie dort.
    - eine **Cloud-KI** (Google Gemini, OpenRouter, Claude, OpenAI, Mistral, eigener Server): Dann geht der
-     Transkripttext an diesen Anbieter, nie das Audio. Die App weist in den Einstellungen darauf hin. Bei kostenlosen
-     Angeboten (Googles kostenloses Kontingent, kostenlose Modelle bei OpenRouter) dürfen die Anbieter den Text zum
-     Verbessern ihrer KI verwenden.
+     Transkripttext an diesen Anbieter, nie das Audio. Die App weist in den Einstellungen darauf hin. Google nutzt den
+     Text in der EU, der Schweiz und Großbritannien auch im kostenlosen Kontingent nicht zum Training, anderswo schon;
+     bei kostenlosen Modellen über OpenRouter dürfen die Anbieter ihn dafür verwenden. Google und OpenRouter setzen ein
+     Alter ab 18 Jahren voraus.
    - ein **Export-Ziel** wie Notion: Dann gehen Titel, Notiz und – falls aktiviert – das Transkript dorthin.
 
 Mit der Voreinstellung (KI auf dem Gerät, Markdown-Ordner) verlässt kein Wort aus deinen Aufnahmen das Gerät.
