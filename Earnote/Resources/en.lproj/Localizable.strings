@@ -1546,3 +1546,21 @@
 "Noch nichts für die Klausur" = "Nothing for the Exam Yet";
 "Tippe während der Vorlesung auf „Wichtig“ – auch auf dem Sperrbildschirm. Earnote sammelt hier alles, was die Lehrkraft als prüfungsrelevant betont hat." = "Tap “Important” during the lecture – even on the Lock Screen. Earnote collects everything the lecturer stressed as exam-relevant here.";
 "Klausur-Radar: %@" = "Exam Radar: %@";
+
+/* iPhone: Übersetzen (Earnote Pro) */
+"Übersetzen" = "Translate";
+"Übersetzen …" = "Translate …";
+"Übersetzung" = "Translation";
+"Wird übersetzt …" = "Translating …";
+"Englische Vorlesung, deutsche Notiz – oder umgekehrt. Übersetzt Notiz und ganzes Transkript in 12 Sprachen." = "English lecture, German note – or the other way round. Translates the note and the full transcript into 12 languages.";
+"Ein langes Transkript übersetzt die KI Stück für Stück – mit lokaler KI kann das einige Minuten dauern." = "The AI translates a long transcript piece by piece – with on-device AI this can take a few minutes.";
+"Als Notiz übernehmen" = "Use as Note";
+"Was" = "What";
+"Zum Übersetzen braucht es eine KI auf diesem Gerät. Wähle sie in den Einstellungen unter „So entsteht die Notiz“." = "Translating needs an AI on this device. Choose one in Settings under “How Your Note Is Written”.";
+"Portugiesisch" = "Portuguese";
+"Niederländisch" = "Dutch";
+"Polnisch" = "Polish";
+"Türkisch" = "Turkish";
+"Ukrainisch" = "Ukrainian";
+"Arabisch" = "Arabic";
+"Chinesisch" = "Chinese";

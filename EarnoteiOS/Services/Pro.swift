@@ -11,7 +11,7 @@ enum Pro {
     static let freeTries = 3
 
     enum Feature: String, CaseIterable, Identifiable {
-        case chat, examRadar
+        case chat, examRadar, translate
 
         var id: Self { self }
 
@@ -19,6 +19,7 @@ enum Pro {
             switch self {
             case .chat: "Fragen zur Notiz"
             case .examRadar: "Klausur-Radar"
+            case .translate: "Übersetzen"
             }
         }
 
@@ -26,6 +27,7 @@ enum Pro {
             switch self {
             case .chat: "Frag nach, was du nicht verstanden hast – die KI kennt die Notiz und die passenden Stellen der Aufnahme."
             case .examRadar: "Tippe in der Vorlesung auf „Wichtig“, auch auf dem Sperrbildschirm. Vor der Prüfung siehst du je Fach alles, was drankommt."
+            case .translate: "Englische Vorlesung, deutsche Notiz – oder umgekehrt. Übersetzt Notiz und ganzes Transkript in 12 Sprachen."
             }
         }
 
@@ -33,6 +35,7 @@ enum Pro {
             switch self {
             case .chat: "bubble.left.and.text.bubble.right"
             case .examRadar: "scope"
+            case .translate: "character.bubble"
             }
         }
     }
