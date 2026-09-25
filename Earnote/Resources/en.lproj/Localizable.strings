@@ -1514,3 +1514,24 @@
 "Designs: Retro, Notizbuch und Terminal" = "Designs: Retro, Notebook and Terminal";
 "Farben, Designs und App-Symbole" = "Colors, Designs and App Icons";
 "Retro, Notizbuch, Terminal und mehr unter Einstellungen › Aussehen – als Dankeschön für ein Trinkgeld. Das Earnote-Rot bleibt kostenlos." = "Retro, Notebook, Terminal and more in Settings › Appearance – as a thank-you for a tip. Earnote Red stays free.";
+
+/* iPhone: Earnote Pro, Fragen zur Notiz */
+"Fragen zur Notiz" = "Ask About This Note";
+"Frag nach, was du nicht verstanden hast – die KI kennt die Notiz und die passenden Stellen der Aufnahme." = "Ask about anything you didn’t get – the AI knows the note and the matching parts of the recording.";
+"Einmal kaufen, für immer. Alles, was Earnote heute kann, bleibt kostenlos." = "Buy once, keep forever. Everything Earnote does today stays free.";
+"Das bringt Pro" = "What Pro Adds";
+"Dankeschön-Paket inklusive" = "Thank-You Pack Included";
+"Alle Farben, Designs und App-Symbole." = "All colors, designs and app icons.";
+"Einmalige Zahlung, kein Abo. Gilt auf all deinen Geräten mit derselben Apple-ID und für deine Familie." = "One-time payment, no subscription. Works on all your devices with the same Apple ID and for your family.";
+"Earnote Pro für %@" = "Earnote Pro for %@";
+"Der Kauf hat nicht geklappt. Versuch es noch einmal." = "The purchase didn’t go through. Please try again.";
+"Freigeschaltet" = "Unlocked";
+"Frag nach, was du nicht verstanden hast. Die KI kennt die Notiz und sucht die passenden Stellen der Aufnahme heraus." = "Ask about anything you didn’t get. The AI knows the note and finds the matching parts of the recording.";
+"Erklär mir den schwierigsten Teil einfacher." = "Explain the hardest part more simply.";
+"Was davon kommt wahrscheinlich in der Prüfung?" = "What of this is likely to be on the exam?";
+"Gib mir ein Beispiel dazu." = "Give me an example.";
+"Ohne Pro: noch %lld kostenlose Gespräche." = "Without Pro: %lld free conversations left.";
+"Deine Frage" = "Your question";
+"Für Fragen braucht es eine KI auf diesem Gerät. Wähle sie in den Einstellungen unter „So entsteht die Notiz“." = "Questions need an AI on this device. Choose one in Settings under “How Your Note Is Written”.";
+"In der Notiz" = "In the note";
+"In Notiz übernehmen" = "Add to note";

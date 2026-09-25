@@ -28,24 +28,32 @@ enum TipJar {
     }
 
     static func finish(_ result: VerificationResult<StoreKit.Transaction>) async {
-        if case .verified(let transaction) = result, productIDs.contains(transaction.productID) {
-            UserDefaults.standard.set(true, forKey: supporterKey)
-        }
+        if case .verified(let transaction) = result { apply(transaction) }
         switch result {
         case .verified(let transaction), .unverified(let transaction, _):
             await transaction.finish()
         }
     }
 
-    /// Beim Start und nach „Käufe wiederherstellen“: Hat dieses Apple-Konto schon einmal Trinkgeld gegeben?
+    /// Trinkgeld oder Pro schalten das Dankeschön-Paket frei, Pro zusätzlich die Pro-Funktionen.
+    /// Eine Erstattung nimmt Pro wieder weg; das Dankeschön-Paket bleibt.
+    private static func apply(_ transaction: StoreKit.Transaction) {
+        let defaults = UserDefaults.standard
+        if transaction.productID == Pro.productID {
+            let valid = transaction.revocationDate == nil
+            defaults.set(valid, forKey: Pro.key)
+            if valid { defaults.set(true, forKey: supporterKey) }
+        } else if productIDs.contains(transaction.productID), transaction.revocationDate == nil {
+            defaults.set(true, forKey: supporterKey)
+        }
+    }
+
+    /// Beim Start und nach „Käufe wiederherstellen“: Hat dieses Apple-Konto schon Trinkgeld gegeben oder Pro gekauft?
     /// Dank `SKIncludeConsumableInAppPurchaseHistory` (Info.plist) stehen auch abgeschlossene Trinkgelder in der Historie.
     /// Setzt den Merker nur, nimmt ihn nie weg – ohne Netz ist die Historie womöglich leer.
     static func refreshSupporter() async {
         for await result in StoreKit.Transaction.all {
-            if case .verified(let transaction) = result, productIDs.contains(transaction.productID), transaction.revocationDate == nil {
-                UserDefaults.standard.set(true, forKey: supporterKey)
-                return
-            }
+            if case .verified(let transaction) = result { apply(transaction) }
         }
     }
 }

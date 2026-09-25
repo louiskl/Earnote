@@ -21,6 +21,7 @@ struct RecordingDetailView: View {
     @State private var resummarizing = false
     @State private var correcting = false
     @State private var deck: LearnDeck?
+    @State private var chatting = false
     /// iPad: Transkript neben der Notiz, wie ⌘3 am Mac (eigene Spalte statt `inspector` – der ließ in der
     /// Split-Ansicht die Kopfzeile der Notiz verschwinden)
     @SceneStorage("detail.transcriptBeside") private var transcriptBeside = false
@@ -57,6 +58,9 @@ struct RecordingDetailView: View {
             }
         }
         .sheet(item: $shareFile) { ActivitySheet(url: $0.url).presentationDetents([.medium, .large]) }
+        .sheet(isPresented: $chatting, onDismiss: { Task { await reload() } }) {
+            if let note { NoteChatView(id: id, note: note, transcript: transcript) }
+        }
         .sheet(isPresented: $editingNote) {
             if let note { NoteEditor(id: id, markdown: note.markdown) { Task { await reload() } } }
         }
@@ -191,6 +195,9 @@ struct RecordingDetailView: View {
         ToolbarItemGroup(placement: .topBarTrailing) {
             if sizeClass == .regular, transcript != nil {
                 Toggle("Transkript daneben", systemImage: "sidebar.right", isOn: $transcriptBeside)
+            }
+            if note != nil {
+                Button("Fragen zur Notiz", systemImage: "bubble.left.and.text.bubble.right") { chatting = true }
             }
             if let note {
                 ShareLink(item: "# \(note.title)\n\n\(note.markdown)", subject: Text(note.title)) {
