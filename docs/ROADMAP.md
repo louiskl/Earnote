@@ -1,10 +1,58 @@
 # Earnote – Roadmap
 
-> Stand: 24.09.2026 (0.9.22) · gepflegt vom Architekten · Versionen sind Arbeitsstände, öffentlich wird erst 1.0.
+> Stand: 25.09.2026 (0.9.24) · gepflegt vom Architekten · Versionen sind Arbeitsstände, öffentlich wird erst 1.0.
+> Zielgruppen, Geld, Vertrieb: [STRATEGIE.md](STRATEGIE.md) · Pro-Funktionen im Detail: [PRO.md](PRO.md)
 > Beta läuft: [Releases](https://github.com/louiskl/Earnote/releases) · [Anleitung für Tester](BETA.md)
 > Leitlinien: [DESIGN_GUIDELINES.md](DESIGN_GUIDELINES.md) · Aufbau: [ARCHITECTURE.md](ARCHITECTURE.md)
 
 **Ziel von 1.0:** Eine ausgereifte, native Mac-App, mit der Studierende ohne Technik-Kenntnisse und ohne KI-Abo Vorlesungen, Meetings und Calls mitschreiben lassen – kostenlos, privat, lokal.
+
+## Der rote Faden
+
+**Earnote macht eine Sache sehr gut: Aufnahme rein, verständliche Notiz raus.** Alles andere ist Beiwerk und
+muss sich diesem Weg unterordnen. Wer die App zum ersten Mal öffnet, soll sie ohne Erklärung benutzen können –
+auch nach Pro, Designs und iPad.
+
+### Regeln gegen Überladung (gelten für jede neue Funktion)
+1. **Der Hauptweg bleibt frei.** Aufnehmen → Notiz lesen braucht nie mehr als zwei Tipps. Nichts Neues schiebt
+   sich davor (kein Banner, kein Pflicht-Blatt, kein zusätzlicher Schritt).
+2. **Kein neuer Ort ohne Not.** Drei Tabs am iPhone, eine Seitenleiste am iPad/Mac – das bleibt so. Eine neue
+   Funktion bekommt einen Platz im bestehenden Gerüst (Notiz, Bereich, Aufnahme, Einstellungen), keinen eigenen Tab.
+3. **Da, wo man sie braucht.** Funktionen erscheinen im Zusammenhang (Radar im Bereich, Fragen in der Notiz,
+   „Wichtig“ beim Aufnehmen) – nicht als Liste von Möglichkeiten irgendwo anders.
+4. **Menüs haben eine Obergrenze.** Das Menü „Mehr“ einer Notiz: höchstens 8 Einträge in höchstens 3 Gruppen.
+   Die Symbolleiste einer Ansicht: höchstens 3 Knöpfe. Wer mehr will, muss etwas zusammenfassen oder streichen.
+5. **Einstellungen nur für Entscheidungen, die die meisten einmal treffen.** Gute Standardwerte statt Schalter.
+   Seltenes wandert unter „Weitere Optionen“. Jede neue Einstellung braucht einen Grund, warum ein Standard nicht reicht.
+6. **Pro wirbt leise.** Höchstens ein Hinweis pro Situation, nie während einer Aufnahme, nie als Unterbrechung
+   (`FeedbackMoment`). Gesperrtes zeigt ein Schloss, keine Werbetafel.
+7. **Zwei Fragen vor jedem Feature:** Würde eine Erstnutzerin es vermissen, wenn es fehlt? Was wird dafür
+   einfacher oder fällt weg?
+8. **Aufräum-Stufe nach jeder Funktionswelle.** Nach zwei, drei neuen Funktionen folgt eine Version, die nur
+   ordnet, streicht und vereinfacht – bevor es weitergeht.
+9. **Drei Geräte, ein Stand.** Mac, iPhone und iPad sind *ein* Produkt: eine Versionsnummer, eine Release-Note mit
+   allen drei, gleiche Begriffe in der Oberfläche. Eine neue Funktion kommt auf allen dreien in derselben Version –
+   oder steht mit Grund in der Tabelle „Gleichstand“. Logik gehört in den Kern (`EarnoteCore`), damit jede Plattform
+   nur ihre Oberfläche baut. Eine Version gilt erst als fertig, wenn alle drei gebaut und veröffentlicht sind.
+
+### Gleichstand (Stand 25.09.2026)
+
+Was nicht überall gleich ist – und warum. Jede Zeile ist entweder **Plattform** (geht dort nicht, bleibt so) oder
+**Rückstand** (soll aufholen, mit Ziel-Version).
+
+| Funktion | Mac | iPhone | iPad | Art |
+|---|---|---|---|---|
+| Veröffentlichte Version | 0.9.23 | 0.9.24 (TestFlight) | 0.9.24 (TestFlight) | **Rückstand**: Mac 0.9.24 veröffentlichen |
+| Pro: Sprecher, Fragen, „Wichtig“ + Klausur-Radar, Übersetzen | – | ✅ | ✅ | **Rückstand**: am Mac frei geben (Vorschlag, Offene Entscheidungen), vor Mac 1.0 |
+| Dankeschön-Paket (Designs, App-Symbole) | – | ✅ | ✅ | offen: am Mac frei oder weglassen |
+| Live-Mitschrift während der Aufnahme | ✅ | – | – | **Rückstand**: iPhone/iPad (IPHONE.md, 1.2) |
+| Transkription | Whisper | Apple-Spracherkennung | Apple-Spracherkennung | Plattform (Whisper auf M-iPads: IPAD.md P3, nach Bedarf) |
+| Systemton, Call-Erkennung, Menüleiste | ✅ | – | – | Plattform |
+| Apple Notizen, Bear, Craft, Things als Ziel | ✅ | Teilen-Menü | Teilen-Menü | Plattform (nur per AppleScript) |
+| Live-Aktivität, Action-Taste, Widgets | – | ✅ | teils | Plattform |
+| Oberflächensprachen | DE, EN | DE, EN | DE, EN | gleich – neue Sprachen immer auf allen dreien |
+
+---
 
 ## Überblick
 
@@ -35,10 +83,14 @@
 | 4n | Englische Oberfläche vollständig (≈90 Texte), Call-Erkennung im Browser, „Earnote unterstützen“ | 0.9.22 | ✅ fertig |
 | **Beta** | **Zwei Wochen mit Kommilitonen, danach 1.0** | 0.9.13–0.9.22 | ▶ **läuft seit 22.09.2026** |
 | 5 | Launch: Website, Demo-Video, Homebrew, Beta mit Kommilitonen, Markenrecherche | 1.0 RC | ▶ teils fertig (Website, Homebrew, Updates) |
-| 🚀 | **Launch Earnote 1.0 für Mac** | 1.0 | |
-| 6 | iPad eigenständig, iPhone als Begleit-App, iCloud-Sync | 1.1 | nach Launch |
-| 7 | Mac App Store prüfen (Sandbox), Kurs-Gruppen teilen | 1.2 | nach Launch |
-| 8 | Geschäftsmodell: kostenlos für Menschen, kostenpflichtig für Organisationen, nie ein Server | – | nach 1.0 |
+| 6a | iPhone-App: Aufnahme, Notiz, Export-Ziele, Abgleich mit dem Mac (Weg B), TestFlight | 0.9.22–0.9.23 | ✅ fertig |
+| 6b | iPad: Seitenleiste, Liste und Notiz nebeneinander, Menüleiste, Tastenkürzel, Fenster | 0.9.23 | ✅ fertig (Test auf M1-iPads läuft) |
+| 6c | Dankeschön-Paket (Farben, Designs, App-Symbole), „Neu in Earnote“, Bewertung, **Earnote Pro** (Sprecher, Fragen, Klausur-Radar, Übersetzen) | 0.9.24 | ✅ gebaut, ▶ Test auf dem iPhone |
+| **7** | **Prüfen und aufräumen** – 0.9.24 auf Geräten testen, Menüs und Einstellungen ordnen, Einstiegsfrage „Wofür nutzt du Earnote?“ | 0.9.25 | ▶ als Nächstes |
+| 🚀 | **Launch: Mac 1.0 + iPhone/iPad im App Store** | 1.0 / 1.1 | Semesterstart |
+| 8 | Pro, zweite Welle – nur nach Aufräumen und Launch, eine Funktion nach der anderen | 1.2+ | geplant |
+| 9 | Mac App Store prüfen (Sandbox), Kurs-Gruppen teilen | später | nach Launch |
+| 10 | Organisationen: Lizenz für Kanzleien, Praxen, Firmen – nie ein Server | – | auf Zuruf |
 
 ---
 
@@ -377,7 +429,7 @@ Erst wenn alle drei Blöcke stehen, wird aus 0.9.x die 1.0 – und erst danach b
 - [x] **5–10 Kommilitonen angeschrieben (22.09.2026)** – echte Vorlesungen, [Anleitung](BETA.md) verteilt
 - [ ] Rückmeldungen einarbeiten, danach 1.0
 
-## Phase 6 – iPad & iPhone (1.1)
+## ✅ Phase 6 – iPad & iPhone (0.9.22–0.9.23, im App Store als 1.1)
 
 > **24.09.2026: Start des iPhone-Plans parallel zur Beta beschlossen** (Nutzer). Plan, Funktionsliste,
 > Onboarding und Architektur: **[IPHONE.md](IPHONE.md)**. Die Mac-Beta hat weiter Vorrang. iPad: **[IPAD.md](IPAD.md)** (Entwurf).
@@ -404,11 +456,93 @@ heute für iOS – das bleibt die Eintrittskarte, und der iOS-Build läuft bei j
       Gleichstand die kleinste ID) – sonst löschte jeder den des anderen. Standardbereiche haben jetzt
       feste IDs. Läuft nur mit eingeschaltetem Sync. Am echten Mac-Paar noch nachzuweisen.
 - [x] **iOS-App auf demselben Kern (24.09.2026)**: eigenes Projekt `EarnoteiOS.xcodeproj` (`scripts/generate_ios_xcodeproj.py`), baut mit EarnoteCore, WhisperKit und MLX, Grundgerüst läuft im Simulator
-- [ ] **iPad eigenständig** (M-Chip): Whisper + lokales Modell auf dem Gerät, „Increased Memory Limit“
-- [ ] **iPhone als Begleit-App**: nimmt auf, Mac verarbeitet, fertige Notiz wieder auf dem iPhone
-- [ ] Oberfläche für iPad und iPhone
+- [x] **iPhone-App** (24./25.09.2026): Aufnahme mit Sperrbildschirm und Live-Aktivität, Notiz auf dem Gerät, mit dem Mac
+      (Weg B, per Push) oder mit Google/OpenRouter; Export-Ziele wie am Mac; TestFlight
+- [x] **iPad-Oberfläche** (25.09.2026): Seitenleiste, Liste und Notiz nebeneinander, Menüleiste, Tastenkürzel, Fenster ([IPAD.md](IPAD.md))
+- [ ] **iPad auf M-Chip testen** (lokales Modell, 30+ Minuten, Stage Manager) – M1-Tester über TestFlight
+- [ ] Whisper auf M-iPads (IPAD.md P3) – nur, wenn die Tester es brauchen
 
-## Phase 7 – Nach dem Launch (1.2)
+## ✅ Phase 6c – Dankeschön-Paket und Earnote Pro (0.9.24)
+
+> Entschieden 25.09.2026 (Nutzer). Details: [PRO.md](PRO.md), Strategie: [STRATEGIE.md](STRATEGIE.md) Abschnitt 2.
+
+- [x] **Dankeschön-Paket** für jedes Trinkgeld: 4 Farben, 3 Designs (Retro, Notizbuch, Terminal), 8 App-Symbole
+      (u. a. Regenbogen) – Einstellungen › Aussehen; das Earnote-Rot bleibt kostenlos
+- [x] **„Neu in Earnote“** einmal je Version, **Apples Bewertungsdialog** ab 3 Notizen, Dankeschön-Paket höchstens
+      monatlich – nie während einer Aufnahme (`FeedbackMoment`)
+- [x] **Earnote Pro** (9,99 € einmalig, Familienfreigabe, 3 Probeversuche je Funktion): Sprechererkennung auf dem
+      Gerät, Fragen zur Notiz, „Wichtig“-Knopf + Klausur-Radar, Übersetzen
+- [ ] Auf dem iPhone prüfen: Kauf (Sandbox), Sprecher mit 2–3 echten Stimmen (Dauer, Akku), Fragen und Übersetzen
+      mit echter KI, „Wichtig“ auf dem Sperrbildschirm
+- [ ] Mac: Pro gibt es dort nicht (kein App Store, keine In-App-Käufe) – offen, ob die Funktionen am Mac frei
+      kommen oder erst mit dem Mac App Store (Offene Entscheidungen)
+
+## Phase 7 – Prüfen und aufräumen (0.9.25)
+
+**Warum jetzt:** In zwei Tagen kamen iPad, Designs, Pro und vier neue Funktionen dazu. Bevor irgendetwas Neues
+kommt, wird geordnet (Regel 8). Ziel: Eine Erstnutzerin findet sich sofort zurecht, Fortgeschrittene finden alles.
+
+**Bestandsaufnahme (Stand 0.9.24, iPhone)**
+| Ort | Heute | Problem |
+|---|---|---|
+| Notiz › Mehr | ~15 Einträge: PDF, Karteikarten ×2, Anki, Bearbeiten, Begriffe korrigieren, KI-Fassung, Übersetzen, Sprecher, Vereinfachen, Neu zusammenfassen, Umbenennen, Bereich, Fenster, Löschen | über der Grenze von 8 (Regel 4) |
+| Einstellungen | So entsteht die Notiz · Mac · Aufnahme (6 Zeilen) · Export · Akku · Earnote Pro · Aussehen/Unterstützen · Über | lang, Pro und Aussehen verstreut |
+| Symbolleiste der Notiz | Fragen · Teilen · Mehr (+ iPad: Transkript daneben) | ok |
+| Aufnahme-Blatt | Wichtig · Pause · Stopp | ok |
+
+**Aufräumen**
+- [ ] **Notiz-Menü neu ordnen:** drei Gruppen – *Lernen* (Lernzettel, Karteikarten, Übersetzen) · *Bearbeiten*
+      (Bearbeiten, Begriffe & Sprecher, Neu schreiben …) · *Aufnahme* (Umbenennen, Bereich, Löschen). „Vereinfachen“,
+      „Neu zusammenfassen“ und „Auf KI-Fassung zurücksetzen“ werden **ein** Eintrag „Neu schreiben …“ mit Auswahl.
+      „Namen & Begriffe korrigieren“ und „Sprecher benennen“ werden **ein** Eintrag „Namen korrigieren …“.
+- [ ] **Einstellungen kürzen:** oben nur *So entsteht die Notiz*, *Aufnahme*, *Export*. Darunter eine Gruppe
+      *Earnote* mit Pro, Aussehen, Unterstützen, Über. *Akku* und *Mac* unter „Weitere Optionen“, sobald eingerichtet.
+- [ ] **Einstiegsfrage im Onboarding: „Wofür nutzt du Earnote?“** – Uni · Schule · Arbeit/Meetings. Setzt passende
+      Bereiche, Notiz-Stil und blendet Unpassendes aus (Klausur-Radar nur bei Uni/Schule, Sprechererkennung
+      vorgeschlagen bei Meetings). Später änderbar. Der stärkste Hebel gegen Überladung: Jede Gruppe sieht nur ihres.
+- [ ] Rückmeldungen der TestFlight-Tester und der M1-iPad-Tester einarbeiten
+- [ ] Review nach DESIGN_GUIDELINES Abschnitt 28 + 30 über **alle** Blätter (Pro, Chat, Übersetzen, Radar)
+
+## 🚀 Launch – Mac 1.0 und iPhone/iPad im App Store
+
+- [ ] App-Store-Einreichung iPhone + iPad (Texte: [APPSTORE.md](APPSTORE.md)); Trinkgelder und Earnote Pro
+      gehen mit der Version zur Prüfung (Screenshot des Pro-Hinweises für die Prüfinformationen)
+- [ ] iPad-Screenshots von den M1-Testern
+- [ ] Mac 1.0 nach der Beta (Phase 5)
+- [ ] Website und README: App-Store-Link statt TestFlight
+- [ ] App-Store-Eintrag zusätzlich auf Spanisch (auch Mexiko, zählt für die US-Suche), Französisch, Italienisch –
+      Texte fertig in [APPSTORE.md](APPSTORE.md) „Weitere Sprachen“; die Oberfläche bleibt dort Englisch
+
+## Mehr Sprachen (nach 0.9.25)
+
+**Warum:** Am iPhone läuft die Suche im App Store je Sprache – jede Sprache ist ein eigener Markt.
+**Reihenfolge:** 1. App-Store-Eintrag (zum Launch, oben) · 2. Oberfläche auf Spanisch, Französisch, Italienisch –
+erst nach dem Aufräumen in 0.9.25, sonst wird doppelt übersetzt, und **gleichzeitig auf Mac, iPhone und iPad** (Regel 9)
+· 3. je Sprache eine echte Vorlesung durch die ganze Kette (Transkript, Notiz, Karteikarten) prüfen, bevor die Sprache
+beworben wird · 4. weitere Sprachen nur nach den Aufrufen je Land in App Store Connect.
+- [ ] Portugiesisch fehlt noch in Spracherkennung und „Sprache der Notiz“ – erst ergänzen und prüfen, dann eintragen
+
+## Phase 8 – Pro, zweite Welle (1.2+)
+
+Erst nach Aufräumen und Launch, **eine Funktion nach der anderen**, jede mit festem Platz (Regel 2 und 3).
+Sortiert nach „würden Leute dafür zahlen“ und Aufwand:
+
+| # | Funktion | Für wen | Platz in der App | Aufwand |
+|---|---|---|---|---|
+| 1 | **Protokoll verschicken** – Aufgaben je Person (aus den erkannten Sprechern), ein Tipp schickt es an alle; „erstellt mit Earnote“ wirbt mit | Arbeit, Lerngruppen | Teilen-Menü der Notiz | klein |
+| 2 | **Vorlesung zum Anhören** – die Notiz als 5-Minuten-Podcast, Stimme vom Gerät, offline | alle, v. a. Pendler | Abspielleiste der Notiz | klein–mittel |
+| 3 | **Probeklausur mit Korrektur** – aus allen Vorlesungen eines Bereichs, Antworten getippt oder gesprochen, KI korrigiert mit Verweis auf die Vorlesung | Uni, Schule | Klausur-Radar | mittel |
+| 4 | **Lernplan bis zur Klausur** – Klausurtermin eintragen, Karteikarten mit wachsenden Abständen, täglich „8 Karten für heute“ | Uni, Schule | Bereich (Klausurtermin), Mitteilung | mittel |
+| 5 | **Apple Watch** – Aufnahme starten und „Wichtig“ am Handgelenk | Uni | eigene Watch-App, sonst nichts Neues | mittel |
+| 6 | **Live-Untertitel** – Text läuft während der Aufnahme mit, „30 s zurück“ (Mac hat Live-Transkription schon) | internationale und schwerhörige Studierende | Aufnahme-Blatt | mittel |
+
+Weitere Ideen (ohne Reihenfolge): Folien/Skript (PDF) importieren, damit die KI Fachbegriffe kennt und auf
+Folienseiten verweist · Semester-Rückblick als teilbares Bild · Lernzettel-Designs fürs PDF (Cornell, kompakt).
+
+**Was nie Pro wird:** Aufnehmen, Transkript, Notiz, Export, Abgleich, PDF-Lernzettel, Karteikarten – alles, was
+heute kostenlos ist (entschieden 25.09.2026).
+
+## Phase 9 – Später (Mac App Store, Kurs-Gruppen)
 
 **Mac App Store prüfen** – erst nach 1.0, mit offenem Ausgang. Was dagegen spricht:
 - Die Sandbox verlangt für den Systemton (Core-Audio-Process-Tap) und für AppleScript zu Apple Notizen,
@@ -420,7 +554,10 @@ heute für iOS – das bleibt die Eintrittskarte, und der iOS-Build läuft bei j
 **Kurs-Gruppen**
 - [ ] Bereich mit Kommilitonen teilen (iCloud-Freigabe, nur Apple-Geräte)
 
-## Phase 8 – Geschäftsmodell (nach 1.0, nicht früher)
+## Phase 10 – Organisationen (nach 1.0, auf Zuruf)
+
+> **Stand 25.09.2026:** Für Einzelne gibt es inzwischen **Earnote Pro** am iPhone/iPad (Phase 6c) – zusätzliche
+> Funktionen, nichts Bestehendes wird gesperrt. Der folgende Abschnitt gilt weiter für Organisationen.
 
 **Der Satz, auf den alles hinausläuft:** Eine Mac-App. Für Menschen kostenlos, für Organisationen
 kostenpflichtig. **Niemals ein Server.**
@@ -435,10 +572,8 @@ netter Zusatz, sondern die Bedingung, unter der sie so etwas überhaupt einsetze
 
 ### Keine beschnittene Fassung
 
-Funktionen werden **nicht** aufgeteilt. Sprecher mit Namen oder Aufgaben mit Verantwortlichen helfen
-auch in einer Lerngruppe – so etwas künstlich wegzusperren verärgert genau die Leute, die die App
-weiterempfehlen. Bezahlt wird der **kommerzielle Einsatz** und das, was ausschließlich Organisationen
-brauchen:
+Was heute kostenlos ist, bleibt es. Einzelne bezahlen für zusätzliche Funktionen (Earnote Pro, Phase 6c);
+Organisationen bezahlen den **kommerziellen Einsatz** und das, was ausschließlich sie brauchen:
 
 - Verteilung per MDM (`.pkg` für Jamf/Intune)
 - Vorgaben per Konfigurationsprofil, vom Nutzer nicht änderbar – vor allem: **Cloud-KI zentral sperren**
@@ -472,7 +607,7 @@ es wäre keine Portierung, sondern ein zweites Produkt: WhisperKit läuft auf Co
 auf MLX, die Oberfläche in SwiftUI – nichts davon existiert außerhalb von Apple. Eine Windows-Fassung
 hieße whisper.cpp, llama.cpp und eine neue Oberfläche, also Monate, in denen die Mac-App stillsteht.
 
-Reihenfolge: **erst iPad und iPhone** (gleicher Kern, gleiches Ökosystem, Phase 6), danach neu
+Reihenfolge: **erst iPad und iPhone** (gleicher Kern, gleiches Ökosystem, Phase 6 – läuft), danach neu
 bewerten. Ein Zwischenweg wäre eine schlanke Windows-Begleitung, die nur aufnimmt und die Datei einem
 Mac zur Verarbeitung gibt – das ist der Punkt, an dem es sich lohnen könnte, zuerst nachzudenken.
 
@@ -494,7 +629,7 @@ Mac zur Verarbeitung gibt – das ist der Punkt, an dem es sich lohnen könnte, 
 E-Mail aus einer Kanzlei, Praxis oder IT-Abteilung. Bis dahin gilt: Nachfragen sammeln, nichts bauen.
 
 ## Später / Ideen
-- Echte Sprechererkennung (Sprecher 1/2/3) statt „Ich / Andere“
+- Sprechererkennung auch am Mac (FluidAudio läuft dort schon, Phase 6c) – statt „Ich / Andere“
 - Weitere Ziele: Google Docs, OneNote, Anytype, Webhooks; Notion-Anmeldung ohne Token
 - Öffentlicher Link zum Teilen einer Notiz
 - Ältere iPads ohne M-Chip (über den Mac oder einen eigenen API-Schlüssel)
@@ -512,7 +647,10 @@ E-Mail aus einer Kanzlei, Praxis oder IT-Abteilung. Bis dahin gilt: Nachfragen s
 | Start von iPad/iPhone | **iPhone: Planung ab 24.09.2026 parallel zur Beta** ([IPHONE.md](IPHONE.md)); Bauen nach Freigabe des Plans, Mac-Beta hat Vorrang. iPad danach mit eigenem Plan | laufend |
 | Mac App Store | **Vorerst nein.** Direkt-Download plus Homebrew deckt die Zielgruppe ab; die Sandbox würde Systemton und Export einschränken. Nach 1.0 neu bewerten | nach 1.0 |
 | Windows/Linux | **Zurückgestellt.** Kein Port, sondern ein zweites Produkt (CoreML, MLX, SwiftUI gibt es dort nicht). Erst iPad/iPhone, danach neu bewerten – zuerst denkbar: schlanke Windows-Begleitung, die nur aufnimmt | nach 1.1 |
-| Geld verdienen | **Nie ein Abo.** Für Menschen kostenlos und vollständig nutzbar; Geld aus Spenden (Ko-fi, GitHub Sponsors, am iPhone Trinkgeld per In-App-Kauf) und optionalen Einmalkäufen für Extras (24.09.2026). Pro-Lizenz für Organisationen bleibt Idee (Phase 8). Kein Server, keine Konten | laufend |
+| Geld verdienen | ✅ **entschieden 25.09.2026:** Nie ein Abo. Alles Heutige bleibt kostenlos. Trinkgeld (3 Stufen) schaltet das Dankeschön-Paket frei; **Earnote Pro 9,99 € einmalig** für zusätzliche Funktionen (iPhone/iPad). Organisationen: Phase 10. Kein Server, keine Konten | ✅ |
+| Pro am Mac | Offen. Vorschlag: die Pro-Funktionen am Mac **frei** lassen (DMG, Open Source – ein Lizenzsystem lohnt nicht) und dort weiter auf Ko-fi/Sponsors setzen; neu bewerten, falls der Mac in den App Store geht | vor Mac 1.0 |
+| Versionsnummer zum Launch | Vorschlag: **alle drei starten als 1.0** statt Mac 1.0 / iPhone 1.1 (Regel 9) – ein Produkt, eine Nummer | vor der Einreichung |
+| Einstiegsfrage „Wofür nutzt du Earnote?“ | Ja – in Phase 7, als Hebel gegen Überladung | 0.9.25 |
 | Lokales Standardmodell | Qwen3 4B auf allen Macs (Modellvergleich 23.09.2026) | ✅ entschieden |
 
 ## Erledigte Entscheidungen (Auszug)
