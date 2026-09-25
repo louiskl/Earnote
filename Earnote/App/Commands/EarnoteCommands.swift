@@ -76,6 +76,12 @@ struct EarnoteCommands: Commands {
             Button("Namen korrigieren …") { window?.noteActions.correctTerms() }
                 .disabled(recording?.summaryTitle == nil || busy)
             Divider()
+            Button("Fragen zur Notiz …") { window?.noteActions.ask() }
+                .keyboardShortcut("k", modifiers: [.command, .shift])
+                .disabled(recording?.summaryTitle == nil || busy)
+            Button("Übersetzen …") { window?.noteActions.translate() }
+                .disabled(recording?.summaryTitle == nil || busy)
+            Divider()
             Button("Neu schreiben …") { window?.noteActions.summarizeAgain() }
                 .disabled(recording == nil || busy)
             Button("Neu transkribieren") { if let id { library.reprocess(id, retranscribe: true) } }

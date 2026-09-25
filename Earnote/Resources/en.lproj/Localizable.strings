@@ -1631,3 +1631,8 @@
 "Die kostenlosen Versuche sind aufgebraucht." = "You've used up the free tries.";
 "Earnote Pro ansehen" = "See Earnote Pro";
 "Notiz schreiben" = "Write Note";
+
+/* Mac: Pro-Funktionen */
+"Dafür braucht es eine KI. Wähle in den Einstellungen unter „KI“, wer die Notizen schreibt." = "This needs an AI. Choose who writes your notes in Settings under “AI”.";
+"Ersetzt die Notiz. „Auf KI-Fassung zurücksetzen“ holt die bisherige zurück." = "Replaces the note. “Restore AI Version” brings the previous one back.";
+"Fragen zur Notiz …" = "Ask About Note …";

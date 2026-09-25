@@ -125,6 +125,8 @@ struct MainWindow: View {
                 switch sheet {
                 case .summarizeAgain: SummarizeAgainSheet(recordingID: id)
                 case .correctTerms: CorrectTermSheet(recordingID: id)
+                case .ask: NoteChatSheet(recordingID: id)
+                case .translate: TranslationSheet(recordingID: id)
                 }
             }
         }
@@ -218,7 +220,9 @@ struct MainWindow: View {
                     },
                     summarizeAgain: { noteSheet = .summarizeAgain },
                     correctTerms: { noteSheet = .correctTerms },
-                    restoreGenerated: { if let id = selection.wrappedValue { library.restoreGeneratedNote(id) } })
+                    restoreGenerated: { if let id = selection.wrappedValue { library.restoreGeneratedNote(id) } },
+                    ask: { noteSheet = .ask },
+                    translate: { noteSheet = .translate })
     }
 
     #if DEBUG
@@ -250,6 +254,8 @@ struct MainWindow: View {
             case "edit": if let id = library.recordings.first?.id { noteActions.edit(id) }
             case "summarize": noteActions.summarizeAgain()
             case "correct": noteActions.correctTerms()
+            case "ask": noteActions.ask()
+            case "translate": noteActions.translate()
             case "pdf":
                 // Nur Debug: PDF erzeugen und den Pfad ins Protokoll schreiben
                 if let id = selection.wrappedValue, let url = await NoteDocument.temporaryPDF(id, library: library) {

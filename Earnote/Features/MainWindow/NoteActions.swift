@@ -9,6 +9,8 @@ struct NoteActions {
     var summarizeAgain: () -> Void = {}
     var correctTerms: () -> Void = {}
     var restoreGenerated: () -> Void = {}
+    var ask: () -> Void = {}
+    var translate: () -> Void = {}
 }
 
 extension EnvironmentValues {
@@ -17,7 +19,7 @@ extension EnvironmentValues {
 
 /// Blätter, die das Hauptfenster über der Notiz zeigt
 enum NoteSheet: String, Identifiable {
-    case summarizeAgain, correctTerms
+    case summarizeAgain, correctTerms, ask, translate
     var id: String { rawValue }
 }
 

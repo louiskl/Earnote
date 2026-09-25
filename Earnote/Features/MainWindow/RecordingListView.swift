@@ -147,6 +147,11 @@ struct RecordingActionItems: View {
         Button("Namen korrigieren …", action: noteActions.correctTerms)
             .disabled(!hasNote || busy)
         Divider()
+        Button("Fragen zur Notiz …", action: noteActions.ask)
+            .disabled(!hasNote || busy)
+        Button("Übersetzen …", action: noteActions.translate)
+            .disabled(!hasNote || busy)
+        Divider()
         Button("Neu schreiben …", action: noteActions.summarizeAgain)
             .disabled(recording == nil || busy)
         Button("Neu transkribieren") { library.reprocess(recordingID, retranscribe: true) }

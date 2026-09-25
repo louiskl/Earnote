@@ -247,6 +247,20 @@ private struct NoteEditor: View {
 }
 
 
+/// Markdown nur zum Lesen (Antworten, Übersetzungen, Klausur-Radar) – dieselbe Darstellung wie die Notiz
+struct ReadOnlyNoteText: View {
+    let markdown: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            ForEach(NoteMarkdown.blocks(markdown)) { block in
+                NoteBlockView(block: block, searchText: "", onToggleTask: { _ in })
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+}
+
 /// Abschnitte gliedern die Notiz durch Abstand, ohne den Fließtext einzurahmen.
 private struct NoteSection: Identifiable {
     let id: Int
@@ -319,6 +333,7 @@ private struct NoteFooterActions: View {
     let recording: LibraryRecording
     let edit: () -> Void
     @State private var simplifying = false
+    @Environment(\.noteActions) private var noteActions
 
     private var makingCards: Bool { library.makingFlashcards.contains(recording.id) }
     private var busy: Bool { recording.isBusy || makingCards || recording.status == .recording }
@@ -328,6 +343,8 @@ private struct NoteFooterActions: View {
             Divider()
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 165), alignment: .leading)],
                       alignment: .leading, spacing: 8) {
+                Button("Fragen zur Notiz", systemImage: "bubble.left.and.text.bubble.right", action: noteActions.ask)
+                    .disabled(busy || library.settings.ai.provider == .none)
                 Button("Bearbeiten", systemImage: "pencil", action: edit)
                     .disabled(busy)
                 Button("Karteikarten erzeugen", systemImage: "rectangle.on.rectangle") {
