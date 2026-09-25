@@ -66,6 +66,12 @@ struct SettingsSheet: View {
                 // Kein Spendenlink am iPhone: Apple lässt Trinkgeld nur als In-App-Kauf zu
                 if !tips.isEmpty { TipSection(products: tips) }
                 Section {
+                    // Mundpropaganda ist der wichtigste Weg zu neuen Nutzern (docs/STRATEGIE.md) – sobald die App im
+                    // App Store ist, hier den App-Store-Link statt der Website teilen
+                    ShareLink(item: AppInfo.website,
+                              message: Text("Kennst du Earnote? Die App nimmt Vorlesungen auf und schreibt die Mitschrift – mit Karteikarten und Lernzettel als PDF. Kostenlos und ohne Konto, für iPhone und Mac.")) {
+                        Label("Earnote empfehlen", systemImage: "heart.text.square")
+                    }
                     Link(destination: AppInfo.website) { Label("earnote.dev", systemImage: "safari") }
                     LabeledContent("Version", value: Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "–")
                 } header: {
