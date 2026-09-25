@@ -22,7 +22,9 @@ enum DemoLibrary {
     static func fill(library: LibraryStore, repository: any LibraryRepository, audio: any AudioStore, force: Bool = false) async {
         guard isRequested || force, (try? await repository.recordings())?.isEmpty == true else { return }
         let areas = areas(english: english)
-        if library.categories.count < areas.count { library.categories = areas }
+        // Nach dem ersten Start stehen schon die Standardbereiche da (fünf, mehr als die vier Beispielbereiche) –
+        // deshalb nach Namen prüfen, nicht nach Anzahl. Die Bibliothek ist leer, ersetzen schadet nichts.
+        if !areas.allSatisfy({ area in library.categories.contains { $0.name == area.name } }) { library.categories = areas }
         // Erst weitermachen, wenn die Bereiche wirklich in der Datenbank stehen – sonst findet die
         // erste Aufnahme ihren Bereich nicht und steht als „Ohne Bereich“ da.
         await library.waitForPendingWrites()
