@@ -284,3 +284,99 @@ struct TranslationSheet: View {
         }
     }
 }
+
+/// Klausur-Radar: alles Prüfungsrelevante eines Bereichs auf einer Seite – die Abschnitte „Wichtig für die Klausur“
+/// bzw. „Prüfungshinweise“ aller Notizen, neueste Vorlesung zuerst. Ohne KI-Anfrage.
+struct ExamRadarSheet: View {
+    let categoryID: UUID
+    /// Notiz im Hauptfenster zeigen
+    let onOpen: (UUID) -> Void
+    @Environment(LibraryStore.self) private var library
+    @Environment(\.dismiss) private var dismiss
+    @State private var notes: [(id: UUID, title: String, date: Date, items: [String])] = []
+    @State private var loaded = false
+
+    private var categoryName: String { library.category(categoryID)?.name ?? "" }
+
+    var body: some View {
+        VStack(spacing: 0) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Klausur-Radar · \(categoryName)").font(.title3.bold())
+                Text("Alles, was in deinen Notizen als prüfungsrelevant gilt – dazu, was du mit „Wichtig“ markiert hast. Neueste Vorlesung zuerst.")
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(16)
+            Divider()
+            Group {
+                if !loaded {
+                    ProgressView().frame(maxWidth: .infinity, maxHeight: .infinity)
+                } else if notes.isEmpty {
+                    ContentUnavailableView {
+                        Label("Noch nichts für die Klausur", systemImage: "scope")
+                    } description: {
+                        Text("Markiere während der Vorlesung Stellen als wichtig (⇧⌘I oder in der Menüleiste). Earnote sammelt hier alles, was als prüfungsrelevant gilt.")
+                    }
+                } else {
+                    List {
+                        ForEach(notes, id: \.id) { note in
+                            Section {
+                                ForEach(note.items, id: \.self) { ReadOnlyNoteText(markdown: $0) }
+                            } header: {
+                                HStack(alignment: .firstTextBaseline) {
+                                    Button(note.title) { onOpen(note.id); dismiss() }
+                                        .buttonStyle(.link)
+                                        .help("Notiz öffnen")
+                                    Spacer()
+                                    Text(note.date, format: .dateTime.day().month()).foregroundStyle(.secondary)
+                                }
+                            }
+                        }
+                    }
+                    .listStyle(.inset)
+                }
+            }
+            Divider()
+            HStack {
+                if !notes.isEmpty {
+                    ShareLink(item: ExamRadar.markdown(title: String(localized: "Klausur-Radar: \(categoryName)"),
+                                                       notes: notes.map { ($0.title, $0.items) })) {
+                        Label("Teilen", systemImage: "square.and.arrow.up")
+                    }
+                }
+                Spacer()
+                Button("Fertig") { dismiss() }.keyboardShortcut(.cancelAction)
+            }
+            .padding(12)
+        }
+        .frame(width: 600, height: 560)
+        .navigationTitle("Klausur-Radar")
+        .task { await load() }
+    }
+
+    private func load() async {
+        var found: [(id: UUID, title: String, date: Date, items: [String])] = []
+        let recordings = library.recordings
+            // Übersichten (ohne Ton) wiederholen nur, was in den Vorlesungen steht
+            .filter { $0.categoryID == categoryID && $0.status == .done && $0.duration >= 1 }
+            .sorted { $0.startedAt > $1.startedAt }
+        for recording in recordings {
+            guard let note = await library.summary(recording.id) else { continue }
+            let items = ExamRadar.items(in: note.markdown)
+            if !items.isEmpty { found.append((recording.id, note.title, recording.startedAt, items)) }
+        }
+        notes = found
+        loaded = true
+    }
+}
+
+extension View {
+    /// Klausur-Radar als Blatt über dem Hauptfenster (eigener Baustein, damit der Fensteraufbau übersichtlich bleibt)
+    func examRadarSheet(categoryID: Binding<UUID?>, onOpen: @escaping (UUID) -> Void) -> some View {
+        sheet(item: Binding(get: { categoryID.wrappedValue.map(IdentifiableID.init) },
+                            set: { categoryID.wrappedValue = $0?.id })) { wrapped in
+            ExamRadarSheet(categoryID: wrapped.id, onOpen: onOpen)
+        }
+    }
+}

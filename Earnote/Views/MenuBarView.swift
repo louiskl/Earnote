@@ -58,6 +58,10 @@ struct MenuBarView: View {
             if recorder.isRecording {
                 LiveSummary(meter: recorder.meter, isPaused: recorder.isPaused,
                             categoryName: activeCategoryName)
+                Button(recorder.importantMarks > 0 ? "Wichtig (\(recorder.importantMarks))" : "Als wichtig markieren",
+                       systemImage: "exclamationmark.bubble", action: recorder.markImportant)
+                    .disabled(recorder.isPaused)
+                    .help("Diese Stelle kommt als „Wichtig für die Klausur“ in die Notiz")
                     .tint(activeCategory?.tint ?? .accentColor)
                     .environment(\.categoryTint, activeCategory?.tint ?? .accentColor)
             } else {

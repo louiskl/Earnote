@@ -47,6 +47,12 @@ struct RecordingStageView: View {
                    action: recorder.togglePause)
             Button("Stopp", systemImage: "stop.fill", action: recorder.stopRecording)
                 .tint(.red)
+            // Wie am iPhone: die Stelle landet als „Wichtig für die Klausur“ in der Notiz
+            Button(recorder.importantMarks > 0 ? "Wichtig (\(recorder.importantMarks))" : "Wichtig",
+                   systemImage: "exclamationmark.bubble", action: recorder.markImportant)
+                .disabled(isPaused)
+                .help("Diese Stelle als wichtig markieren – sie kommt in die Notiz und ins Klausur-Radar (⇧⌘I)")
+                .sensoryFeedback(.alignment, trigger: recorder.importantMarks)
         }
         .controlSize(.large)
         .buttonStyle(.bordered)

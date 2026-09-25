@@ -1636,3 +1636,11 @@
 "Dafür braucht es eine KI. Wähle in den Einstellungen unter „KI“, wer die Notizen schreibt." = "This needs an AI. Choose who writes your notes in Settings under “AI”.";
 "Ersetzt die Notiz. „Auf KI-Fassung zurücksetzen“ holt die bisherige zurück." = "Replaces the note. “Restore AI Version” brings the previous one back.";
 "Fragen zur Notiz …" = "Ask About Note …";
+"Markiere während der Vorlesung Stellen als wichtig (⇧⌘I oder in der Menüleiste). Earnote sammelt hier alles, was als prüfungsrelevant gilt." = "Mark moments as important during the lecture (⇧⌘I or in the menu bar). Earnote collects everything relevant for the exam here.";
+"Notiz öffnen" = "Open Note";
+"Diese Stelle kommt als „Wichtig für die Klausur“ in die Notiz" = "This moment goes into the note under “Important for the exam”";
+"Diese Stelle als wichtig markieren – sie kommt in die Notiz und ins Klausur-Radar (⇧⌘I)" = "Mark this moment as important – it goes into the note and the exam radar (⇧⌘I)";
+"Alles Prüfungsrelevante dieses Bereichs auf einer Seite (⌥⇧⌘U)" = "Everything exam-relevant in this area on one page (⌥⇧⌘U)";
+"Als wichtig markieren" = "Mark as Important";
+"Klausur-Radar …" = "Exam Radar …";
+"Klausur-Radar · %@" = "Exam Radar · %@";
