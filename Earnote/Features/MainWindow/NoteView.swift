@@ -116,7 +116,7 @@ struct NoteView: View {
             } description: {
                 Text("Für diese Aufnahme gibt es noch keine Notiz.")
             } actions: {
-                Button("Neu zusammenfassen") { library.reprocess(recording.id, retranscribe: false) }
+                Button("Notiz schreiben") { library.reprocess(recording.id, retranscribe: false) }
                     .disabled(recording.status == .recording)
             }
         }

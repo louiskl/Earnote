@@ -73,10 +73,10 @@ struct EarnoteCommands: Commands {
                 .disabled(recording?.summaryTitle == nil || busy)
             Button("Auf KI-Fassung zurücksetzen") { window?.noteActions.restoreGenerated() }
                 .disabled(recording?.isNoteEdited != true)
-            Button("Namen & Begriffe korrigieren …") { window?.noteActions.correctTerms() }
+            Button("Namen korrigieren …") { window?.noteActions.correctTerms() }
                 .disabled(recording?.summaryTitle == nil || busy)
             Divider()
-            Button("Neu zusammenfassen …") { window?.noteActions.summarizeAgain() }
+            Button("Neu schreiben …") { window?.noteActions.summarizeAgain() }
                 .disabled(recording == nil || busy)
             Button("Neu transkribieren") { if let id { library.reprocess(id, retranscribe: true) } }
                 .disabled(recording == nil || busy || !(id.map(library.hasAudio) ?? false))
