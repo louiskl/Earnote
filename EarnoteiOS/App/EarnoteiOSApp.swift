@@ -38,11 +38,15 @@ extension View {
             .environment(environment.queue)
             .environment(environment.power)
             .environment(environment.handoffs)
+            .environment(\.speakerDiarizer, environment.diarizer)
             .modifier(Skinned())
     }
 }
 
 extension EnvironmentValues {
+    /// Sprechererkennung für „Sprecher erkennen“ in der Notiz
+    @Entry var speakerDiarizer: (any SpeakerDiarizer)?
+
     /// Nur Debug: Beispieldaten laden (Einstellungen › Test)
     @Entry var loadDemoLibrary: (@MainActor () async -> Void)?
 }

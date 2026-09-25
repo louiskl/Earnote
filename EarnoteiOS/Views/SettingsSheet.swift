@@ -10,6 +10,7 @@ struct SettingsSheet: View {
     @AppStorage(AppSkin.key) private var skin: AppSkin = .standard
     @AppStorage(TipJar.supporterKey) private var isSupporter = false
     @AppStorage(Pro.key) private var isPro = false
+    @State private var showsPro = false
 
     var body: some View {
         @Bindable var library = library
@@ -26,6 +27,13 @@ struct SettingsSheet: View {
                         ForEach(library.categories) { Label($0.name, systemImage: $0.symbol).tag(Optional($0.id)) }
                     }
                     Toggle("Audio nach der Notiz behalten", isOn: $library.settings.keepAudioFiles)
+                    Toggle(isOn: Binding(get: { library.settings.detectSpeakers }, set: { on in
+                        // Einschalten ohne Pro geht, solange Probeversuche übrig sind (je Aufnahme einer)
+                        if on && !Pro.isUnlocked && Pro.triesLeft(.speakers) == 0 { showsPro = true } else { library.settings.detectSpeakers = on }
+                    })) {
+                        Text("Sprecher erkennen")
+                        Text(isPro ? "Wer hat was gesagt – im Transkript und in der Notiz." : "Pro · noch \(Pro.triesLeft(.speakers)) Aufnahmen kostenlos")
+                    }
                     NavigationLink("Wörterbuch") { GlossaryView() }
                 } header: {
                     Text("Aufnahme")
@@ -116,6 +124,7 @@ struct SettingsSheet: View {
                     Text("Earnote ist kostenlos und quelloffen (MIT). Deine Aufnahmen bleiben auf deinem iPhone.")
                 }
             }
+            .sheet(isPresented: $showsPro) { ProSheet(highlight: .speakers) }
             .navigationTitle("Einstellungen")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

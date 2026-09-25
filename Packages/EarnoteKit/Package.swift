@@ -4,7 +4,7 @@ import PackageDescription
 // Abhängigkeitsregeln (siehe docs/ARCHITECTURE.md):
 // - EarnoteCore: nur Apple-Frameworks ohne Oberfläche (Foundation, AVFoundation, Security, OSLog, Observation, SwiftData).
 //   Kein AppKit/UIKit/SwiftUI, keine Drittanbieter-Pakete – läuft auf Mac und iPad.
-// - EarnoteML: EarnoteCore + WhisperKit/MLX (lokale Transkription und lokales Sprachmodell).
+// - EarnoteML: EarnoteCore + WhisperKit/MLX (lokale Transkription und lokales Sprachmodell) + FluidAudio (Sprechererkennung).
 let package = Package(
     name: "EarnoteKit",
     defaultLocalization: "de",
@@ -18,6 +18,8 @@ let package = Package(
         .package(url: "https://github.com/ml-explore/mlx-swift-lm", from: "3.31.4"),
         .package(url: "https://github.com/huggingface/swift-huggingface", from: "0.9.0"),
         .package(url: "https://github.com/huggingface/swift-transformers", from: "1.3.0"),
+        // Sprechererkennung (Earnote Pro). Ohne Trait „NemoTextProcessing“: keine vorgebaute Binärdatei, nur Quellcode
+        .package(url: "https://github.com/FluidInference/FluidAudio", exact: "0.17.4", traits: []),
     ],
     targets: [
         // Deutsch steht im Code, weitere Sprachen liegen unter Sources/EarnoteCore/Resources/<sprache>.lproj
@@ -31,6 +33,7 @@ let package = Package(
                 .product(name: "MLXLMCommon", package: "mlx-swift-lm"),
                 .product(name: "HuggingFace", package: "swift-huggingface"),
                 .product(name: "Tokenizers", package: "swift-transformers"),
+                .product(name: "FluidAudio", package: "FluidAudio"),
             ],
             resources: [.process("Resources")]),
         .testTarget(name: "EarnoteCoreTests", dependencies: ["EarnoteCore"], resources: [.copy("Fixtures")]),

@@ -1564,3 +1564,15 @@
 "Ukrainisch" = "Ukrainian";
 "Arabisch" = "Arabic";
 "Chinesisch" = "Chinese";
+
+/* iPhone: Sprechererkennung (Earnote Pro) */
+"Sprechererkennung" = "Speaker Recognition";
+"Wer hat was gesagt? Earnote unterscheidet die Stimmen, du gibst ihnen Namen – aus dem Meeting wird ein Protokoll." = "Who said what? Earnote tells voices apart and you name them – your meeting becomes minutes.";
+"Sprecher erkennen" = "Recognize Speakers";
+"Sprecher benennen …" = "Name Speakers …";
+"Sprecher benennen" = "Name Speakers";
+"Sprecher werden erkannt …" = "Recognizing speakers …";
+"Earnote hat in dieser Aufnahme nur eine Stimme erkannt." = "Earnote found only one voice in this recording.";
+"Wer hat was gesagt – im Transkript und in der Notiz." = "Who said what – in the transcript and the note.";
+"Pro · noch %lld Aufnahmen kostenlos" = "Pro · %lld free recordings left";
+"Tipp: Im Transkript hörst du dir an, wer „Sprecher 1“ ist – einfach auf eine Zeile tippen." = "Tip: in the transcript, tap a line to hear who “Speaker 1” is.";

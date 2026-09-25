@@ -18,7 +18,7 @@ Dort steht auch, wie viel Platz sie belegen, und dort löschst du den Ton alter 
 
 ## Wann Earnote ins Netz geht
 
-1. **Modelle laden** (einmalig): Whisper von Hugging Face, das lokale Sprachmodell von Hugging Face.
+1. **Modelle laden** (einmalig): Whisper von Hugging Face, das lokale Sprachmodell von Hugging Face, am iPhone/iPad mit eingeschalteter Sprechererkennung (Earnote Pro) deren Modelle (FluidInference, einige MB). Die Stimmen werden auf dem Gerät unterschieden, nichts davon verlässt es.
 2. **Update-Prüfung** (einmal am Tag): eine Anfrage an `earnote.dev` nach der Update-Datei. Gibt es eine
    neuere Version, zeigt Earnote sie mit ihren Änderungen an und lädt sie **erst nach deiner Zustimmung**
    von GitHub. Die Update-Datei ist kryptografisch signiert, damit keine fremde Fassung untergeschoben werden kann.
