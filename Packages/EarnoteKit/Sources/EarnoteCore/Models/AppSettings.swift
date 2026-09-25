@@ -214,8 +214,19 @@ public enum AppearanceChoice: String, Codable, CaseIterable, Identifiable, Senda
     }
 }
 
+/// Antwort auf die Einstiegsfrage „Wofür nutzt du Earnote?“ – bestimmt Bereiche und blendet Unpassendes aus
+public enum Usage: String, Codable, CaseIterable, Identifiable, Sendable {
+    case university, school, work
+    public var id: String { rawValue }
+
+    /// Klausur-Radar und „Wichtig für die Klausur“ passen nur zum Lernen
+    public var isLearning: Bool { self != .work }
+}
+
 public struct AppSettings: Codable, Hashable, Sendable {
     public var onboardingCompleted = false
+    /// nil: nie gefragt (ältere Versionen, Mac) – dann gilt alles wie bisher
+    public var usage: Usage?
     public var appearance: AppearanceChoice = .system
     public var transcriptionEngine: TranscriptionEngineKind = .whisperKit
     public var whisperModel: String = ""
@@ -273,6 +284,7 @@ public struct AppSettings: Codable, Hashable, Sendable {
         condenseOnBattery = (try? c.decodeIfPresent(Bool.self, forKey: .condenseOnBattery)) ?? d.condenseOnBattery
         processOnlyOnPower = (try? c.decodeIfPresent(Bool.self, forKey: .processOnlyOnPower)) ?? d.processOnlyOnPower
         detectSpeakers = (try? c.decodeIfPresent(Bool.self, forKey: .detectSpeakers)) ?? d.detectSpeakers
+        usage = try? c.decodeIfPresent(Usage.self, forKey: .usage)
         transcriptionEngine = (try? c.decodeIfPresent(TranscriptionEngineKind.self, forKey: .transcriptionEngine)) ?? d.transcriptionEngine
         whisperModel = try c.decodeIfPresent(String.self, forKey: .whisperModel) ?? d.whisperModel
         language = try c.decodeIfPresent(String.self, forKey: .language) ?? d.language
