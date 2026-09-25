@@ -344,6 +344,7 @@ private struct NoteHeader: View {
     let id: UUID
     var rename: () -> Void
     @Environment(LibraryStore.self) private var library
+    @Environment(\.dynamicTypeSize) private var typeSize
 
     private var category: RecordingCategory? { library.category(library.recording(id)?.categoryID) }
 
@@ -359,9 +360,14 @@ private struct NoteHeader: View {
             .buttonStyle(.plain)
             .accessibilityAddTraits(.isHeader)
             .accessibilityHint("Umbenennen")
-            HStack(spacing: 6) {
+            // Große Schrift: Bereich unter das Datum, sonst würde er zu „Anal…“ gekürzt
+            let layout = typeSize.isAccessibilitySize ? AnyLayout(VStackLayout(alignment: .leading, spacing: 4))
+                                                      : AnyLayout(HStackLayout(spacing: 6))
+            layout {
                 Text(meta).foregroundStyle(.secondary)
-                Text("·").foregroundStyle(.secondary).accessibilityHidden(true)
+                if !typeSize.isAccessibilitySize {
+                    Text("·").foregroundStyle(.secondary).accessibilityHidden(true)
+                }
                 Menu {
                     CategoryPicker(id: id)
                 } label: {

@@ -173,19 +173,35 @@ struct RecordingRow: View {
     let recording: Recording
     @Environment(LibraryStore.self) private var library
     @Environment(HandoffSender.self) private var handoffs
+    @Environment(\.dynamicTypeSize) private var typeSize
+
+    /// Größte Schrift (Barrierefreiheit): kein Symbol, dafür darf alles umbrechen – wie in Mail und Notizen
+    private var isLarge: Bool { typeSize.isAccessibilitySize }
 
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
-            CategoryBadge(category: library.category(recording.categoryID))
+            if !isLarge { CategoryBadge(category: library.category(recording.categoryID)) }
             details
         }
+    }
+
+    private var durationText: String? {
+        guard recording.status != .recording else { return nil }
+        if recording.duration < 1 { return String(localized: "Übersicht") }
+        return Duration.seconds(recording.duration).formatted(.units(allowed: recording.duration < 60 ? Set([.seconds]) : Set([.hours, .minutes]), width: .abbreviated))
     }
 
     private var details: some View {
         VStack(alignment: .leading, spacing: 3) {
             Text(recording.displayTitle)
                 .font(.headline)
-                .lineLimit(2)
+                .lineLimit(isLarge ? 4 : 2)
+            if isLarge {
+                Text([recording.startedAt.formatted(.dateTime.hour().minute()), durationText,
+                      library.category(recording.categoryID)?.name].compactMap { $0 }.joined(separator: " · "))
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            } else {
             HStack(spacing: 6) {
                 Text(recording.startedAt, format: .dateTime.hour().minute())
                     .fixedSize()
@@ -206,7 +222,9 @@ struct RecordingRow: View {
             .font(.subheadline)
             .foregroundStyle(.secondary)
             .lineLimit(1)
-            status
+            }
+            // Das Symbol vor dem Text wird bei größter Schrift riesig und nimmt dem Text die halbe Zeile
+            if isLarge { status.labelStyle(.titleOnly) } else { status }
         }
         .padding(.vertical, 2)
     }
@@ -217,7 +235,7 @@ struct RecordingRow: View {
             Label("Nimmt auf", systemImage: "record.circle").font(.subheadline).foregroundStyle(.tint)
         case .failed:
             Label(recording.errorMessage ?? String(localized: "Fehler bei der Verarbeitung"), systemImage: "exclamationmark.triangle.fill")
-                .font(.subheadline).foregroundStyle(.orange).lineLimit(2)
+                .font(.subheadline).foregroundStyle(.orange).lineLimit(isLarge ? 6 : 2)
         case let status where status.isBusy:
             ProgressView(value: recording.progress) { Text(status.label).font(.caption) }
         case .waitingForMac:
@@ -230,7 +248,7 @@ struct RecordingRow: View {
             }
         default:
             if let preview = recording.summaryPreview, !preview.isEmpty {
-                Text(preview).font(.subheadline).foregroundStyle(.secondary).lineLimit(2)
+                Text(preview).font(.subheadline).foregroundStyle(.secondary).lineLimit(isLarge ? 3 : 2)
             }
         }
     }
