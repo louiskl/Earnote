@@ -57,6 +57,7 @@ struct EarnoteApp: App {
     var body: some Scene {
         WindowGroup(id: "main") {
             MainWindow()
+                .environment(\.speakerDiarizer, environment.diarizer)
                 .environment(environment.library)
                 .environment(environment.recorder)
                 .environment(environment.queue)

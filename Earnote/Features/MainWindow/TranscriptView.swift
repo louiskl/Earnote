@@ -109,7 +109,8 @@ struct TranscriptView: View {
         let transcript = await library.transcript(recording.id)
         guard !Task.isCancelled else { return }
         if let transcript, !transcript.segments.isEmpty {
-            paragraphs = TranscriptParagraph.group(transcript.segments, speakers: library.settings.speakerLabels)
+            paragraphs = TranscriptParagraph.group(transcript.segments,
+                                                   speakers: library.settings.speakerLabels || library.settings.detectSpeakers)
             state = .loaded
         } else {
             paragraphs = []

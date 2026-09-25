@@ -36,6 +36,11 @@ struct TranscriptionSettings: View {
             } footer: {
                 Text("\(AppInfo.name) erkennt anhand von Mikrofon und Systemton, wer gerade spricht.")
             }
+            Section {
+                Toggle("Sprecher erkennen", isOn: $library.settings.detectSpeakers)
+            } footer: {
+                Text("Unterscheidet die Stimmen einer Aufnahme – „Sprecher 1“, „Sprecher 2“ … –, auch in Vorlesungen und Gesprächen ohne Call. Läuft nach der Aufnahme auf deinem Mac und braucht dafür nur Sekunden; die Namen gibst du unter „Namen korrigieren …“.")
+            }
         }
         .formStyle(.grouped)
         .onAppear {

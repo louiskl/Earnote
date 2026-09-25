@@ -4,6 +4,11 @@ import SwiftUI
 // Pro-Funktionen am iPhone, am Mac frei (ROADMAP, entschieden 25.09.2026). Die Logik steckt im Kern
 // (`NoteChat`, `Translation`), hier nur die Mac-Blätter – gleiche Wörter wie am iPhone (Regel 9).
 
+extension EnvironmentValues {
+    /// Sprechererkennung für „Namen korrigieren …“ (nil in Vorschauen)
+    @Entry var speakerDiarizer: (any SpeakerDiarizer)?
+}
+
 /// KI für Fragen und Übersetzen – dieselbe, die die Notizen schreibt
 @MainActor
 private func noteClient(_ library: LibraryStore) throws -> any LLMClient {

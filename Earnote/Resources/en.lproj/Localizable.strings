@@ -1644,3 +1644,5 @@
 "Als wichtig markieren" = "Mark as Important";
 "Klausur-Radar …" = "Exam Radar …";
 "Klausur-Radar · %@" = "Exam Radar · %@";
+"Unterscheidet die Stimmen einer Aufnahme – „Sprecher 1“, „Sprecher 2“ … –, auch in Vorlesungen und Gesprächen ohne Call. Läuft nach der Aufnahme auf deinem Mac und braucht dafür nur Sekunden; die Namen gibst du unter „Namen korrigieren …“." = "Tells the voices in a recording apart – “Speaker 1”, “Speaker 2” … – also in lectures and conversations without a call. Runs on your Mac after the recording and takes only seconds; add names under “Fix Names …”.";
+"Wer „Sprecher 1“ ist, hörst du im Transkript: einfach auf eine Zeitmarke klicken." = "To hear who “Speaker 1” is, click a timestamp in the transcript.";

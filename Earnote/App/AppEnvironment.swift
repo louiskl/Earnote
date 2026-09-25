@@ -15,6 +15,8 @@ final class AppEnvironment {
     let library: LibraryStore
     let recorder: RecordingController
     let power: PowerSource
+    /// Sprechererkennung (FluidAudio, auf dem Mac). Läuft nur, wenn „Sprecher erkennen“ an ist – nach der Aufnahme.
+    let diarizer: any SpeakerDiarizer = FluidSpeakerDiarizer()
     /// Übergang bis Phase 2b: Schnittstelle der noch alten Views (Einstellungen, Einrichtung, Menüleiste, Call-Pop-up)
     /// Sucht einmal am Tag nach einer neueren Version
     let updates = AppUpdater()
@@ -47,6 +49,7 @@ final class AppEnvironment {
         let precondensed = PreCondensedStore()
         let pipeline = ProcessingPipeline(library: libraryRepository, audio: audio, transcribers: PlatformTranscribers(), llm: llm,
                                           destinations: AppDestinations(), precondensed: precondensed,
+                                          diarizer: diarizer,
                                           notify: { Notifier.send($0, $1) })
         let queue = ProcessingQueue(pipeline: pipeline) {
             // Nichts mehr zu tun: geladene Modelle aus dem Speicher nehmen

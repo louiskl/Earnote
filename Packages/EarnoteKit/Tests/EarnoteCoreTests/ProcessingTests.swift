@@ -276,6 +276,26 @@ final class ProcessingPipelineTests: XCTestCase {
         XCTAssertEqual(state.statuses.get(), [.summarizing, .exporting, .done])
     }
 
+    /// Am Mac entsteht das Transkript schon während der Aufnahme – die Sprecher kommen trotzdem hinein
+    func testSpeakersAreDetectedInATranscriptMadeDuringRecording() async throws {
+        let rec = try await folder.importedRecording()
+        let live = [TranscriptSegment(start: 0, end: 5, text: "Heute geht es um Eigenwerte."),
+                    TranscriptSegment(start: 5, end: 9, text: "Kommt das in der Klausur?")]
+        try await folder.library.saveTranscript(Transcript(segments: live, engine: "Live"), for: rec.id)
+        let diarizer = FakeDiarizer(turns: [SpeakerTurn(start: 0, end: 5, speaker: "A"),
+                                            SpeakerTurn(start: 5, end: 9, speaker: "B")])
+        let pipeline = ProcessingPipeline(library: folder.library, audio: folder.audio, transcribers: FakeTranscriber(),
+                                          llm: LLMFactory(platform: FakeLLMProvider(client: FakeLLMClient(answer: "# T\n\nText")), apiKey: { _ in nil }),
+                                          destinations: FakeDestinations(destinations: [:]), diarizer: diarizer,
+                                          notify: { _, _ in })
+        var settings = AppSettings.testing()
+        settings.detectSpeakers = true
+        let state = await run(pipeline, rec, settings: settings)
+        XCTAssertEqual(state.recording.status, .done)
+        let transcript = try await folder.library.transcript(for: rec.id)
+        XCTAssertEqual(transcript.map(Speakers.names), [Speakers.label(1), Speakers.label(2)])
+    }
+
     func testSuccessfulDestinationsAreNotExportedAgain() async throws {
         var rec = try await folder.importedRecording()
         rec.exports = [ExportResult(destinationID: "a", destinationName: "A", success: true, message: "Exportiert")]
@@ -599,4 +619,10 @@ final class LiveTranscriptionTests: XCTestCase {
         let transcript = await live.finish()
         XCTAssertNil(transcript, "Ohne brauchbares Zwischenergebnis wird nach der Aufnahme normal transkribiert")
     }
+}
+
+/// Sprechererkennung zum Testen: liefert feste Abschnitte
+struct FakeDiarizer: SpeakerDiarizer {
+    let turns: [SpeakerTurn]
+    func diarize(_ audio: URL, progress: @escaping @Sendable (Double) -> Void) async throws -> [SpeakerTurn]? { turns }
 }
