@@ -14,25 +14,23 @@ struct RecordingDetailView: View {
     @State private var transcript: Transcript?
     @State private var player = AudioPlayer()
     @State private var confirmsDeletion = false
-    @State private var renaming = false
-    @State private var newTitle = ""
     @State private var shareFile: ShareFile?
     @State private var editingNote = false
-    @State private var resummarizing = false
-    @State private var correcting = false
+    @State private var rewriting = false
+    @State private var correctingNames = false
     @State private var deck: LearnDeck?
     @State private var chatting = false
     @State private var translating = false
-    @State private var namingSpeakers = false
     @State private var detectingSpeakers = false
     @State private var showsPro: Pro.Feature?
     @Environment(\.speakerDiarizer) private var diarizer
-    /// iPad: Transkript neben der Notiz, wie ⌘3 am Mac (eigene Spalte statt `inspector` – der ließ in der
-    /// Split-Ansicht die Kopfzeile der Notiz verschwinden)
-    @SceneStorage("detail.transcriptBeside") private var transcriptBeside = false
     @Environment(\.horizontalSizeClass) private var sizeClass
 
-    enum Mode: String { case note, transcript }
+    /// „Beides“ nur mit Platz (iPad): Transkript als eigene Spalte neben der Notiz, wie ⌘3 am Mac – nicht `inspector`,
+    /// der in der Split-Ansicht die Kopfzeile der Notiz verschluckte
+    enum Mode: String { case note, transcript, both }
+
+    private var showsBoth: Bool { mode == .both && sizeClass == .regular && transcript != nil }
 
     private var recording: Recording? { library.recording(id) }
 
@@ -45,9 +43,15 @@ struct RecordingDetailView: View {
             }
         }
         .paper()
-        .navigationTitle(recording?.displayTitle ?? "")
+        // Titel antippen: Umbenennen und Bereich – wie in Dateien und Notizen, statt zwei Einträgen im Menü „Mehr“
+        .navigationTitle(Binding(get: { recording?.displayTitle ?? "" },
+                                 set: { if !$0.trimmingCharacters(in: .whitespaces).isEmpty { library.rename(id, to: $0) } }))
         .navigationSubtitle(subtitle)
         .navigationBarTitleDisplayMode(.inline)
+        .toolbarTitleMenu {
+            RenameButton()
+            Menu("Bereich", systemImage: "folder") { CategoryPicker(id: id) }
+        }
         .toolbar { toolbar }
 
         .safeAreaInset(edge: .bottom) {
@@ -63,8 +67,11 @@ struct RecordingDetailView: View {
             }
         }
         .sheet(item: $shareFile) { ActivitySheet(url: $0.url).presentationDetents([.medium, .large]) }
-        .sheet(isPresented: $namingSpeakers, onDismiss: { Task { await reload() } }) {
-            if let transcript { SpeakerNamesSheet(id: id, transcript: transcript, note: note) }
+        .sheet(isPresented: $correctingNames) {
+            NamesSheet(id: id, transcript: transcript, note: note,
+                       detectSpeakers: canDetectSpeakers ? { Task { await detectSpeakers() } } : nil) {
+                Task { await reload() }
+            }
         }
         .sheet(item: $showsPro) { ProSheet(highlight: $0) }
         .overlay(alignment: .top) {
@@ -86,14 +93,8 @@ struct RecordingDetailView: View {
         .sheet(isPresented: $editingNote) {
             if let note { NoteEditor(id: id, markdown: note.markdown) { Task { await reload() } } }
         }
-        .sheet(isPresented: $resummarizing) { ResummarizeSheet(id: id) }
-        .sheet(isPresented: $correcting) { CorrectTermSheet(id: id) { Task { await reload() } } }
+        .sheet(isPresented: $rewriting) { RewriteSheet(id: id) { Task { await reload() } } }
         .navigationDestination(item: $deck) { FlashcardSession(deck: $0) }
-        .alert("Umbenennen", isPresented: $renaming) {
-            TextField("Titel", text: $newTitle)
-            Button("Sichern") { library.rename(id, to: newTitle) }
-            Button("Abbrechen", role: .cancel) {}
-        }
     }
 
     /// „24. Sept. · 1 Std. 25 Min. · Vorlesung“
@@ -137,25 +138,38 @@ struct RecordingDetailView: View {
         case let status where status.isBusy && note == nil:
             ProcessingView(recording: recording, draft: queue.drafts[id])
         default:
-            if sizeClass == .regular, transcriptBeside, let transcript {
-                HStack(spacing: 0) {
-                    ScrollView {
-                        noteContent
-                            .padding()
-                            .frame(maxWidth: 700)
-                            .frame(maxWidth: .infinity)
+            if showsBoth, let transcript {
+                VStack(spacing: 0) {
+                    modePicker.padding([.horizontal, .top])
+                    HStack(spacing: 0) {
+                        ScrollView {
+                            noteContent
+                                .padding()
+                                .frame(maxWidth: 700)
+                                .frame(maxWidth: .infinity)
+                        }
+                        Divider()
+                        ScrollView {
+                            TranscriptContentView(transcript: transcript) { player.play(from: $0) }.padding()
+                        }
+                        .frame(width: 340)
+                        .background(.background.secondary)
                     }
-                    Divider()
-                    ScrollView {
-                        TranscriptContentView(transcript: transcript) { player.play(from: $0) }.padding()
-                    }
-                    .frame(width: 340)
-                    .background(.background.secondary)
                 }
             } else {
                 singleColumn
             }
         }
+    }
+
+    private var modePicker: some View {
+        Picker("Ansicht", selection: $mode) {
+            Text("Notiz").tag(Mode.note)
+            Text("Transkript").tag(Mode.transcript)
+            if sizeClass == .regular && transcript != nil { Text("Beides").tag(Mode.both) }
+        }
+        .pickerStyle(.segmented)
+        .frame(maxWidth: 700)
     }
 
     /// Notiz (oder Karteikarten-Fortschritt) ohne Umschalter – für die Spalte neben dem Transkript
@@ -180,26 +194,10 @@ struct RecordingDetailView: View {
     @ViewBuilder private var singleColumn: some View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
-                    Picker("Ansicht", selection: $mode) {
-                        Text("Notiz").tag(Mode.note)
-                        Text("Transkript").tag(Mode.transcript)
-                    }
-                    .pickerStyle(.segmented)
-                    if let progress = library.flashcardProgress[id] {
-                        ProgressView(value: Double(progress.done), total: Double(max(1, progress.of))) {
-                            Label("Karteikarten entstehen …", systemImage: "rectangle.on.rectangle.angled")
-                                .font(.subheadline)
-                        }
-                    }
-                    if mode == .note {
-                        if let note {
-                            NoteContentView(markdown: note.markdown) { line in
-                                library.toggleTask(id, in: note.markdown, line: line)
-                                Task { await reload() }
-                            }
-                        } else {
-                            Text("Keine Notiz – nur das Transkript.").foregroundStyle(.secondary)
-                        }
+                    modePicker
+                    // „Beides“ ohne Platz (Fenster schmaler gezogen): dann die Notiz
+                    if mode != .transcript {
+                        noteContent
                     } else if let transcript {
                         TranscriptContentView(transcript: transcript) { player.play(from: $0) }
                     } else {
@@ -229,11 +227,9 @@ struct RecordingDetailView: View {
         library.reprocess(id, retranscribe: false)
     }
 
+    /// Höchstens drei Knöpfe (Regel 4): Fragen, Teilen, Mehr. „Mehr“ hat drei Gruppen mit zusammen höchstens 8 Einträgen.
     @ToolbarContentBuilder private var toolbar: some ToolbarContent {
         ToolbarItemGroup(placement: .topBarTrailing) {
-            if sizeClass == .regular, transcript != nil {
-                Toggle("Transkript daneben", systemImage: "sidebar.right", isOn: $transcriptBeside)
-            }
             if note != nil {
                 Button("Fragen zur Notiz", systemImage: "bubble.left.and.text.bubble.right") { chatting = true }
             }
@@ -244,53 +240,44 @@ struct RecordingDetailView: View {
             }
             Menu("Mehr", systemImage: "ellipsis") {
                 if let note {
-                    Section {
+                    Section("Lernen") {
                         Button("Lernzettel als PDF", systemImage: "doc.richtext") { sharePDF(note) }
-                        if cards(note).isEmpty {
-                            Button("Karteikarten erzeugen", systemImage: "rectangle.on.rectangle.angled") {
-                                Task { _ = await library.makeFlashcards(id) }
-                            }
-                            .disabled(library.makingFlashcards.contains(id))
-                        } else {
-                            Button("Karteikarten lernen", systemImage: "rectangle.on.rectangle.angled") {
-                                deck = LearnDeck(title: note.title, cards: cards(note))
-                            }
-                            Button("Als Anki-Datei teilen", systemImage: "square.and.arrow.up.on.square") {
-                                if let url = try? AnkiExport.file(title: note.title, cards: cards(note)) { shareFile = ShareFile(url: url) }
-                            }
-                        }
-                    }
-                    Section {
-                        Button("Notiz bearbeiten", systemImage: "pencil") { editingNote = true }
-                        Button("Namen & Begriffe korrigieren …", systemImage: "character.cursor.ibeam") { correcting = true }
-                        if recording?.isNoteEdited == true {
-                            Button("Auf KI-Fassung zurücksetzen", systemImage: "arrow.uturn.backward") {
-                                library.restoreGeneratedNote(id)
-                                Task { await reload() }
-                            }
-                        }
+                        flashcardItems(note)
                         Button("Übersetzen …", systemImage: "character.bubble") { translating = true }
-                        if let transcript, Speakers.names(in: transcript).isEmpty {
-                            Button("Sprecher erkennen", systemImage: "person.2.wave.2") { Task { await detectSpeakers() } }
-                                .disabled(detectingSpeakers || recording.flatMap { library.audio.playbackURL(for: $0) } == nil)
-                        } else if transcript != nil {
-                            Button("Sprecher benennen …", systemImage: "person.2.wave.2") { namingSpeakers = true }
-                        }
-                        Button("Vereinfachen", systemImage: "text.badge.minus") {
-                            library.reprocess(id, retranscribe: false, instruction: String(localized: "Erkläre die Inhalte einfacher und kürzer."), fromNote: true)
-                        }
-                        Button("Neu zusammenfassen …", systemImage: "arrow.clockwise") { resummarizing = true }
+                    }
+                    Section("Bearbeiten") {
+                        Button("Notiz bearbeiten", systemImage: "pencil") { editingNote = true }
+                        Button("Namen korrigieren …", systemImage: "character.cursor.ibeam") { correctingNames = true }
+                        Button("Neu schreiben …", systemImage: "arrow.clockwise") { rewriting = true }
                     }
                 }
                 Section {
-                    Button("Umbenennen", systemImage: "pencil.line") {
-                        newTitle = recording?.displayTitle ?? ""
-                        renaming = true
-                    }
-                    RecordingMenu(id: id, onDelete: { confirmsDeletion = true })
+                    RecordingMenu(id: id, showsCategory: false, onDelete: { confirmsDeletion = true })
                 }
             }
         }
+    }
+
+    /// Ein Eintrag: erzeugen, solange es keine Karten gibt – danach ein Untermenü mit Lernen und Anki
+    @ViewBuilder private func flashcardItems(_ note: Summary) -> some View {
+        let cards = cards(note)
+        if cards.isEmpty {
+            Button("Karteikarten erzeugen", systemImage: "rectangle.on.rectangle.angled") {
+                Task { _ = await library.makeFlashcards(id) }
+            }
+            .disabled(library.makingFlashcards.contains(id))
+        } else {
+            Menu("Karteikarten", systemImage: "rectangle.on.rectangle.angled") {
+                Button("Lernen", systemImage: "play.rectangle") { deck = LearnDeck(title: note.title, cards: cards) }
+                Button("Als Anki-Datei teilen", systemImage: "square.and.arrow.up.on.square") {
+                    if let url = try? AnkiExport.file(title: note.title, cards: cards) { shareFile = ShareFile(url: url) }
+                }
+            }
+        }
+    }
+
+    private var canDetectSpeakers: Bool {
+        diarizer != nil && recording.flatMap { library.audio.playbackURL(for: $0) } != nil && !detectingSpeakers
     }
 
     private func cards(_ note: Summary) -> [Flashcard] { Flashcards.entries(note.markdown).map(\.card) }
@@ -304,7 +291,7 @@ struct RecordingDetailView: View {
 
     private func reload() async {
         note = await library.summary(id)
-        if mode == .transcript || transcript == nil { transcript = await library.transcript(id) }
+        if mode != .note || transcript == nil { transcript = await library.transcript(id) }
         if let recording, recording.status != .recording, let url = library.audio.playbackURL(for: recording) {
             player.load(url)
         }
@@ -516,117 +503,5 @@ private struct PlayerBar: View {
             .padding(.horizontal)
             .padding(.bottom, 8)
         }
-    }
-}
-
-// MARK: - Blätter der Notiz
-
-/// Notiz von Hand bearbeiten (Markdown). Die KI-Fassung bleibt erhalten und lässt sich wiederherstellen.
-private struct NoteEditor: View {
-    let id: UUID
-    @State var markdown: String
-    var onSave: () -> Void
-    @Environment(LibraryStore.self) private var library
-    @Environment(\.dismiss) private var dismiss
-
-    var body: some View {
-        NavigationStack {
-            TextEditor(text: $markdown)
-                .font(.body.monospaced())
-                .padding(.horizontal)
-                .navigationTitle("Notiz bearbeiten")
-                .navigationBarTitleDisplayMode(.inline)
-                .toolbar {
-                    ToolbarItem(placement: .cancellationAction) { Button("Abbrechen") { dismiss() } }
-                    ToolbarItem(placement: .confirmationAction) {
-                        Button("Sichern") {
-                            library.updateSummaryText(id, markdown: markdown)
-                            dismiss()
-                            onSave()
-                        }
-                    }
-                }
-        }
-    }
-}
-
-/// Neu zusammenfassen – optional mit eigener Anweisung und neuer Transkription (wie am Mac)
-private struct ResummarizeSheet: View {
-    let id: UUID
-    @Environment(LibraryStore.self) private var library
-    @Environment(\.dismiss) private var dismiss
-    @State private var instruction = ""
-    @State private var retranscribe = false
-
-    var body: some View {
-        NavigationStack {
-            Form {
-                Section {
-                    TextField("z. B. „Mehr Beispiele“ oder „Nur die Formeln“", text: $instruction, axis: .vertical)
-                        .lineLimit(2...5)
-                } header: {
-                    Text("Anweisung (freiwillig)")
-                } footer: {
-                    Text("Gilt nur für diesen Durchgang.")
-                }
-                if library.hasAudio(id) {
-                    Toggle("Auch neu transkribieren", isOn: $retranscribe)
-                }
-            }
-            .navigationTitle("Neu zusammenfassen")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) { Button("Abbrechen") { dismiss() } }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Starten") {
-                        library.reprocess(id, retranscribe: retranscribe, instruction: instruction)
-                        dismiss()
-                    }
-                }
-            }
-        }
-        .presentationDetents([.medium])
-    }
-}
-
-/// Falsch verstandene Namen und Fachbegriffe ersetzen – in Titel, Notiz und Transkript; auf Wunsch fürs Wörterbuch merken
-private struct CorrectTermSheet: View {
-    let id: UUID
-    var onDone: () -> Void
-    @Environment(LibraryStore.self) private var library
-    @Environment(\.dismiss) private var dismiss
-    @State private var wrong = ""
-    @State private var right = ""
-    @State private var remember = true
-
-    var body: some View {
-        NavigationStack {
-            Form {
-                Section {
-                    TextField("Falsch, z. B. „Eigen Werte“", text: $wrong)
-                    TextField("Richtig, z. B. „Eigenwerte“", text: $right)
-                }
-                Section {
-                    Toggle("Ins Wörterbuch aufnehmen", isOn: $remember)
-                } footer: {
-                    Text("Dann schreibt Earnote den Begriff auch in künftigen Aufnahmen richtig.")
-                }
-            }
-            .autocorrectionDisabled()
-            .navigationTitle("Korrigieren")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) { Button("Abbrechen") { dismiss() } }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Ersetzen") {
-                        library.correctTerm(id, wrong: wrong, right: right, remember: remember)
-                        dismiss()
-                        onDone()
-                    }
-                    .disabled(wrong.trimmingCharacters(in: .whitespaces).isEmpty || right.trimmingCharacters(in: .whitespaces).isEmpty)
-                }
-            }
-        }
-        .presentationDetents([.medium])
     }
 }

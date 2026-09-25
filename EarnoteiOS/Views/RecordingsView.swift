@@ -239,6 +239,8 @@ struct RecordingRow: View {
 /// Aktionen für eine Aufnahme – im Kontextmenü der Liste und im Menü der Notiz
 struct RecordingMenu: View {
     let id: UUID
+    /// In der Notiz steht der Bereich im Titelmenü – dort nicht doppelt
+    var showsCategory = true
     var onDelete: () -> Void
     @Environment(LibraryStore.self) private var library
     @Environment(HandoffSender.self) private var handoffs
@@ -250,12 +252,8 @@ struct RecordingMenu: View {
             Button("In neuem Fenster öffnen", systemImage: "macwindow.badge.plus") { openWindow(id: NoteWindow.id, value: id) }
             Divider()
         }
-        Menu("Bereich", systemImage: "folder") {
-            Picker("Bereich", selection: Binding(get: { library.recording(id)?.categoryID },
-                                                 set: { library.setCategory(id, $0) })) {
-                Text("Ohne Bereich").tag(UUID?.none)
-                ForEach(library.categories) { Label($0.name, systemImage: $0.symbol).tag(Optional($0.id)) }
-            }
+        if showsCategory {
+            Menu("Bereich", systemImage: "folder") { CategoryPicker(id: id) }
         }
         if library.recording(id)?.status == .failed {
             Button("Erneut versuchen", systemImage: "arrow.clockwise") { library.enqueue(id) }
@@ -265,6 +263,20 @@ struct RecordingMenu: View {
         }
         Divider()
         Button("Löschen", systemImage: "trash", role: .destructive, action: onDelete)
+    }
+}
+
+/// Bereich einer Aufnahme wählen – im Kontextmenü der Liste und im Titelmenü der Notiz
+struct CategoryPicker: View {
+    let id: UUID
+    @Environment(LibraryStore.self) private var library
+
+    var body: some View {
+        Picker("Bereich", systemImage: "folder", selection: Binding(get: { library.recording(id)?.categoryID },
+                                                                    set: { library.setCategory(id, $0) })) {
+            Text("Ohne Bereich").tag(UUID?.none)
+            ForEach(library.categories) { Label($0.name, systemImage: $0.symbol).tag(Optional($0.id)) }
+        }
     }
 }
 

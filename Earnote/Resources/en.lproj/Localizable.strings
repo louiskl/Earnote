@@ -1576,3 +1576,23 @@
 "Wer hat was gesagt – im Transkript und in der Notiz." = "Who said what – in the transcript and the note.";
 "Pro · noch %lld Aufnahmen kostenlos" = "Pro · %lld free recordings left";
 "Tipp: Im Transkript hörst du dir an, wer „Sprecher 1“ ist – einfach auf eine Zeile tippen." = "Tip: in the transcript, tap a line to hear who “Speaker 1” is.";
+
+/* 0.9.25 – Notiz aufgeräumt */
+"Namen korrigieren …" = "Fix Names …";
+"Namen korrigieren" = "Fix Names";
+"Neu schreiben …" = "Rewrite …";
+"Neu schreiben" = "Rewrite";
+"Wie?" = "How?";
+"Einfacher und kürzer" = "Simpler and shorter";
+"Mit eigener Anweisung" = "With your own instruction";
+"Noch einmal wie vorher" = "Again, the same way";
+"Die KI schreibt die Notiz neu. Die bisherige wird ersetzt." = "The AI rewrites the note. The current one is replaced.";
+"Hilft, wenn im Transkript viel falsch verstanden wurde. Dauert länger." = "Helps when a lot was misheard in the transcript. Takes longer.";
+"Holt die Notiz zurück, wie die KI sie geschrieben hat. Deine Änderungen gehen dabei verloren." = "Brings back the note as the AI wrote it. Your changes will be lost.";
+"Begriff ersetzen" = "Replace a term";
+"Gilt in Titel, Notiz und Transkript. Im Wörterbuch schreibt Earnote den Begriff auch künftig richtig." = "Applies to the title, note and transcript. With the glossary, Earnote spells it right from now on.";
+"Sprecher" = "Speakers";
+"Wer „Sprecher 1“ ist, hörst du im Transkript: einfach auf eine Zeile tippen." = "To hear who “Speaker 1” is, tap a line in the transcript.";
+"Earnote unterscheidet die Stimmen, danach kannst du ihnen hier Namen geben." = "Earnote tells the voices apart, then you can name them here.";
+"Earnote Pro · noch %lld Aufnahmen kostenlos" = "Earnote Pro · %lld free recordings left";
+"Erkläre die Inhalte einfacher und kürzer." = "Explain the content more simply and briefly.";
