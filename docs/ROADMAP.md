@@ -30,6 +30,27 @@ auch nach Pro, Designs und iPad.
    einfacher oder fällt weg?
 8. **Aufräum-Stufe nach jeder Funktionswelle.** Nach zwei, drei neuen Funktionen folgt eine Version, die nur
    ordnet, streicht und vereinfacht – bevor es weitergeht.
+9. **Drei Geräte, ein Stand.** Mac, iPhone und iPad sind *ein* Produkt: eine Versionsnummer, eine Release-Note mit
+   allen drei, gleiche Begriffe in der Oberfläche. Eine neue Funktion kommt auf allen dreien in derselben Version –
+   oder steht mit Grund in der Tabelle „Gleichstand“. Logik gehört in den Kern (`EarnoteCore`), damit jede Plattform
+   nur ihre Oberfläche baut. Eine Version gilt erst als fertig, wenn alle drei gebaut und veröffentlicht sind.
+
+### Gleichstand (Stand 25.09.2026)
+
+Was nicht überall gleich ist – und warum. Jede Zeile ist entweder **Plattform** (geht dort nicht, bleibt so) oder
+**Rückstand** (soll aufholen, mit Ziel-Version).
+
+| Funktion | Mac | iPhone | iPad | Art |
+|---|---|---|---|---|
+| Veröffentlichte Version | 0.9.23 | 0.9.24 (TestFlight) | 0.9.24 (TestFlight) | **Rückstand**: Mac 0.9.24 veröffentlichen |
+| Pro: Sprecher, Fragen, „Wichtig“ + Klausur-Radar, Übersetzen | – | ✅ | ✅ | **Rückstand**: am Mac frei geben (Vorschlag, Offene Entscheidungen), vor Mac 1.0 |
+| Dankeschön-Paket (Designs, App-Symbole) | – | ✅ | ✅ | offen: am Mac frei oder weglassen |
+| Live-Mitschrift während der Aufnahme | ✅ | – | – | **Rückstand**: iPhone/iPad (IPHONE.md, 1.2) |
+| Transkription | Whisper | Apple-Spracherkennung | Apple-Spracherkennung | Plattform (Whisper auf M-iPads: IPAD.md P3, nach Bedarf) |
+| Systemton, Call-Erkennung, Menüleiste | ✅ | – | – | Plattform |
+| Apple Notizen, Bear, Craft, Things als Ziel | ✅ | Teilen-Menü | Teilen-Menü | Plattform (nur per AppleScript) |
+| Live-Aktivität, Action-Taste, Widgets | – | ✅ | teils | Plattform |
+| Oberflächensprachen | DE, EN | DE, EN | DE, EN | gleich – neue Sprachen immer auf allen dreien |
 
 ---
 
@@ -489,6 +510,17 @@ kommt, wird geordnet (Regel 8). Ziel: Eine Erstnutzerin findet sich sofort zurec
 - [ ] iPad-Screenshots von den M1-Testern
 - [ ] Mac 1.0 nach der Beta (Phase 5)
 - [ ] Website und README: App-Store-Link statt TestFlight
+- [ ] App-Store-Eintrag zusätzlich auf Spanisch (auch Mexiko, zählt für die US-Suche), Französisch, Italienisch –
+      Texte fertig in [APPSTORE.md](APPSTORE.md) „Weitere Sprachen“; die Oberfläche bleibt dort Englisch
+
+## Mehr Sprachen (nach 0.9.25)
+
+**Warum:** Am iPhone läuft die Suche im App Store je Sprache – jede Sprache ist ein eigener Markt.
+**Reihenfolge:** 1. App-Store-Eintrag (zum Launch, oben) · 2. Oberfläche auf Spanisch, Französisch, Italienisch –
+erst nach dem Aufräumen in 0.9.25, sonst wird doppelt übersetzt, und **gleichzeitig auf Mac, iPhone und iPad** (Regel 9)
+· 3. je Sprache eine echte Vorlesung durch die ganze Kette (Transkript, Notiz, Karteikarten) prüfen, bevor die Sprache
+beworben wird · 4. weitere Sprachen nur nach den Aufrufen je Land in App Store Connect.
+- [ ] Portugiesisch fehlt noch in Spracherkennung und „Sprache der Notiz“ – erst ergänzen und prüfen, dann eintragen
 
 ## Phase 8 – Pro, zweite Welle (1.2+)
 
@@ -617,6 +649,7 @@ E-Mail aus einer Kanzlei, Praxis oder IT-Abteilung. Bis dahin gilt: Nachfragen s
 | Windows/Linux | **Zurückgestellt.** Kein Port, sondern ein zweites Produkt (CoreML, MLX, SwiftUI gibt es dort nicht). Erst iPad/iPhone, danach neu bewerten – zuerst denkbar: schlanke Windows-Begleitung, die nur aufnimmt | nach 1.1 |
 | Geld verdienen | ✅ **entschieden 25.09.2026:** Nie ein Abo. Alles Heutige bleibt kostenlos. Trinkgeld (3 Stufen) schaltet das Dankeschön-Paket frei; **Earnote Pro 9,99 € einmalig** für zusätzliche Funktionen (iPhone/iPad). Organisationen: Phase 10. Kein Server, keine Konten | ✅ |
 | Pro am Mac | Offen. Vorschlag: die Pro-Funktionen am Mac **frei** lassen (DMG, Open Source – ein Lizenzsystem lohnt nicht) und dort weiter auf Ko-fi/Sponsors setzen; neu bewerten, falls der Mac in den App Store geht | vor Mac 1.0 |
+| Versionsnummer zum Launch | Vorschlag: **alle drei starten als 1.0** statt Mac 1.0 / iPhone 1.1 (Regel 9) – ein Produkt, eine Nummer | vor der Einreichung |
 | Einstiegsfrage „Wofür nutzt du Earnote?“ | Ja – in Phase 7, als Hebel gegen Überladung | 0.9.25 |
 | Lokales Standardmodell | Qwen3 4B auf allen Macs (Modellvergleich 23.09.2026) | ✅ entschieden |
 
