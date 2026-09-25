@@ -29,12 +29,12 @@ also ausgeschlossen. Für sie bleiben:
 
 1. **Apple Intelligence** auf dem Gerät – nur iPhone 15 Pro/16/17 und iPads mit M-Chip oder A17 Pro.
 2. **Der Mac der Familie** (Weg B).
-3. **Ein kleines lokales Modell** für Geräte mit 4–6 GB – gibt es noch nicht (Abschnitt 5, Punkt 1). Das ist die
-   Lücke, die über die Schüler-Zielgruppe entscheidet – und nebenbei auch iPhone 11–15 ohne Pro ohne Cloud nutzbar macht.
+3. ~~Ein kleines lokales Modell für Geräte mit 4–6 GB~~ – **getestet und verworfen (25.09.2026):** Qwen3 1.7B am iPhone 15
+   schafft kurze Aufnahmen (12 s → Notiz in ~20 s), bei 30+ Minuten bewegt sich der Fortschritt kaum. Zu langsam für Vorlesungen.
 
-**Empfehlung:** Studierende bleiben Zielgruppe Nummer eins bis zum Mac-Launch und zur iPhone-1.1. Schüler werden
-danach gezielt angegangen – aber erst, wenn es einen Weg ohne Cloud-Schlüssel für normale iPads gibt. Sonst wäre die
-erste Erfahrung für die meisten: „geht bei mir nicht“.
+**Empfehlung:** Studierende bleiben Zielgruppe Nummer eins bis zum Mac-Launch und zur iPhone-1.1. Schüler kommen danach –
+vor allem mit neueren Geräten (Apple Intelligence) oder dem Mac der Familie. Die Altersgrenze von Google/OpenRouter nennen
+wir ehrlich, ohne Umwege zu empfehlen.
 
 ---
 
@@ -120,9 +120,8 @@ Die Botschaft ist nicht „besser als Otter“, sondern „für dich gemacht, ni
 
 Sortiert nach Wirkung, nicht nach Aufwand.
 
-1. **Kleines lokales Modell für Geräte mit 4–6 GB** (iPhone 11–15, iPad ohne M-Chip). Kandidat: Qwen3 1.7B (4-Bit,
-   ca. 1 GB) über MLX. Notizen werden einfacher, aber „ohne Internet, ohne Konto, ohne Alter 18“. Erst messen
-   (Speicher, Dauer, Qualität bei 90 Minuten mit Vorverdichten), dann entscheiden. **Entscheidet über Schüler.**
+1. ~~Kleines lokales Modell für Geräte mit 4–6 GB~~ – am iPhone 15 gemessen und verworfen (25.09.2026, zu langsam bei
+   langen Aufnahmen). Nebenbefund behoben: Qwen3 1.7B dachte vor jeder Notiz minutenlang still nach (PR #22).
 2. **iPad-Oberfläche** (Seitenleiste, Split-Ansicht, Tastatur) – Plan in [IPAD.md](IPAD.md).
 3. **Automatisch erneut versuchen**, wenn Google/OpenRouter kurz ausfallen oder das Netz weg ist – statt Fehler
    in der Liste (in Arbeit).
@@ -148,8 +147,8 @@ Earnote zählt nichts. Was trotzdem messbar ist:
 
 | Frage | Vorschlag |
 |---|---|
-| Schüler als Zielgruppe | Ja, **nach** Mac 1.0 und iPhone 1.1 – und erst mit einem Weg ohne Cloud-Schlüssel für normale iPads |
+| Schüler als Zielgruppe | Ja, **nach** Mac 1.0 und iPhone 1.1 – über neuere Geräte (Apple Intelligence) und den Mac der Familie |
 | Extras | Ein Paket „Earnote Extras“ für 4,99 € einmalig, Trinkgeld schaltet es mit frei, am Mac frei |
 | Erste Extras | App-Icons + Unterstützer-Abzeichen (klein), danach Lernzettel-Designs |
-| Kleines lokales Modell | Messbank bauen (wie beim Modellvergleich 23.09.2026) mit Qwen3 1.7B auf iPhone 15 |
+| Kleines lokales Modell | ✅ entschieden 25.09.2026: **nein** – am iPhone 15 zu langsam für lange Aufnahmen |
 | Launch-Termin | Semesterstart Ende Oktober, wenn die Beta keine groben Fehler zeigt |
