@@ -23,7 +23,10 @@ struct ExamRadarView: View {
                         NoteContentView(markdown: item) { _ in }
                     }
                 } header: {
-                    NavigationLink(value: note.id) {
+                    // Ziel direkt statt `value:` – das Radar liegt per `isPresented` im Stapel, dort griff der Wert-Link nicht
+                    NavigationLink {
+                        RecordingDetailView(id: note.id)
+                    } label: {
                         HStack(alignment: .firstTextBaseline) {
                             Text(note.title).multilineTextAlignment(.leading)
                             Spacer()
