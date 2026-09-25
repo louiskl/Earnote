@@ -6,31 +6,21 @@
 # 1. baut das Archiv (Release, Team KZJJ4FFKXJ), Xcode signiert automatisch
 # 2. lädt es zu App Store Connect hoch; nach 10–30 Minuten Verarbeitung erscheint es in TestFlight
 #
-# Braucht einmalig:
-#   - scripts/AuthKey.p8            API-Schlüssel aus App Store Connect (Benutzer und Zugriff › Integrationen)
-#   - scripts/appstoreconnect.env   ASC_KEY_ID=… und ASC_ISSUER_ID=… (beides von derselben Seite)
-#   - die App in App Store Connect (Meine Apps › + › Neue App, Bundle-ID app.earnote.Earnote)
-# Beide Dateien stehen in .gitignore und verlassen den Mac nie.
+# Signiert und lädt hoch mit dem Apple-Konto, das in Xcode angemeldet ist (Xcode › Einstellungen › Accounts) –
+# genau wie der Organizer. Der API-Schlüssel (scripts/AuthKey.p8) scheiterte an der Cloud-Signierung
+# („Cloud signing permission error“), weil Schlüssel ohne Admin-Rolle keine Cloud-Zertifikate nutzen dürfen.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 fail() { echo "✗ $1" >&2; exit 1; }
 
-KEY="$ROOT/scripts/AuthKey.p8"
-ENV="$ROOT/scripts/appstoreconnect.env"
-[[ -f "$KEY" ]] || fail "API-Schlüssel fehlt: scripts/AuthKey.p8"
-[[ -f "$ENV" ]] || fail "scripts/appstoreconnect.env fehlt (ASC_KEY_ID und ASC_ISSUER_ID)"
-# shellcheck disable=SC1090
-source "$ENV"
-[[ -n "${ASC_KEY_ID:-}" && -n "${ASC_ISSUER_ID:-}" ]] || fail "ASC_KEY_ID oder ASC_ISSUER_ID fehlt in scripts/appstoreconnect.env"
-git check-ignore -q "$KEY" || fail "scripts/AuthKey.p8 ist nicht in .gitignore – abgebrochen"
 
 VERSION="$(sed -nE 's/^MARKETING_VERSION = "([0-9.]+)"/\1/p' scripts/generate_xcodeproj.py)"
 # TestFlight verlangt je Hochladen eine neue Buildnummer – Datum und Uhrzeit sind immer größer als die letzte
 BUILD="$(date +%Y%m%d%H%M)"
 ARCHIVE="$ROOT/dist/EarnoteiOS.xcarchive"
-AUTH=(-allowProvisioningUpdates -authenticationKeyPath "$KEY" -authenticationKeyID "$ASC_KEY_ID" -authenticationKeyIssuerID "$ASC_ISSUER_ID")
+AUTH=(-allowProvisioningUpdates)
 
 echo "▸ Earnote für iPhone $VERSION ($BUILD) – Projekt erzeugen …"
 python3 scripts/generate_ios_xcodeproj.py >/dev/null
