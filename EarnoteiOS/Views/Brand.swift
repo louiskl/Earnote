@@ -1,7 +1,7 @@
 import SwiftUI
 
 /// Der eine „besondere Moment“ je Bildschirm (DESIGN_GUIDELINES Abschnitt 30): ein ruhig fließender Verlauf in
-/// Earnote-Rot hinter Willkommensseite und laufender Aufnahme. Mit „Bewegung reduzieren“ steht er still.
+/// der Farbe der App (Earnote-Rot oder die gewählte aus dem Dankeschön-Paket) hinter Willkommensseite und laufender Aufnahme. Mit „Bewegung reduzieren“ steht er still.
 struct BrandGlow: View {
     /// 0…1 – z. B. schwächer, solange eine Aufnahme pausiert
     var intensity: Double = 1
@@ -10,6 +10,7 @@ struct BrandGlow: View {
     @State private var smoothed = Smoothed()
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.skin) private var skin
 
     var body: some View {
         TimelineView(.animation(minimumInterval: 1 / 30, paused: reduceMotion)) { context in
@@ -18,6 +19,7 @@ struct BrandGlow: View {
             let base = Color(uiColor: .systemBackground)
             let strength = (colorScheme == .dark ? 0.55 : 0.38) * (1 + 0.6 * energy)
             let swing = 1 + 1.8 * energy
+            let accent = skin.tint, (side, other) = skin.glow
             MeshGradient(width: 3, height: 3, points: [
                 [0, 0], [0.5, 0], [1, 0],
                 [0, Float(0.45 + 0.08 * swing * sin(t * 0.5))],
@@ -25,8 +27,8 @@ struct BrandGlow: View {
                 [1, Float(0.5 + 0.08 * swing * cos(t * 0.35))],
                 [0, 1], [0.5, 1], [1, 1],
             ], colors: [
-                .orange.opacity(strength * 0.8), .accentColor.opacity(strength), .pink.opacity(strength * 0.7),
-                .accentColor.opacity(strength * 0.6), .orange.opacity(strength * 0.35), .accentColor.opacity(strength * 0.5),
+                side.opacity(strength * 0.8), accent.opacity(strength), other.opacity(strength * 0.7),
+                accent.opacity(strength * 0.6), side.opacity(strength * 0.35), accent.opacity(strength * 0.5),
                 base, base, base,
             ])
         }

@@ -21,6 +21,7 @@ struct SearchView: View {
                     }
                 }
             }
+            .paper()
             .navigationTitle("Suche")
             .navigationDestination(for: UUID.self) { RecordingDetailView(id: $0) }
         }
