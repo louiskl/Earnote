@@ -18,6 +18,7 @@ struct EarnoteiOSApp: App {
                 .environment(\.loadDemoLibrary) { await environment.loadDemoLibrary() }
                 #endif
         }
+        .commands { PhoneCommands(recorder: environment.recorder) }
     }
 }
 

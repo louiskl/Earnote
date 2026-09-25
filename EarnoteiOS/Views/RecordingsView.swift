@@ -6,9 +6,8 @@ import UniformTypeIdentifiers
 /// In breiter Größe (iPad) Liste und Notiz nebeneinander; schmale Fenster fallen von selbst auf den Stapel zurück.
 struct RecordingsView: View {
     @Binding var path: [UUID]
-    @Environment(LibraryStore.self) private var library
-    @State private var showsSettings = false
-    @State private var importing = false
+    @Binding var showsSettings: Bool
+    @Binding var importing: Bool
 
     var body: some View {
         RecordingSplit(path: $path) { list(selection: $0) }
@@ -16,21 +15,15 @@ struct RecordingsView: View {
 
     private func list(selection: Binding<UUID?>?) -> some View {
         RecordingList(filter: .all, selection: selection)
-                .navigationTitle("Aufnahmen")
-                .toolbar {
-                    ToolbarItem(placement: .topBarLeading) {
-                        Button("Einstellungen", systemImage: "gearshape") { showsSettings = true }
-                    }
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Button("Importieren", systemImage: "square.and.arrow.down") { importing = true }
-                    }
+            .navigationTitle("Aufnahmen")
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button("Einstellungen", systemImage: "gearshape") { showsSettings = true }
                 }
-                .sheet(isPresented: $showsSettings) { SettingsSheet() }
-                // Audio und Video aus der Dateien-App (Sprachmemos, Aufnahmen anderer Apps)
-                .fileImporter(isPresented: $importing, allowedContentTypes: [.audio, .movie], allowsMultipleSelection: true) { result in
-                    guard case .success(let urls) = result else { return }
-                    AudioImport.run(urls, into: library, category: nil)
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Importieren", systemImage: "square.and.arrow.down") { importing = true }
                 }
+            }
     }
 }
 

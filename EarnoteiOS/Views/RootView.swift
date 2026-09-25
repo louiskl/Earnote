@@ -1,5 +1,6 @@
 import EarnoteCore
 import SwiftUI
+import UniformTypeIdentifiers
 
 /// Feste Wurzel: drei Tabs, jeder mit eigenem Navigationsstapel. Die laufende Aufnahme sitzt im
 /// `tabViewBottomAccessory` – wie „Jetzt läuft“ in Musik. Am iPad wird daraus eine Seitenleiste (`sidebarAdaptable`).
@@ -40,13 +41,15 @@ struct RootView: View {
     @State private var recordingsPath: [UUID] = []
     @State private var libraryPath = NavigationPath()
     @State private var filterPaths: [LibraryFilter: [UUID]] = [:]
+    @State private var showsSettings = false
+    @State private var importing = false
 
     var body: some View {
         @Bindable var library = library
         @Bindable var recorder = recorder
         TabView(selection: $tab) {
             SwiftUI.Tab("Aufnahmen", systemImage: "waveform", value: .recordings) {
-                RecordingsView(path: $recordingsPath)
+                RecordingsView(path: $recordingsPath, showsSettings: $showsSettings, importing: $importing)
             }
             SwiftUI.Tab("Bereiche", systemImage: "square.stack.fill", value: .library) {
                 LibraryView(path: $libraryPath)
@@ -80,6 +83,26 @@ struct RootView: View {
         .sheet(isPresented: $showsRecorder) {
             RecordSheet()
         }
+        .sheet(isPresented: $showsSettings) { SettingsSheet() }
+        // Audio und Video aus der Dateien-App (Sprachmemos, Aufnahmen anderer Apps)
+        .fileImporter(isPresented: $importing, allowedContentTypes: [.audio, .movie], allowsMultipleSelection: true) { result in
+            guard case .success(let urls) = result else { return }
+            AudioImport.run(urls, into: library, category: nil)
+            tab = .recordings
+        }
+        // Am iPad: Audiodateien ins Fenster ziehen
+        .dropDestination(for: URL.self) { urls, _ in
+            let audio = urls.filter { UTType(filenameExtension: $0.pathExtension)?.conforms(to: .audiovisualContent) == true }
+            guard !audio.isEmpty else { return false }
+            AudioImport.run(audio, into: library, category: nil)
+            tab = .recordings
+            return true
+        }
+        // Menüleiste und Tastenkürzel am iPad (`PhoneCommands`) – je Fenster
+        .focusedSceneValue(\.phoneActions, PhoneActions(
+            showSettings: { showsSettings = true },
+            importAudio: { importing = true },
+            search: { tab = .search }))
         // „Mit Earnote öffnen“ aus Sprachmemos, WhatsApp, Dateien (Dokumenttypen im Info.plist)
         .onOpenURL { url in open(url) }
         // „Mit Earnote teilen“ (Share Extension): Dateien übernehmen, sobald die App vorn und die Bibliothek geladen ist
