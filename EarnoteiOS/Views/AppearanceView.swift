@@ -2,12 +2,16 @@ import EarnoteCore
 import SwiftUI
 import UIKit
 
-/// Farbe der App (Dankeschön-Paket). Sie ersetzt nur das Earnote-Rot als Akzent – alles andere bleibt Systemoberfläche
+/// Aussehen der App (Dankeschön-Paket). Farben tauschen nur den Akzent; Designs zusätzlich Schriftart, Papierton
+/// hinter den Listen und – bei „Terminal“ – das dunkle Erscheinungsbild. Bedienelemente bleiben immer die des Systems
 /// (DESIGN_GUIDELINES Abschnitt 30).
 enum AppSkin: String, CaseIterable, Identifiable {
     case standard, ozean, salbei, lavendel, mitternacht
+    case retro, notizbuch, terminal
 
     static let key = "appearance.skin"
+    static let colors: [AppSkin] = [.standard, .ozean, .salbei, .lavendel, .mitternacht]
+    static let designs: [AppSkin] = [.retro, .notizbuch, .terminal]
     var id: Self { self }
     var isFree: Bool { self == .standard }
 
@@ -18,6 +22,19 @@ enum AppSkin: String, CaseIterable, Identifiable {
         case .salbei: "Salbei"
         case .lavendel: "Lavendel"
         case .mitternacht: "Mitternacht"
+        case .retro: "Retro"
+        case .notizbuch: "Notizbuch"
+        case .terminal: "Terminal"
+        }
+    }
+
+    /// Kurz, wonach ein Design aussieht
+    var detail: LocalizedStringKey? {
+        switch self {
+        case .retro: "Runde Schrift, warme 70er-Farben"
+        case .notizbuch: "Serifenschrift auf Papier, Tintenblau"
+        case .terminal: "Grün auf Schwarz, Schreibmaschinenschrift"
+        default: nil
         }
     }
 
@@ -28,6 +45,9 @@ enum AppSkin: String, CaseIterable, Identifiable {
         case .salbei: Color(hex: "#23946A")
         case .lavendel: Color(hex: "#8657EC")
         case .mitternacht: Color(hex: "#5563DE")
+        case .retro: .adaptive(light: "#D2601A", dark: "#F08A3C")
+        case .notizbuch: .adaptive(light: "#1F4E9C", dark: "#7FA6F0")
+        case .terminal: Color(hex: "#3DDC6B")
         }
     }
 
@@ -39,13 +59,61 @@ enum AppSkin: String, CaseIterable, Identifiable {
         case .salbei: (.mint, .teal)
         case .lavendel: (.pink, .indigo)
         case .mitternacht: (.indigo, .purple)
+        case .retro: (Color(hex: "#E8B031"), Color(hex: "#8C3B1E"))
+        case .notizbuch: (.teal, .indigo)
+        case .terminal: (.mint, .green)
         }
+    }
+
+    var fontDesign: Font.Design {
+        switch self {
+        case .retro: .rounded
+        case .notizbuch: .serif
+        case .terminal: .monospaced
+        default: .default
+        }
+    }
+
+    /// Papierton hinter Listen und Formularen (nil = Systemhintergrund)
+    var paper: Color? {
+        switch self {
+        case .retro: .adaptive(light: "#F5EBD9", dark: "#241B13")
+        case .notizbuch: .adaptive(light: "#F8F4EA", dark: "#1C1A17")
+        case .terminal: Color(hex: "#040805")
+        default: nil
+        }
+    }
+
+    var colorScheme: ColorScheme? { self == .terminal ? .dark : nil }
+}
+
+extension Color {
+    /// Eigene Farbe für hellen und dunklen Modus
+    static func adaptive(light: String, dark: String) -> Color {
+        Color(UIColor { $0.userInterfaceStyle == .dark ? UIColor(Color(hex: dark)) : UIColor(Color(hex: light)) })
+    }
+}
+
+extension View {
+    /// Papierton eines Designs hinter den Hauptansichten (Aufnahmen, Bereiche, Suche, Notiz). Blätter wie die
+    /// Einstellungen bleiben Systemoberfläche.
+    func paper() -> some View { modifier(PaperBackground()) }
+}
+
+private struct PaperBackground: ViewModifier {
+    @Environment(\.skin) private var skin
+
+    func body(content: Content) -> some View {
+        content
+            .scrollContentBackground(skin.paper == nil ? .automatic : .hidden)
+            .background { skin.paper?.ignoresSafeArea() }
     }
 }
 
 /// App-Symbol auf dem Home-Bildschirm (Dankeschön-Paket). Die Symbole erzeugt scripts/make_ios_icon_variants.swift.
 enum AppIconChoice: String, CaseIterable, Identifiable {
     case standard = "Standard", ozean = "Ozean", salbei = "Salbei", lavendel = "Lavendel", mitternacht = "Mitternacht", hell = "Hell"
+    case regenbogen = "Regenbogen", retro = "Retro", terminal = "Terminal"
 
     var id: Self { self }
     var isFree: Bool { self == .standard }
@@ -71,7 +139,11 @@ struct Skinned: ViewModifier {
 
     func body(content: Content) -> some View {
         let active = isSupporter || skin.isFree ? skin : .standard
-        content.tint(active.tint).environment(\.skin, active)
+        content
+            .tint(active.tint)
+            .fontDesign(active.fontDesign)
+            .preferredColorScheme(active.colorScheme)
+            .environment(\.skin, active)
     }
 }
 
@@ -82,6 +154,7 @@ struct AppearanceView: View {
     @State private var icon = AppIconChoice.current
     @State private var showsSupporter = false
     @State private var iconFailed = false
+    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
         Form {
@@ -93,13 +166,25 @@ struct AppearanceView: View {
                 }
             }
             Section("Farbe") {
-                ForEach(AppSkin.allCases) { option in
-                    OptionRow(name: option.name, isFree: option.isFree, isSelected: skin == option, isLocked: !option.isFree && !isSupporter) {
-                        Circle().fill(option.tint).frame(width: 28, height: 28)
-                    } action: {
-                        if option.isFree || isSupporter { skin = option } else { showsSupporter = true }
+                ForEach(AppSkin.colors) { option in
+                    skinRow(option) { Circle().fill(option.tint).frame(width: 28, height: 28) }
+                }
+            }
+            Section {
+                ForEach(AppSkin.designs) { option in
+                    skinRow(option) {
+                        Text(verbatim: "Aa")
+                            .font(.system(.callout, design: option.fontDesign).weight(.semibold))
+                            .foregroundStyle(option.tint)
+                            .frame(width: 40, height: 40)
+                            .background(option.paper ?? .clear, in: .rect(cornerRadius: 9))
+                            .environment(\.colorScheme, option.colorScheme ?? colorScheme)
                     }
                 }
+            } header: {
+                Text("Design")
+            } footer: {
+                Text("Ein Design ändert Farbe, Schrift und Hintergrund der ganzen App.")
             }
             Section {
                 ForEach(AppIconChoice.allCases) { option in
@@ -121,6 +206,13 @@ struct AppearanceView: View {
         .alert("Das Symbol ließ sich nicht ändern. Versuch es gleich noch einmal.", isPresented: $iconFailed) {}
     }
 
+    private func skinRow(_ option: AppSkin, @ViewBuilder preview: () -> some View) -> some View {
+        OptionRow(name: option.name, detail: option.detail, isFree: option.isFree, isSelected: skin == option,
+                  isLocked: !option.isFree && !isSupporter, preview: preview) {
+            if option.isFree || isSupporter { skin = option } else { showsSupporter = true }
+        }
+    }
+
     private func setIcon(_ option: AppIconChoice) {
         Task {
             // iOS meldet manchmal einen Fehler, obwohl das Symbol gewechselt hat – maßgeblich ist, was danach gilt
@@ -134,6 +226,7 @@ struct AppearanceView: View {
 /// Eine Zeile zum Auswählen: Vorschau, Name, darunter „Kostenlos“ oder „Dankeschön-Paket“, Haken bei der Auswahl
 private struct OptionRow<Preview: View>: View {
     let name: LocalizedStringKey
+    var detail: LocalizedStringKey?
     let isFree: Bool
     let isSelected: Bool
     let isLocked: Bool
@@ -148,6 +241,8 @@ private struct OptionRow<Preview: View>: View {
                     Text(name)
                     if isFree {
                         Text("Kostenlos").font(.caption).foregroundStyle(.secondary)
+                    } else if let detail {
+                        Text(detail).font(.caption).foregroundStyle(.secondary)
                     } else if isLocked {
                         Text("Dankeschön-Paket").font(.caption).foregroundStyle(.secondary)
                     }

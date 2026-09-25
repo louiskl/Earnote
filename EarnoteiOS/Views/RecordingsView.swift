@@ -15,6 +15,7 @@ struct RecordingsView: View {
 
     private func list(selection: Binding<UUID?>?) -> some View {
         RecordingList(filter: .all, selection: selection)
+            .paper()
             .navigationTitle("Aufnahmen")
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {

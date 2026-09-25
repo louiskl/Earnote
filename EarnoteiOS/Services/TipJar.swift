@@ -79,7 +79,8 @@ struct SupporterView: View {
                 .padding(.vertical, 4)
             }
             Section("Das bekommst du") {
-                Label("\(AppSkin.allCases.count - 1) weitere Farben für die App", systemImage: "paintpalette")
+                Label("\(AppSkin.colors.count - 1) weitere Farben für die App", systemImage: "paintpalette")
+                Label("Designs: Retro, Notizbuch und Terminal", systemImage: "textformat")
                 Label("\(AppIconChoice.allCases.count - 1) weitere App-Symbole", systemImage: "app.badge")
                 Label("Du hilfst bei den Kosten für Apple-Konto und Weiterentwicklung", systemImage: "heart")
             }

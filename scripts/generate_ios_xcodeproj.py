@@ -137,7 +137,7 @@ def settings(d):
 target_settings = {
     "ASSETCATALOG_COMPILER_APPICON_NAME": "AppIcon",
     # App-Symbole des Dankeschön-Pakets (scripts/make_ios_icon_variants.swift, AppIconChoice)
-    "ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES": "AppIcon-Ozean AppIcon-Salbei AppIcon-Lavendel AppIcon-Mitternacht AppIcon-Hell",
+    "ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES": "AppIcon-Ozean AppIcon-Salbei AppIcon-Lavendel AppIcon-Mitternacht AppIcon-Hell AppIcon-Regenbogen AppIcon-Retro AppIcon-Terminal",
     "ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME": "AccentColor",
     "CODE_SIGN_ENTITLEMENTS": f"{NAME}/Resources/{NAME}.entitlements",
     "CODE_SIGN_STYLE": "Automatic",

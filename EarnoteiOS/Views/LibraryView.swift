@@ -51,6 +51,7 @@ struct LibraryView: View {
                     Button("Neuer Bereich", systemImage: "plus.circle.fill") { creating = true }
                 }
             }
+            .paper()
             .navigationTitle("Bereiche")
             .toolbar { EditButton() }
             .navigationDestination(for: LibraryFilter.self) { FilteredRecordingsView(filter: $0) }
@@ -96,6 +97,7 @@ struct FilteredRecordingsView: View {
 
     var body: some View {
         RecordingList(filter: filter, selection: selection)
+            .paper()
             .navigationTitle(title)
             .toolbar {
                 if let category {

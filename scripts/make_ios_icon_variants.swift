@@ -13,6 +13,9 @@ struct Variant {
     let wave: (UInt32, UInt32)         // Balken oben → unten
     let fold: UInt32
     let shadow: CGFloat
+    var barColors: [UInt32]? = nil    // je Balken eine eigene Farbe statt des Verlaufs
+    var stripes: [UInt32]? = nil      // Hintergrund in waagerechten Streifen statt Verlauf
+    var barGlow: UInt32? = nil        // Leuchten um die Balken (Terminal)
 }
 
 let variants = [
@@ -21,6 +24,13 @@ let variants = [
     Variant(name: "Lavendel", background: (0xC4A3FF, 0x7C4DEB), page: 0xFFFFFF, wave: (0xA07AF7, 0x7C4DEB), fold: 0xE9DDFF, shadow: 0.35),
     Variant(name: "Mitternacht", background: (0x343A4A, 0x0E1118), page: 0xFFFFFF, wave: (0xFF7758, 0xE8364E), fold: 0xC9CEDA, shadow: 0.6),
     Variant(name: "Hell", background: (0xFFFFFF, 0xF1EDEA), page: 0xEE4B4E, wave: (0xFFFFFF, 0xFFFFFF), fold: 0xFFB3A6, shadow: 0.18),
+    Variant(name: "Regenbogen", background: (0, 0), page: 0xFFFFFF, wave: (0, 0), fold: 0xE6E6EA, shadow: 0.3,
+            barColors: [0xE8453B, 0xF5891F, 0xF2C230, 0x2FA84F, 0x2F7CF6, 0x5B4BDB, 0x9B3FC8],
+            stripes: [0xE8453B, 0xF5891F, 0xF2C230, 0x2FA84F, 0x2F7CF6, 0x8A3FC8]),
+    Variant(name: "Retro", background: (0xF2B33D, 0xD2601A), page: 0xFFF4DE, wave: (0, 0), fold: 0xF3D9A8, shadow: 0.3,
+            barColors: [0x7A3B1D, 0xD2601A, 0xE8A92E, 0x7A3B1D, 0xD2601A, 0xE8A92E, 0x7A3B1D]),
+    Variant(name: "Terminal", background: (0x0C130E, 0x000000), page: 0x0F1D13, wave: (0x6DFF95, 0x2BC957), fold: 0x1F3A27, shadow: 0.8,
+            barGlow: 0x3DDC6B),
 ]
 
 let size = 1024
@@ -45,8 +55,16 @@ func render(_ v: Variant, to url: URL, pixels: Int) {
     ctx.translateBy(x: 0, y: CGFloat(size))
     ctx.scaleBy(x: 1, y: -1)   // ab hier: y von oben, wie abgemessen
 
-    let background = CGGradient(colorsSpace: space, colors: [color(v.background.0), color(v.background.1)] as CFArray, locations: [0, 1])!
-    ctx.drawLinearGradient(background, start: .zero, end: CGPoint(x: 0, y: size), options: [])
+    if let stripes = v.stripes {
+        let height = CGFloat(size) / CGFloat(stripes.count)
+        for (i, stripe) in stripes.enumerated() {
+            ctx.setFillColor(color(stripe))
+            ctx.fill(CGRect(x: 0, y: CGFloat(i) * height, width: CGFloat(size), height: height + 1))
+        }
+    } else {
+        let background = CGGradient(colorsSpace: space, colors: [color(v.background.0), color(v.background.1)] as CFArray, locations: [0, 1])!
+        ctx.drawLinearGradient(background, start: .zero, end: CGPoint(x: 0, y: size), options: [])
+    }
 
     // Blatt mit Eselsohr und weichem Schatten
     let outline = CGMutablePath()
@@ -72,16 +90,33 @@ func render(_ v: Variant, to url: URL, pixels: Int) {
     ctx.setFillColor(color(v.fold))
     ctx.fillPath()
 
-    // Schallwelle als Verlauf über alle Balken
-    ctx.saveGState()
-    for bar in bars {
-        ctx.addPath(CGPath(roundedRect: CGRect(x: bar.x, y: bar.top, width: barWidth, height: bar.bottom - bar.top),
-                           cornerWidth: barWidth / 2, cornerHeight: barWidth / 2, transform: nil))
+    // Schallwelle: je Balken eine Farbe oder ein Verlauf über alle Balken
+    func barPath(_ bar: (x: CGFloat, top: CGFloat, bottom: CGFloat)) -> CGPath {
+        CGPath(roundedRect: CGRect(x: bar.x, y: bar.top, width: barWidth, height: bar.bottom - bar.top),
+               cornerWidth: barWidth / 2, cornerHeight: barWidth / 2, transform: nil)
     }
-    ctx.clip()
-    let wave = CGGradient(colorsSpace: space, colors: [color(v.wave.0), color(v.wave.1)] as CFArray, locations: [0, 1])!
-    ctx.drawLinearGradient(wave, start: CGPoint(x: 0, y: 426), end: CGPoint(x: 0, y: 698), options: [])
-    ctx.restoreGState()
+    if let glow = v.barGlow {
+        ctx.saveGState()
+        ctx.setShadow(offset: .zero, blur: 28, color: color(glow, 0.9))
+        ctx.setFillColor(color(glow))
+        bars.forEach { ctx.addPath(barPath($0)) }
+        ctx.fillPath()
+        ctx.restoreGState()
+    }
+    if let barColors = v.barColors {
+        for (bar, barColor) in zip(bars, barColors) {
+            ctx.addPath(barPath(bar))
+            ctx.setFillColor(color(barColor))
+            ctx.fillPath()
+        }
+    } else {
+        ctx.saveGState()
+        bars.forEach { ctx.addPath(barPath($0)) }
+        ctx.clip()
+        let wave = CGGradient(colorsSpace: space, colors: [color(v.wave.0), color(v.wave.1)] as CFArray, locations: [0, 1])!
+        ctx.drawLinearGradient(wave, start: CGPoint(x: 0, y: 426), end: CGPoint(x: 0, y: 698), options: [])
+        ctx.restoreGState()
+    }
 
     let dest = CGImageDestinationCreateWithURL(url as CFURL, UTType.png.identifier as CFString, 1, nil)!
     CGImageDestinationAddImage(dest, ctx.makeImage()!, nil)

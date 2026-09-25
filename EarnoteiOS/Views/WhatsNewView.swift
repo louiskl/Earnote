@@ -9,8 +9,8 @@ import SwiftUI
     static let items: [(symbol: String, title: LocalizedStringKey, text: LocalizedStringKey)] = [
         ("ipad.landscape", "Earnote fürs iPad",
          "Seitenleiste wie am Mac, Notiz und Transkript nebeneinander, Tastenkürzel und mehrere Fenster."),
-        ("paintpalette", "Farben und App-Symbole",
-         "Unter Einstellungen › Aussehen. Das Earnote-Rot bleibt kostenlos, der Rest ist ein Dankeschön für ein Trinkgeld."),
+        ("paintpalette", "Farben, Designs und App-Symbole",
+         "Retro, Notizbuch, Terminal und mehr unter Einstellungen › Aussehen – als Dankeschön für ein Trinkgeld. Das Earnote-Rot bleibt kostenlos."),
     ]
 }
 

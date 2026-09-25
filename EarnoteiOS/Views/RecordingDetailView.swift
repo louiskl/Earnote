@@ -38,6 +38,7 @@ struct RecordingDetailView: View {
                 ContentUnavailableView("Aufnahme nicht gefunden", systemImage: "questionmark.folder")
             }
         }
+        .paper()
         .navigationTitle(recording?.displayTitle ?? "")
         .navigationSubtitle(subtitle)
         .navigationBarTitleDisplayMode(.inline)
