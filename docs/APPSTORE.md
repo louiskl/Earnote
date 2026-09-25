@@ -1,6 +1,6 @@
 # Earnote für iPhone – App-Store-Eintrag
 
-> Stand: 25.09.2026 · Vorlage für App Store Connect (Version 1.1) · Längen geprüft · gepflegt vom Architekten.
+> Stand: 25.09.2026 · Vorlage für App Store Connect (Version 1.0) · Längen geprüft · gepflegt vom Architekten.
 > Zum Kopieren: jeweils ein Feld pro Block. Deutsch ist die Hauptsprache, Englisch (USA/UK) als zweite Lokalisierung,
 > dazu Spanisch, Französisch und Italienisch nur als Eintrag (siehe „Weitere Sprachen“).
 

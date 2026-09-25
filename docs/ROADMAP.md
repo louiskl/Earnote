@@ -87,7 +87,7 @@ Was nicht überall gleich ist – und warum. Jede Zeile ist entweder **Plattform
 | 6b | iPad: Seitenleiste, Liste und Notiz nebeneinander, Menüleiste, Tastenkürzel, Fenster | 0.9.23 | ✅ fertig (Test auf M1-iPads läuft) |
 | 6c | Dankeschön-Paket (Farben, Designs, App-Symbole), „Neu in Earnote“, Bewertung, **Earnote Pro** (Sprecher, Fragen, Klausur-Radar, Übersetzen) | 0.9.24 | ✅ gebaut, ▶ Test auf dem iPhone |
 | **7** | **Prüfen und aufräumen** – 0.9.24 auf Geräten testen, Menüs und Einstellungen ordnen, Einstiegsfrage „Wofür nutzt du Earnote?“ | 0.9.25 | ▶ gebaut ([#29](https://github.com/louiskl/Earnote/pull/29)), Test auf Geräten offen |
-| 🚀 | **Launch: Mac 1.0 + iPhone/iPad im App Store** | 1.0 / 1.1 | Semesterstart |
+| 🚀 | **Launch: Earnote 1.0 auf Mac, iPhone und iPad** | 1.0 | **Di 13.10.2026** |
 | 8 | Pro, zweite Welle – nur nach Aufräumen und Launch, eine Funktion nach der anderen | 1.2+ | geplant |
 | 9 | Mac App Store prüfen (Sandbox), Kurs-Gruppen teilen | später | nach Launch |
 | 10 | Organisationen: Lizenz für Kanzleien, Praxen, Firmen – nie ein Server | – | auf Zuruf |
@@ -512,12 +512,38 @@ kommt, wird geordnet (Regel 8). Ziel: Eine Erstnutzerin findet sich sofort zurec
 - [x] Bereichs-Emojis: am echten iPhone richtig (25.09.2026), nur der Simulator zeigt „?“ – App-Store-Screenshots daher vom Gerät oder mit einem Simulator, der Emojis zeigt
 - [ ] Offen für eine spätere Runde: Aufnahme-Blatt und Live-Aktivität am echten Gerät durchsehen, VoiceOver-Durchgang
 
-## 🚀 Launch – Mac 1.0 und iPhone/iPad im App Store
+## 🚀 Launch – Earnote 1.0 auf Mac, iPhone und iPad: **Di 13.10.2026**
 
+> Entschieden 25.09.2026 (Nutzer): zwei Wochen früher als geplant, alle drei Geräte als **1.0**. Bis zum Launch
+> **keine neuen Funktionen** – nur Fehler, Feinschliff, Gleichstand und die Einreichung.
+
+| Wann | Nutzer | Architekt/Entwicklung |
+|---|---|---|
+| **Fr 25. – So 27.09.** | 0.9.25 am iPhone testen · Small Business Program · Markenrecherche | Fehler aus dem Test sofort beheben |
+| **Mo 28.09. – Do 01.10.** | App Store Connect: Version 1.0, Datenschutz („Keine Daten erfasst“), Altersfreigabe, Pro + Trinkgelder an die Version, Einträge ES/FR/IT · iCloud-Abgleich auf zwei Geräten laufen lassen | **0.9.26**: Fehler, Pro-Funktionen am Mac frei, Dankeschön-Paket am Mac, App-Store-Screenshots (iPhone 6,9″, iPad 13″), Prüfhinweise, Durchgang am Gerät (Aufnahme-Blatt, Live-Aktivität, VoiceOver) |
+| **Fr 02. – So 04.10.** | 1.0 einmal komplett durchspielen | **1.0-Kandidat** auf allen drei Geräten, Mac-Beta-Rückmeldungen bis hierhin |
+| **Mo 05.10.** | **Einreichen** (iPhone/iPad, mit Pro und Trinkgeldern) | — |
+| **05.–09.10.** | Prüfung (meist 1–3 Tage), Rückfragen beantworten | Ablehnungsgründe sofort beheben |
+| **~09.10.** | Mac 1.0 veröffentlichen (`publish_release.sh`) | Website/README auf App Store, „Earnote empfehlen“ mit App-Store-Link |
+| **Di 13.10.** | **Launch:** Fachschaften, r/Studium, Kurzvideos ([LAUNCH.md](LAUNCH.md)) | Fehler aus den ersten Tagen |
+
+Puffer: 09.–13.10. für eine Ablehnung (beim ersten Mal mit In-App-Käufen häufig, meist Kleinigkeiten).
+
+**Nebenher (Nutzer):**
+- [x] Bank- und Steuerdaten in App Store Connect (vor 25.09.)
+- [ ] Vertrag für kostenpflichtige Apps auf „Aktiv“ prüfen
+- [ ] Small Business Program (15 % statt 30 % Provision)
+- [ ] Markenrecherche „Earnote“ (DPMA, EUIPO/TMview; Klassen 9, 42, 41)
+- [ ] Instagram-/TikTok-Namen sichern
+
+**Was dafür später kommt:** Mac-Beta-Rückmeldungen nach dem 04.10. → erstes Update nach dem Launch ·
+Oberfläche auf ES/FR/IT → nach dem Launch (die App-Store-Einträge in diesen Sprachen kommen mit).
+
+**Checkliste Einreichung**
 - [ ] App-Store-Einreichung iPhone + iPad (Texte: [APPSTORE.md](APPSTORE.md)); Trinkgelder und Earnote Pro
       gehen mit der Version zur Prüfung (Screenshot des Pro-Hinweises für die Prüfinformationen)
-- [ ] iPad-Screenshots von den M1-Testern
-- [ ] Mac 1.0 nach der Beta (Phase 5)
+- [ ] Screenshots iPhone 6,9″ und iPad 13″ (Emojis vom echten Gerät, der Simulator zeigt „?“)
+- [ ] Mac 1.0 (Phase 5)
 - [ ] Website und README: App-Store-Link statt TestFlight
 - [ ] App-Store-Eintrag zusätzlich auf Spanisch (auch Mexiko, zählt für die US-Suche), Französisch, Italienisch –
       Texte fertig in [APPSTORE.md](APPSTORE.md) „Weitere Sprachen“; die Oberfläche bleibt dort Englisch
@@ -652,13 +678,13 @@ E-Mail aus einer Kanzlei, Praxis oder IT-Abteilung. Bis dahin gilt: Nachfragen s
 
 | Frage | Empfehlung | Fällig bis |
 |---|---|---|
-| Launch-Termin | Launch Ende Oktober zum Semesterstart – nur wenn die Beta keine groben Fehler zeigt; sonst Anfang Januar vor der Klausurenphase | nach der Beta (~06.10.2026) |
+| Launch-Termin | ✅ **entschieden 25.09.2026: Di 13.10.2026**, Einreichung Mo 05.10. (Plan im Abschnitt „Launch“) | ✅ |
 | Start von iPad/iPhone | **iPhone: Planung ab 24.09.2026 parallel zur Beta** ([IPHONE.md](IPHONE.md)); Bauen nach Freigabe des Plans, Mac-Beta hat Vorrang. iPad danach mit eigenem Plan | laufend |
 | Mac App Store | **Vorerst nein.** Direkt-Download plus Homebrew deckt die Zielgruppe ab; die Sandbox würde Systemton und Export einschränken. Nach 1.0 neu bewerten | nach 1.0 |
 | Windows/Linux | **Zurückgestellt.** Kein Port, sondern ein zweites Produkt (CoreML, MLX, SwiftUI gibt es dort nicht). Erst iPad/iPhone, danach neu bewerten – zuerst denkbar: schlanke Windows-Begleitung, die nur aufnimmt | nach 1.1 |
 | Geld verdienen | ✅ **entschieden 25.09.2026:** Nie ein Abo. Alles Heutige bleibt kostenlos. Trinkgeld (3 Stufen) schaltet das Dankeschön-Paket frei; **Earnote Pro 9,99 € einmalig** für zusätzliche Funktionen (iPhone/iPad). Organisationen: Phase 10. Kein Server, keine Konten | ✅ |
-| Pro am Mac | Offen. Vorschlag: die Pro-Funktionen am Mac **frei** lassen (DMG, Open Source – ein Lizenzsystem lohnt nicht) und dort weiter auf Ko-fi/Sponsors setzen; neu bewerten, falls der Mac in den App Store geht | vor Mac 1.0 |
-| Versionsnummer zum Launch | Vorschlag: **alle drei starten als 1.0** statt Mac 1.0 / iPhone 1.1 (Regel 9) – ein Produkt, eine Nummer | vor der Einreichung |
+| Pro am Mac | ✅ **entschieden 25.09.2026:** Pro-Funktionen am Mac **frei** (DMG, Open Source – kein Lizenzsystem). Das **Dankeschön-Paket** (Farben, Designs, App-Symbole) gibt es am Mac für eine Unterstützung über Ko-fi oder GitHub Sponsors – auf Vertrauen, ohne Prüfung (kein Server). Neu bewerten, falls der Mac in den App Store geht | ✅ |
+| Versionsnummer zum Launch | ✅ **entschieden 25.09.2026: alle drei als 1.0** (Regel 9) – ein Produkt, eine Nummer | ✅ |
 | Einstiegsfrage „Wofür nutzt du Earnote?“ | Ja – in Phase 7, als Hebel gegen Überladung | 0.9.25 |
 | Lokales Standardmodell | Qwen3 4B auf allen Macs (Modellvergleich 23.09.2026) | ✅ entschieden |
 
