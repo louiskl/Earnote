@@ -7,13 +7,15 @@ final class SpeakersTests: XCTestCase {
         TranscriptSegment(start: 10, end: 14, text: "Kommt das in der Klausur?"),
         TranscriptSegment(start: 16, end: 30, text: "Ja, ganz sicher."),
     ], engine: "test")
+    // Die Beschriftung folgt der Systemsprache (CI läuft auf Englisch)
+    private let s1 = Speakers.label(1), s2 = Speakers.label(2)
 
     func testAssignsByLargestOverlapNumberedByFirstAppearance() {
         let turns = [SpeakerTurn(start: 0, end: 9.5, speaker: "B"), SpeakerTurn(start: 9.5, end: 15, speaker: "A"),
                      SpeakerTurn(start: 15.5, end: 30, speaker: "B")]
         let result = Speakers.assign(turns, to: transcript)
-        XCTAssertEqual(result.segments.map(\.speaker), ["Sprecher 1", "Sprecher 2", "Sprecher 1"])
-        XCTAssertEqual(Speakers.names(in: result), ["Sprecher 1", "Sprecher 2"])
+        XCTAssertEqual(result.segments.map(\.speaker), [s1, s2, s1])
+        XCTAssertEqual(Speakers.names(in: result), [s1, s2])
     }
 
     func testSingleVoiceLeavesTranscriptUnchanged() {
@@ -24,16 +26,16 @@ final class SpeakersTests: XCTestCase {
     func testRenameChangesTranscriptAndNote() {
         let turns = [SpeakerTurn(start: 0, end: 10, speaker: "A"), SpeakerTurn(start: 10, end: 30, speaker: "B")]
         let named = Speakers.assign(turns, to: transcript)
-        let (renamed, note) = Speakers.rename("Sprecher 1", to: "Prof. Klein", transcript: named,
-                                              note: "Sprecher 1 erklärt Eigenwerte, Sprecher 2 fragt nach.")
+        let (renamed, note) = Speakers.rename(s1, to: "Prof. Klein", transcript: named,
+                                              note: "\(s1) erklärt Eigenwerte, \(s2) fragt nach.")
         XCTAssertEqual(renamed.segments.first?.speaker, "Prof. Klein")
-        XCTAssertEqual(note, "Prof. Klein erklärt Eigenwerte, Sprecher 2 fragt nach.")
+        XCTAssertEqual(note, "Prof. Klein erklärt Eigenwerte, \(s2) fragt nach.")
     }
 
     func testTinyThirdVoiceIsIgnored() {
         let turns = [SpeakerTurn(start: 0, end: 10, speaker: "A"), SpeakerTurn(start: 10, end: 10.2, speaker: "X"),
                      SpeakerTurn(start: 10.2, end: 30, speaker: "B")]
         let result = Speakers.assign(turns, to: transcript)
-        XCTAssertEqual(Speakers.names(in: result), ["Sprecher 1", "Sprecher 2"])
+        XCTAssertEqual(Speakers.names(in: result), [s1, s2])
     }
 }
