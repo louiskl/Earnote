@@ -401,7 +401,7 @@ Erst wenn alle drei Blöcke stehen, wird aus 0.9.x die 1.0 – und erst danach b
 **Name & Recht** (liegt beim Nutzer)
 - [ ] Markenrecherche Earnote (DPMA, EUIPO, USPTO; Klassen 9 und 42)
 - [x] Domain: **earnote.dev** (22.09.2026) – gekauft vor Abschluss der Markenrecherche
-- [ ] Instagram-/TikTok-Namen sichern
+- [x] Instagram-/TikTok-Namen gesichert (25.09.2026)
 - [x] Impressum und Datenschutzhinweis für die Website (`docs/impressum.html`, verlinkt aus beiden Sprachen)
 
 **Website** (Hauptweg zum Download)
@@ -531,10 +531,10 @@ Puffer: 09.–13.10. für eine Ablehnung (beim ersten Mal mit In-App-Käufen hä
 
 **Nebenher (Nutzer):**
 - [x] Bank- und Steuerdaten in App Store Connect (vor 25.09.)
-- [ ] Vertrag für kostenpflichtige Apps auf „Aktiv“ prüfen
+- [ ] Vertrag für kostenpflichtige Apps auf „Aktiv“ prüfen (W-8BEN eingereicht 25.09., in Bearbeitung)
 - [ ] Small Business Program (15 % statt 30 % Provision)
 - [ ] Markenrecherche „Earnote“ (DPMA, EUIPO/TMview; Klassen 9, 42, 41)
-- [ ] Instagram-/TikTok-Namen sichern
+- [x] Instagram-/TikTok-Namen gesichert (25.09.2026)
 
 **Was dafür später kommt:** Mac-Beta-Rückmeldungen nach dem 04.10. → erstes Update nach dem Launch ·
 Oberfläche auf ES/FR/IT → nach dem Launch (die App-Store-Einträge in diesen Sprachen kommen mit).
