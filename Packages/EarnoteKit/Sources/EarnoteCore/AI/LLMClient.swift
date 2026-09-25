@@ -15,9 +15,14 @@ public extension LLMClient {
 
 public struct LLMError: LocalizedError, Sendable {
     public let message: String
+    /// Vorübergehend (überlastet, Kontingent, 5xx): in ein paar Minuten klappt es wahrscheinlich
+    public let isTemporary: Bool
     public var errorDescription: String? { message }
 
-    public init(message: String) { self.message = message }
+    public init(message: String, isTemporary: Bool = false) {
+        self.message = message
+        self.isTemporary = isTemporary
+    }
 }
 
 // MARK: - HTTP
@@ -47,12 +52,13 @@ public enum HTTP {
                 let obj = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any] ?? [:]
                 if (200..<300).contains(status) { return obj }
                 let msg = Self.errorMessage(obj) ?? String(data: data, encoding: .utf8) ?? ""
-                if [429, 500, 502, 503, 504, 529].contains(status) && attempt < 3 {
-                    lastError = LLMError(message: "HTTP \(status): \(msg)")
+                let temporary = [429, 500, 502, 503, 504, 529].contains(status)
+                if temporary && attempt < 3 {
+                    lastError = LLMError(message: "HTTP \(status): \(msg)", isTemporary: true)
                     try await Task.sleep(nanoseconds: UInt64(pow(2.0, Double(attempt + 1))) * 1_000_000_000)
                     continue
                 }
-                throw LLMError(message: "HTTP \(status): \(msg.prefix(400))")
+                throw LLMError(message: "HTTP \(status): \(msg.prefix(400))", isTemporary: temporary)
             } catch let error as URLError {
                 lastError = error
                 if error.code == .cannotConnectToHost {

@@ -74,10 +74,10 @@ public struct GeminiClient: LLMClient {
             return LLMError(message: t("Google nimmt den Gemini-Schlüssel nicht an. Prüfe, ob du ihn vollständig kopiert hast."))
         }
         if text.hasPrefix("http 429") || text.contains("resource_exhausted") || text.contains("quota") {
-            return LLMError(message: t("Das kostenlose Kontingent von Gemini ist gerade aufgebraucht. Versuche es in ein paar Minuten erneut."))
+            return LLMError(message: t("Das kostenlose Kontingent von Gemini ist gerade aufgebraucht. Versuche es in ein paar Minuten erneut."), isTemporary: true)
         }
         if isOverloaded(error) {
-            return LLMError(message: t("Google ist gerade überlastet. Versuche es in ein paar Minuten erneut."))
+            return LLMError(message: t("Google ist gerade überlastet. Versuche es in ein paar Minuten erneut."), isTemporary: true)
         }
         if isModelUnavailable(error) {
             return LLMError(message: t("Google bietet das gewählte Gemini-Modell nicht mehr an. Wähle in den Einstellungen ein anderes Modell oder lass das Feld leer."))

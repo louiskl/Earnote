@@ -304,9 +304,10 @@ final class ProcessingQueueTests: XCTestCase {
     override func setUp() async throws { folder = try TestFolder() }
     override func tearDown() async throws { folder = nil }
 
-    private func makeQueue(_ transcriber: FakeTranscriber, library: TestLibrary, drained: Locked<Int> = Locked(0)) -> ProcessingQueue {
+    private func makeQueue(_ transcriber: FakeTranscriber, library: TestLibrary, drained: Locked<Int> = Locked(0),
+                           llm: any LLMClient = FakeLLMClient(answer: "# T\n\nX")) -> ProcessingQueue {
         let pipeline = ProcessingPipeline(library: folder.library, audio: folder.audio, transcribers: transcriber,
-                                          llm: LLMFactory(platform: FakeLLMProvider(client: FakeLLMClient(answer: "# T\n\nX")),
+                                          llm: LLMFactory(platform: FakeLLMProvider(client: llm),
                                                           apiKey: { _ in nil }),
                                           destinations: FakeDestinations(destinations: ["a": FakeDestination()]),
                                           notify: { _, _ in })
@@ -480,6 +481,34 @@ final class ProcessingQueueTests: XCTestCase {
         XCTAssertEqual(library.recording(onMac.id)?.status, .transcribing, "Gehört dem Mac")
         XCTAssertEqual(library.recording(waiting.id)?.status, .waitingForMac, "Übergeben ist nicht beschäftigt")
         XCTAssertFalse(transcriber.transcribed.get().contains(onMac.id.uuidString))
+    }
+
+    /// Anbieter kurz überlastet: Die Aufnahme bleibt nicht als Fehler liegen, sondern gelingt beim nächsten Versuch
+    func testRetriesByItselfAfterTemporaryFailure() async throws {
+        let rec = try await folder.importedRecording(title: "Google überlastet")
+        let library = try await TestLibrary(folder: folder, settings: .testing())
+        let llm = FakeLLMClient { _, index in
+            if index == 0 { throw LLMError(message: "Google ist gerade überlastet.", isTemporary: true) }
+            return "# T\n\nX"
+        }
+        let queue = makeQueue(FakeTranscriber(), library: library, llm: llm)
+        queue.retryDelay = 0.05
+        queue.enqueue(rec.id)
+        await waitUntil { library.recording(rec.id)?.status == .done }
+        XCTAssertNil(library.recording(rec.id)?.errorMessage)
+    }
+
+    func testDoesNotRetryPermanentFailure() async throws {
+        let rec = try await folder.importedRecording(title: "falscher Schlüssel")
+        let library = try await TestLibrary(folder: folder, settings: .testing())
+        let llm = FakeLLMClient { _, _ in throw LLMError(message: "Schlüssel ungültig") }
+        let queue = makeQueue(FakeTranscriber(), library: library, llm: llm)
+        queue.retryDelay = 0.01
+        queue.enqueue(rec.id)
+        await waitUntil { library.recording(rec.id)?.status == .failed }
+        try await Task.sleep(for: .milliseconds(200))
+        XCTAssertEqual(library.recording(rec.id)?.status, .failed)
+        XCTAssertEqual(llm.calls.get().count, 1, "Kein zweiter Versuch")
     }
 
     /// Über iCloud gekommen, ohne Audio hier: Das andere Gerät nimmt noch auf oder schreibt die Notiz selbst

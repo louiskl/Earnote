@@ -61,9 +61,11 @@ public struct ProcessingPipeline: Sendable {
 
     /// Ein Durchgang für eine Aufnahme. Fehler landen im Status der Aufnahme; bei Abbruch wird nichts mehr gespeichert.
     /// `extraInstructions` gilt nur für diesen Durchgang (aus „Neu zusammenfassen …“).
+    /// Gibt `true` zurück, wenn er an einem vorübergehenden Fehler scheiterte (Netz weg, Anbieter überlastet).
+    @discardableResult
     public func process(_ rec: Recording, settings: AppSettings, category: RecordingCategory?,
                         events: ProcessingEvents, extraInstructions: String = "",
-                        request: SummaryRequest = .ifMissing) async {
+                        request: SummaryRequest = .ifMissing) async -> Bool {
         let id = rec.id
         var step = "Transkription"
         do {
@@ -71,7 +73,7 @@ public struct ProcessingPipeline: Sendable {
                 step = "Übersicht"
                 try await makeOverview(rec, since: since, settings: settings, category: category, events: events,
                                        instruction: extraInstructions)
-                return
+                return false
             }
             // Wörterbuch: hilft der Spracherkennung und der KI, Namen und Fachbegriffe richtig zu schreiben
             let glossary = Glossary.forCategory(category?.id, in: (try? await library.glossaryTerms()) ?? [])
@@ -94,7 +96,7 @@ public struct ProcessingPipeline: Sendable {
                 step = "Übersicht"
                 try await makeOverview(rec, since: Calendar.current.date(byAdding: .month, value: -6, to: Date()),
                                        settings: settings, category: category, events: events, instruction: extraInstructions)
-                return
+                return false
             }
             if transcript == nil, fromNote == nil, !hasAudio {
                 throw LLMError(message: t("Für diese Aufnahme gibt es weder Ton noch Transkript oder Notiz – daraus kann keine Notiz entstehen."))
@@ -214,7 +216,19 @@ public struct ProcessingPipeline: Sendable {
             await events.update(id) { $0.status = .failed; $0.errorMessage = msg }
             notify(t("Verarbeitung fehlgeschlagen"), "\(rec.title): \(msg)")
             Log.error("Verarbeitung \(id): \(msg)")
+            return Self.isTemporary(error)
         }
+        return false
+    }
+
+    /// Fehler, bei denen ein späterer Versuch wahrscheinlich klappt – alles andere (falscher Schlüssel, kein Audio) nicht
+    static func isTemporary(_ error: Error) -> Bool {
+        if let error = error as? LLMError { return error.isTemporary }
+        if let error = error as? URLError {
+            return [.notConnectedToInternet, .networkConnectionLost, .timedOut, .cannotFindHost, .dnsLookupFailed,
+                    .dataNotAllowed, .internationalRoamingOff].contains(error.code)
+        }
+        return false
     }
 
     private func transcribe(_ rec: Recording, settings: AppSettings, hints: [String], span: ClosedRange<Double>,

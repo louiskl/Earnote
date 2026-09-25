@@ -167,3 +167,4 @@
 "Erlaube bei OpenRouter unter Einstellungen › Datenschutz die kostenlosen Modelle (openrouter.ai/settings/privacy) und versuche es erneut." = "Allow free models in OpenRouter under Settings › Privacy (openrouter.ai/settings/privacy) and try again.";
 "Das kostenlose Tageslimit von OpenRouter ist erreicht. Versuche es später erneut oder wähle einen anderen Weg." = "OpenRouter's free daily limit is reached. Try again later or choose another option.";
 "Google ist gerade überlastet. Versuche es in ein paar Minuten erneut." = "Google is overloaded right now. Try again in a few minutes.";
+"Earnote versucht es in %lld Minuten von selbst noch einmal." = "Earnote will try again by itself in %lld minutes.";
