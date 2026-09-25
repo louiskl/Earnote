@@ -12,6 +12,9 @@ struct RecordingActivityAttributes: ActivityAttributes {
         var pausedElapsed: TimeInterval?
         /// Letzte Pegel 0…1, alle ~1,5 s ergänzt (öfter lässt iOS eine Live-Aktivität nicht zeichnen)
         var levels: [Double] = []
+        /// „Wichtig!“-Markierungen bisher; `canMark` = Knopf zeigen (Pro oder Probeversuch übrig)
+        var marks = 0
+        var canMark = false
 
         var isPaused: Bool { pausedElapsed != nil }
     }
@@ -26,6 +29,7 @@ enum RecordingCommands {
     static var start: () async -> Void = {}
     static var togglePause: () -> Void = {}
     static var stop: () -> Void = {}
+    static var markImportant: () -> Void = {}
 }
 
 /// Kontrollzentrum, Action-Taste, Siri, Kurzbefehle. Als `AudioRecordingIntent` darf er aufnehmen, ohne die App zu öffnen –
@@ -48,6 +52,18 @@ struct TogglePauseRecordingIntent: LiveActivityIntent {
     @MainActor
     func perform() async throws -> some IntentResult {
         RecordingCommands.togglePause()
+        return .result()
+    }
+}
+
+/// „Wichtig!“ – die Stelle gerade eben markieren (Klausur-Radar, Earnote Pro)
+struct MarkImportantIntent: LiveActivityIntent {
+    static let title: LocalizedStringResource = "Stelle als wichtig markieren"
+    static let description = IntentDescription("Markiert in der laufenden Aufnahme die Stelle als wichtig für die Prüfung.")
+
+    @MainActor
+    func perform() async throws -> some IntentResult {
+        RecordingCommands.markImportant()
         return .result()
     }
 }

@@ -11,25 +11,28 @@ enum Pro {
     static let freeTries = 3
 
     enum Feature: String, CaseIterable, Identifiable {
-        case chat
+        case chat, examRadar
 
         var id: Self { self }
 
         var title: LocalizedStringKey {
             switch self {
             case .chat: "Fragen zur Notiz"
+            case .examRadar: "Klausur-Radar"
             }
         }
 
         var detail: LocalizedStringKey {
             switch self {
             case .chat: "Frag nach, was du nicht verstanden hast – die KI kennt die Notiz und die passenden Stellen der Aufnahme."
+            case .examRadar: "Tippe in der Vorlesung auf „Wichtig“, auch auf dem Sperrbildschirm. Vor der Prüfung siehst du je Fach alles, was drankommt."
             }
         }
 
         var symbol: String {
             switch self {
             case .chat: "bubble.left.and.text.bubble.right"
+            case .examRadar: "scope"
             }
         }
     }

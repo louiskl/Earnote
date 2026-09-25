@@ -5,6 +5,7 @@ import SwiftUI
 struct RecordSheet: View {
     @Environment(PhoneRecorder.self) private var recorder
     @Environment(\.dismiss) private var dismiss
+    @State private var showsPro = false
 
     var body: some View {
         NavigationStack {
@@ -36,6 +37,7 @@ struct RecordSheet: View {
                 }
             }
             .onChange(of: recorder.isRecording) { _, recording in if !recording { dismiss() } }
+            .sheet(isPresented: $showsPro) { ProSheet(highlight: .examRadar) }
         }
         .presentationDragIndicator(.visible)
         .animation(.smooth, value: recorder.isPaused)
@@ -68,6 +70,12 @@ struct RecordSheet: View {
     private var controls: some View {
         GlassEffectContainer(spacing: 28) {
             HStack(spacing: 28) {
+                // Klausur-Radar: Stelle markieren – auch vom Sperrbildschirm aus
+                RoundControl(title: recorder.marks > 0 ? "Wichtig (\(recorder.marks))" : "Wichtig",
+                             symbol: recorder.marks > 0 ? "star.fill" : "star", size: 76, prominent: false) {
+                    if !recorder.markImportant() { showsPro = true }
+                }
+                .disabled(recorder.isPaused)
                 RoundControl(title: recorder.isPaused ? "Fortsetzen" : "Pause",
                              symbol: recorder.isPaused ? "play.fill" : "pause.fill", size: 76, prominent: false) {
                     recorder.togglePause()
@@ -79,6 +87,7 @@ struct RecordSheet: View {
             }
         }
         .sensoryFeedback(.impact(weight: .medium), trigger: recorder.isPaused)
+        .sensoryFeedback(.success, trigger: recorder.marks)
     }
 }
 

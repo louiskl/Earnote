@@ -17,6 +17,6 @@ laufenden Kosten pro Nutzer (eigene KI-Schlüssel oder lokale KI).
 | Funktion | Stand | Wo |
 |---|---|---|
 | Fragen zur Notiz (Chat) | ✅ | `NoteChat` (Kern, getestet), `NoteChatView`; Knopf in der Notiz. Die KI bekommt die Notiz und die 3 Transkript-Minuten mit den meisten Wörtern der Frage. Ein Gespräch = ein Probeversuch |
-| „Wichtig!“ + Klausur-Radar | geplant | |
+| „Wichtig!“ + Klausur-Radar | ✅ | Knopf „Wichtig“ in der Aufnahme und in der Live-Aktivität (`MarkImportantIntent`) → `marks.json` im Ordner der Aufnahme (`ImportantMarks`). Die Verarbeitung gibt der KI die markierten Stellen mit Zitat (25 s davor) → Abschnitt „Wichtig für die Klausur“. `ExamRadarView` je Bereich sammelt die Prüfungs-Abschnitte aller Notizen (`ExamRadar.items`, ohne KI), teilbar. Probeversuch: erste Markierung je Aufnahme. Grenze: Markierungen bleiben auf dem Gerät (Weg B kennt sie nicht) |
 | Übersetzen | geplant | |
 | Sprechererkennung | geplant | |

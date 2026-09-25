@@ -10,6 +10,8 @@ final class PhoneRecorder {
     private(set) var activeID: UUID?
     private(set) var startedAt: Date?
     private(set) var isPaused = false
+    /// „Wichtig!“-Markierungen der laufenden Aufnahme (Earnote Pro, Klausur-Radar)
+    private(set) var marks = 0
     /// Pausiert durch einen Anruf, Wecker o. ä. (nicht vom Nutzer)
     private(set) var isInterrupted = false
     var lastError: String?
@@ -82,6 +84,7 @@ final class PhoneRecorder {
         activeID = rec.id
         startedAt = rec.startedAt
         pausedTotal = 0
+        marks = 0
         observeSession()
         watch()
         Log.info("Aufnahme gestartet (iPhone)")
@@ -103,6 +106,21 @@ final class PhoneRecorder {
         onChange()
         onStop(id)
     }
+
+    /// Die Stelle gerade eben als wichtig markieren. Ohne Pro kostet die erste Markierung einer Aufnahme einen Probeversuch;
+    /// sind keine mehr übrig, passiert nichts (`false`).
+    @discardableResult
+    func markImportant() -> Bool {
+        guard let id = activeID else { return false }
+        if marks == 0, !Pro.use(.examRadar) { return false }
+        ImportantMarks.append(elapsed(), in: library.audio.folderURL(for: id))
+        marks += 1
+        onChange()
+        return true
+    }
+
+    /// Kann gerade markiert werden? (für den Knopf auf dem Sperrbildschirm)
+    var canMark: Bool { isRecording && (marks > 0 || Pro.isUnlocked || Pro.triesLeft(.examRadar) > 0) }
 
     func togglePause() {
         guard isRecording else { return }

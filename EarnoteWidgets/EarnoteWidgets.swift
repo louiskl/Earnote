@@ -120,6 +120,12 @@ private struct Controls: View {
 
     var body: some View {
         HStack(spacing: 10) {
+            if state.canMark && !state.isPaused {
+                Button(intent: MarkImportantIntent()) {
+                    Label("Wichtig", systemImage: state.marks > 0 ? "star.fill" : "star").labelStyle(.iconOnly)
+                }
+                .tint(.orange)
+            }
             Button(intent: TogglePauseRecordingIntent()) {
                 Label(state.isPaused ? "Fortsetzen" : "Pause", systemImage: state.isPaused ? "play.fill" : "pause.fill")
                     .labelStyle(.iconOnly)
