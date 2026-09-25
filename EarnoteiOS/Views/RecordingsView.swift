@@ -7,30 +7,11 @@ import UniformTypeIdentifiers
 struct RecordingsView: View {
     @Binding var path: [UUID]
     @Environment(LibraryStore.self) private var library
-    @Environment(\.horizontalSizeClass) private var sizeClass
     @State private var showsSettings = false
     @State private var importing = false
 
     var body: some View {
-        if sizeClass == .regular {
-            NavigationSplitView {
-                list(selection: Binding(get: { path.last }, set: { path = $0.map { [$0] } ?? [] }))
-            } detail: {
-                // Gelöschte Aufnahme: zurück zum Hinweis statt „nicht gefunden“
-                if let id = path.last, library.recording(id) != nil {
-                    // Eigener Stapel je Notiz: Karteikarten öffnen sich in der rechten Spalte
-                    NavigationStack { RecordingDetailView(id: id) }.id(id)
-                } else {
-                    ContentUnavailableView("Keine Aufnahme ausgewählt", systemImage: "waveform",
-                                           description: Text("Wähle links eine Aufnahme."))
-                }
-            }
-        } else {
-            NavigationStack(path: $path) {
-                list(selection: nil)
-                    .navigationDestination(for: UUID.self) { RecordingDetailView(id: $0) }
-            }
-        }
+        RecordingSplit(path: $path) { list(selection: $0) }
     }
 
     private func list(selection: Binding<UUID?>?) -> some View {
@@ -50,6 +31,37 @@ struct RecordingsView: View {
                     guard case .success(let urls) = result else { return }
                     AudioImport.run(urls, into: library, category: nil)
                 }
+    }
+}
+
+/// Liste und Notiz: in breiter Größe (iPad) nebeneinander, sonst als Stapel. Entschieden wird nur nach Größenklasse,
+/// nie nach Gerät (DESIGN_GUIDELINES 31) – Slide Over und schmale Fenster am iPad bekommen den Stapel.
+struct RecordingSplit<Content: View>: View {
+    @Binding var path: [UUID]
+    @ViewBuilder var list: (Binding<UUID?>?) -> Content
+    @Environment(LibraryStore.self) private var library
+    @Environment(\.horizontalSizeClass) private var sizeClass
+
+    var body: some View {
+        if sizeClass == .regular {
+            NavigationSplitView {
+                list(Binding(get: { path.last }, set: { path = $0.map { [$0] } ?? [] }))
+            } detail: {
+                // Gelöschte Aufnahme: zurück zum Hinweis statt „nicht gefunden“
+                if let id = path.last, library.recording(id) != nil {
+                    // Eigener Stapel je Notiz: Karteikarten öffnen sich in der rechten Spalte
+                    NavigationStack { RecordingDetailView(id: id) }.id(id)
+                } else {
+                    ContentUnavailableView("Keine Aufnahme ausgewählt", systemImage: "waveform",
+                                           description: Text("Wähle links eine Aufnahme."))
+                }
+            }
+        } else {
+            NavigationStack(path: $path) {
+                list(nil)
+                    .navigationDestination(for: UUID.self) { RecordingDetailView(id: $0) }
+            }
+        }
     }
 }
 
@@ -182,12 +194,15 @@ struct RecordingRow: View {
                 .lineLimit(2)
             HStack(spacing: 6) {
                 Text(recording.startedAt, format: .dateTime.hour().minute())
+                    .fixedSize()
                 if recording.duration < 1 && recording.status != .recording {
                     Text("·")
                     Text("Übersicht")
                 } else if recording.status != .recording {
                     Text("·")
                     Text(Duration.seconds(recording.duration).formatted(.units(allowed: recording.duration < 60 ? Set([.seconds]) : Set([.hours, .minutes]), width: .abbreviated)))
+                        // In schmalen Spalten (iPad-Liste) lieber den Bereich kürzen als die Dauer umbrechen
+                        .fixedSize()
                 }
                 if let category = library.category(recording.categoryID) {
                     Text("·")
@@ -196,6 +211,7 @@ struct RecordingRow: View {
             }
             .font(.subheadline)
             .foregroundStyle(.secondary)
+            .lineLimit(1)
             status
         }
         .padding(.vertical, 2)

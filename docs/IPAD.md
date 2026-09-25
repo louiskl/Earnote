@@ -71,7 +71,7 @@ Aufnahme: tabViewBottomAccessory (wie am iPhone), in der Seitenleiste unten
 | Etappe | Inhalt | Ergebnis |
 |---|---|---|
 | **P0 – teilweise ✅** | ✅ Abschnitt 31 in den Design-Richtlinien (Entwurf) · offen: Plan freigeben (Abschnitt 6) | Entscheidungen stehen |
-| **P1 – Entwurf 25.09.2026** | ✅ `TARGETED_DEVICE_FAMILY = 1,2`, iPad in allen Ausrichtungen (iPhone bleibt Hochformat), `sidebarAdaptable`, Split-Ansicht im Tab „Aufnahmen“ nur nach Größenklasse, Notiz mit lesbarer Breite (700 pt) · im iPad-Simulator (Air 13″) geprüft: Liste links, Hinweis rechts · offen: Notiz-Spalte, Querformat, Slide Over, Seitenleiste mit den Bereichen wie am Mac | Läuft im iPad-Simulator, nichts ist gestreckt |
+| **P1 – ✅ 25.09.2026** | `TARGETED_DEVICE_FAMILY = 1,2`, iPad in allen Ausrichtungen (iPhone bleibt Hochformat), `sidebarAdaptable`; Seitenleiste wie am Mac (Aufnahmen, Suchen, Bibliothek: Offene Aufgaben/Ohne Bereich/Probleme, jeder Bereich mit Zähler) – nur in breiter Größe, am iPhone und in schmalen Fenstern bleiben die drei Tabs; Liste und Notiz nebeneinander in jedem Eintrag (`RecordingSplit`), Notiz mit lesbarer Breite; Zeilen der Liste bleiben einzeilig · im iPad-Simulator (Air 13″, iPadOS 26, Vollbild und Fenster) und am iPhone geprüft | Läuft im iPad-Simulator, nichts ist gestreckt |
 | **P2** | Menüleiste und Tastenkürzel, mehrere Fenster, Drag & Drop, Inspector fürs Transkript | Fühlt sich an wie eine iPad-App |
 | **P3** | Whisper und lokales Modell auf M-Chips, Messung (Dauer, Wärme, Akku) auf einem echten iPad | Weg A mit Whisper |
 | **P4** | iPad-Screenshots, App Review | Earnote für iPad im App Store (gleiche App) |

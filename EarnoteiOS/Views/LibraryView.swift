@@ -81,6 +81,8 @@ struct LibraryView: View {
 /// Aufnahmen eines Filters. Für Bereiche zusätzlich: Übersicht erstellen, Karteikarten lernen, bearbeiten.
 struct FilteredRecordingsView: View {
     let filter: LibraryFilter
+    /// Split-Ansicht (iPad-Seitenleiste): Auswahl statt Stapel
+    var selection: Binding<UUID?>? = nil
     @Environment(LibraryStore.self) private var library
     @State private var editing: RecordingCategory?
     @State private var deck: LearnDeck?
@@ -92,7 +94,7 @@ struct FilteredRecordingsView: View {
     }
 
     var body: some View {
-        RecordingList(filter: filter)
+        RecordingList(filter: filter, selection: selection)
             .navigationTitle(title)
             .toolbar {
                 if let category {
