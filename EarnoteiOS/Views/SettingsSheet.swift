@@ -44,7 +44,6 @@ struct SettingsSheet: View {
                     } label: {
                         LabeledContent("Export", value: exportSummary)
                     }
-                    NavigationLink("Weitere Optionen") { MoreOptionsView() }
                 } footer: {
                     Text("Fertige Notizen automatisch in Notion, Obsidian, einen Ordner, Todoist oder Erinnerungen legen.")
                 }
@@ -79,6 +78,10 @@ struct SettingsSheet: View {
                     } label: {
                         Label("Über Earnote", systemImage: "info.circle")
                     }
+                }
+                // Wie „Erweitert“ in den iOS-Einstellungen: ganz unten, für die wenigen, die es suchen
+                Section {
+                    NavigationLink("Weitere Optionen") { MoreOptionsView() }
                 }
                 #if DEBUG
                 Section {

@@ -77,11 +77,14 @@ struct NoteWayPicker: View {
             }
             WayRow(title: "Mit meinem Mac", detail: macDetail, symbol: "macbook",
                    isSelected: current == .mac) { chooseMac() }
+            // Gewählt, aber ohne Schlüssel: Dann entstünde keine Notiz – das muss man sehen, nicht erst nach der Aufnahme
             WayRow(title: "Kostenlos mit Google-Konto",
                    detail: googleReady ? String(localized: "Eingerichtet · nur der Text geht an Google")
-                                       : String(localized: "Einmal einrichten, dauert zwei Minuten"),
-                   symbol: "g.circle", isSelected: current == .google,
-                   accessory: googleReady ? nil : String(localized: "Einrichten")) {
+                         : current == .google ? String(localized: "Noch nicht eingerichtet – ohne Schlüssel entsteht keine Notiz")
+                                              : String(localized: "Einmal einrichten, dauert zwei Minuten"),
+                   symbol: "g.circle", isSelected: current == .google && googleReady,
+                   accessory: googleReady ? nil : String(localized: "Einrichten"),
+                   isWarning: current == .google && !googleReady) {
                 if googleReady { choose(.gemini) } else { settingUpGoogle = true }
             }
             // Am Zeileninhalt statt an der Section: Blätter an einer Section in einer Form schließen das umgebende Blatt
@@ -148,6 +151,7 @@ private struct WayRow: View {
     let symbol: String
     let isSelected: Bool
     var accessory: String?
+    var isWarning = false
     let action: () -> Void
 
     var body: some View {
@@ -159,7 +163,7 @@ private struct WayRow: View {
                     .frame(width: 30)
                 VStack(alignment: .leading, spacing: 2) {
                     Text(title).foregroundStyle(.primary)
-                    Text(detail).font(.footnote).foregroundStyle(.secondary)
+                    Text(detail).font(.footnote).foregroundStyle(isWarning ? AnyShapeStyle(.orange) : AnyShapeStyle(.secondary))
                 }
                 Spacer(minLength: 8)
                 if isSelected {

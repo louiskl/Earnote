@@ -125,7 +125,7 @@ struct RootView: View {
             collectShared()
             Task { await showFeedbackMoment() }
         }
-        .fullScreenCover(isPresented: .constant(library.isLoaded && !library.settings.onboardingCompleted), onDismiss: {
+        .fullScreenCover(isPresented: .constant(library.isLoaded && (!library.settings.onboardingCompleted || Self.showsOnboardingForTesting)), onDismiss: {
             // Neue Nutzer kennen alles schon aus dem Onboarding – keine Neuigkeiten, und heute nichts mehr fragen
             lastSeenVersion = Self.appVersion
             feedbackDone = true
@@ -158,6 +158,15 @@ struct RootView: View {
             }
         }
         .badge(LibraryListing.counts(library.recordings).count(for: filter))
+    }
+
+    /// Nur in Test-Fassungen: `EARNOTE_SHOW_ONBOARDING=1` zeigt das Onboarding, ohne die Bibliothek zurückzusetzen
+    private static var showsOnboardingForTesting: Bool {
+        #if DEBUG
+        ProcessInfo.processInfo.environment["EARNOTE_SHOW_ONBOARDING"] == "1"
+        #else
+        false
+        #endif
     }
 
     private static var appVersion: String { Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "" }

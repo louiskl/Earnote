@@ -31,8 +31,8 @@ struct OnboardingView: View {
     // MARK: Schritte
 
     private var welcome: some View {
-        Page(symbol: "waveform", effect: .variableColor, title: "Earnote schreibt deine Vorlesungen mit",
-             text: "Aufnehmen, iPhone weglegen – danach steht die Notiz da.") {
+        Page(symbol: "waveform", effect: .variableColor, title: "Earnote schreibt für dich mit",
+             text: "Vorlesung, Unterricht oder Meeting: aufnehmen, iPhone weglegen – danach steht die Notiz da.") {
             VStack(alignment: .leading, spacing: 14) {
                 Feature(symbol: "text.page", text: "Zusammenfassung und Aufgaben")
                 Feature(symbol: "rectangle.on.rectangle.angled", text: "Karteikarten zum Lernen")
@@ -46,7 +46,7 @@ struct OnboardingView: View {
 
     /// Einstiegsfrage (ROADMAP Phase 7): Jede Gruppe bekommt ihre Bereiche und sieht nur, was zu ihr passt
     private var usage: some View {
-        Page(symbol: "person.crop.circle.badge.questionmark", effect: .bounce, title: "Wofür nutzt du Earnote?",
+        Page(symbol: "hand.wave.fill", effect: .wiggle, title: "Wofür nutzt du Earnote?",
              text: "Danach richtet Earnote die passenden Bereiche ein. Ändern kannst du es jederzeit.") {
             ForEach(Usage.allCases) { choice in
                 UsageButton(usage: choice) {
@@ -55,8 +55,8 @@ struct OnboardingView: View {
                 }
             }
             Button("Überspringen") { step = 2 }
-                .font(.subheadline)
-                .padding(.top, 4)
+                .buttonStyle(.glass)
+                .controlSize(.large)
         }
     }
 
@@ -109,7 +109,7 @@ struct OnboardingView: View {
             Form {
                 Section {
                     VStack(alignment: .leading, spacing: 10) {
-                        Image(systemName: "sparkles")
+                        Image(systemName: "text.page")
                             .font(.system(size: 40))
                             .foregroundStyle(.tint)
                             .symbolEffect(.bounce, value: step == 4)
@@ -130,6 +130,8 @@ struct OnboardingView: View {
             }
             .scrollContentBackground(.hidden)
             .toolbarVisibility(.hidden, for: .navigationBar)
+            // Der Schimmer der anderen Seiten soll durchscheinen – sonst legt der Stapel eine weiße Fläche darüber
+            .containerBackground(.clear, for: .navigation)
         }
         .onAppear {
             // Vorschlag je nach Gerät (docs/IPHONE.md, Abschnitt 2), nur beim ersten Mal. Der Mac-Weg greift, sobald
@@ -160,9 +162,9 @@ struct OnboardingView: View {
     }
 
     private var done: some View {
-        Page(symbol: "checkmark.seal.fill", effect: .bounce, title: "Fertig",
-             text: "Bitte hole vor jeder Aufnahme das Einverständnis aller Beteiligten ein – in Vorlesungen die Erlaubnis der Lehrperson.") {
-            PrimaryButton("Erste Aufnahme") {
+        Page(symbol: "checkmark.seal.fill", effect: .bounce, title: "Alles bereit",
+             text: "Eine Bitte: Frag vor jeder Aufnahme alle, ob du aufnehmen darfst – in Vorlesungen die Lehrperson.") {
+            PrimaryButton("Loslegen") {
                 library.settings.onboardingCompleted = true
             }
             .disabled(!microphoneAllowed)
@@ -196,13 +198,16 @@ private struct Page<Content: View>: View {
                 .glassEffect(.regular.tint(skin.tint.opacity(0.12)), in: .circle)
                 .accessibilityHidden(true)
                 .padding(.bottom, 8)
+            // Nie abschneiden: Lieber werden die Abstände kleiner (große Schrift, viel Inhalt wie bei der Einstiegsfrage)
             Text(title)
                 .font(.largeTitle.bold())
                 .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
             Text(text)
                 .font(.title3)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
             Spacer()
             VStack(spacing: 14) { content }
             Spacer().frame(height: 56)
@@ -242,6 +247,7 @@ private struct Feature: View {
 private struct UsageButton: View {
     let usage: Usage
     let action: () -> Void
+    @Environment(\.skin) private var skin
 
     private var symbol: String {
         switch usage {
@@ -253,7 +259,7 @@ private struct UsageButton: View {
 
     private var detail: LocalizedStringKey {
         switch usage {
-        case .university: "Vorlesungen, Seminare, Lerngruppen"
+        case .university: "Vorlesungen und Seminare"
         case .school: "Unterricht, Oberstufe, Berufsschule"
         case .work: "Meetings, Calls, Gespräche"
         }
@@ -264,13 +270,15 @@ private struct UsageButton: View {
             HStack(spacing: 14) {
                 Image(systemName: symbol)
                     .font(.title2)
-                    .foregroundStyle(.tint)
+                    .foregroundStyle(skin.tint)
                     .frame(width: 32)
                     .accessibilityHidden(true)
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(usage.label).font(.headline)
+                    Text(usage.label).font(.headline).foregroundStyle(.primary)
                     Text(detail).font(.subheadline).foregroundStyle(.secondary)
                 }
+                .multilineTextAlignment(.leading)
+                .fixedSize(horizontal: false, vertical: true)
                 Spacer(minLength: 0)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -278,6 +286,8 @@ private struct UsageButton: View {
         }
         .buttonStyle(.glass)
         .controlSize(.large)
+        // Glas färbt die Beschriftung sonst ganz in der Akzentfarbe – Titel sollen schwarz lesbar bleiben
+        .tint(.primary)
     }
 }
 
