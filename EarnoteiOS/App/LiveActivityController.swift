@@ -29,7 +29,8 @@ final class LiveActivityController {
         let elapsed = recorder.elapsed()
         let state = RecordingActivityAttributes.ContentState(countingSince: Date().addingTimeInterval(-elapsed),
                                                              pausedElapsed: recorder.isPaused ? elapsed : nil,
-                                                             levels: recorder.isPaused ? levels.map { _ in 0 } : levels)
+                                                             levels: recorder.isPaused ? levels.map { _ in 0 } : levels,
+                                                             marks: recorder.marks, canMark: recorder.canMark)
         let content = ActivityContent(state: state, staleDate: nil)
         if let id = activity?.id {
             Task.detached { await Self.running(id)?.update(content) }

@@ -89,6 +89,7 @@ final class PhoneEnvironment {
         RecordingCommands.start = { [weak recorder] in await recorder?.start(category: nil) }
         RecordingCommands.togglePause = { [weak recorder] in recorder?.togglePause() }
         RecordingCommands.stop = { [weak recorder] in recorder?.stop() }
+        RecordingCommands.markImportant = { [weak recorder] in recorder?.markImportant() }
         watchQueue()
         widgets = WidgetPublisher(library: library, recorder: recorder)
         Task { await start() }

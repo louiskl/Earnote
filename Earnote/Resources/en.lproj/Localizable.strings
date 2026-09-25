@@ -1535,3 +1535,14 @@
 "Für Fragen braucht es eine KI auf diesem Gerät. Wähle sie in den Einstellungen unter „So entsteht die Notiz“." = "Questions need an AI on this device. Choose one in Settings under “How Your Note Is Written”.";
 "In der Notiz" = "In the note";
 "In Notiz übernehmen" = "Add to note";
+
+/* iPhone: Klausur-Radar (Earnote Pro) */
+"Klausur-Radar" = "Exam Radar";
+"Tippe in der Vorlesung auf „Wichtig“, auch auf dem Sperrbildschirm. Vor der Prüfung siehst du je Fach alles, was drankommt." = "Tap “Important” during the lecture, even on the Lock Screen. Before the exam you see everything that will come up, per subject.";
+"Wichtig" = "Important";
+"Wichtig (%lld)" = "Important (%lld)";
+"Stelle als wichtig markieren" = "Mark as Important";
+"Markiert in der laufenden Aufnahme die Stelle als wichtig für die Prüfung." = "Marks the current moment of the recording as important for the exam.";
+"Noch nichts für die Klausur" = "Nothing for the Exam Yet";
+"Tippe während der Vorlesung auf „Wichtig“ – auch auf dem Sperrbildschirm. Earnote sammelt hier alles, was die Lehrkraft als prüfungsrelevant betont hat." = "Tap “Important” during the lecture – even on the Lock Screen. Earnote collects everything the lecturer stressed as exam-relevant here.";
+"Klausur-Radar: %@" = "Exam Radar: %@";

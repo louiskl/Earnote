@@ -89,6 +89,8 @@ struct FilteredRecordingsView: View {
     @State private var editing: RecordingCategory?
     @State private var deck: LearnDeck?
     @State private var cardCount = 0
+    @State private var showsRadar = false
+    @State private var showsPro = false
 
     private var category: RecordingCategory? {
         if case .category(let id) = filter { return library.category(id) }
@@ -100,6 +102,12 @@ struct FilteredRecordingsView: View {
             .paper()
             .navigationTitle(title)
             .toolbar {
+                if category != nil {
+                    // Anschauen kostet keinen Probeversuch – die zählen beim Markieren
+                    Button("Klausur-Radar", systemImage: "scope") {
+                        if Pro.isUnlocked || Pro.triesLeft(.examRadar) > 0 { showsRadar = true } else { showsPro = true }
+                    }
+                }
                 if let category {
                     Menu("Mehr", systemImage: "ellipsis") {
                         Button("Übersicht erstellen", systemImage: "doc.text.magnifyingglass") {
@@ -116,6 +124,10 @@ struct FilteredRecordingsView: View {
                 }
             }
             .navigationDestination(item: $deck) { FlashcardSession(deck: $0) }
+            .navigationDestination(isPresented: $showsRadar) {
+                if let category { ExamRadarView(category: category) }
+            }
+            .sheet(isPresented: $showsPro) { ProSheet(highlight: .examRadar) }
             .sheet(item: $editing) { CategoryEditor(category: $0) }
             .task(id: library.recordings.map(\.summaryPreview).hashValue) {
                 cardCount = await FlashcardDeck.load(for: filter, title: "", library: library)?.cards.count ?? 0

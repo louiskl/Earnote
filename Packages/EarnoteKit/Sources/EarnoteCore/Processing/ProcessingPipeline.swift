@@ -116,6 +116,10 @@ public struct ProcessingPipeline: Sendable {
                 transcript = fresh
             }
             let text = transcript?.formatted(includeSpeakers: settings.speakerLabels) ?? ""
+            // „Wichtig!“-Markierungen aus der Aufnahme (Earnote Pro) – nur, wenn die Notiz aus dem Transkript entsteht
+            let marks = fromNote == nil ? ImportantMarks.load(in: audio.folderURL(for: id)) : []
+            let instructions = [extraInstructions, ImportantMarks.instruction(marks: marks, transcript: transcript)]
+                .filter { !$0.isEmpty }.joined(separator: "\n\n")
 
             // 2) Zusammenfassung – eine vorhandene Notiz wird erst ersetzt, wenn die neue fertig ist
             step = "Zusammenfassung"
@@ -129,7 +133,7 @@ public struct ProcessingPipeline: Sendable {
                                              date: rec.startedAt, duration: rec.duration,
                                              hasSpeakers: settings.speakerLabels && transcript?.segments.contains { $0.speaker != nil } == true,
                                              language: settings.ai.summaryLanguage,
-                                             glossary: glossary, extraInstructions: extraInstructions,
+                                             glossary: glossary, extraInstructions: instructions,
                                              simpleLanguage: settings.ai.simpleNotes)
                 let started = Date()
                 var s: Summary
