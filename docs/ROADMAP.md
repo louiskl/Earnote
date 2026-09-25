@@ -519,7 +519,7 @@ kommt, wird geordnet (Regel 8). Ziel: Eine Erstnutzerin findet sich sofort zurec
 
 | Wann | Nutzer | Architekt/Entwicklung |
 |---|---|---|
-| **Fr 25. – So 27.09.** | 0.9.25 am iPhone testen · Small Business Program · Markenrecherche | Fehler aus dem Test sofort beheben |
+| **Fr 25. – So 27.09.** | 0.9.25 am iPhone testen | Fehler aus dem Test sofort beheben |
 | **Mo 28.09. – Do 01.10.** | App Store Connect: Version 1.0, Datenschutz („Keine Daten erfasst“), Altersfreigabe, Pro + Trinkgelder an die Version, Einträge ES/FR/IT · iCloud-Abgleich auf zwei Geräten laufen lassen | **0.9.26**: Fehler, Pro-Funktionen am Mac frei, Dankeschön-Paket am Mac, App-Store-Screenshots (iPhone 6,9″, iPad 13″), Prüfhinweise, Durchgang am Gerät (Aufnahme-Blatt, Live-Aktivität, VoiceOver) |
 | **Fr 02. – So 04.10.** | 1.0 einmal komplett durchspielen | **1.0-Kandidat** auf allen drei Geräten, Mac-Beta-Rückmeldungen bis hierhin |
 | **Mo 05.10.** | **Einreichen** (iPhone/iPad, mit Pro und Trinkgeldern) | — |
@@ -531,8 +531,8 @@ Puffer: 09.–13.10. für eine Ablehnung (beim ersten Mal mit In-App-Käufen hä
 
 **Nebenher (Nutzer):**
 - [x] Bank- und Steuerdaten in App Store Connect (vor 25.09.)
-- [ ] Vertrag für kostenpflichtige Apps auf „Aktiv“ prüfen (W-8BEN eingereicht 25.09., in Bearbeitung)
-- [ ] Small Business Program (15 % statt 30 % Provision)
+- [x] Vertrag für kostenpflichtige Apps aktiv (W-8BEN eingereicht 25.09.)
+- [x] Small Business Program beantragt (15 % statt 30 % Provision, 25.09.2026)
 - [x] Markenrecherche „Earnote“ (DPMA, TMview, USPTO; Klassen 9, 41, 42): **keine Treffer** (25.09.2026). Anmeldung (DPMA ~290 €) bewusst aufgeschoben – ab dem Launch gilt Werktitelschutz (§ 5 MarkenG); anmelden, sobald Earnote Geld bringt oder vor großer Werbung
 - [x] Instagram-/TikTok-Namen gesichert (25.09.2026)
 
