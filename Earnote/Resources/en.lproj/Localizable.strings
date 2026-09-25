@@ -1626,3 +1626,7 @@
 "Kürzere Einstellungen" = "Shorter Settings";
 "Das Wichtigste steht oben, Seltenes unter „Weitere Optionen“." = "The essentials are at the top, rarely used options under “More Options”.";
 "Alles, was in deinen Notizen als prüfungsrelevant gilt – dazu, was du mit „Wichtig“ markiert hast. Neueste Vorlesung zuerst." = "Everything your notes flag as relevant for the exam – plus what you marked as “Important”. Newest lecture first.";
+"Ohne Pro: noch 1 Mal kostenlos." = "Without Pro: 1 free use left.";
+"Ohne Pro: noch %lld Mal kostenlos." = "Without Pro: %lld free uses left.";
+"Die kostenlosen Versuche sind aufgebraucht." = "You've used up the free tries.";
+"Earnote Pro ansehen" = "See Earnote Pro";

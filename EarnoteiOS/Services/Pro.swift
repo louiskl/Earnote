@@ -188,6 +188,33 @@ struct ProView: View {
     }
 }
 
+/// Unter einer Pro-Funktion: wie oft sie noch kostenlos geht – und wenn nicht mehr, der Weg zu Pro statt einer Überraschung
+struct ProTriesNote: View {
+    let feature: Pro.Feature
+    @AppStorage(Pro.key) private var isPro = false
+    @State private var showsPro = false
+
+    var body: some View {
+        if !isPro {
+            let left = Pro.triesLeft(feature)
+            Group {
+                if left > 0 {
+                    Text(left == 1 ? "Ohne Pro: noch 1 Mal kostenlos." : "Ohne Pro: noch \(left) Mal kostenlos.")
+                        .foregroundStyle(.secondary)
+                } else {
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("Die kostenlosen Versuche sind aufgebraucht.").foregroundStyle(.secondary)
+                        Button("Earnote Pro ansehen") { showsPro = true }
+                            .foregroundStyle(.tint)
+                    }
+                }
+            }
+            .font(.footnote)
+            .sheet(isPresented: $showsPro) { ProSheet(highlight: feature) }
+        }
+    }
+}
+
 /// Pro-Hinweis als eigenes Blatt, z. B. wenn die Probeversuche einer Funktion aufgebraucht sind
 struct ProSheet: View {
     var highlight: Pro.Feature?

@@ -15,6 +15,7 @@ struct TranslationSheet: View {
     @State private var progress: Double?
     @State private var error: String?
     @State private var showsPro = false
+    @State private var detent = PresentationDetent.medium
     @State private var task: Task<Void, Never>?
 
     enum What: Hashable { case note, transcript }
@@ -22,8 +23,9 @@ struct TranslationSheet: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section {
-                    if transcript != nil {
+                // Eigener Abschnitt ohne Hintergrund – in der Sprach-Gruppe hinterließ er eine leere weiße Leiste
+                if transcript != nil {
+                    Section {
                         Picker("Was", selection: $what) {
                             Text("Notiz").tag(What.note)
                             Text("Transkript").tag(What.transcript)
@@ -32,6 +34,8 @@ struct TranslationSheet: View {
                         .listRowBackground(Color.clear)
                         .listRowInsets(EdgeInsets())
                     }
+                }
+                Section {
                     Picker("Sprache", selection: $language) {
                         ForEach(Translation.languages, id: \.self) { Text(LocalizedStringKey($0)).tag($0) }
                     }
@@ -46,8 +50,11 @@ struct TranslationSheet: View {
                     }
                     .disabled(progress != nil)
                 } footer: {
-                    if what == .transcript {
-                        Text("Ein langes Transkript übersetzt die KI Stück für Stück – mit lokaler KI kann das einige Minuten dauern.")
+                    VStack(alignment: .leading, spacing: 8) {
+                        if what == .transcript {
+                            Text("Ein langes Transkript übersetzt die KI Stück für Stück – mit lokaler KI kann das einige Minuten dauern.")
+                        }
+                        ProTriesNote(feature: .translate)
                     }
                 }
                 if let error {
@@ -86,6 +93,9 @@ struct TranslationSheet: View {
             }
             .sheet(isPresented: $showsPro) { ProSheet(highlight: .translate) }
         }
+        // Erst halb hoch (drei Zeilen), mit dem Ergebnis ganz – dann muss niemand selbst ziehen
+        .presentationDetents([.medium, .large], selection: $detent)
+        .onChange(of: result) { if result != nil { detent = .large } }
     }
 
     private func start() {
