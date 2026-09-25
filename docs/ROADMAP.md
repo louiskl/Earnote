@@ -509,7 +509,7 @@ kommt, wird geordnet (Regel 8). Ziel: Eine Erstnutzerin findet sich sofort zurec
 - [x] **Klausur-Radar:** erklärt sich selbst; Titel einer Vorlesung öffnete die Notiz nicht (behoben)
 - [x] **Mac:** gleiche Begriffe („Neu schreiben …“, „Namen korrigieren …“)
 - [ ] Rückmeldungen der TestFlight-Tester und der M1-iPad-Tester einarbeiten
-- [ ] Bereichs-Emojis erscheinen im Simulator als „?“ – am echten iPhone prüfen, vor den App-Store-Screenshots klären
+- [x] Bereichs-Emojis: am echten iPhone richtig (25.09.2026), nur der Simulator zeigt „?“ – App-Store-Screenshots daher vom Gerät oder mit einem Simulator, der Emojis zeigt
 - [ ] Offen für eine spätere Runde: Aufnahme-Blatt und Live-Aktivität am echten Gerät durchsehen, VoiceOver-Durchgang
 
 ## 🚀 Launch – Mac 1.0 und iPhone/iPad im App Store
