@@ -91,7 +91,8 @@ struct RecordingList: View {
                         Section(section.title) {
                             ForEach(section.items) { recording in
                                 NavigationLink(value: recording.id) {
-                                    RecordingRow(recording: recording)
+                                    // Im Bereich selbst wäre sein Name in jeder Zeile doppelt
+                                    RecordingRow(recording: recording, showsCategory: category == nil)
                                 }
                                 .swipeActions {
                                     Button("Löschen", systemImage: "trash", role: .destructive) { pendingDeletion = recording.id }
@@ -171,12 +172,15 @@ private struct WaitingForPowerSection: View {
 /// Eine Zeile: Titel, Zeit und Länge bzw. Stand der Verarbeitung, eine Zeile Vorschau.
 struct RecordingRow: View {
     let recording: Recording
+    var showsCategory = true
     @Environment(LibraryStore.self) private var library
     @Environment(HandoffSender.self) private var handoffs
     @Environment(\.dynamicTypeSize) private var typeSize
 
     /// Größte Schrift (Barrierefreiheit): kein Symbol, dafür darf alles umbrechen – wie in Mail und Notizen
     private var isLarge: Bool { typeSize.isAccessibilitySize }
+
+    private var category: RecordingCategory? { showsCategory ? library.category(recording.categoryID) : nil }
 
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
@@ -198,7 +202,7 @@ struct RecordingRow: View {
                 .lineLimit(isLarge ? 4 : 2)
             if isLarge {
                 Text([recording.startedAt.formatted(.dateTime.hour().minute()), durationText,
-                      library.category(recording.categoryID)?.name].compactMap { $0 }.joined(separator: " · "))
+                      category?.name].compactMap { $0 }.joined(separator: " · "))
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             } else {
@@ -214,7 +218,7 @@ struct RecordingRow: View {
                         // In schmalen Spalten (iPad-Liste) lieber den Bereich kürzen als die Dauer umbrechen
                         .fixedSize()
                 }
-                if let category = library.category(recording.categoryID) {
+                if let category {
                     Text("·")
                     Text(category.name).lineLimit(1)
                 }
