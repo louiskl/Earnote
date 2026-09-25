@@ -121,8 +121,20 @@ public struct ProcessingPipeline: Sendable {
                 try Task.checkCancellation()
                 try await library.saveTranscript(fresh, for: id)
                 transcript = fresh
+            } else if settings.detectSpeakers, existing == nil, fromNote == nil, let current = transcript,
+                      let diarizer, let url = audio.playbackURL(for: rec) {
+                // Am Mac entsteht das Transkript meist schon während der Aufnahme – dann erst hier die Stimmen erkennen.
+                // Nur beim ersten Durchgang (noch keine Notiz), damit „Neu schreiben“ keine Namen überschreibt.
+                let named = await Self.withSpeakers(current, audio: url, diarizer: diarizer)
+                if Speakers.names(in: named) != Speakers.names(in: current) {
+                    try Task.checkCancellation()
+                    try await library.saveTranscript(named, for: id)
+                    transcript = named
+                }
             }
-            let text = transcript?.formatted(includeSpeakers: settings.speakerLabels) ?? ""
+            // Erkannte Sprecher zählen auch, wenn „Ich/Andere“ (Mac) ausgeschaltet ist
+            let withSpeakers = settings.speakerLabels || settings.detectSpeakers
+            let text = transcript?.formatted(includeSpeakers: withSpeakers) ?? ""
             // „Wichtig!“-Markierungen aus der Aufnahme (Earnote Pro) – nur, wenn die Notiz aus dem Transkript entsteht
             let marks = fromNote == nil ? ImportantMarks.load(in: audio.folderURL(for: id)) : []
             let instructions = [extraInstructions, ImportantMarks.instruction(marks: marks, transcript: transcript)]
@@ -138,7 +150,7 @@ public struct ProcessingPipeline: Sendable {
                 // Automatische Namen („Meeting – 15. Sept., 19:58“) sind kein Kontext – das Modell würde sie nur als Titel übernehmen
                 let context = SummaryContext(category: category, titleHint: rec.hasAutoTitle ? "" : rec.title, sourceApp: rec.sourceApp,
                                              date: rec.startedAt, duration: rec.duration,
-                                             hasSpeakers: settings.speakerLabels && transcript?.segments.contains { $0.speaker != nil } == true,
+                                             hasSpeakers: withSpeakers && transcript?.segments.contains { $0.speaker != nil } == true,
                                              language: settings.ai.summaryLanguage,
                                              glossary: glossary, extraInstructions: instructions,
                                              simpleLanguage: settings.ai.simpleNotes)

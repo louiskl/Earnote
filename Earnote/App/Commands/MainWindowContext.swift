@@ -23,6 +23,8 @@ struct MainWindowContext {
     var newCategory: () -> Void
     /// Übersicht über den gewählten Bereich (nil = kein Bereich gewählt oder zu wenige Aufnahmen)
     var summarizeCategory: (() -> Void)?
+    /// Klausur-Radar des gewählten Bereichs (nil = kein Bereich gewählt)
+    var examRadar: (() -> Void)?
     var focusSearch: () -> Void
     /// Notiz bearbeiten, neu zusammenfassen, korrigieren, zurücksetzen
     var noteActions = NoteActions()

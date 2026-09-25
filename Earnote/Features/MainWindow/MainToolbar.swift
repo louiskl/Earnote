@@ -8,6 +8,8 @@ struct MainToolbar: ToolbarContent {
     let selectedCategoryID: UUID?
     /// Übersicht über den gewählten Bereich (nil = ausgegraut)
     let onSummarize: (() -> Void)?
+    /// Klausur-Radar des gewählten Bereichs
+    let onExamRadar: (() -> Void)?
     @Binding var detailMode: DetailMode
     @Binding var inspectorShown: Bool
     let onDelete: () -> Void
@@ -34,6 +36,12 @@ struct MainToolbar: ToolbarContent {
                 .help(onSummarize == nil
                       ? "Für eine Übersicht braucht es mindestens zwei fertige Aufnahmen in diesem Bereich."
                       : "Übersicht über die Aufnahmen dieses Bereichs erstellen (⇧⌘U)")
+            }
+            ToolbarItem(placement: .primaryAction) {
+                Button { onExamRadar?() } label: {
+                    Label("Klausur-Radar", systemImage: "scope")
+                }
+                .help("Alles Prüfungsrelevante dieses Bereichs auf einer Seite (⌥⇧⌘U)")
             }
         }
         ToolbarItemGroup(placement: .primaryAction) {

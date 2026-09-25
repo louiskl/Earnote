@@ -1631,3 +1631,27 @@
 "Die kostenlosen Versuche sind aufgebraucht." = "You've used up the free tries.";
 "Earnote Pro ansehen" = "See Earnote Pro";
 "Notiz schreiben" = "Write Note";
+
+/* Mac: Pro-Funktionen */
+"Dafür braucht es eine KI. Wähle in den Einstellungen unter „KI“, wer die Notizen schreibt." = "This needs an AI. Choose who writes your notes in Settings under “AI”.";
+"Ersetzt die Notiz. „Auf KI-Fassung zurücksetzen“ holt die bisherige zurück." = "Replaces the note. “Restore AI Version” brings the previous one back.";
+"Fragen zur Notiz …" = "Ask About Note …";
+"Markiere während der Vorlesung Stellen als wichtig (⇧⌘I oder in der Menüleiste). Earnote sammelt hier alles, was als prüfungsrelevant gilt." = "Mark moments as important during the lecture (⇧⌘I or in the menu bar). Earnote collects everything relevant for the exam here.";
+"Notiz öffnen" = "Open Note";
+"Diese Stelle kommt als „Wichtig für die Klausur“ in die Notiz" = "This moment goes into the note under “Important for the exam”";
+"Diese Stelle als wichtig markieren – sie kommt in die Notiz und ins Klausur-Radar (⇧⌘I)" = "Mark this moment as important – it goes into the note and the exam radar (⇧⌘I)";
+"Alles Prüfungsrelevante dieses Bereichs auf einer Seite (⌥⇧⌘U)" = "Everything exam-relevant in this area on one page (⌥⇧⌘U)";
+"Als wichtig markieren" = "Mark as Important";
+"Klausur-Radar …" = "Exam Radar …";
+"Klausur-Radar · %@" = "Exam Radar · %@";
+"Unterscheidet die Stimmen einer Aufnahme – „Sprecher 1“, „Sprecher 2“ … –, auch in Vorlesungen und Gesprächen ohne Call. Läuft nach der Aufnahme auf deinem Mac und braucht dafür nur Sekunden; die Namen gibst du unter „Namen korrigieren …“." = "Tells the voices in a recording apart – “Speaker 1”, “Speaker 2” … – also in lectures and conversations without a call. Runs on your Mac after the recording and takes only seconds; add names under “Fix Names …”.";
+"Wer „Sprecher 1“ ist, hörst du im Transkript: einfach auf eine Zeitmarke klicken." = "To hear who “Speaker 1” is, click a timestamp in the transcript.";
+"Systemfarbe und Earnote-Rot gibt es für alle. Weitere Farben, die Designs und die App-Symbole sind ein Dankeschön für deine Unterstützung." = "System color and Earnote Red are for everyone. More colors, the designs and the app icons are a thank-you for your support.";
+"Ich habe Earnote unterstützt" = "I've supported Earnote";
+"Earnote ist kostenlos und bleibt es. Als Dankeschön für eine Unterstützung gibt es Farben, Designs und App-Symbole – freigeschaltet auf Vertrauen, ohne Konto und ohne Prüfung." = "Earnote is free and stays free. As a thank-you for your support there are colors, designs and app icons – unlocked on trust, no account, no checks.";
+"Systemfarbe" = "System Color";
+"Keins" = "None";
+"Aus dem Design" = "From the Design";
+"App-Symbol im Dock" = "App Icon in the Dock";
+"Ko-fi" = "Ko-fi";
+"GitHub Sponsors" = "GitHub Sponsors";

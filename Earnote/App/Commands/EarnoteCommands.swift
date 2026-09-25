@@ -38,12 +38,18 @@ struct EarnoteCommands: Commands {
             Button(window?.isPaused == true ? "Fortsetzen" : "Pause") { recorder.togglePause() }
                 .keyboardShortcut("p", modifiers: [.command, .shift])
                 .disabled(!isRecording)
+            Button("Als wichtig markieren") { recorder.markImportant() }
+                .keyboardShortcut("i", modifiers: [.command, .shift])
+                .disabled(!isRecording || window?.isPaused == true)
             Button("Aufnahme verwerfen …") { window?.requestDiscardRecording() }
                 .disabled(!isRecording || window == nil)
             Divider()
             Button("Übersicht über den Bereich …") { window?.summarizeCategory?() }
                 .keyboardShortcut("u", modifiers: [.command, .shift])
                 .disabled(window?.summarizeCategory == nil)
+            Button("Klausur-Radar …") { window?.examRadar?() }
+                .keyboardShortcut("u", modifiers: [.command, .shift, .option])
+                .disabled(window?.examRadar == nil)
             Divider()
             Button(window?.playback?.isPlaying == true ? "Pause" : "Aufnahme anhören") {
                 window?.playback?.playPause()
@@ -74,6 +80,12 @@ struct EarnoteCommands: Commands {
             Button("Auf KI-Fassung zurücksetzen") { window?.noteActions.restoreGenerated() }
                 .disabled(recording?.isNoteEdited != true)
             Button("Namen korrigieren …") { window?.noteActions.correctTerms() }
+                .disabled(recording?.summaryTitle == nil || busy)
+            Divider()
+            Button("Fragen zur Notiz …") { window?.noteActions.ask() }
+                .keyboardShortcut("k", modifiers: [.command, .shift])
+                .disabled(recording?.summaryTitle == nil || busy)
+            Button("Übersetzen …") { window?.noteActions.translate() }
                 .disabled(recording?.summaryTitle == nil || busy)
             Divider()
             Button("Neu schreiben …") { window?.noteActions.summarizeAgain() }

@@ -17,6 +17,7 @@ struct SidebarView: View {
     let onNewCategory: () -> Void
     /// Übersicht über einen Bereich erstellen (öffnet das Blatt im Hauptfenster)
     let onSummarize: (UUID) -> Void
+    let onExamRadar: (UUID) -> Void
 
     @State private var pendingDeletion: LibraryCategory?
 
@@ -49,6 +50,7 @@ struct SidebarView: View {
                                 Button("Bearbeiten …") { onEdit(category.id) }
                                 Divider()
                                 Button("Übersicht erstellen …") { onSummarize(category.id) }
+                                Button("Klausur-Radar") { onExamRadar(category.id) }
                                 Divider()
                                 Button("Löschen …", role: .destructive) { pendingDeletion = category }
                             }

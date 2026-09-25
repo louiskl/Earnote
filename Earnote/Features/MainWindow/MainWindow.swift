@@ -22,6 +22,10 @@ struct MainWindow: View {
     @State private var editingCategory: RecordingCategory?
     /// Bereich, für den gerade eine Übersicht erstellt wird (Blatt)
     @State private var summarizingCategoryID: UUID?
+    @State private var radarCategoryID: UUID?
+    // Farbe des Dankeschön-Pakets: beobachten, damit ein Wechsel in den Einstellungen sofort wirkt
+    @AppStorage(MacSkin.key) private var skinRaw = ""
+    @AppStorage(MacSkin.supporterKey) private var isSupporter = false
     @State private var pendingDeletion: UUID?
     @State private var confirmDiscard = false
     @State private var showOnboarding = false
@@ -53,6 +57,12 @@ struct MainWindow: View {
         return { summarizingCategoryID = id }
     }
 
+    /// Klausur-Radar des gewählten Bereichs
+    private var radarAction: (() -> Void)? {
+        guard let id = selectedCategoryID else { return nil }
+        return { radarCategoryID = id }
+    }
+
     private var selectedCategoryID: UUID? {
         if case .category(let id) = filter.wrappedValue { return id }
         return nil
@@ -63,7 +73,8 @@ struct MainWindow: View {
             SidebarView(filter: filter, renamingCategoryID: $renamingCategoryID,
                         onEdit: { id in editingCategory = library.category(id) },
                         onNewCategory: newCategory,
-                        onSummarize: { summarizingCategoryID = $0 })
+                        onSummarize: { summarizingCategoryID = $0 },
+                        onExamRadar: { radarCategoryID = $0 })
                 .navigationSplitViewColumnWidth(min: 180, ideal: 220, max: 320)
         } content: {
             RecordingListView(filter: filter.wrappedValue, selection: selection, searchResults: searchResults,
@@ -88,6 +99,7 @@ struct MainWindow: View {
         .toolbar {
             MainToolbar(selectedRecordingID: selection.wrappedValue, selectedCategoryID: selectedCategoryID,
                         onSummarize: overviewAction,
+                        onExamRadar: radarAction,
                         detailMode: detailMode, inspectorShown: $inspectorShown,
                         onDelete: { if let id = selection.wrappedValue { pendingDeletion = id } })
         }
@@ -113,6 +125,10 @@ struct MainWindow: View {
         .sheet(item: $editingCategory) { category in
             CategoryEditorSheet(category: category) { editingCategory = nil }
         }
+        .examRadarSheet(categoryID: $radarCategoryID) { id in
+            selection.wrappedValue = id
+            detailMode.wrappedValue = .note
+        }
         .sheet(item: Binding(get: { summarizingCategoryID.map(IdentifiableID.init) },
                              set: { summarizingCategoryID = $0?.id })) { wrapped in
             CategorySummarySheet(categoryID: wrapped.id) { newID in
@@ -125,6 +141,8 @@ struct MainWindow: View {
                 switch sheet {
                 case .summarizeAgain: SummarizeAgainSheet(recordingID: id)
                 case .correctTerms: CorrectTermSheet(recordingID: id)
+                case .ask: NoteChatSheet(recordingID: id)
+                case .translate: TranslationSheet(recordingID: id)
                 }
             }
         }
@@ -183,7 +201,7 @@ struct MainWindow: View {
     }
 
     private var windowTint: Color {
-        activeCategory?.tint ?? .accentColor
+        activeCategory?.tint ?? MacSkin.current().tint
     }
 
     private var context: MainWindowContext {
@@ -197,6 +215,7 @@ struct MainWindow: View {
                           requestDiscardRecording: { confirmDiscard = true },
                           newCategory: newCategory,
                           summarizeCategory: overviewAction,
+                          examRadar: radarAction,
                           focusSearch: { searchFocused = true },
                           noteActions: noteActions,
                           playback: player.hasAudio
@@ -218,7 +237,9 @@ struct MainWindow: View {
                     },
                     summarizeAgain: { noteSheet = .summarizeAgain },
                     correctTerms: { noteSheet = .correctTerms },
-                    restoreGenerated: { if let id = selection.wrappedValue { library.restoreGeneratedNote(id) } })
+                    restoreGenerated: { if let id = selection.wrappedValue { library.restoreGeneratedNote(id) } },
+                    ask: { noteSheet = .ask },
+                    translate: { noteSheet = .translate })
     }
 
     #if DEBUG
@@ -250,6 +271,9 @@ struct MainWindow: View {
             case "edit": if let id = library.recordings.first?.id { noteActions.edit(id) }
             case "summarize": noteActions.summarizeAgain()
             case "correct": noteActions.correctTerms()
+            case "ask": noteActions.ask()
+            case "translate": noteActions.translate()
+            case "radar": radarCategoryID = library.recordings.first?.categoryID
             case "pdf":
                 // Nur Debug: PDF erzeugen und den Pfad ins Protokoll schreiben
                 if let id = selection.wrappedValue, let url = await NoteDocument.temporaryPDF(id, library: library) {

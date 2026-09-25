@@ -36,6 +36,8 @@ final class LiveTranscript: ObservableObject {
 final class RecordingController {
     private(set) var activeRecordingID: UUID?
     private(set) var isPaused = false
+    /// „Wichtig“-Markierungen der laufenden Aufnahme – die Notiz bekommt dazu „Wichtig für die Klausur“
+    private(set) var importantMarks = 0
     /// Mikrofon, über das die laufende Aufnahme gerade aufnimmt
     private(set) var microphoneName: String?
     /// Läuft der Systemton mit? (für die Anzeige auf der Aufnahme-Bühne)
@@ -205,6 +207,7 @@ final class RecordingController {
             isPaused = false
             pausedAt = nil
             pausedTotal = 0
+            importantMarks = 0
             recordingActivity = ProcessInfo.processInfo.beginActivity(options: .userInitiated, reason: "Aufnahme läuft")
             startMeter(startedAt: rec.startedAt)
             if wantsLivePreview {
@@ -245,6 +248,16 @@ final class RecordingController {
 
     func togglePause() {
         if isPaused { resumeRecording() } else { pauseRecording() }
+    }
+
+    /// Die Stelle gerade eben als wichtig markieren (am iPhone Pro, am Mac frei). Die Verarbeitung gibt der KI
+    /// die Stelle mit Zitat mit (`ImportantMarks`, Kern), daraus wird „Wichtig für die Klausur“ in der Notiz.
+    func markImportant() {
+        guard let id = activeRecordingID, let startedAt = meterStartedAt else { return }
+        let seconds = max(0, Date().timeIntervalSince(startedAt) - totalPaused)
+        ImportantMarks.append(seconds, in: library.audio.folderURL(for: id))
+        importantMarks += 1
+        Log.info("Als wichtig markiert bei \(Int(seconds)) s")
     }
 
     /// Pausen insgesamt, einschließlich einer gerade laufenden Pause.

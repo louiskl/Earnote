@@ -15,7 +15,12 @@ final class AppEnvironment {
     let library: LibraryStore
     let recorder: RecordingController
     let power: PowerSource
+    /// Sprechererkennung (FluidAudio, auf dem Mac). Läuft nur, wenn „Sprecher erkennen“ an ist – nach der Aufnahme.
+    let diarizer: any SpeakerDiarizer = FluidSpeakerDiarizer()
     /// Übergang bis Phase 2b: Schnittstelle der noch alten Views (Einstellungen, Einrichtung, Menüleiste, Call-Pop-up)
+    /// Wo die Oberfläche ihre kleinen Vorlieben ablegt (`@AppStorage`: Aussehen, Dock-Symbol). Im Testbereich
+    /// dessen eigene Domäne – sonst schrieben Tests in die Einstellungen des Nutzers.
+    static var preferences: UserDefaults = .standard
     /// Sucht einmal am Tag nach einer neueren Version
     let updates = AppUpdater()
     let cloudSync = CloudSyncStatus()
@@ -47,6 +52,7 @@ final class AppEnvironment {
         let precondensed = PreCondensedStore()
         let pipeline = ProcessingPipeline(library: libraryRepository, audio: audio, transcribers: PlatformTranscribers(), llm: llm,
                                           destinations: AppDestinations(), precondensed: precondensed,
+                                          diarizer: diarizer,
                                           notify: { Notifier.send($0, $1) })
         let queue = ProcessingQueue(pipeline: pipeline) {
             // Nichts mehr zu tun: geladene Modelle aus dem Speicher nehmen
@@ -145,7 +151,9 @@ final class AppEnvironment {
         try? FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
         Log.url = root.appendingPathComponent(AppInfo.logFileName)
         Log.info("Sandbox-Modus: \(root.path)")
-        return AppEnvironment(storage: Storage(root: root), defaults: UserDefaults(suiteName: "app.earnote.sandbox") ?? .standard)
+        let defaults = UserDefaults(suiteName: "app.earnote.sandbox") ?? .standard
+        preferences = defaults
+        return AppEnvironment(storage: Storage(root: root), defaults: defaults)
     }
     #endif
 
