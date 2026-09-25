@@ -89,6 +89,7 @@ struct FlashcardSession: View {
 private struct FlipCard: View {
     let card: Flashcard
     @Binding var showsAnswer: Bool
+    @Environment(\.skin) private var skin
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
@@ -127,6 +128,6 @@ private struct FlipCard: View {
         }
         .padding(28)
         .frame(maxWidth: .infinity, minHeight: 380)
-        .glassEffect(.regular.tint(.accentColor.opacity(0.08)).interactive(), in: .rect(cornerRadius: 32))
+        .glassEffect(.regular.tint(skin.tint.opacity(0.08)).interactive(), in: .rect(cornerRadius: 32))
     }
 }

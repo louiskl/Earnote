@@ -149,6 +149,7 @@ private struct Page<Content: View>: View {
     let text: LocalizedStringKey
     @ViewBuilder let content: Content
     @State private var appeared = false
+    @Environment(\.skin) private var skin
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
@@ -158,7 +159,7 @@ private struct Page<Content: View>: View {
                 .font(.system(size: 64, weight: .medium))
                 .foregroundStyle(.tint)
                 .frame(width: 128, height: 128)
-                .glassEffect(.regular.tint(.accentColor.opacity(0.12)), in: .circle)
+                .glassEffect(.regular.tint(skin.tint.opacity(0.12)), in: .circle)
                 .accessibilityHidden(true)
                 .padding(.bottom, 8)
             Text(title)

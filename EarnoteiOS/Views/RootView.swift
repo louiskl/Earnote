@@ -1,4 +1,5 @@
 import EarnoteCore
+import StoreKit
 import SwiftUI
 import UniformTypeIdentifiers
 
@@ -43,6 +44,14 @@ struct RootView: View {
     @State private var filterPaths: [LibraryFilter: [UUID]] = [:]
     @State private var showsSettings = false
     @State private var importing = false
+    // „Neu in Earnote“, Bewertung, Dankeschön-Paket (`FeedbackMoment`) – höchstens eins je Start der App
+    @Environment(\.requestReview) private var requestReview
+    @AppStorage("feedback.lastSeenVersion") private var lastSeenVersion: String?
+    @AppStorage("feedback.reviewAskedVersion") private var reviewAskedVersion: String?
+    @AppStorage("feedback.supporterAskedAt") private var supporterAskedAt: Double = 0
+    @AppStorage(TipJar.supporterKey) private var isSupporter = false
+    @State private var feedbackSheet: FeedbackMoment?
+    @State private var feedbackDone = false
 
     var body: some View {
         @Bindable var library = library
@@ -107,11 +116,27 @@ struct RootView: View {
         .onOpenURL { url in open(url) }
         // „Mit Earnote teilen“ (Share Extension): Dateien übernehmen, sobald die App vorn und die Bibliothek geladen ist
         .onChange(of: scenePhase, initial: true) { _, phase in
-            if phase == .active { collectShared() }
+            if phase == .active {
+                collectShared()
+                Task { await showFeedbackMoment() }
+            }
         }
-        .onChange(of: library.isLoaded) { collectShared() }
-        .fullScreenCover(isPresented: .constant(library.isLoaded && !library.settings.onboardingCompleted)) {
+        .onChange(of: library.isLoaded) {
+            collectShared()
+            Task { await showFeedbackMoment() }
+        }
+        .fullScreenCover(isPresented: .constant(library.isLoaded && !library.settings.onboardingCompleted), onDismiss: {
+            // Neue Nutzer kennen alles schon aus dem Onboarding – keine Neuigkeiten, und heute nichts mehr fragen
+            lastSeenVersion = Self.appVersion
+            feedbackDone = true
+        }) {
             OnboardingView()
+        }
+        .sheet(item: $feedbackSheet) { moment in
+            switch moment {
+            case .whatsNew: WhatsNewView()
+            default: SupporterSheet()
+            }
         }
         .alert("Hinweis", isPresented: Binding(get: { library.lastError != nil }, set: { if !$0 { library.lastError = nil } })) {
             Button("OK", role: .cancel) {}
@@ -133,6 +158,38 @@ struct RootView: View {
             }
         }
         .badge(LibraryListing.counts(library.recordings).count(for: filter))
+    }
+
+    private static var appVersion: String { Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "" }
+
+    /// Nie während einer Aufnahme und nie über einem anderen Blatt
+    private func showFeedbackMoment() async {
+        guard !feedbackDone, library.isLoaded, library.settings.onboardingCompleted,
+              !recorder.isRecording, !showsRecorder, !showsSettings, feedbackSheet == nil else { return }
+        let version = Self.appVersion
+        let moment = FeedbackMoment.next(
+            version: version, whatsNewVersion: WhatsNew.version,
+            finishedNotes: library.recordings.count { $0.status == .done }, isSupporter: isSupporter,
+            lastSeenVersion: lastSeenVersion, reviewAskedVersion: reviewAskedVersion,
+            supporterAskedAt: supporterAskedAt > 0 ? Date(timeIntervalSince1970: supporterAskedAt) : nil)
+        switch moment {
+        case .whatsNew:
+            lastSeenVersion = version
+            feedbackSheet = .whatsNew
+        case .review:
+            reviewAskedVersion = version
+            // Apples eigener Sterne-Dialog; iOS zeigt ihn höchstens dreimal im Jahr
+            try? await Task.sleep(for: .seconds(2))
+            requestReview()
+        case .supporter:
+            // Ohne Trinkgelder im Store (kein Netz, Vertrag noch nicht aktiv) gibt es nichts zu zeigen
+            guard !(await TipJar.products()).isEmpty else { return }
+            supporterAskedAt = Date.now.timeIntervalSince1970
+            feedbackSheet = .supporter
+        case nil:
+            return
+        }
+        feedbackDone = true
     }
 
     private func collectShared() {
@@ -240,6 +297,24 @@ struct ElapsedText: View {
     var body: some View {
         TimelineView(.periodic(from: .now, by: 1)) { context in
             Text(Duration.seconds(recorder.elapsed(at: context.date)).formatted(.time(pattern: .hourMinuteSecond)))
+        }
+    }
+}
+
+extension FeedbackMoment: @retroactive Identifiable {
+    public var id: Self { self }
+}
+
+/// Das Dankeschön-Paket, von selbst angeboten (höchstens einmal im Monat)
+private struct SupporterSheet: View {
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        NavigationStack {
+            SupporterView()
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) { Button("Später") { dismiss() } }
+                }
         }
     }
 }

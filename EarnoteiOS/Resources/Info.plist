@@ -2,6 +2,10 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<!-- Trinkgelder (Verbrauchsartikel) bleiben in der Kaufhistorie: So kommt das Dankeschön-Paket nach einer
+	     Neuinstallation und auf dem iPad von selbst wieder (TipJar.hasTipped) -->
+	<key>SKIncludeConsumableInAppPurchaseHistory</key>
+	<true/>
 	<!-- Weiter aufnehmen bei ausgeschaltetem Bildschirm; Notiz im Hintergrund fertig schreiben -->
 	<key>UIBackgroundModes</key>
 	<array>

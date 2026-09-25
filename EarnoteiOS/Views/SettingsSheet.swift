@@ -1,6 +1,5 @@
 import EarnoteCore
 import EarnoteML
-import StoreKit
 import SwiftUI
 
 /// Einstellungen als Blatt: wo die Notiz entsteht, Aufnahme, Bereiche, Über.
@@ -8,7 +7,8 @@ struct SettingsSheet: View {
     @Environment(LibraryStore.self) private var library
     @Environment(\.dismiss) private var dismiss
     @Environment(\.loadDemoLibrary) private var loadDemoLibrary
-    @State private var tips: [Product] = []
+    @AppStorage(AppSkin.key) private var skin: AppSkin = .standard
+    @AppStorage(TipJar.supporterKey) private var isSupporter = false
 
     var body: some View {
         @Bindable var library = library
@@ -63,8 +63,25 @@ struct SettingsSheet: View {
                     }
                 }
                 #endif
-                // Kein Spendenlink am iPhone: Apple lässt Trinkgeld nur als In-App-Kauf zu
-                if !tips.isEmpty { TipSection(products: tips) }
+                // Kein Spendenlink am iPhone: Apple lässt Trinkgeld nur als In-App-Kauf zu (Dankeschön-Paket)
+                Section {
+                    NavigationLink {
+                        AppearanceView()
+                    } label: {
+                        LabeledContent {
+                            Text(isSupporter || skin.isFree ? skin.name : AppSkin.standard.name)
+                        } label: {
+                            Label("Aussehen", systemImage: "paintpalette")
+                        }
+                    }
+                    NavigationLink {
+                        SupporterView()
+                    } label: {
+                        Label("Earnote unterstützen", systemImage: "gift")
+                    }
+                } footer: {
+                    Text("Farben und App-Symbole gibt es als Dankeschön für ein Trinkgeld. Earnote bleibt für alle kostenlos.")
+                }
                 Section {
                     // Mundpropaganda ist der wichtigste Weg zu neuen Nutzern (docs/STRATEGIE.md) – sobald die App im
                     // App Store ist, hier den App-Store-Link statt der Website teilen
@@ -80,7 +97,6 @@ struct SettingsSheet: View {
                     Text("Earnote ist kostenlos und quelloffen (MIT). Deine Aufnahmen bleiben auf deinem iPhone.")
                 }
             }
-            .task { tips = await TipJar.products() }
             .navigationTitle("Einstellungen")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

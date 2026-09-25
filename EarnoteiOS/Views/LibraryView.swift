@@ -6,6 +6,7 @@ import SwiftUI
 struct LibraryView: View {
     @Binding var path: NavigationPath
     @Environment(LibraryStore.self) private var library
+    @Environment(\.skin) private var skin
     @State private var creating = false
     @State private var editing: RecordingCategory?
 
@@ -15,7 +16,7 @@ struct LibraryView: View {
         NavigationStack(path: $path) {
             List {
                 Section("Bibliothek") {
-                    row(.all, "Alle Aufnahmen", symbol: "tray.full.fill", color: .accentColor)
+                    row(.all, "Alle Aufnahmen", symbol: "tray.full.fill", color: skin.tint)
                     row(.openTasks, "Offene Aufgaben", symbol: "checklist", color: .orange)
                     row(.uncategorized, "Ohne Bereich", symbol: "tray.fill", color: .gray)
                     if counts.problems > 0 {
@@ -32,7 +33,7 @@ struct LibraryView: View {
                             }
                         }
                         .swipeActions(edge: .leading) {
-                            Button("Bearbeiten", systemImage: "pencil") { editing = category }.tint(.accentColor)
+                            Button("Bearbeiten", systemImage: "pencil") { editing = category }.tint(skin.tint)
                         }
                         .contextMenu {
                             Button("Bearbeiten", systemImage: "pencil") { editing = category }

@@ -38,6 +38,7 @@ extension View {
             .environment(environment.queue)
             .environment(environment.power)
             .environment(environment.handoffs)
+            .modifier(Skinned())
     }
 }
 
