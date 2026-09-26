@@ -152,7 +152,7 @@ target_settings = {
     "INFOPLIST_KEY_LSApplicationCategoryType": "public.app-category.education",
     "INFOPLIST_KEY_NSSupportsLiveActivities": "YES",
     "INFOPLIST_KEY_NSRemindersFullAccessUsageDescription": "Earnote legt offene Aufgaben aus deinen Notizen als Erinnerungen an, wenn du das unter Export einschaltest.",
-    "INFOPLIST_KEY_NSMicrophoneUsageDescription": "Earnote nimmt Vorlesungen und Meetings auf, um daraus Notizen zu schreiben. Die Aufnahme bleibt auf deinem iPhone.",
+    "INFOPLIST_KEY_NSMicrophoneUsageDescription": "Earnote nimmt Vorlesungen und Meetings auf, um daraus Notizen zu schreiben. Die Aufnahme bleibt auf deinem Gerät.",
     "INFOPLIST_KEY_UIApplicationSceneManifest_Generation": "YES",
     # Mehrere Fenster am iPad (Notiz im eigenen Fenster); am iPhone ohne Wirkung
     "INFOPLIST_KEY_UIApplicationSupportsMultipleScenes": "YES",
