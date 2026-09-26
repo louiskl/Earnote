@@ -1240,8 +1240,8 @@
 "Bereich umbenennen" = "Rename area";
 "Bescheid sagen, wenn die Notiz fertig ist?" = "Let you know when your note is ready?";
 "Bitte hole vor jeder Aufnahme das Einverständnis aller Beteiligten ein – in Vorlesungen die Erlaubnis der Lehrperson." = "Please get everyone's consent before each recording – in lectures, the lecturer's permission.";
-"Bleibt auf deinem iPhone" = "Stays on your iPhone";
-"Damit Earnote aufnehmen kann. Die Aufnahme bleibt auf deinem iPhone." = "So Earnote can record. The recording stays on your iPhone.";
+"Bleibt auf deinem Gerät" = "Stays on your device";
+"Damit Earnote aufnehmen kann. Die Aufnahme bleibt auf deinem Gerät." = "So Earnote can record. The recording stays on your device.";
 "Dein iPhone kann die Notiz selbst schreiben – ganz ohne Internet." = "Your iPhone can write the note itself – no internet needed.";
 "Die Aufnahme konnte nicht starten: %@" = "The recording couldn't start: %@";
 "Du hast alle %lld Karten gewusst." = "You knew all %lld cards.";

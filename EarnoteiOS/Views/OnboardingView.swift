@@ -127,7 +127,7 @@ struct OnboardingView: View {
             VStack(alignment: .leading, spacing: 14) {
                 Feature(symbol: "text.page", text: "Zusammenfassung und Aufgaben")
                 Feature(symbol: "rectangle.on.rectangle.angled", text: "Karteikarten zum Lernen")
-                Feature(symbol: "lock.shield", text: "Bleibt auf deinem iPhone")
+                Feature(symbol: "lock.shield", text: "Bleibt auf deinem Gerät")
                 Feature(symbol: "gift", text: "Kostenlos, ohne Konto, ohne Abo")
             }
         }
@@ -147,7 +147,7 @@ struct OnboardingView: View {
 
     private var microphone: some View {
         Page(symbol: "mic.fill", effect: .bounce, title: "Mikrofon erlauben",
-             text: "Damit Earnote aufnehmen kann. Die Aufnahme bleibt auf deinem iPhone.") {
+             text: "Damit Earnote aufnehmen kann. Die Aufnahme bleibt auf deinem Gerät.") {
             if microphoneAllowed {
                 Label("Erlaubt", systemImage: "checkmark.circle.fill")
                     .foregroundStyle(.green)
