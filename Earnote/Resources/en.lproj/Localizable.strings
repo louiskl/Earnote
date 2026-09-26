@@ -1655,3 +1655,23 @@
 "App-Symbol im Dock" = "App Icon in the Dock";
 "Ko-fi" = "Ko-fi";
 "GitHub Sponsors" = "GitHub Sponsors";
+
+/* iPhone: Onboarding mit Fortschritt (0.9.26) */
+"Schritt %lld von %lld" = "Step %1$lld of %2$lld";
+"Deine Bereiche" = "Your Areas";
+"jetzt" = "now";
+"Deine Notiz ist fertig" = "Your note is ready";
+"Eigenwerte und Eigenvektoren" = "Eigenvalues and Eigenvectors";
+"Beispiel: Mitteilung „Deine Notiz ist fertig“" = "Example: notification “Your note is ready”";
+
+/* iPhone: Pro-Seite (0.9.26) */
+"Mehr aus deinen Aufnahmen holen. Alles, was Earnote heute kann, bleibt kostenlos." = "Get more out of your recordings. Everything Earnote does today stays free.";
+"So funktioniert Pro" = "How Pro Works";
+"Heute" = "Today";
+"Jede Pro-Funktion %lld Mal kostenlos ausprobieren." = "Try every Pro feature %lld times for free.";
+"Wenn es dir gefällt" = "If you like it";
+"Einmal kaufen – kein Abo, nichts verlängert sich." = "Buy once – no subscription, nothing renews.";
+"Für immer" = "Forever";
+"Auf all deinen Geräten mit derselben Apple-ID und für deine Familie." = "On all your devices with the same Apple Account, and for your family.";
+"Schon gekauft? So kommt Pro auf ein neues Gerät." = "Already bought it? This brings Pro to a new device.";
+"Einmalig · kein Abo" = "One-time · no subscription";
