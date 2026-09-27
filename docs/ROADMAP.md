@@ -528,6 +528,15 @@ kommt, wird geordnet (Regel 8). Ziel: Eine Erstnutzerin findet sich sofort zurec
 
 Puffer: 09.–13.10. für eine Ablehnung (beim ersten Mal mit In-App-Käufen häufig, meist Kleinigkeiten).
 
+**Stand 0.9.26** (28.09.2026)
+- [x] Pro-Funktionen am Mac frei, Dankeschön-Paket am Mac (PR #30)
+- [x] iPhone/iPad: Onboarding mit Fortschritt und festem Knopf, Pro-Seite „So funktioniert Pro“, Systemabfragen auf Englisch, „iPad“ statt „iPhone“ auf dem iPad (PR #31)
+- [ ] Bewertung und Dankeschön-Paket erst nach einer fertigen Notiz, „Nicht mehr fragen“, höchstens dreimal (PR #32)
+- [x] Prüfhinweise gegen den Code geprüft (APPSTORE.md)
+- [ ] Siri-Sätze auf Englisch, „Neu in Earnote“ und Release-Notizen 0.9.26 (PR 0.9.26-Vorbereitung)
+- [ ] App-Store-Screenshots iPhone 6,9″ und iPad 13″ (Fotos vom Gerät, Rahmen per Skript)
+- [ ] Durchgang am Mac (Pro-Funktionen, Dankeschön-Paket) und im Simulator (große Schrift, Dunkel, VoiceOver, iPad)
+
 **Nebenher (Nutzer):**
 - [x] Bank- und Steuerdaten in App Store Connect (vor 25.09.)
 - [x] Vertrag für kostenpflichtige Apps aktiv (W-8BEN eingereicht 25.09.)

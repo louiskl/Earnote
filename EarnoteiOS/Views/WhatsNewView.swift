@@ -4,15 +4,13 @@ import SwiftUI
 /// „Neu in Earnote“ – einmal nach einem Update (`FeedbackMoment.whatsNew`), wie die Neuigkeiten in Apples eigenen Apps.
 /// Für jede Version mit Neuigkeiten `version` und `items` anpassen; ohne passende Version erscheint nichts.
 @MainActor enum WhatsNew {
-    static let version = "0.9.25"
+    static let version = "0.9.26"
 
     static let items: [(symbol: String, title: LocalizedStringKey, text: LocalizedStringKey)] = [
-        ("star.circle", "Earnote Pro",
-         "Sprecher erkennen, Fragen zur Notiz, „Wichtig“ mit Klausur-Radar und Übersetzen – jede Funktion dreimal kostenlos zum Ausprobieren."),
-        ("list.bullet.rectangle", "Aufgeräumt",
-         "Das Menü einer Notiz hat jetzt drei Gruppen: Lernen, Bearbeiten und Löschen. Den Titel antippen, um ihn zu ändern."),
-        ("gearshape", "Kürzere Einstellungen",
-         "Das Wichtigste steht oben, Seltenes unter „Weitere Optionen“."),
+        ("star.circle", "Pro, klar erklärt",
+         "Jede Pro-Funktion dreimal kostenlos ausprobieren, dann einmal kaufen – kein Abo, für immer und für deine Familie."),
+        ("bell.slash", "Fragt seltener",
+         "Earnote bittet nur noch nach einer fertigen Notiz um eine Bewertung – und nie, wenn du schnell aufnehmen willst."),
     ]
 }
 
