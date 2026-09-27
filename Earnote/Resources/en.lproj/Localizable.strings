@@ -1677,3 +1677,6 @@
 "Einmalig · kein Abo" = "One-time · no subscription";
 "Vorlesung, Unterricht oder Meeting: aufnehmen, %@ weglegen – danach steht die Notiz da." = "Lecture, class or meeting: record, put your %@ away – and your note is ready afterwards.";
 "Dein %@ kann die Notiz selbst schreiben – ganz ohne Internet." = "Your %@ can write the note itself – no internet needed.";
+
+/* iPhone: Dankeschön-Paket von selbst (0.9.26) */
+"Nicht mehr fragen" = "Don’t Ask Again";

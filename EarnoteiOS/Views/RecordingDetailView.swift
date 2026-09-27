@@ -75,6 +75,7 @@ struct RecordingDetailView: View {
             }
         }
         .sheet(item: $showsPro) { ProSheet(highlight: $0) }
+        .feedbackAfterSuccess(isDone: recording?.status == .done)
         .overlay(alignment: .top) {
             if detectingSpeakers {
                 Label("Sprecher werden erkannt …", systemImage: "person.2.wave.2")
