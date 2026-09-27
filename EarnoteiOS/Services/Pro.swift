@@ -100,12 +100,25 @@ struct ProView: View {
                         .clipShape(.rect(cornerRadius: 16))
                         .accessibilityHidden(true)
                     Text("Earnote Pro").font(.title.bold())
-                    Text("Einmal kaufen, für immer. Alles, was Earnote heute kann, bleibt kostenlos.")
+                    Text("Mehr aus deinen Aufnahmen holen. Alles, was Earnote heute kann, bleibt kostenlos.")
                         .multilineTextAlignment(.center)
                         .foregroundStyle(.secondary)
                 }
                 .frame(maxWidth: .infinity)
                 .listRowBackground(Color.clear)
+            }
+            // Wie Pro abläuft – ehrlich und vorn: ausprobieren, einmal kaufen, für immer. Kein Abo ist unser stärkstes Argument.
+            if !isPro {
+                Section {
+                    Step(symbol: "gift", title: "Heute",
+                         text: "Jede Pro-Funktion \(Pro.freeTries) Mal kostenlos ausprobieren.")
+                    Step(symbol: "cart", title: "Wenn es dir gefällt",
+                         text: "Einmal kaufen – kein Abo, nichts verlängert sich.")
+                    Step(symbol: "infinity", title: "Für immer",
+                         text: "Auf all deinen Geräten mit derselben Apple-ID und für deine Familie.")
+                } header: {
+                    Text("So funktioniert Pro")
+                }
             }
             Section {
                 ForEach(features) { feature in
@@ -135,7 +148,7 @@ struct ProView: View {
                     }
                 }
             } footer: {
-                Text("Einmalige Zahlung, kein Abo. Gilt auf all deinen Geräten mit derselben Apple-ID und für deine Familie.")
+                Text("Schon gekauft? So kommt Pro auf ein neues Gerät.")
             }
         }
         .navigationTitle("Earnote Pro")
@@ -155,18 +168,21 @@ struct ProView: View {
                     .font(.headline)
                     .foregroundStyle(.tint)
             } else if let product {
-                Button {
-                    Task { await buy(product) }
-                } label: {
-                    HStack {
-                        if buying { ProgressView() }
-                        Text("Earnote Pro für \(product.displayPrice)")
+                VStack(spacing: 6) {
+                    Button {
+                        Task { await buy(product) }
+                    } label: {
+                        HStack {
+                            if buying { ProgressView() }
+                            Text("Earnote Pro für \(product.displayPrice)")
+                        }
+                        .frame(maxWidth: .infinity)
                     }
-                    .frame(maxWidth: .infinity)
+                    .buttonStyle(.glassProminent)
+                    .controlSize(.large)
+                    .disabled(buying)
+                    Text("Einmalig · kein Abo").font(.footnote).foregroundStyle(.secondary)
                 }
-                .buttonStyle(.glassProminent)
-                .controlSize(.large)
-                .disabled(buying)
             } else if loaded {
                 Label("Der App Store ist gerade nicht erreichbar. Versuch es später noch einmal.", systemImage: "wifi.exclamationmark")
                     .font(.footnote)
@@ -190,6 +206,23 @@ struct ProView: View {
         case .userCancelled, .pending: break
         default: failed = true
         }
+    }
+}
+
+/// Ein Schritt in „So funktioniert Pro“: wann, was
+private struct Step: View {
+    let symbol: String
+    let title: LocalizedStringKey
+    let text: LocalizedStringKey
+
+    var body: some View {
+        Label {
+            Text(title).font(.headline)
+            Text(text)
+        } icon: {
+            Image(systemName: symbol).foregroundStyle(.tint)
+        }
+        .padding(.vertical, 4)
     }
 }
 
