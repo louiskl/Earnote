@@ -12,6 +12,8 @@ struct OnboardingView: View {
     @State private var microphoneAllowed = AVAudioApplication.shared.recordPermission == .granted
     @State private var suggestedWay = false
     private let lastStep = 5
+    /// „iPhone“ oder „iPad“ im Text – der Aufbau bleibt überall gleich
+    private let device = UIDevice.current.userInterfaceIdiom == .pad ? "iPad" : "iPhone"
 
     var body: some View {
         ZStack {
@@ -123,7 +125,7 @@ struct OnboardingView: View {
 
     private var welcome: some View {
         Page(symbol: "waveform", effect: .variableColor, title: "Earnote schreibt für dich mit",
-             text: "Vorlesung, Unterricht oder Meeting: aufnehmen, iPhone weglegen – danach steht die Notiz da.") {
+             text: "Vorlesung, Unterricht oder Meeting: aufnehmen, \(device) weglegen – danach steht die Notiz da.") {
             VStack(alignment: .leading, spacing: 14) {
                 Feature(symbol: "text.page", text: "Zusammenfassung und Aufgaben")
                 Feature(symbol: "rectangle.on.rectangle.angled", text: "Karteikarten zum Lernen")
@@ -188,10 +190,7 @@ struct OnboardingView: View {
                             .foregroundStyle(.tint)
                             .symbolEffect(.bounce, value: step == 4)
                         Text("Wie soll die Notiz entstehen?").font(.title2.bold())
-                        Text(NoteWay.onDeviceProvider != nil
-                             ? "Dein iPhone kann die Notiz selbst schreiben – ganz ohne Internet."
-                             : "Hast du Earnote auf dem Mac, schreibt er die Notiz. Sonst geht es kostenlos mit deinem Google-Konto – dabei geht nur der Text an Google, nie das Audio.")
-                            .foregroundStyle(.secondary)
+                        Text(noteWayText).foregroundStyle(.secondary)
                     }
                     .listRowBackground(Color.clear)
                 }
@@ -211,6 +210,12 @@ struct OnboardingView: View {
                 library.settings.ai.provider = NoteWay.suggestedProvider
             }
         }
+    }
+
+    private var noteWayText: LocalizedStringKey {
+        NoteWay.onDeviceProvider != nil
+            ? "Dein \(device) kann die Notiz selbst schreiben – ganz ohne Internet."
+            : "Hast du Earnote auf dem Mac, schreibt er die Notiz. Sonst geht es kostenlos mit deinem Google-Konto – dabei geht nur der Text an Google, nie das Audio."
     }
 
     private var done: some View {

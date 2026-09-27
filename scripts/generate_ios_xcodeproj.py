@@ -30,7 +30,8 @@ def ftype(name):
 # Ordner als Gruppen, .xcassets als eine Datei
 sources, resources, groups = [], [], {}
 for dirpath, dirnames, filenames in os.walk(SRC):
-    dirnames.sort()
+    # Übersetzungsordner hängen unten als eigene Gruppe (InfoPlist.strings) ein
+    dirnames[:] = sorted(d for d in dirnames if not d.endswith(".lproj"))
     rel = os.path.relpath(dirpath, SRC)
     if ".xcassets" in rel:
         dirnames[:] = []
@@ -91,8 +92,13 @@ for language, path in LOCALIZED.items():
     loc_children.append(ref)
 LOC_GROUP = uid("locgroup")
 add(LOC_GROUP, "{isa = PBXVariantGroup; children = (" + "".join(f"{c}, " for c in loc_children) + '); name = Localizable.strings; sourceTree = "<group>"; };')
+# Texte der Systemabfragen (Mikrofon, Spracherkennung, Erinnerungen) auf Englisch; Deutsch steht unten in den Einstellungen
+PLIST_LOC = uid("infoplistloc", "en")
+add(PLIST_LOC, '{isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = "EarnoteiOS/Resources/en.lproj/InfoPlist.strings"; sourceTree = SOURCE_ROOT; };')
+PLIST_GROUP = uid("infoplistgroup")
+add(PLIST_GROUP, f'{{isa = PBXVariantGroup; children = ({PLIST_LOC}, ); name = InfoPlist.strings; sourceTree = "<group>"; }};')
 SHARED_GROUP = uid("sharedgroup")
-add(SHARED_GROUP, "{isa = PBXGroup; children = (" + "".join(f"{c}, " for c in shared_refs) + f"{LOC_GROUP}, " + '); name = "Gemeinsam mit dem Mac"; sourceTree = "<group>"; };')
+add(SHARED_GROUP, "{isa = PBXGroup; children = (" + "".join(f"{c}, " for c in shared_refs) + f"{LOC_GROUP}, {PLIST_GROUP}, " + '); name = "Gemeinsam mit dem Mac"; sourceTree = "<group>"; };')
 
 PRODUCT = uid("product")
 add(PRODUCT, f'{{isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = {NAME}.app; sourceTree = BUILT_PRODUCTS_DIR; }};')
@@ -129,7 +135,9 @@ SOURCES = phase("Sources", [build_file(s) for s in sources])
 FRAMEWORKS = phase("Frameworks", pkg_builds)
 LOC_BUILD = uid("build", "Localizable.strings")
 add(LOC_BUILD, f'{{isa = PBXBuildFile; fileRef = {LOC_GROUP}; }};')
-RESOURCES = phase("Resources", [build_file(r) for r in resources] + [LOC_BUILD])
+PLIST_BUILD = uid("build", "InfoPlist.strings")
+add(PLIST_BUILD, f'{{isa = PBXBuildFile; fileRef = {PLIST_GROUP}; }};')
+RESOURCES = phase("Resources", [build_file(r) for r in resources] + [LOC_BUILD, PLIST_BUILD])
 
 def settings(d):
     return "{" + "".join(f'{k} = "{v}"; ' for k, v in d.items()) + "}"
@@ -146,7 +154,7 @@ target_settings = {
     "GENERATE_INFOPLIST_FILE": "YES",
     # Hintergrund-Audio und Hintergrundarbeit stehen hier; der Rest wird aus den INFOPLIST_KEY_* erzeugt
     "INFOPLIST_FILE": f"{NAME}/Resources/Info.plist",
-    "INFOPLIST_KEY_NSSpeechRecognitionUsageDescription": "Earnote schreibt deine Aufnahmen mit der Spracherkennung auf deinem iPhone mit.",
+    "INFOPLIST_KEY_NSSpeechRecognitionUsageDescription": "Earnote schreibt deine Aufnahmen mit der Spracherkennung auf deinem Gerät mit.",
     "INFOPLIST_KEY_CFBundleDisplayName": "Earnote",
     "INFOPLIST_KEY_ITSAppUsesNonExemptEncryption": "NO",
     "INFOPLIST_KEY_LSApplicationCategoryType": "public.app-category.education",

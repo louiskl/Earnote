@@ -1,0 +1,4 @@
+/* Texte der Systemabfragen auf iPhone und iPad (Deutsch steht in scripts/generate_ios_xcodeproj.py) */
+"NSMicrophoneUsageDescription" = "Earnote records lectures and meetings to write notes from them. The recording stays on your device.";
+"NSSpeechRecognitionUsageDescription" = "Earnote transcribes your recordings with the speech recognition on your device.";
+"NSRemindersFullAccessUsageDescription" = "Earnote adds open tasks from your notes to Reminders when you turn this on under Export.";
