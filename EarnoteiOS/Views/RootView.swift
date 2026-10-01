@@ -44,14 +44,10 @@ struct RootView: View {
     @State private var filterPaths: [LibraryFilter: [UUID]] = [:]
     @State private var showsSettings = false
     @State private var importing = false
-    // „Neu in Earnote“, Bewertung, Dankeschön-Paket (`FeedbackMoment`) – höchstens eins je Start der App
-    @Environment(\.requestReview) private var requestReview
+    // Beim Start höchstens „Neu in Earnote“ (`FeedbackMoment`); Bewertung und Dankeschön-Paket kommen in der
+    // fertigen Notiz (`feedbackAfterSuccess`). Höchstens eins je Start der App (`FeedbackSession`).
     @AppStorage("feedback.lastSeenVersion") private var lastSeenVersion: String?
-    @AppStorage("feedback.reviewAskedVersion") private var reviewAskedVersion: String?
-    @AppStorage("feedback.supporterAskedAt") private var supporterAskedAt: Double = 0
-    @AppStorage(TipJar.supporterKey) private var isSupporter = false
-    @State private var feedbackSheet: FeedbackMoment?
-    @State private var feedbackDone = false
+    @State private var showsWhatsNew = false
 
     var body: some View {
         @Bindable var library = library
@@ -128,17 +124,12 @@ struct RootView: View {
         .fullScreenCover(isPresented: .constant(library.isLoaded && (!library.settings.onboardingCompleted || Self.showsOnboardingForTesting)), onDismiss: {
             // Neue Nutzer kennen alles schon aus dem Onboarding – keine Neuigkeiten, und heute nichts mehr fragen
             lastSeenVersion = Self.appVersion
-            feedbackDone = true
+            FeedbackSession.done = true
         }) {
             OnboardingView()
         }
         .sheet(isPresented: .constant(library.isLoaded && Self.showsProForTesting)) { ProSheet() }
-        .sheet(item: $feedbackSheet) { moment in
-            switch moment {
-            case .whatsNew: WhatsNewView()
-            default: SupporterSheet()
-            }
-        }
+        .sheet(isPresented: $showsWhatsNew) { WhatsNewView() }
         .alert("Hinweis", isPresented: Binding(get: { library.lastError != nil }, set: { if !$0 { library.lastError = nil } })) {
             Button("OK", role: .cancel) {}
         } message: {
@@ -179,36 +170,19 @@ struct RootView: View {
         #endif
     }
 
-    private static var appVersion: String { Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "" }
+    static var appVersion: String { Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "" }
 
-    /// Nie während einer Aufnahme und nie über einem anderen Blatt
+    /// Beim Start nur „Neu in Earnote“ – nie während einer Aufnahme und nie über einem anderen Blatt
     private func showFeedbackMoment() async {
-        guard !feedbackDone, library.isLoaded, library.settings.onboardingCompleted,
-              !recorder.isRecording, !showsRecorder, !showsSettings, feedbackSheet == nil else { return }
+        guard !FeedbackSession.done, library.isLoaded, library.settings.onboardingCompleted,
+              !recorder.isRecording, !showsRecorder, !showsSettings, !showsWhatsNew else { return }
         let version = Self.appVersion
-        let moment = FeedbackMoment.next(
-            version: version, whatsNewVersion: WhatsNew.version,
-            finishedNotes: library.recordings.count { $0.status == .done }, isSupporter: isSupporter,
-            lastSeenVersion: lastSeenVersion, reviewAskedVersion: reviewAskedVersion,
-            supporterAskedAt: supporterAskedAt > 0 ? Date(timeIntervalSince1970: supporterAskedAt) : nil)
-        switch moment {
-        case .whatsNew:
-            lastSeenVersion = version
-            feedbackSheet = .whatsNew
-        case .review:
-            reviewAskedVersion = version
-            // Apples eigener Sterne-Dialog; iOS zeigt ihn höchstens dreimal im Jahr
-            try? await Task.sleep(for: .seconds(2))
-            requestReview()
-        case .supporter:
-            // Ohne Trinkgelder im Store (kein Netz, Vertrag noch nicht aktiv) gibt es nichts zu zeigen
-            guard !(await TipJar.products()).isEmpty else { return }
-            supporterAskedAt = Date.now.timeIntervalSince1970
-            feedbackSheet = .supporter
-        case nil:
-            return
-        }
-        feedbackDone = true
+        guard FeedbackMoment.next(afterSuccess: false, version: version, whatsNewVersion: WhatsNew.version,
+                                  finishedNotes: 0, isSupporter: false, lastSeenVersion: lastSeenVersion,
+                                  reviewAskedVersion: nil, supporterAskedAt: nil) == .whatsNew else { return }
+        lastSeenVersion = version
+        showsWhatsNew = true
+        FeedbackSession.done = true
     }
 
     private func collectShared() {
@@ -320,12 +294,70 @@ struct ElapsedText: View {
     }
 }
 
-extension FeedbackMoment: @retroactive Identifiable {
-    public var id: Self { self }
+/// Höchstens eine Frage je Start der App – egal ob „Neu in Earnote“, Bewertung oder Dankeschön-Paket
+@MainActor enum FeedbackSession {
+    static var done = false
 }
 
-/// Das Dankeschön-Paket, von selbst angeboten (höchstens einmal im Monat)
+extension View {
+    /// Bewertung und Dankeschön-Paket im Erfolgsmoment: wenn eine fertige Notiz offen ist
+    func feedbackAfterSuccess(isDone: Bool) -> some View { modifier(FeedbackAfterSuccess(isDone: isDone)) }
+}
+
+private struct FeedbackAfterSuccess: ViewModifier {
+    let isDone: Bool
+    @Environment(LibraryStore.self) private var library
+    @Environment(PhoneRecorder.self) private var recorder
+    @AppStorage("feedback.lastSeenVersion") private var lastSeenVersion: String?
+    @AppStorage("feedback.reviewAskedVersion") private var reviewAskedVersion: String?
+    @AppStorage("feedback.supporterAskedAt") private var supporterAskedAt: Double = 0
+    @AppStorage("feedback.supporterAsks") private var supporterAsks = 0
+    @AppStorage("feedback.supporterDeclined") private var supporterDeclined = false
+    @AppStorage(TipJar.supporterKey) private var isSupporter = false
+    @State private var showsSupporter = false
+
+    func body(content: Content) -> some View {
+        content
+            .task(id: isDone) {
+                // Erst ein paar Sekunden lesen lassen; wer die Notiz vorher verlässt, wird nicht gefragt
+                guard isDone, (try? await Task.sleep(for: .seconds(4))) != nil else { return }
+                await ask()
+            }
+            .sheet(isPresented: $showsSupporter) { SupporterSheet(declined: $supporterDeclined) }
+    }
+
+    private func ask() async {
+        guard !FeedbackSession.done, library.settings.onboardingCompleted, !recorder.isRecording else { return }
+        let version = RootView.appVersion
+        switch FeedbackMoment.next(
+            afterSuccess: true, version: version, whatsNewVersion: nil,
+            finishedNotes: library.recordings.count { $0.status == .done }, isSupporter: isSupporter,
+            lastSeenVersion: lastSeenVersion, reviewAskedVersion: reviewAskedVersion,
+            supporterAskedAt: supporterAskedAt > 0 ? Date(timeIntervalSince1970: supporterAskedAt) : nil,
+            supporterAsks: supporterAsks, supporterDeclined: supporterDeclined) {
+        case .review:
+            reviewAskedVersion = version
+            // Apples eigener Sterne-Dialog; iOS zeigt ihn höchstens dreimal im Jahr. Mit dem Fenster ausdrücklich –
+            // `requestReview` aus der Umgebung fand in der Notiz keins („Could not get scene to request a review“)
+            guard let scene = UIApplication.shared.connectedScenes
+                .first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene else { return }
+            AppStore.requestReview(in: scene)
+        case .supporter:
+            // Ohne Trinkgelder im Store (kein Netz, Vertrag noch nicht aktiv) gibt es nichts zu zeigen
+            guard !(await TipJar.products()).isEmpty else { return }
+            supporterAskedAt = Date.now.timeIntervalSince1970
+            supporterAsks += 1
+            showsSupporter = true
+        default:
+            return
+        }
+        FeedbackSession.done = true
+    }
+}
+
+/// Das Dankeschön-Paket, von selbst angeboten (höchstens einmal im Monat, dreimal insgesamt)
 private struct SupporterSheet: View {
+    @Binding var declined: Bool
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
@@ -333,6 +365,12 @@ private struct SupporterSheet: View {
             SupporterView()
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) { Button("Später") { dismiss() } }
+                    ToolbarItem(placement: .bottomBar) {
+                        Button("Nicht mehr fragen") {
+                            declined = true
+                            dismiss()
+                        }
+                    }
                 }
         }
     }

@@ -1,0 +1,4 @@
+/* Siri und Kurzbefehle auf Englisch (Deutsch steht in LiveActivityController.swift, EarnoteShortcuts) */
+"Starte eine Aufnahme mit ${applicationName}" = "Start a recording with ${applicationName}";
+"Nimm mit ${applicationName} auf" = "Record with ${applicationName}";
+"Beende die Aufnahme in ${applicationName}" = "Stop the recording in ${applicationName}";
