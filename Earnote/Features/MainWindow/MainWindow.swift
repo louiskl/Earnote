@@ -201,7 +201,7 @@ struct MainWindow: View {
     }
 
     private var windowTint: Color {
-        activeCategory?.tint ?? MacSkin.current().tint
+        activeCategory?.tint ?? MacSkin.resolve(raw: skinRaw, isSupporter: isSupporter).tint
     }
 
     private var context: MainWindowContext {
