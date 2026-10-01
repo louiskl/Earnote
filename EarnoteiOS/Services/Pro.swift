@@ -153,7 +153,8 @@ struct ProView: View {
         }
         .navigationTitle("Earnote Pro")
         .navigationBarTitleDisplayMode(.inline)
-        .safeAreaInset(edge: .bottom) { buyBar }
+        // Die Leiste wächst mit der Schrift, aber nicht über die halbe Seite (größte Schriften)
+        .safeAreaBar(edge: .bottom) { buyBar.dynamicTypeSize(...DynamicTypeSize.accessibility2) }
         .task {
             product = await Pro.product()
             loaded = true

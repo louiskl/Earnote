@@ -68,7 +68,7 @@ struct NoteWayPicker: View {
         @Bindable var library = library
         Section {
             if let provider = NoteWay.onDeviceProvider {
-                WayRow(title: "Auf diesem iPhone", detail: onDeviceDetail(provider), symbol: "iphone",
+                WayRow(title: "Auf diesem \(DeviceName.current)", detail: onDeviceDetail(provider), symbol: "iphone",
                        isSelected: current == .onDevice) { choose(provider) }
                 if current == .onDevice && provider == .localModel { LocalModelRow() }
                 if current == .onDevice, provider == .appleIntelligence, let problem = appleIntelligenceProblem {
@@ -119,7 +119,7 @@ struct NoteWayPicker: View {
     }
 
     private func onDeviceDetail(_ provider: AIProviderKind) -> String {
-        provider == .localModel ? String(localized: "Ohne Internet · alles bleibt auf dem iPhone")
+        provider == .localModel ? String(localized: "Ohne Internet · alles bleibt auf dem \(DeviceName.current)")
                                 : String(localized: "Mit Apple Intelligence · ohne Internet, ohne Einrichtung")
     }
 
@@ -153,25 +153,34 @@ private struct WayRow: View {
     var accessory: String?
     var isWarning = false
     let action: () -> Void
+    @Environment(\.dynamicTypeSize) private var typeSize
 
     var body: some View {
+        // Bei den größten Schriften stehen Text und „Einrichten“ untereinander, sonst bleibt für den Text nur eine schmale Spalte
+        let layout = typeSize.isAccessibilitySize
+            ? AnyLayout(VStackLayout(alignment: .leading, spacing: 8)) : AnyLayout(HStackLayout(spacing: 12))
         Button(action: action) {
-            HStack(spacing: 12) {
-                Image(systemName: symbol)
-                    .font(.title3)
-                    .foregroundStyle(.tint)
-                    .frame(width: 30)
+            layout {
+                // Bei den größten Schriften ragte das Symbol in den Text – dann ohne (DESIGN_GUIDELINES, Abschnitt 30)
+                if !typeSize.isAccessibilitySize {
+                    Image(systemName: symbol)
+                        .font(.title3)
+                        .foregroundStyle(.tint)
+                        .frame(width: 30)
+                        .accessibilityHidden(true)
+                }
                 VStack(alignment: .leading, spacing: 2) {
                     Text(title).foregroundStyle(.primary)
                     Text(detail).font(.footnote).foregroundStyle(isWarning ? AnyShapeStyle(.orange) : AnyShapeStyle(.secondary))
                 }
-                Spacer(minLength: 8)
+                if !typeSize.isAccessibilitySize { Spacer(minLength: 8) }
                 if isSelected {
                     Image(systemName: "checkmark").font(.body.weight(.semibold)).foregroundStyle(.tint)
                 } else if let accessory {
                     Text(accessory).font(.subheadline).foregroundStyle(.tint)
                 }
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
             .contentShape(.rect)
         }
         .buttonStyle(.plain)
@@ -185,7 +194,7 @@ struct LocalModelRow: View {
 
     var body: some View {
         if LocalModelManager.isInstalled(manager.selected) {
-            Label("Bereit – alles bleibt auf dem iPhone", systemImage: "checkmark.circle.fill")
+            Label("Bereit – alles bleibt auf dem \(DeviceName.current)", systemImage: "checkmark.circle.fill")
                 .font(.footnote).foregroundStyle(.green)
         } else if manager.isDownloading {
             ProgressView(value: manager.progress) { Text("Wird geladen …").font(.footnote) }

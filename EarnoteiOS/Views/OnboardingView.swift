@@ -12,21 +12,21 @@ struct OnboardingView: View {
     @State private var microphoneAllowed = AVAudioApplication.shared.recordPermission == .granted
     @State private var suggestedWay = false
     private let lastStep = 5
-    /// „iPhone“ oder „iPad“ im Text – der Aufbau bleibt überall gleich
-    private let device = UIDevice.current.userInterfaceIdiom == .pad ? "iPad" : "iPhone"
+    private let device = DeviceName.current
 
     var body: some View {
         ZStack {
             // Der besondere Moment: nur auf der ersten Seite kräftig, danach ein Hauch
             BrandGlow(intensity: step == 0 ? 1 : 0.35)
-            VStack(spacing: 0) {
-                topBar
+            // Oben und unten als Leisten: Bei großer Schrift scrollt die Seite darunter durch und blendet weich aus
+            ZStack {
                 page
                     .id(step)
                     .transition(.blurReplace)
-                    .frame(maxHeight: .infinity)
-                actions
             }
+            .frame(maxHeight: .infinity)
+            .safeAreaBar(edge: .top) { topBar }
+            .safeAreaBar(edge: .bottom) { actions.dynamicTypeSize(...DynamicTypeSize.accessibility2) }
             // iPad: eine lesbare Spalte statt Knöpfen über die ganze Breite
             .frame(maxWidth: 560)
         }
@@ -382,12 +382,18 @@ private struct SampleNotification: View {
 private struct Feature: View {
     let symbol: String
     let text: LocalizedStringKey
+    @Environment(\.dynamicTypeSize) private var typeSize
 
     var body: some View {
-        Label {
+        // Bei den größten Schriften ragten die Symbole in den Text – dann nur der Text (DESIGN_GUIDELINES, Abschnitt 30)
+        if typeSize.isAccessibilitySize {
             Text(text).font(.body.weight(.medium))
-        } icon: {
-            Image(systemName: symbol).foregroundStyle(.tint).frame(width: 28)
+        } else {
+            Label {
+                Text(text).font(.body.weight(.medium))
+            } icon: {
+                Image(systemName: symbol).foregroundStyle(.tint).frame(width: 28)
+            }
         }
     }
 }

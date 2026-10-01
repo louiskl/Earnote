@@ -128,6 +128,7 @@ struct RootView: View {
         }) {
             OnboardingView()
         }
+        .sheet(isPresented: .constant(library.isLoaded && Self.showsProForTesting)) { ProSheet() }
         .sheet(isPresented: $showsWhatsNew) { WhatsNewView() }
         .alert("Hinweis", isPresented: Binding(get: { library.lastError != nil }, set: { if !$0 { library.lastError = nil } })) {
             Button("OK", role: .cancel) {}
@@ -155,6 +156,15 @@ struct RootView: View {
     private static var showsOnboardingForTesting: Bool {
         #if DEBUG
         ProcessInfo.processInfo.environment["EARNOTE_SHOW_ONBOARDING"] == "1"
+        #else
+        false
+        #endif
+    }
+
+    /// Nur Test-Fassungen: Pro-Seite direkt öffnen (Durchsicht, Screenshots)
+    private static var showsProForTesting: Bool {
+        #if DEBUG
+        ProcessInfo.processInfo.environment["EARNOTE_SHOW_PRO"] == "1"
         #else
         false
         #endif

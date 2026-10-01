@@ -1,5 +1,10 @@
 import SwiftUI
 
+/// „iPhone“ oder „iPad“ in Texten, die das Gerät nennen – der Aufbau bleibt überall gleich
+@MainActor enum DeviceName {
+    static let current = UIDevice.current.userInterfaceIdiom == .pad ? "iPad" : "iPhone"
+}
+
 /// Der eine „besondere Moment“ je Bildschirm (DESIGN_GUIDELINES Abschnitt 30): ein ruhig fließender Verlauf in
 /// der Farbe der App (Earnote-Rot oder die gewählte aus dem Dankeschön-Paket) hinter Willkommensseite und laufender Aufnahme. Mit „Bewegung reduzieren“ steht er still.
 struct BrandGlow: View {

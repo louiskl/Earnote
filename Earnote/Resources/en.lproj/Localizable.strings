@@ -1678,6 +1678,11 @@
 "Vorlesung, Unterricht oder Meeting: aufnehmen, %@ weglegen – danach steht die Notiz da." = "Lecture, class or meeting: record, put your %@ away – and your note is ready afterwards.";
 "Dein %@ kann die Notiz selbst schreiben – ganz ohne Internet." = "Your %@ can write the note itself – no internet needed.";
 
+/* iPhone/iPad: Gerätename in den Notiz-Wegen */
+"Auf diesem %@" = "On This %@";
+"Ohne Internet · alles bleibt auf dem %@" = "No internet · everything stays on your %@";
+"Bereit – alles bleibt auf dem %@" = "Ready – everything stays on your %@";
+
 /* iPhone: Neu in Earnote 0.9.26 */
 "Pro, klar erklärt" = "Pro, Clearly Explained";
 "Jede Pro-Funktion dreimal kostenlos ausprobieren, dann einmal kaufen – kein Abo, für immer und für deine Familie." = "Try every Pro feature three times for free, then buy once – no subscription, forever, and for your family.";
