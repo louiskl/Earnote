@@ -12,7 +12,7 @@
 | Sekundäre Kategorie | Produktivität |
 | Altersfreigabe | 4+ (keine der Fragen trifft zu). Hinweis: Google/OpenRouter verlangen selbst 18+, das steht in der App |
 | Preis | Kostenlos |
-| In-App-Käufe | Trinkgeld klein/mittel/groß (`app.earnote.Earnote.tip.small/.medium/.large`), verbrauchbar · **Earnote Pro** (`app.earnote.Earnote` – so in App Store Connect angelegt, nicht änderbar), Nicht-Verbrauchsartikel, 9,99 €, Familienfreigabe an. Alle vier mit der Version zur Prüfung einreichen |
+| In-App-Käufe | Trinkgeld klein/mittel (`app.earnote.Earnote.tip.small/.medium`), verbrauchbar – bewusst kein großes, dafür gibt es Pro · **Earnote Pro** (`app.earnote.Earnote` – so in App Store Connect angelegt, nicht änderbar), Nicht-Verbrauchsartikel, 9,99 €, Familienfreigabe an. Alle drei mit der Version zur Prüfung einreichen |
 | Datenschutz-Etikett | **Keine Daten erfasst** („Data Not Collected“): Earnote hat keinen Server; was an Google/OpenRouter geht, schickt der Nutzer mit eigenem Schlüssel und eigenem Vertrag |
 | Datenschutz-URL | https://earnote.dev/datenschutz.html#app |
 | Support-URL | https://github.com/louiskl/Earnote/issues |
@@ -430,5 +430,5 @@ Beispieldaten mit `SIMCTL_CHILD_EARNOTE_DEMO_LIBRARY=1`, Englisch mit `-AppleLan
 ```
 No account needed. The app is universal (iPhone and iPad). To test: tap “Record”, speak, tap stop. The note is created on the device (“On this iPhone”) where supported; on other devices choose “Free with Google” or “OpenRouter” in Settings – both need the user's own free API key (the reviewer can skip this; transcription works without it). “With my Mac” requires Earnote for Mac (free, earnote.dev) on the same iCloud account.
 Background audio is used only while the user records (like a voice recorder). BGContinuedProcessingTask finishes the note after recording.
-In-app purchases: three optional tips (consumable, unlock extra colors and app icons) and Earnote Pro (non-consumable, one-time). Pro adds speaker recognition, questions about a note, an “Important” marker with an exam overview, and translation. Every Pro feature can be tried three times for free, then shows the purchase sheet. The Pro page is also always reachable via the gear icon (top left) › Earnote Pro. Nothing that works without Pro is locked. “Restore Purchases” is in the same place.
+In-app purchases: two optional tips (consumable, unlock extra colors and app icons) and Earnote Pro (non-consumable, one-time). Pro adds speaker recognition, questions about a note, an “Important” marker with an exam overview, and translation. Every Pro feature can be tried three times for free, then shows the purchase sheet. The Pro page is also always reachable via the gear icon (top left) › Earnote Pro. Nothing that works without Pro is locked. “Restore Purchases” is in the same place.
 ```
