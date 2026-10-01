@@ -6,7 +6,8 @@ import SwiftUI
 /// Die kostenlose App bleibt vollständig; jede Pro-Funktion lässt sich vorher ein paar Mal ausprobieren.
 /// Käufe schließt `TipJar` ab (ein Zuhörer für alle Käufe); Pro schaltet auch das Dankeschön-Paket frei.
 enum Pro {
-    static let productID = "app.earnote.Earnote.pro"
+    /// So heißt das Produkt in App Store Connect (dort nicht mehr änderbar) – ohne „.pro“ am Ende
+    static let productID = "app.earnote.Earnote"
     static let key = "pro"
     static let freeTries = 3
 
