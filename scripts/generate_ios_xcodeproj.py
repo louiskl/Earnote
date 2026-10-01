@@ -97,8 +97,13 @@ PLIST_LOC = uid("infoplistloc", "en")
 add(PLIST_LOC, '{isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = "EarnoteiOS/Resources/en.lproj/InfoPlist.strings"; sourceTree = SOURCE_ROOT; };')
 PLIST_GROUP = uid("infoplistgroup")
 add(PLIST_GROUP, f'{{isa = PBXVariantGroup; children = ({PLIST_LOC}, ); name = InfoPlist.strings; sourceTree = "<group>"; }};')
+# Siri-Sätze (EarnoteShortcuts) auf Englisch
+SHORTCUTS_LOC = uid("shortcutsloc", "en")
+add(SHORTCUTS_LOC, '{isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = "EarnoteiOS/Resources/en.lproj/AppShortcuts.strings"; sourceTree = SOURCE_ROOT; };')
+SHORTCUTS_GROUP = uid("shortcutsgroup")
+add(SHORTCUTS_GROUP, f'{{isa = PBXVariantGroup; children = ({SHORTCUTS_LOC}, ); name = AppShortcuts.strings; sourceTree = "<group>"; }};')
 SHARED_GROUP = uid("sharedgroup")
-add(SHARED_GROUP, "{isa = PBXGroup; children = (" + "".join(f"{c}, " for c in shared_refs) + f"{LOC_GROUP}, {PLIST_GROUP}, " + '); name = "Gemeinsam mit dem Mac"; sourceTree = "<group>"; };')
+add(SHARED_GROUP, "{isa = PBXGroup; children = (" + "".join(f"{c}, " for c in shared_refs) + f"{LOC_GROUP}, {PLIST_GROUP}, {SHORTCUTS_GROUP}, " + '); name = "Gemeinsam mit dem Mac"; sourceTree = "<group>"; };')
 
 PRODUCT = uid("product")
 add(PRODUCT, f'{{isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = {NAME}.app; sourceTree = BUILT_PRODUCTS_DIR; }};')
@@ -137,7 +142,9 @@ LOC_BUILD = uid("build", "Localizable.strings")
 add(LOC_BUILD, f'{{isa = PBXBuildFile; fileRef = {LOC_GROUP}; }};')
 PLIST_BUILD = uid("build", "InfoPlist.strings")
 add(PLIST_BUILD, f'{{isa = PBXBuildFile; fileRef = {PLIST_GROUP}; }};')
-RESOURCES = phase("Resources", [build_file(r) for r in resources] + [LOC_BUILD, PLIST_BUILD])
+SHORTCUTS_BUILD = uid("build", "AppShortcuts.strings")
+add(SHORTCUTS_BUILD, f'{{isa = PBXBuildFile; fileRef = {SHORTCUTS_GROUP}; }};')
+RESOURCES = phase("Resources", [build_file(r) for r in resources] + [LOC_BUILD, PLIST_BUILD, SHORTCUTS_BUILD])
 
 def settings(d):
     return "{" + "".join(f'{k} = "{v}"; ' for k, v in d.items()) + "}"
