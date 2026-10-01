@@ -479,8 +479,13 @@ struct NoteContentView: View {
 struct TranscriptContentView: View {
     let transcript: Transcript
     var onPlay: (TimeInterval) -> Void
+    @Environment(\.dynamicTypeSize) private var typeSize
 
     var body: some View {
+        // Bei den größten Schriften steht die Zeit über dem Text, sonst bliebe für den Text nur drei Viertel der Breite
+        let row = typeSize.isAccessibilitySize
+            ? AnyLayout(VStackLayout(alignment: .leading, spacing: 2))
+            : AnyLayout(HStackLayout(alignment: .firstTextBaseline, spacing: 10))
         LazyVStack(alignment: .leading, spacing: 12) {
             ForEach(transcript.segments.indices, id: \.self) { index in
                 let segment = transcript.segments[index]
@@ -489,7 +494,7 @@ struct TranscriptContentView: View {
                     Text(speaker).font(.subheadline.weight(.semibold)).padding(.top, 4)
                 }
                 Button { onPlay(segment.start) } label: {
-                    HStack(alignment: .firstTextBaseline, spacing: 10) {
+                    row {
                         Text(Duration.seconds(segment.start).formatted(.time(pattern: .minuteSecond)))
                             .font(.caption.monospacedDigit())
                             .foregroundStyle(.tint)
