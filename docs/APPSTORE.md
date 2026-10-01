@@ -417,6 +417,13 @@ Reihenfolge erzählt die Geschichte – je ein Satz als Überschrift über dem B
 6. **Bereiche** – „Ein Bereich pro Fach.“
 
 Beispieldaten: in Test-Fassungen Einstellungen › Test › „Beispieldaten laden“ (oder `EARNOTE_DEMO_LIBRARY=1`).
+
+**Bilder bauen** (`scripts/make_appstore_screenshots.swift`): rohe Screenshots vom **echten Gerät** (sonst „?“ statt
+Emojis) nach `dist/screenshots/raw/<de|en>/<iphone|ipad>/1.png … 6.png` legen – Nummer = Reihenfolge oben –, dann
+`swift scripts/make_appstore_screenshots.swift`. Heraus kommen App-Store-Bilder mit Überschrift in
+`dist/screenshots/<de|en>/<iphone|ipad>/` (iPhone 6,9″ 1320×2868, iPad 13″ 2064×2752). Englische Überschriften:
+„Record. Screen off.“ · „Then your note is ready.“ · „Study with flashcards.“ · „Always in view.“ ·
+„On your iPhone, with your Mac, or free with Google.“ · „One area per subject.“ – auf dem iPad steht „iPad“ statt „iPhone“.
 Mit iPad in der Einreichung (siehe IPAD.md) zusätzlich 13″-iPad-Screenshots.
 
 ## Hinweise für die App-Prüfung (Review Notes)
