@@ -36,7 +36,10 @@ final class AppEnvironment {
         // Vorgaben per Konfigurationsprofil gehen den gespeicherten Einstellungen vor
         let managed = ManagedSettings.read(from: defaults)
         // Die Einstellung wird gebraucht, bevor der Store steht – deshalb hier direkt gelesen.
-        let settings = managed.apply(to: UserDefaultsSettingsRepository(defaults: defaults).loadSettings() ?? AppSettings())
+        var settings = managed.apply(to: UserDefaultsSettingsRepository(defaults: defaults).loadSettings() ?? AppSettings())
+        // Test-Bibliothek (`EARNOTE_SANDBOX`) nie mit iCloud: Beispieldaten gehören nicht in die echte iCloud des
+        // Nutzers, und Debug-Fassungen ohne iCloud-Berechtigung stürzten beim Einrichten von CloudKit ab
+        if Self.isSandbox { settings.syncWithCloud = false }
         do {
             container = try LibraryContainer.make(url: storage.root.appendingPathComponent(LibraryContainer.fileName),
                                                   syncsWithCloud: settings.syncWithCloud)
@@ -137,6 +140,15 @@ final class AppEnvironment {
         return AppEnvironment(storage: Storage(root: root), defaults: UserDefaults(suiteName: suite) ?? .standard)
     }
 
+    /// Läuft die Debug-Fassung mit eigener Test-Bibliothek (`EARNOTE_SANDBOX`)? In Release-Fassungen nie.
+    static var isSandbox: Bool {
+        #if DEBUG
+        !(ProcessInfo.processInfo.environment["EARNOTE_SANDBOX"] ?? "").isEmpty
+        #else
+        false
+        #endif
+    }
+
     #if DEBUG
     /// Beispieldaten für Bildschirmfotos und das Demo-Video (siehe `DemoLibrary`)
     private func addDemoLibraryIfRequested() async {
@@ -146,7 +158,7 @@ final class AppEnvironment {
     /// Nur Debug-Build: `EARNOTE_SANDBOX=<Ordner>` startet mit eigenem Datenordner und eigener Einstellungs-Domäne
     /// („app.earnote.sandbox“). So berühren Tests und Screenshots weder Aufnahmen noch Einstellungen des Nutzers.
     static func sandboxIfRequested() -> AppEnvironment? {
-        guard let path = ProcessInfo.processInfo.environment["EARNOTE_SANDBOX"], !path.isEmpty else { return nil }
+        guard isSandbox, let path = ProcessInfo.processInfo.environment["EARNOTE_SANDBOX"] else { return nil }
         let root = URL(fileURLWithPath: path, isDirectory: true)
         try? FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
         Log.url = root.appendingPathComponent(AppInfo.logFileName)
