@@ -6,7 +6,8 @@ import SwiftUI
 /// Jedes Trinkgeld schaltet das Dankeschön-Paket frei (Farben und App-Symbole, `AppearanceView`); Funktionen bleiben
 /// für alle kostenlos. Die Produkte (Verbrauchsartikel) werden in App Store Connect angelegt.
 enum TipJar {
-    static let productIDs = ["app.earnote.Earnote.tip.small", "app.earnote.Earnote.tip.medium", "app.earnote.Earnote.tip.large"]
+    /// Bewusst nur zwei: Wer mehr geben will, kauft Earnote Pro (ähnlicher Preis, bekommt mehr dafür)
+    static let productIDs = ["app.earnote.Earnote.tip.small", "app.earnote.Earnote.tip.medium"]
     /// Merker in den Einstellungen des Geräts; die Kaufhistorie bleibt die Quelle (`refreshSupporter`)
     static let supporterKey = "supporter"
 

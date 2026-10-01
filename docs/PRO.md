@@ -8,7 +8,7 @@ Karteikarten. Pro sind Funktionen, die darüber hinausgehen. Einmalzahlung (9,99
 laufenden Kosten pro Nutzer (eigene KI-Schlüssel oder lokale KI).
 
 ## Kauf
-- Produkt `app.earnote.Earnote.pro`, Nicht-Verbrauchsartikel, Familienfreigabe an
+- Produkt `app.earnote.Earnote` (so in App Store Connect angelegt, nicht änderbar), Nicht-Verbrauchsartikel, Familienfreigabe an
 - `Pro` (EarnoteiOS/Services/Pro.swift): Merker `pro`, Probeversuche je Funktion (`Pro.freeTries` = 3), Pro-Hinweis `ProView`/`ProSheet`
 - Alle Käufe laufen durch `TipJar` (ein Zuhörer auf `Transaction.updates`); Pro schaltet auch das Dankeschön-Paket frei, eine Erstattung nimmt Pro wieder weg
 - Test-Fassungen: Einstellungen › Test › „Pro freischalten“
