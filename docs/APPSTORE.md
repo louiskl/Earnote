@@ -418,13 +418,12 @@ Reihenfolge erzählt die Geschichte – je ein Satz als Überschrift über dem B
 
 Beispieldaten: in Test-Fassungen Einstellungen › Test › „Beispieldaten laden“ (oder `EARNOTE_DEMO_LIBRARY=1`).
 
-**Bilder bauen** (`scripts/make_appstore_screenshots.swift`): rohe Screenshots vom **echten Gerät** (sonst „?“ statt
-Emojis) nach `dist/screenshots/raw/<de|en>/<iphone|ipad>/1.png … 6.png` legen – Nummer = Reihenfolge oben –, dann
-`swift scripts/make_appstore_screenshots.swift`. Heraus kommen App-Store-Bilder mit Überschrift in
-`dist/screenshots/<de|en>/<iphone|ipad>/` (iPhone 6,9″ 1320×2868, iPad 13″ 2064×2752). Englische Überschriften:
-„Record. Screen off.“ · „Then your note is ready.“ · „Study with flashcards.“ · „Always in view.“ ·
-„On your iPhone, with your Mac, or free with Google.“ · „One area per subject.“ – auf dem iPad steht „iPad“ statt „iPhone“.
-Mit iPad in der Einreichung (siehe IPAD.md) zusätzlich 13″-iPad-Screenshots.
+**Bilder bauen** (`scripts/make_appstore_screenshots.swift`): rohe Screenshots nach
+`dist/screenshots/raw/<de|en>/<iphone|ipad>/N.png` (iPhone 1–6, iPad 1–3), dann `swift scripts/make_appstore_screenshots.swift`.
+Heraus kommen App-Store-Bilder mit Gerät, Überschrift und einem Band, das von Bild zu Bild weiterläuft
+(`dist/screenshots/<de|en>/<iphone|ipad>/`, dazu `panorama.png` zur Ansicht). Rohbilder aus dem Simulator mit **iOS 27**
+(iOS 26.3 zeigt „?“ statt Emojis): iPhone 17 Pro Max und iPad Pro 13″, Statusleiste `xcrun simctl status_bar … override --time 9:41`,
+Beispieldaten mit `SIMCTL_CHILD_EARNOTE_DEMO_LIBRARY=1`, Englisch mit `-AppleLanguages "(en)"`. Überschriften stehen im Skript.
 
 ## Hinweise für die App-Prüfung (Review Notes)
 
