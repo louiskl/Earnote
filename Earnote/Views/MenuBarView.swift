@@ -56,7 +56,7 @@ struct MenuBarView: View {
             RecordControl(categoryID: activeCategory?.id, maxNameLength: 26)
                 .controlSize(.large)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .tint(activeCategory?.tint ?? MacSkin.current().tint)
+                .tint(activeCategory?.tint ?? MacSkin.resolve(raw: skinRaw, isSupporter: isSupporter).tint)
             if recorder.isRecording {
                 LiveSummary(meter: recorder.meter, isPaused: recorder.isPaused,
                             categoryName: activeCategoryName)
@@ -64,8 +64,8 @@ struct MenuBarView: View {
                        systemImage: "exclamationmark.bubble", action: recorder.markImportant)
                     .disabled(recorder.isPaused)
                     .help("Diese Stelle kommt als „Wichtig für die Klausur“ in die Notiz")
-                    .tint(activeCategory?.tint ?? MacSkin.current().tint)
-                    .environment(\.categoryTint, activeCategory?.tint ?? MacSkin.current().tint)
+                    .tint(activeCategory?.tint ?? MacSkin.resolve(raw: skinRaw, isSupporter: isSupporter).tint)
+                    .environment(\.categoryTint, activeCategory?.tint ?? MacSkin.resolve(raw: skinRaw, isSupporter: isSupporter).tint)
             } else {
                 categoryPicker
                 MicrophoneChoiceMenu(maxNameLength: 26)

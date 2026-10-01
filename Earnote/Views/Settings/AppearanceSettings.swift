@@ -79,10 +79,12 @@ enum MacSkin: String, CaseIterable, Identifiable {
 
     var colorScheme: ColorScheme? { self == .terminal ? .dark : nil }
 
-    /// Gewählte Farbe bzw. Design – ohne Unterstützung nur die freien
-    @MainActor static func current(_ defaults: UserDefaults = AppEnvironment.preferences) -> MacSkin {
-        let skin = MacSkin(rawValue: defaults.string(forKey: key) ?? "") ?? .system
-        return skin.isFree || defaults.bool(forKey: supporterKey) ? skin : .system
+    /// Gewählte Farbe bzw. Design – ohne Unterstützung nur die freien. Ansichten geben ihre `@AppStorage`-Werte
+    /// hinein: Nur was `body` selbst liest, zeichnet SwiftUI bei einer Änderung neu (sonst wechselte das Design erst
+    /// beim nächsten Öffnen der Notiz).
+    static func resolve(raw: String, isSupporter: Bool) -> MacSkin {
+        let skin = MacSkin(rawValue: raw) ?? .system
+        return skin.isFree || isSupporter ? skin : .system
     }
 }
 
@@ -202,7 +204,7 @@ struct NoteDesign: ViewModifier {
     @AppStorage(MacSkin.supporterKey) private var isSupporter = false
 
     func body(content: Content) -> some View {
-        let skin = MacSkin.current()
+        let skin = MacSkin.resolve(raw: raw, isSupporter: isSupporter)
         content
             .fontDesign(skin.fontDesign)
             .background { skin.paper }
