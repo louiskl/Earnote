@@ -478,6 +478,8 @@ final class ProcessingQueueTests: XCTestCase {
         XCTAssertEqual(try XCTUnwrap(resumed.endedAt).timeIntervalSince(resumed.startedAt), 2, accuracy: 0.1,
                        "Ende aus der aufgenommenen Länge")
         XCTAssertTrue(FileManager.default.fileExists(atPath: folder.audio.mixURL(for: crashed.id).path), "Mikrofon wurde gemischt")
+        // Erst prüfen, wenn der letzte Status auch gespeichert ist – auf langsamen Rechnern (CI) stand dort sonst noch „exporting“
+        await library.waitForPendingWrites()
         let stored = try await folder.library.recording(crashed.id)
         XCTAssertEqual(stored?.status, .done)
     }

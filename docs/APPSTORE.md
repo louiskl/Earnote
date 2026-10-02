@@ -12,7 +12,7 @@
 | Sekundäre Kategorie | Produktivität |
 | Altersfreigabe | 4+ (keine der Fragen trifft zu). Hinweis: Google/OpenRouter verlangen selbst 18+, das steht in der App |
 | Preis | Kostenlos |
-| In-App-Käufe | Trinkgeld klein/mittel (`app.earnote.Earnote.tip.small/.medium`), verbrauchbar – bewusst kein großes, dafür gibt es Pro · **Earnote Pro** (`app.earnote.Earnote` – so in App Store Connect angelegt, nicht änderbar), Nicht-Verbrauchsartikel, 9,99 €, Familienfreigabe an. Alle drei mit der Version zur Prüfung einreichen |
+| In-App-Käufe | Trinkgeld klein/mittel (`app.earnote.Earnote.tip.small/.medium`), verbrauchbar – bewusst kein großes, dafür gibt es Pro · **Earnote Pro** (`app.earnote.Earnote` – so in App Store Connect angelegt, nicht änderbar), Nicht-Verbrauchsartikel, 9,99 €, Familienfreigabe aus (ließ sich am 02.10. nicht einschalten – App verspricht sie nicht; später nachholen und Hinweis wieder aufnehmen). Alle drei mit der Version zur Prüfung einreichen |
 | Datenschutz-Etikett | **Keine Daten erfasst** („Data Not Collected“): Earnote hat keinen Server; was an Google/OpenRouter geht, schickt der Nutzer mit eigenem Schlüssel und eigenem Vertrag |
 | Datenschutz-URL | https://earnote.dev/datenschutz.html#app |
 | Support-URL | https://github.com/louiskl/Earnote/issues |
