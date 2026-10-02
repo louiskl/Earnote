@@ -116,7 +116,7 @@ struct ProView: View {
                     Step(symbol: "cart", title: "Wenn es dir gefällt",
                          text: "Einmal kaufen – kein Abo, nichts verlängert sich.")
                     Step(symbol: "infinity", title: "Für immer",
-                         text: "Auf all deinen Geräten mit derselben Apple-ID und für deine Familie.")
+                         text: "Auf all deinen Geräten mit derselben Apple-ID.")
                 } header: {
                     Text("So funktioniert Pro")
                 }

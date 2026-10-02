@@ -8,7 +8,7 @@ import SwiftUI
 
     static let items: [(symbol: String, title: LocalizedStringKey, text: LocalizedStringKey)] = [
         ("star.circle", "Pro, klar erklärt",
-         "Jede Pro-Funktion dreimal kostenlos ausprobieren, dann einmal kaufen – kein Abo, für immer und für deine Familie."),
+         "Jede Pro-Funktion dreimal kostenlos ausprobieren, dann einmal kaufen – kein Abo, für immer."),
         ("bell.slash", "Fragt seltener",
          "Earnote bittet nur noch nach einer fertigen Notiz um eine Bewertung – und nie, wenn du schnell aufnehmen willst."),
     ]
