@@ -11,6 +11,10 @@ struct OnboardingView: View {
     @State private var usage: Usage?
     @State private var microphoneAllowed = AVAudioApplication.shared.recordPermission == .granted
     @State private var suggestedWay = false
+    /// „Weitere Anbieter“, „Welcher Weg passt zu mir?“ oder eine Einrichtung ist offen – dann bringt die Seite ihre
+    /// eigene Leiste mit, Fortschritt und Weiter-Knopf lägen darüber
+    @State private var noteWayDetailOpen = false
+    private var showsFrame: Bool { !(step == 4 && noteWayDetailOpen) }
     private let lastStep = 5
     private let device = DeviceName.current
 
@@ -25,8 +29,8 @@ struct OnboardingView: View {
                     .transition(.blurReplace)
             }
             .frame(maxHeight: .infinity)
-            .safeAreaBar(edge: .top) { topBar }
-            .safeAreaBar(edge: .bottom) { actions.dynamicTypeSize(...DynamicTypeSize.accessibility2) }
+            .safeAreaBar(edge: .top) { if showsFrame { topBar } }
+            .safeAreaBar(edge: .bottom) { if showsFrame { actions.dynamicTypeSize(...DynamicTypeSize.accessibility2) } }
             // iPad: eine lesbare Spalte statt Knöpfen über die ganze Breite
             .frame(maxWidth: 560)
         }
@@ -198,6 +202,9 @@ struct OnboardingView: View {
             }
             .scrollContentBackground(.hidden)
             .toolbarVisibility(.hidden, for: .navigationBar)
+            // Verschwindet die Auswahl, ist eine Unterseite offen (nur auf dieser Seite des Onboardings)
+            .onAppear { noteWayDetailOpen = false }
+            .onDisappear { if step == 4 { noteWayDetailOpen = true } }
             // Der Schimmer der anderen Seiten soll durchscheinen – sonst legt der Stapel eine weiße Fläche darüber
             .containerBackground(.clear, for: .navigation)
         }
