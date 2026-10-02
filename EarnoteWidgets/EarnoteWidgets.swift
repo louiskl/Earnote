@@ -21,24 +21,24 @@ private let brand = Color(red: 0.91, green: 0.27, blue: 0.23)
 struct RecordingLiveActivity: Widget {
     var body: some WidgetConfiguration {
         ActivityConfiguration(for: RecordingActivityAttributes.self) { context in
-            HStack(spacing: 12) {
-                RecordingIcon(isPaused: context.state.isPaused).font(.title2)
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(context.state.isPaused ? "Pausiert" : "Earnote nimmt auf")
-                        .font(.headline)
-                    if let name = context.attributes.categoryName {
-                        Text(name).font(.subheadline).foregroundStyle(.secondary)
-                    }
-                }
-                Spacer()
-                VStack(alignment: .trailing, spacing: 4) {
-                    Elapsed(state: context.state).font(.title3.weight(.semibold).monospacedDigit())
+            // Ruhig und schmal: links Zeit und Pegel, rechts die Knöpfe – kein Symbol und keine Überschrift, die sich
+            // neben drei Knöpfen nur quetschen würden (Sperrbildschirm, 27.09. am Gerät durchgesehen)
+            HStack(spacing: 16) {
+                VStack(alignment: .leading, spacing: 6) {
+                    Elapsed(state: context.state, alignment: .leading)
+                        .font(.title2.weight(.semibold).monospacedDigit())
                         .fontDesign(.rounded)
-                    Levels(levels: context.state.levels).frame(width: 64, height: 16)
+                        .foregroundStyle(context.state.isPaused ? .secondary : .primary)
+                        .lineLimit(1)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    Levels(levels: context.state.levels).frame(height: 16)
                 }
                 Controls(state: context.state)
             }
-            .padding()
+            .padding(.horizontal, 18)
+            .padding(.vertical, 14)
+            .accessibilityElement(children: .contain)
+            .accessibilityLabel(context.state.isPaused ? "Earnote, pausiert" : "Earnote nimmt auf")
         } dynamicIsland: { context in
             DynamicIsland {
                 DynamicIslandExpandedRegion(.leading) {
@@ -104,13 +104,14 @@ private struct Levels: View {
 /// Mitlaufende Uhr – bei Pause steht sie
 private struct Elapsed: View {
     let state: RecordingActivityAttributes.ContentState
+    var alignment: TextAlignment = .trailing
 
     var body: some View {
         if let paused = state.pausedElapsed {
             Text(Duration.seconds(paused).formatted(.time(pattern: .minuteSecond)))
         } else {
             Text(timerInterval: state.countingSince...Date.distantFuture, countsDown: false)
-                .multilineTextAlignment(.trailing)
+                .multilineTextAlignment(alignment)
         }
     }
 }
