@@ -7,6 +7,74 @@ aber ändere nicht die Fakten: Sie stimmen mit der App überein und sind nachgep
 → dann Reddit/Foren → zuletzt Product Hunt und Hacker News. Andersherum verpufft es: Die großen
 Plattformen wollen sehen, dass es die App schon benutzt.
 
+> **Stand 1.0 (02.10.2026):** Die Abschnitte unten stammen aus der Mac-Beta. Für den Launch am 13.10. gilt zusätzlich
+> [Abschnitt 0](#0-launch-10-iphone-ipad-und-mac) mit den Texten für iPhone und iPad. Der Plan dahinter, Videos
+> und Creator: [MARKETING.md](MARKETING.md).
+> **Achtung:** Die Fachschafts-Mail (Abschnitt 2) nicht an Hochschulen schicken, die Aufnahmen verbieten.
+
+---
+
+## 0. Launch 1.0: iPhone, iPad und Mac
+
+**App-Store-Link:** https://apps.apple.com/app/id6815681807 (funktioniert erst, wenn die App freigegeben ist)
+
+**Was neu ist gegenüber der Mac-Beta:**
+- Earnote gibt es für iPhone und iPad im App Store, kostenlos. Mac, iPhone und iPad sind alle Version 1.0.
+- Handy auf den Tisch, Aufnahme starten, Bildschirm aus. Läuft stundenlang, Live-Aktivität auf dem Sperrbildschirm.
+- Die Notiz schreibt das iPhone selbst (ab iPhone 15 Pro, ohne Internet), dein Mac oder kostenlos Google/OpenRouter
+  mit eigenem Schlüssel.
+- Sprachmemos und Audiodateien lassen sich über „Teilen“ an Earnote schicken (Interviews, Lerngruppe, eigene
+  Erklärungen).
+- **Earnote Pro** (nur iPhone/iPad, einmalig 9,99 €, kein Abo): Sprecher erkennen, Fragen zur Notiz, „Wichtig“
+  markieren (Klausur-Radar), Übersetzen. Jede Funktion dreimal gratis. Am Mac ist alles frei.
+
+### Kurztext für Story, Status, WhatsApp
+
+> Meine App ist jetzt im App Store 🎉 Earnote: aufnehmen, und danach steht die Notiz da – mit Karteikarten und
+> Lernzettel. Kostenlos, ohne Konto, alles bleibt auf deinem Handy. https://apps.apple.com/app/id6815681807
+
+### r/iphone oder r/ios (englisch, Launch-Tag)
+
+**Title:** I built a free, no-account note taker for iPhone that writes your notes on-device
+
+> I'm a 21-year-old student. Earnote records lectures, meetings or your own voice memos and turns them into a
+> structured note with flashcards and a PDF study sheet.
+>
+> - Records for hours with the screen off, Live Activity on the Lock Screen
+> - The note is written on the iPhone itself (iPhone 15 Pro and later, works offline), by the free Mac app, or by
+>   Google/OpenRouter with your own free key
+> - No account, no ads, no subscription. Optional one-time Pro for speaker detection, asking questions about a
+>   note and translation
+> - Open source (MIT), same app on iPad and Mac
+>
+> https://apps.apple.com/app/id6815681807
+>
+> Feedback very welcome, especially what breaks.
+
+### r/Studium (deutsch, ein, zwei Tage nach dem Launch)
+
+**Titel:** Ich hab eine kostenlose Lern-App gebaut: einsprechen, und sie macht dir Karteikarten und Lernzettel
+
+> Ich studiere dual und habe neben dem Studium Earnote gebaut. Du nimmst etwas auf – Lerngruppe, Meeting, ein
+> Interview für die Abschlussarbeit oder einfach dich selbst, wie du den Stoff erklärst – und danach steht die
+> Notiz da: Zusammenfassung, Aufgaben, Karteikarten zum Abfragen, Lernzettel als PDF.
+>
+> Kein Konto, kein Abo, keine Werbung. Die Spracherkennung läuft auf dem Handy, die Notiz auf neueren iPhones auch.
+> Für Mac gibt es die App ebenfalls kostenlos, quelloffen.
+>
+> https://apps.apple.com/app/id6815681807
+>
+> Wichtig: Frag vor jeder Aufnahme, ob alle einverstanden sind. Manche Hochschulen verbieten Aufnahmen von
+> Vorlesungen – dann eben nur Lerngruppe und eigene Erklärungen.
+
+### r/GradSchool, r/AskAcademia, r/Bachelorarbeit (Interviews)
+
+**Title:** Free on-device transcription for research interviews (no upload, iPhone/iPad/Mac)
+
+> If your ethics board asks where interview recordings end up: Earnote transcribes on the device (Whisper) and
+> nothing is uploaded. Free, open source, no account. Speaker detection is part of the optional one-time Pro on
+> iPhone/iPad and free on the Mac. https://earnote.dev
+
 ---
 
 ## Der Kern in einem Satz
@@ -23,7 +91,7 @@ Für jeden Kanal derselbe Gedanke, nur anders lang:
 
 **Drei Dinge, die immer vorkommen sollten:** kostenlos · läuft lokal (Datenschutz) · für Studierende gebaut.
 
-**Was die App heute kann (Stand 0.9.19)** – für alle Texte unten:
+**Was die Mac-App kann (Stand 0.9.19, gilt weiter für 1.0)** – für alle Texte unten:
 - Notiz mit Kurzfassung, Themen und Zeitmarken; die Notiz erscheint schon, während die KI sie schreibt
 - Karteikarten (4–8 pro Vorlesung), als Anki-Datei exportierbar
 - Übersicht über alle Vorlesungen eines Fachs (Themen, roter Faden, Prüfungshinweise)
