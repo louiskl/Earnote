@@ -24,7 +24,7 @@
 <meta property="og:type" content="website">
 <meta property="og:locale" content="en_US">
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Earnote", "applicationCategory": "EducationalApplication", "applicationSubCategory": "Note-taking, transcription", "operatingSystem": "macOS 15 or later, Apple Silicon", "inLanguage": ["de", "en"], "description": "Earnote records lectures, meetings and calls, transcribes them with Whisper on your Mac and writes a structured note. Free, open source, no account, no cloud.", "url": "https://earnote.dev/", "downloadUrl": "https://github.com/louiskl/Earnote/releases/latest/download/Earnote.dmg", "softwareVersion": "0.9.25", "license": "https://opensource.org/licenses/MIT", "isAccessibleForFree": true, "offers": {"@type": "Offer", "price": "0", "priceCurrency": "EUR"}, "featureList": ["Local transcription with Whisper large-v3-turbo", "Notes written by an AI running on your Mac", "Live transcript while recording", "Flashcards with Anki export, semester overview per course, PDF study sheets", "Exports to Markdown, Obsidian, Notion, Apple Notes, Logseq, Things, Todoist", "Microphone and system audio together (Zoom, Teams, Meet)"], "author": {"@type": "Person", "name": "Louis Klinke"}, "screenshot": "https://earnote.dev/assets/screenshot-en.png"}</script>
-<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is Earnote really free?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Free, open source under the MIT licence, no accounts and no paid tier. It runs on your own Mac, so there are no servers to pay for."}}, {"@type": "Question", "name": "How fast is it?", "acceptedAnswer": {"@type": "Answer", "text": "On an M1 MacBook Air a 60-minute lecture is transcribed in about five to six minutes, and the note takes a few minutes more. Since Earnote transcribes while you record, most of it is done by the time you stop. Low Power Mode makes it about three times slower."}}, {"@type": "Question", "name": "What do I need to run it?", "acceptedAnswer": {"@type": "Answer", "text": "macOS 15 or newer on Apple Silicon and about 8 GB of memory. On the first run it downloads the speech model (~1.6 GB) and the local AI (~2.3 GB)."}}, {"@type": "Question", "name": "Does it work with Zoom, Teams and Google Meet?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Earnote captures system audio alongside your microphone, so everyone on the call ends up in the transcript."}}, {"@type": "Question", "name": "Does my recording leave my computer?", "acceptedAnswer": {"@type": "Answer", "text": "No. Transcription and note writing run locally on your Mac. There is no account, no telemetry and no Earnote server. Only the one-time model download and the daily update check use the network."}}, {"@type": "Question", "name": "Am I allowed to record a lecture?", "acceptedAnswer": {"@type": "Answer", "text": "Ask first. In Germany § 201 StGB protects private spoken words, so get consent from everyone involved, including the lecturer. Earnote shows a reminder before each recording."}}, {"@type": "Question", "name": "Why is Earnote not in the Mac App Store?", "acceptedAnswer": {"@type": "Answer", "text": "The App Store sandbox would get in the way of recording system audio and filing notes into other apps. The download from the website is signed and notarised by Apple."}}, {"@type": "Question", "name": "Is there a version for Windows or iPhone?", "acceptedAnswer": {"@type": "Answer", "text": "Windows no, because Earnote builds on Apple's CoreML and MLX. Earnote for iPhone is in testing (TestFlight) and planned for the App Store at the start of the winter semester; iPad follows."}}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is Earnote really free?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Free, open source under the MIT licence, no accounts and no subscription. On iPhone and iPad there is an optional one-time Earnote Pro purchase; on the Mac everything is free."}}, {"@type": "Question", "name": "How fast is it?", "acceptedAnswer": {"@type": "Answer", "text": "On an M1 MacBook Air a 60-minute lecture is transcribed in about five to six minutes, and the note takes a few minutes more. Since Earnote transcribes while you record, most of it is done by the time you stop. Low Power Mode makes it about three times slower."}}, {"@type": "Question", "name": "What do I need to run it?", "acceptedAnswer": {"@type": "Answer", "text": "macOS 15 or newer on Apple Silicon and about 8 GB of memory. On the first run it downloads the speech model (~1.6 GB) and the local AI (~2.3 GB)."}}, {"@type": "Question", "name": "Does it work with Zoom, Teams and Google Meet?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Earnote captures system audio alongside your microphone, so everyone on the call ends up in the transcript."}}, {"@type": "Question", "name": "Does my recording leave my computer?", "acceptedAnswer": {"@type": "Answer", "text": "No. Transcription and note writing run locally on your Mac. There is no account, no telemetry and no Earnote server. Only the one-time model download and the daily update check use the network."}}, {"@type": "Question", "name": "Am I allowed to record a lecture?", "acceptedAnswer": {"@type": "Answer", "text": "Ask first. In Germany § 201 StGB protects private spoken words, so get consent from everyone involved, including the lecturer. Earnote shows a reminder before each recording."}}, {"@type": "Question", "name": "Why is Earnote not in the Mac App Store?", "acceptedAnswer": {"@type": "Answer", "text": "The App Store sandbox would get in the way of recording system audio and filing notes into other apps. The download from the website is signed and notarised by Apple."}}, {"@type": "Question", "name": "Is there a version for Windows or iPhone?", "acceptedAnswer": {"@type": "Answer", "text": "Windows no, because Earnote builds on Apple's CoreML and MLX. Earnote for iPhone and iPad is free on the App Store."}}]}</script>
 
 <!-- Besucherzählung ohne Cookies (siehe datenschutz.html) -->
 <script data-goatcounter="https://louiskl.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
@@ -53,10 +53,10 @@
             on your Mac or iPhone. No account, no subscription, nothing in the cloud.</p>
         <div class="cta">
             <a class="btn" data-goatcounter-click="download-oben" href="https://github.com/louiskl/Earnote/releases/latest/download/Earnote.dmg">↓ Download for macOS</a>
-            <a class="btn ghost" href="#iphone">See the iPhone beta</a>
+            <a class="btn ghost" data-goatcounter-click="appstore-top" href="https://apps.apple.com/app/id6815681807">Get it on the App Store</a>
         </div>
-        <p class="fine">Mac: macOS 15 or newer, Apple Silicon · iPhone: iOS 26, beta · free · <a href="https://github.com/louiskl/Earnote">open source (MIT)</a></p>
-        <p class="fine">Currently in beta: it works, and it gets better every week. <a href="https://github.com/louiskl/Earnote/issues/new">Tell me what breaks</a>.</p>
+        <p class="fine">Mac: macOS 15 or newer, Apple Silicon · iPhone and iPad: iOS 26 · free · <a href="https://github.com/louiskl/Earnote">open source (MIT)</a></p>
+        <p class="fine">Version 1.0 – for Mac, iPhone and iPad. <a href="https://github.com/louiskl/Earnote/issues/new">Tell me what breaks</a>.</p>
         <p class="fine">Or with Homebrew: <code>brew tap louiskl/earnote &amp;&amp; brew trust louiskl/earnote &amp;&amp; brew install --cask earnote</code></p>
     </div>
     <div class="hero-shot reveal">
@@ -114,7 +114,7 @@
 
 <section id="iphone">
     <div class="wrap" style="text-align:center">
-        <p class="eyebrow reveal">New · iPhone (beta)</p>
+        <p class="eyebrow reveal">New · iPhone and iPad</p>
         <h2 class="reveal">Phone on the desk.<br><span class="dim">Screen off.</span></h2>
         <p class="lead reveal" style="margin:0 auto">Earnote records the whole lecture, even with your iPhone locked.
             Afterwards your notes are ready – with flashcards to quiz yourself and a PDF study sheet.</p>
@@ -140,8 +140,8 @@
             <span>Widgets</span><span>Pauses for phone calls</span><span>Export to Notion &amp; Obsidian</span>
             <span>Notes sync with your Mac</span>
         </div>
-        <p class="fine reveal" style="margin-top:28px">In testing via TestFlight, headed for the App Store this autumn.
-            Want in? <a href="mailto:hallo@earnote.dev?subject=iPhone%20beta">Drop me a line</a> – the public beta link will appear here.</p>
+        <p class="fine reveal" style="margin-top:28px"><a class="btn" data-goatcounter-click="appstore-iphone" href="https://apps.apple.com/app/id6815681807">Get it on the App Store</a><br>
+            Free. Earnote Pro (speaker detection, ask your notes, translation) is a one-time purchase, no subscription.</p>
     </div>
 </section>
 
@@ -153,10 +153,10 @@
             <thead><tr><th></th><th>Requirements</th><th>Where the note is written</th><th>Status</th></tr></thead>
             <tbody>
                 <tr><th>Mac</th><td>macOS 15, Apple Silicon (M1 or newer), 8 GB</td>
-                    <td>on your Mac, offline – or with a cloud AI of your choice</td><td>Beta, download above</td></tr>
+                    <td>on your Mac, offline – or with a cloud AI of your choice</td><td>1.0, download above</td></tr>
                 <tr><th>iPhone</th><td>iOS 26 (iPhone 11 or newer)</td>
-                    <td>on the iPhone (iPhone 15 Pro and later), by your Mac, or free with Google/OpenRouter</td><td>Beta via TestFlight</td></tr>
-                <tr><th>iPad</th><td>iPadOS 26</td><td>as on iPhone</td><td class="soon">coming next</td></tr>
+                    <td>on the iPhone (iPhone 15 Pro and later), by your Mac, or free with Google/OpenRouter</td><td><a href="https://apps.apple.com/app/id6815681807">App Store</a></td></tr>
+                <tr><th>iPad</th><td>iPadOS 26</td><td>as on iPhone</td><td><a href="https://apps.apple.com/app/id6815681807">App Store</a></td></tr>
                 <tr><th>Windows</th><td colspan="2">Earnote builds on Apple’s speech recognition and AI frameworks – they don’t exist there.</td><td>not planned</td></tr>
             </tbody>
         </table>
@@ -321,7 +321,7 @@
         <h2 class="reveal">Good to know.</h2>
         <dl class="faq reveal">
             <dt>Is it really free?</dt>
-            <dd>Yes. Free, open source under the MIT licence, no accounts, no paid tier. A student project, not a business.</dd>
+            <dd>Yes. Free, open source under the MIT licence, no accounts, no subscription. On iPhone and iPad you can buy Earnote Pro once – everything else stays free. On the Mac everything is free.</dd>
 
             <dt>How fast is it?</dt>
             <dd>On an M1 MacBook Air a 60-minute lecture is transcribed in about five to six minutes (measured: roughly
@@ -345,12 +345,11 @@
                 shows a reminder before each recording; the responsibility is yours.</dd>
 
             <dt>Is there an iPhone version?</dt>
-            <dd>Yes, in testing right now. Put your phone on the desk, record, screen off. The note is written by the
-                iPhone itself (iPhone 15 Pro or newer), by your Mac, or by a free AI with your own key. It should be in the
-                App Store for the winter semester, iPad follows. There is no Windows version, because Earnote builds on
+            <dd>Yes, for iPhone and iPad <a href="https://apps.apple.com/app/id6815681807">on the App Store</a>. Put your phone on the desk, record, screen off. The
+                note is written by the iPhone itself (iPhone 15 Pro or newer), by your Mac, or by a free AI with your own key. There is no Windows version, because Earnote builds on
                 Apple’s CoreML and MLX.</dd>
 
-            <dt>Why isn’t it in the App Store?</dt>
+            <dt>Why isn’t the Mac app in the App Store?</dt>
             <dd>The sandbox there would get in the way of recording system audio and filing notes into other apps.
                 The download here is signed and notarised by Apple, so it opens with a double-click.</dd>
         </dl>
@@ -373,8 +372,7 @@
             <a href="https://github.com/louiskl/Earnote">GitHub</a>
             <a href="https://github.com/louiskl/Earnote/releases">Releases</a>
             <a href="ROADMAP.md">Roadmap</a>
-            <a href="BETA.md">Beta guide</a>
-            <a href="DATENSCHUTZ.md">Privacy details</a>
+                        <a href="DATENSCHUTZ.md">Privacy details</a>
             <a href="de.html">Deutsch</a>
             <a href="datenschutz.html">Privacy (website)</a>
             <a href="impressum.html">Imprint</a>
