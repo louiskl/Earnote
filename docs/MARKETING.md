@@ -100,7 +100,7 @@ duales studium, werkstudent alltag, study with me.
 > Lernzettel – komplett auf dem Handy, ohne Konto und ohne Abo.
 > Mir gefällt dein Content zu [konkretes Video], deshalb frag ich dich: Hast du Lust, sie auszuprobieren? Ich schenk
 > dir Pro (sonst 9,99 €), und wenn sie dir gefällt, freu ich mich über ein Video. Kein Muss, kein Skript.
-> Launch ist am 13.10. – App Store: [Link]
+> Earnote ist seit heute im App Store: [Link]
 
 **English:**
 
@@ -108,7 +108,7 @@ duales studium, werkstudent alltag, study with me.
 > your material (or meetings, interviews, study groups) and get a finished note with flashcards and a study sheet –
 > all on your phone, no account, no subscription.
 > I liked your video on [specific video], so I wanted to ask if you'd like to try it. Pro is on me (normally €9.99),
-> and if you like it, a video would mean a lot. No script, no obligation. Launching 13 October – [link]
+> and if you like it, a video would mean a lot. No script, no obligation. It just launched on the App Store – [link]
 
 **Pro verschenken:** Codes in App Store Connect (Earnote PRO › Angebotscodes bzw. Promo-Codes, je nachdem, was Apple dort gerade anbietet). Erst nach der Freigabe möglich.
 
