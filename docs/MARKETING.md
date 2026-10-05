@@ -1,6 +1,6 @@
 # Marketing ohne Budget
 
-> Stand 02.10.2026 · Launch 13.10.2026. Ziel: viel Reichweite, wenig Aufwand, 0 €.
+> Stand 05.10.2026 · iPhone/iPad seit 05.10.2026 im App Store. Ziel: viel Reichweite, wenig Aufwand, 0 €.
 > Die Texte für die einzelnen Kanäle stehen in [LAUNCH.md](LAUNCH.md).
 
 ## Vorlesungen: ja, aber nie heimlich

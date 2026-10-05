@@ -1,6 +1,6 @@
 # Earnote – Roadmap
 
-> Stand: 25.09.2026 (0.9.24) · gepflegt vom Architekten · Versionen sind Arbeitsstände, öffentlich wird erst 1.0.
+> Stand: 05.10.2026 (1.0 im App Store) · gepflegt vom Architekten · Versionen sind Arbeitsstände, öffentlich wird erst 1.0.
 > Zielgruppen, Geld, Vertrieb: [STRATEGIE.md](STRATEGIE.md) · Pro-Funktionen im Detail: [PRO.md](PRO.md)
 > Beta läuft: [Releases](https://github.com/louiskl/Earnote/releases) · [Anleitung für Tester](BETA.md)
 > Leitlinien: [DESIGN_GUIDELINES.md](DESIGN_GUIDELINES.md) · Aufbau: [ARCHITECTURE.md](ARCHITECTURE.md)
@@ -87,7 +87,7 @@ Was nicht überall gleich ist – und warum. Jede Zeile ist entweder **Plattform
 | 6b | iPad: Seitenleiste, Liste und Notiz nebeneinander, Menüleiste, Tastenkürzel, Fenster | 0.9.23 | ✅ fertig (Test auf M1-iPads läuft) |
 | 6c | Dankeschön-Paket (Farben, Designs, App-Symbole), „Neu in Earnote“, Bewertung, **Earnote Pro** (Sprecher, Fragen, Klausur-Radar, Übersetzen) | 0.9.24 | ✅ gebaut, ▶ Test auf dem iPhone |
 | **7** | **Prüfen und aufräumen** – 0.9.24 auf Geräten testen, Menüs und Einstellungen ordnen, Einstiegsfrage „Wofür nutzt du Earnote?“ | 0.9.25 | ▶ gebaut ([#29](https://github.com/louiskl/Earnote/pull/29)), Test auf Geräten offen |
-| 🚀 | **Launch: Earnote 1.0 auf Mac, iPhone und iPad** | 1.0 | **Di 13.10.2026** |
+| 🚀 | **Launch: Earnote 1.0 auf Mac, iPhone und iPad** | 1.0 | ✅ **iPhone/iPad live seit 05.10.2026** (Apple-Prüfung bestanden, früher als der geplante 13.10.) · ▶ Mac 1.0 noch zu veröffentlichen |
 | 8 | Pro, zweite Welle – nur nach Aufräumen und Launch, eine Funktion nach der anderen | 1.2+ | geplant |
 | 9 | Mac App Store prüfen (Sandbox), Kurs-Gruppen teilen | später | nach Launch |
 | 10 | Organisationen: Lizenz für Kanzleien, Praxen, Firmen – nie ein Server | – | auf Zuruf |
@@ -548,11 +548,11 @@ Puffer: 09.–13.10. für eine Ablehnung (beim ersten Mal mit In-App-Käufen hä
 Oberfläche auf ES/FR/IT → nach dem Launch (die App-Store-Einträge in diesen Sprachen kommen mit).
 
 **Checkliste Einreichung**
-- [ ] App-Store-Einreichung iPhone + iPad (Texte: [APPSTORE.md](APPSTORE.md)); Trinkgelder und Earnote Pro
+- [x] App-Store-Einreichung iPhone + iPad, genehmigt und veröffentlicht 05.10.2026 (Texte: [APPSTORE.md](APPSTORE.md)); Trinkgelder und Earnote Pro
       gehen mit der Version zur Prüfung (Screenshot des Pro-Hinweises für die Prüfinformationen)
 - [ ] Screenshots iPhone 6,9″ und iPad 13″ (Emojis vom echten Gerät, der Simulator zeigt „?“)
 - [ ] Mac 1.0 (Phase 5)
-- [ ] Website und README: App-Store-Link statt TestFlight
+- [x] Website: App-Store-Link statt TestFlight (PR #42, 05.10.2026) · [ ] README prüfen
 - [ ] App-Store-Eintrag zusätzlich auf Spanisch (auch Mexiko, zählt für die US-Suche), Französisch, Italienisch –
       Texte fertig in [APPSTORE.md](APPSTORE.md) „Weitere Sprachen“; die Oberfläche bleibt dort Englisch
 
@@ -742,3 +742,19 @@ und das Profil aus Schritt 3 liegt nur lokal (`scripts/*.provisionprofile` steht
 
 Fehlt das Profil (z. B. auf einem neuen Build-Mac), bleibt der Schalter wirkungslos: Die App fällt beim Start auf den lokalen Speicher zurück
 und schreibt den Grund ins Protokoll. Ein Datenverlust kann dabei nicht entstehen.
+
+---
+
+## Nach dem Launch – Wachstum (ab 05.10.2026)
+
+Plan: [MARKETING.md](MARKETING.md) · Texte: [LAUNCH.md](LAUNCH.md)
+
+- [ ] Mac 1.0 veröffentlichen (`./scripts/publish_release.sh`, Notizen in `docs/releases/1.0.md`)
+- [ ] Promo-Codes für Pro in App Store Connect anlegen, danach 10 Creator aus dem Vault anschreiben (Nachricht: MARKETING.md Abschnitt 2)
+- [ ] Freunde und Beta-Tester um ehrliche Bewertungen im App Store bitten
+- [ ] Kampagnen-Links je Kanal anlegen (TikTok, Instagram, Reddit, Website, Creator)
+- [ ] 2–3 Kurzvideos pro Woche, nach zwei Wochen die besten Hooks auswerten
+- [ ] Reddit: je ein Beitrag pro Tag (r/iphone zuerst), Product Hunt nach einigen Tagen
+- [ ] Montags Zahlen notieren: Aufrufe, Downloads, Löschungen, Bewertungen, Pro-Käufe, Kanal
+- [ ] Mac-Beta-Rückmeldungen und Tester-Fehler einarbeiten → erstes Update 1.0.1
+- [ ] Danach: Oberfläche ES/FR/IT, Portugiesisch, Phase 8 (Pro, zweite Welle)

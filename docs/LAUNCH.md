@@ -7,7 +7,7 @@ aber ändere nicht die Fakten: Sie stimmen mit der App überein und sind nachgep
 → dann Reddit/Foren → zuletzt Product Hunt und Hacker News. Andersherum verpufft es: Die großen
 Plattformen wollen sehen, dass es die App schon benutzt.
 
-> **Stand 1.0 (02.10.2026):** Die Abschnitte unten stammen aus der Mac-Beta. Für den Launch am 13.10. gilt zusätzlich
+> **Stand 1.0 (05.10.2026):** Die Abschnitte unten stammen aus der Mac-Beta. Für den Launch gilt zusätzlich
 > [Abschnitt 0](#0-launch-10-iphone-ipad-und-mac) mit den Texten für iPhone und iPad. Der Plan dahinter, Videos
 > und Creator: [MARKETING.md](MARKETING.md).
 > **Achtung:** Die Fachschafts-Mail (Abschnitt 2) nicht an Hochschulen schicken, die Aufnahmen verbieten.
@@ -16,7 +16,7 @@ Plattformen wollen sehen, dass es die App schon benutzt.
 
 ## 0. Launch 1.0: iPhone, iPad und Mac
 
-**App-Store-Link:** https://apps.apple.com/app/id6815681807 (funktioniert erst, wenn die App freigegeben ist)
+**App-Store-Link:** https://apps.apple.com/app/id6815681807 (live seit 05.10.2026)
 
 **Was neu ist gegenüber der Mac-Beta:**
 - Earnote gibt es für iPhone und iPad im App Store, kostenlos. Mac, iPhone und iPad sind alle Version 1.0.
