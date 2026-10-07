@@ -67,6 +67,7 @@ struct RecordingList: View {
     @Environment(LibraryStore.self) private var library
     @Environment(PhoneRecorder.self) private var recorder
     @Environment(ProcessingQueue.self) private var queue
+    @Environment(\.importFiles) private var importFiles
     @State private var pendingDeletion: UUID?
 
     private var items: [Recording] { library.recordings.filter { filter.matches($0) } }
@@ -128,7 +129,7 @@ struct RecordingList: View {
                 Label("Noch keine Aufnahme", systemImage: "waveform")
                     .symbolEffect(.variableColor.iterative.reversing)
             } description: {
-                Text("Tippe unten auf „Aufnehmen“. Danach steht hier deine Notiz.")
+                Text("Tippe unten auf „Aufnehmen“. Deine Uni lädt Vorlesungen hoch? Importiere das Video – danach steht hier deine Notiz.")
             } actions: {
                 if !recorder.isRecording {
                     Button("Jetzt aufnehmen", systemImage: "record.circle") {
@@ -136,6 +137,9 @@ struct RecordingList: View {
                     }
                     .buttonStyle(.glassProminent)
                     .controlSize(.large)
+                }
+                if let importFiles {
+                    Button("Video oder Audio importieren", systemImage: "square.and.arrow.down", action: importFiles)
                 }
             }
         }

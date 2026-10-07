@@ -104,6 +104,7 @@ struct RootView: View {
             return true
         }
         // Menüleiste und Tastenkürzel am iPad (`PhoneCommands`) – je Fenster
+        .environment(\.importFiles) { importing = true }
         .focusedSceneValue(\.phoneActions, PhoneActions(
             showSettings: { showsSettings = true },
             importAudio: { importing = true },

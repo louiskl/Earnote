@@ -13,7 +13,7 @@ struct EarnoteCommands: Commands {
 
     var body: some Commands {
         CommandGroup(after: .newItem) {
-            Button("Audiodatei importieren …") {
+            Button("Audio oder Video importieren …") {
                 let urls = AudioImportPanel.pick()
                 library.importAudio(urls, category: window?.selectedCategoryID.flatMap(library.category))
             }

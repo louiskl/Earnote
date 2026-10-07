@@ -164,14 +164,14 @@ enum Recommendation {
     }
 }
 
-/// Auswahl von Audiodateien für den Import
+/// Auswahl von Audio- und Videodateien für den Import
 @MainActor
 enum AudioImportPanel {
     static func pick() -> [URL] {
         let panel = NSOpenPanel()
-        panel.allowedContentTypes = [.audio, .mpeg4Movie, .quickTimeMovie]
+        panel.allowedContentTypes = [.audio, .movie]
         panel.allowsMultipleSelection = true
-        panel.message = String(localized: "Audiodateien zum Transkribieren auswählen")
+        panel.message = String(localized: "Audio- oder Videodateien zum Transkribieren auswählen, z. B. Vorlesungsaufzeichnungen")
         return panel.runModal() == .OK ? panel.urls : []
     }
 }

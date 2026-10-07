@@ -106,14 +106,26 @@ struct RecordingListView: View {
         }
     }
 
+    /// Leer: aufnehmen oder eine Vorlesungsaufzeichnung der Uni importieren
+    private func noRecordings(_ title: LocalizedStringKey) -> some View {
+        ContentUnavailableView {
+            Label(title, systemImage: "waveform")
+        } description: {
+            Text("Starte eine Aufnahme mit ⇧⌘R. Deine Uni lädt Vorlesungen hoch? Importiere das Video oder zieh es hierher.")
+        } actions: {
+            Button("Video oder Audio importieren …") {
+                library.importAudio(AudioImportPanel.pick(), category: categoryID.flatMap(library.category))
+            }
+        }
+    }
+
     @ViewBuilder private var emptyState: some View {
         if searchResults != nil {
             ContentUnavailableView.search(text: searchText)
         } else {
             switch filter {
             case .all:
-                ContentUnavailableView("Noch keine Aufnahmen", systemImage: "waveform",
-                                       description: Text("Starte eine mit ⇧⌘R oder ziehe eine Audiodatei hierher."))
+                noRecordings("Noch keine Aufnahmen")
             case .openTasks:
                 ContentUnavailableView("Keine offenen Aufgaben", systemImage: "checklist",
                                        description: Text("Aufgaben aus deinen Notizen erscheinen hier, bis sie abgehakt sind."))
@@ -123,8 +135,7 @@ struct RecordingListView: View {
             case .problems:
                 ContentUnavailableView("Keine Probleme", systemImage: "checkmark.circle")
             case .category:
-                ContentUnavailableView("Noch keine Aufnahmen in diesem Bereich", systemImage: "waveform",
-                                       description: Text("Starte eine mit ⇧⌘R oder ziehe eine Audiodatei hierher."))
+                noRecordings("Noch keine Aufnahmen in diesem Bereich")
             }
         }
     }

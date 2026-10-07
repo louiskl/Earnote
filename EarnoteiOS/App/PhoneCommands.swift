@@ -24,7 +24,7 @@ struct PhoneCommands: Commands {
                 .disabled(actions == nil)
         }
         CommandGroup(replacing: .newItem) {
-            Button("Audiodatei importieren …") { actions?.importAudio() }
+            Button("Audio oder Video importieren …") { actions?.importAudio() }
                 .keyboardShortcut("o")
                 .disabled(actions == nil)
         }
