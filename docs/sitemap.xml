@@ -3,15 +3,30 @@
         xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://earnote.dev/</loc>
-    <lastmod>2026-09-22</lastmod>
+    <lastmod>2026-10-07</lastmod>
     <xhtml:link rel="alternate" hreflang="en" href="https://earnote.dev/"/>
     <xhtml:link rel="alternate" hreflang="de" href="https://earnote.dev/de.html"/>
   </url>
   <url>
     <loc>https://earnote.dev/de.html</loc>
-    <lastmod>2026-09-22</lastmod>
+    <lastmod>2026-10-07</lastmod>
     <xhtml:link rel="alternate" hreflang="en" href="https://earnote.dev/"/>
     <xhtml:link rel="alternate" hreflang="de" href="https://earnote.dev/de.html"/>
   </url>
-
+  <url>
+    <loc>https://earnote.dev/vorlesung-aufnehmen.html</loc>
+    <lastmod>2026-10-07</lastmod>
+  </url>
+  <url>
+    <loc>https://earnote.dev/interview-transkribieren.html</loc>
+    <lastmod>2026-10-07</lastmod>
+  </url>
+  <url>
+    <loc>https://earnote.dev/karteikarten-erstellen.html</loc>
+    <lastmod>2026-10-07</lastmod>
+  </url>
+  <url>
+    <loc>https://earnote.dev/meeting-protokoll.html</loc>
+    <lastmod>2026-10-07</lastmod>
+  </url>
 </urlset>
