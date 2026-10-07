@@ -88,7 +88,7 @@ Was nicht überall gleich ist – und warum. Jede Zeile ist entweder **Plattform
 | 6c | Dankeschön-Paket (Farben, Designs, App-Symbole), „Neu in Earnote“, Bewertung, **Earnote Pro** (Sprecher, Fragen, Klausur-Radar, Übersetzen) | 0.9.24 | ✅ gebaut, ▶ Test auf dem iPhone |
 | **7** | **Prüfen und aufräumen** – 0.9.24 auf Geräten testen, Menüs und Einstellungen ordnen, Einstiegsfrage „Wofür nutzt du Earnote?“ | 0.9.25 | ▶ gebaut ([#29](https://github.com/louiskl/Earnote/pull/29)), Test auf Geräten offen |
 | 🚀 | **Launch: Earnote 1.0 auf Mac, iPhone und iPad** | 1.0 | **Di 13.10.2026** |
-| 8 | Pro, zweite Welle – nur nach Aufräumen und Launch, eine Funktion nach der anderen | 1.2+ | geplant |
+| 8 | Funktions-Updates im Zwei-Wochen-Takt: Pro sichtbar, Import, Folien, Interview-Export, Probeklausur ([PRODUKTPLAN.md](PRODUKTPLAN.md)) | 1.1–1.8 | ▶ 1.1 in Arbeit |
 | 9 | Mac App Store prüfen (Sandbox), Kurs-Gruppen teilen | später | nach Launch |
 | 10 | Organisationen: Lizenz für Kanzleien, Praxen, Firmen – nie ein Server | – | auf Zuruf |
 
@@ -565,25 +565,28 @@ erst nach dem Aufräumen in 0.9.25, sonst wird doppelt übersetzt, und **gleichz
 beworben wird · 4. weitere Sprachen nur nach den Aufrufen je Land in App Store Connect.
 - [ ] Portugiesisch fehlt noch in Spracherkennung und „Sprache der Notiz“ – erst ergänzen und prüfen, dann eintragen
 
-## Phase 8 – Pro, zweite Welle (1.2+)
+## Phase 8 – Funktions-Updates nach 1.0 (1.1–1.8)
 
-Erst nach Aufräumen und Launch, **eine Funktion nach der anderen**, jede mit festem Platz (Regel 2 und 3).
-Sortiert nach „würden Leute dafür zahlen“ und Aufwand:
+Plan, Ideen und Einordnung: [PRODUKTPLAN.md](PRODUKTPLAN.md) (07.10.2026). Takt **alle zwei Wochen**, einreichen
+montags, live bis Donnerstag · 1.0.x = nur Fehler, jederzeit · nach drei Funktions-Updates eine Aufräum-Version
+(Regel 8) · Klausurphase (ca. 18.01.–28.02.) keine großen Umbauten · jede Funktion auf Mac, iPhone und iPad (Regel 9).
 
-| # | Funktion | Für wen | Platz in der App | Aufwand |
-|---|---|---|---|---|
-| 1 | **Protokoll verschicken** – Aufgaben je Person (aus den erkannten Sprechern), ein Tipp schickt es an alle; „erstellt mit Earnote“ wirbt mit | Arbeit, Lerngruppen | Teilen-Menü der Notiz | klein |
-| 2 | **Vorlesung zum Anhören** – die Notiz als 5-Minuten-Podcast, Stimme vom Gerät, offline | alle, v. a. Pendler | Abspielleiste der Notiz | klein–mittel |
-| 3 | **Probeklausur mit Korrektur** – aus allen Vorlesungen eines Bereichs, Antworten getippt oder gesprochen, KI korrigiert mit Verweis auf die Vorlesung | Uni, Schule | Klausur-Radar | mittel |
-| 4 | **Lernplan bis zur Klausur** – Klausurtermin eintragen, Karteikarten mit wachsenden Abständen, täglich „8 Karten für heute“ | Uni, Schule | Bereich (Klausurtermin), Mitteilung | mittel |
-| 5 | **Apple Watch** – Aufnahme starten und „Wichtig“ am Handgelenk | Uni | eigene Watch-App, sonst nichts Neues | mittel |
-| 6 | **Live-Untertitel** – Text läuft während der Aufnahme mit, „30 s zurück“ (Mac hat Live-Transkription schon) | internationale und schwerhörige Studierende | Aufnahme-Blatt | mittel |
+| Version | Einreichen | Inhalt | Pro/Free | Platz in der App | Status |
+|---|---|---|---|---|---|
+| 1.0.x | laufend | Fehler aus Launch-Feedback, Bewertungen, Abstürze | – | – | laufend |
+| **1.1** | Mo 26.10. | Pro sichtbar machen · Import-Knopf (Audio + Video) · Klausurtermin + Countdown-Widget | Free + Pro-Hinweise | Notiz (Hinweis), Aufnahmen-Liste (Import), Bereich (Termin) | ▶ geplant |
+| **1.2** | Mo 09.11. | **Folien einbinden** (PDF zur Aufnahme, KI kennt Fachbegriffe, Verweis „Folie 12“) | Pro | Aufnahme/Notiz | geplant |
+| **1.3** | Mo 23.11. | Interview-Export (Abschlussarbeit) · Protokoll verschicken · Karteikarten-Stapel teilen | Pro / Pro / Free | Teilen-Menü der Notiz | geplant |
+| 1.4 | Mo 30.11. | Aufräumen (Regel 8): Menüs, Texte, Geschwindigkeit, Akku | – | – | geplant |
+| **1.5** | Mo 14.12. | **Probeklausur je Fach** mit Korrektur und Verweis auf die Vorlesung | Pro | Klausur-Radar | geplant |
+| 1.6 | Mo 11.01. | Mündliche Prüfung üben · Vorlesung zum Anhören · Lernzettel-Designs | Pro | Klausur-Radar, Abspielleiste, PDF | geplant |
+| 1.7 | Ende Februar | Semester-Rückblick (teilbar) · Aufräumen | Free | Bereich/Teilen | geplant |
+| 1.8+ | März | Tafelfoto, Live-Untertitel iPhone, Fragen über ein Fach, Vorlagen, Apple Watch | gemischt | – | Ideen |
 
-Weitere Ideen (ohne Reihenfolge): Folien/Skript (PDF) importieren, damit die KI Fachbegriffe kennt und auf
-Folienseiten verweist · Semester-Rückblick als teilbares Bild · Lernzettel-Designs fürs PDF (Cornell, kompakt).
+**Gestrichen:** Lernplan mit Wiederholung (Louis, 07.10.: nicht interessant).
 
 **Was nie Pro wird:** Aufnehmen, Transkript, Notiz, Export, Abgleich, PDF-Lernzettel, Karteikarten – alles, was
-heute kostenlos ist (entschieden 25.09.2026).
+heute kostenlos ist (entschieden 25.09.2026). Kostenlos bleibt auch alles, was Earnote verbreitet (Teilen, Widgets, Rückblick).
 
 ## Phase 9 – Später (Mac App Store, Kurs-Gruppen)
 
