@@ -12,6 +12,25 @@ Mehr Downloads **und** mehr Pro-Käufe, weil Pro echten Mehrwert hat – nicht a
 „Die Nutzer sollen Pro wegen des Mehrwerts kaufen, nicht nur um mich zu supporten.“). Neue Funktionen kommen
 **schnell**, im Takt des Semesters: jetzt laufen die Vorlesungen, ab Mitte Januar die Klausurphase.
 
+## Scope – was Earnote ist (Louis, 07.10.2026)
+
+**Earnote schreibt für dich mit.** Vorlesung, Unterricht oder Meeting aufnehmen oder importieren – Transkript,
+Notiz, Karteikarten und PDF kommen von selbst. Lokal, privat, **die komplette Kette, kostenlos, ohne Abo**.
+Wir wollen in dieser Nische die beste App sein – keine eierlegende Wollmilchsau der Lern-Apps, nichts, was
+überladen oder halbfertig wirkt.
+
+**Was uns abhebt:** die ganze Kette in einer App (Aufnahme → Transkript → Notiz → Lernen/Weitergeben), lokale KI,
+alles Wichtige kostenlos, Pro als Einmalkauf statt Abo.
+
+**Filter für jede neue Funktion** – sie kommt nur, wenn sie mindestens eins davon tut:
+1. Die Mitschrift wird **besser** (genauer, vollständiger: Folien, Formeln, Tafelfoto, Sprecher).
+2. **Mehr kommt rein** (Import, Aufzeichnungen der Uni, weniger Tippen beim Start).
+3. **Der Weg danach wird kürzer** (die Notiz landet fertig dort, wo sie gebraucht wird: Klausurlernen aus den
+   eigenen Vorlesungen, Protokoll, Export für Word/Anki/MAXQDA).
+
+**Und keins davon:** eigener Ort oder eigenes Lernsystem (Lernplan, Quiz-App, Vokabeltrainer), Coaching
+(Referat/Bewerbung üben), Spielerei für Screenshots. Earnote übergibt lieber an Apps, die das schon gut können.
+
 ## Leitlinien für Pro oder kostenlos
 
 - **Kostenlos bleibt der Hauptweg:** aufnehmen/importieren → Transkript → Notiz → Karteikarten → PDF → teilen.
@@ -70,13 +89,17 @@ M (≤ 1 Woche) · L (> 1 Woche) · **Prio** A = jetzt, B = dieses Semester, C =
 | Widgets | Klausur-Countdown, letzte Notiz, „Aufnahme starten“ | 3 | S | A (mit Countdown) |
 | Kurs-Gruppen | Bereich mit Kommilitonen teilen (iCloud-Freigabe) | 4 | L | C |
 
-## Die Top 5 für dieses Semester
+## Nach dem Scope-Filter (07.10.2026)
 
-1. **Folien einbinden** (Pro) – der stärkste neue Kaufgrund und passt zu Louis' Vision.
-2. **Probeklausur je Fach** (Pro) – muss vor Weihnachten fertig sein, dann lernen die meisten für Januar/Februar.
-3. **Vorlesungsvideo importieren sichtbar machen** (Free) – geht technisch schon; ein Import-Knopf reicht. Größter neuer Nutzerkreis, entschärft das Aufnahmeverbot. Marketing macht sofort Videos dazu.
-4. **Interview-Export für die Abschlussarbeit** (Pro) – klare Nische mit Zahlungsbereitschaft, kleiner Aufwand.
-5. **Pro sichtbar machen** (siehe unten) – ohne das sieht kaum jemand die neuen Pro-Funktionen.
+**Bleibt:** Import sichtbar · Pro sichtbar · Folien einbinden · Interview-Export · Protokoll verschicken ·
+Probeklausur je Fach (lernen aus den *eigenen* Vorlesungen, Platz im Klausur-Radar) · Anki-Export der Karteikarten
+(neu, Free) · Formeln in Notiz und PDF (neu, Free) · Stundenplan-Erkennung am iPhone · Tafelfoto · Live-Untertitel
+am iPhone · später Fragen über ein ganzes Fach, Apple Watch.
+
+**Fliegt raus** (eigenes Lernsystem, Coaching oder nur Beiwerk): Klausurtermin + Countdown-Widget, Mündliche
+Prüfung / Sprechen üben, Vorlesung zum Anhören, Mindmap, Lernzettel-Designs, Glossar, Lernplan, Karteikarten-Stapel
+in Earnote teilen (Anki-Export deckt es ab), Semester-Rückblick, Vorlagen (Bereichs-Anweisungen decken es ab),
+Diktat-Modus, Wochenrückblick, Kurs-Gruppen.
 
 ## Versionierung
 
@@ -92,14 +115,15 @@ M (≤ 1 Woche) · L (> 1 Woche) · **Prio** A = jetzt, B = dieses Semester, C =
 | Version | Einreichen | Inhalt | Pro/Free | Marketing dazu |
 |---|---|---|---|---|
 | 1.0.x | laufend | Fehler aus Launch-Feedback, Bewertungen, Abstürze | – | Antworten auf Kommentare |
-| **1.1** | Mo 26.10. (live vor 31.10.) | Pro sichtbar machen · Import-Knopf (Audio + Video) · Klausurtermin + Countdown-Widget | Free + Pro-Hinweise | Video „Deine Uni lädt Vorlesungen hoch? So lernst du daraus“ |
-| **1.2** | Mo 09.11. | **Folien einbinden** | Pro | Video-Reihe „Folien + Aufnahme = perfekte Notiz“, Presse-Nachfass |
-| **1.3** | Mo 23.11. | Interview-Export (Abschlussarbeit) · Protokoll verschicken · Karteikarten-Stapel teilen | Pro / Pro / Free | Bachelorarbeit-Videos, r/Bachelorarbeit, Scribbr/Studyflix |
+| **1.1** | Mo 26.10. (live vor 31.10.) | Vorlesungen importieren sichtbar · Pro sichtbar machen · Feinschliff aus dem Launch-Feedback | Free + Pro-Hinweise | Video „Deine Uni lädt Vorlesungen hoch? So lernst du daraus“ |
+| **1.2** | Mo 09.11. | **Folien einbinden** | Pro | „Folien + Aufnahme = perfekte Notiz“, Presse-Nachfass |
+| **1.3** | Mo 23.11. | Interview-Export (Abschlussarbeit) · Protokoll verschicken · Anki-Export | Pro / Pro / Free | Bachelorarbeit-Videos, Medizin/Jura (Anki) |
 | 1.4 | Mo 30.11. | Aufräumen (Regel 8): Menüs, Texte, Geschwindigkeit, Akku | – | – |
-| **1.5** | Mo 14.12. | **Probeklausur je Fach** | Pro | „Probeklausur aus deinen Vorlesungen“ – Kampagne über Weihnachten |
-| 1.6 | Mo 11.01. | Mündliche Prüfung üben · Vorlesung zum Anhören · Lernzettel-Designs | Pro | Klausurphase-Content |
-| 1.7 | Ende Februar | Semester-Rückblick (teilbar) · Aufräumen | Free | Wrapped-Trend zum Semesterende |
-| 1.8+ | März | Tafelfoto, Live-Untertitel iPhone, Fragen über ein Fach, Vorlagen, Watch | gemischt | Sommersemester-Start |
+| **1.5** | Mo 14.12. | **Probeklausur je Fach** | Pro | „Probeklausur aus deinen Vorlesungen“ – über Weihnachten |
+| 1.6 | Mo 11.01. | Formeln in Notiz und PDF · Stundenplan-Erkennung am iPhone | Free | MINT-Content zur Klausurphase |
+| – | 18.01.–28.02. | Klausurphase: nur Fehler | – | – |
+| 1.7+ | März | Tafelfoto · Live-Untertitel am iPhone · Aufräumen | Free / Pro (OCR) | Sommersemester-Start |
+| später | – | Fragen über ein ganzes Fach · Apple Watch | Pro / Free | – |
 
 ## Pro sichtbar machen (gehört in 1.1)
 

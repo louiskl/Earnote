@@ -5,7 +5,7 @@
 
 ## Grundsatz
 Alles, was Earnote heute kostenlos kann, bleibt kostenlos: Aufnehmen, Transkript, Notiz, Export, Abgleich, PDF,
-Karteikarten. Kostenlos wird auch alles, was Earnote verbreitet (Teilen, Widgets, Rückblick). Pro ist, was vor der
+Karteikarten. Kostenlos wird auch alles, was Earnote verbreitet (Teilen, Export, Widgets). Pro ist, was vor der
 Klausur oder bei der Arbeit spürbar Stunden spart – Kaufgrund ist der Nutzen, nicht Unterstützung. Jede Pro-Funktion ist dreimal gratis. Einmalzahlung (9,99 €), kein Abo – Earnote hat keine
 laufenden Kosten pro Nutzer (eigene KI-Schlüssel oder lokale KI).
 
@@ -27,4 +27,4 @@ laufenden Kosten pro Nutzer (eigene KI-Schlüssel oder lokale KI).
 | Interview-Export | geplant 1.3 | Transkript nach Dresing & Pehl (Sprecherkürzel, Zeitmarken, Zeilennummern) für MAXQDA/Word |
 | Protokoll verschicken | geplant 1.3 | Aufgaben je Person aus den Sprechern, Teilen-Menü der Notiz |
 | Probeklausur je Fach | geplant 1.5 | 10–20 Fragen aus allen Notizen eines Bereichs, KI korrigiert mit Verweis auf Vorlesung; im Klausur-Radar |
-| Mündliche Prüfung, Vorlesung zum Anhören, Lernzettel-Designs | geplant 1.6 | siehe PRODUKTPLAN.md |
+| Tafelfoto-Text in der Notiz | geplant 1.7+ | Foto ist frei, Texterkennung in die Notiz ist Pro |

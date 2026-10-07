@@ -88,8 +88,8 @@ Was nicht überall gleich ist – und warum. Jede Zeile ist entweder **Plattform
 | 6c | Dankeschön-Paket (Farben, Designs, App-Symbole), „Neu in Earnote“, Bewertung, **Earnote Pro** (Sprecher, Fragen, Klausur-Radar, Übersetzen) | 0.9.24 | ✅ gebaut, ▶ Test auf dem iPhone |
 | **7** | **Prüfen und aufräumen** – 0.9.24 auf Geräten testen, Menüs und Einstellungen ordnen, Einstiegsfrage „Wofür nutzt du Earnote?“ | 0.9.25 | ▶ gebaut ([#29](https://github.com/louiskl/Earnote/pull/29)), Test auf Geräten offen |
 | 🚀 | **Launch: Earnote 1.0 auf Mac, iPhone und iPad** | 1.0 | **Di 13.10.2026** |
-| 8 | Funktions-Updates im Zwei-Wochen-Takt: Pro sichtbar, Import, Folien, Interview-Export, Probeklausur ([PRODUKTPLAN.md](PRODUKTPLAN.md)) | 1.1–1.8 | ▶ 1.1 in Arbeit |
-| 9 | Mac App Store prüfen (Sandbox), Kurs-Gruppen teilen | später | nach Launch |
+| 8 | Funktions-Updates im Zwei-Wochen-Takt: Import, Pro sichtbar, Folien, Interview-Export, Probeklausur ([PRODUKTPLAN.md](PRODUKTPLAN.md)) | 1.1–1.8 | ▶ 1.1 in Arbeit |
+| 9 | Mac App Store prüfen (Sandbox) | später | nach Launch |
 | 10 | Organisationen: Lizenz für Kanzleien, Praxen, Firmen – nie ein Server | – | auf Zuruf |
 
 ---
@@ -571,24 +571,27 @@ Plan, Ideen und Einordnung: [PRODUKTPLAN.md](PRODUKTPLAN.md) (07.10.2026). Takt 
 montags, live bis Donnerstag · 1.0.x = nur Fehler, jederzeit · nach drei Funktions-Updates eine Aufräum-Version
 (Regel 8) · Klausurphase (ca. 18.01.–28.02.) keine großen Umbauten · jede Funktion auf Mac, iPhone und iPad (Regel 9).
 
+**Scope:** Earnote schreibt für dich mit – die komplette Kette, lokal, kostenlos, ohne Abo. Neue Funktionen nur,
+wenn sie die Mitschrift besser machen, mehr hereinholen oder den Weg danach kürzen (Filter in PRODUKTPLAN.md).
+
 | Version | Einreichen | Inhalt | Pro/Free | Platz in der App | Status |
 |---|---|---|---|---|---|
 | 1.0.x | laufend | Fehler aus Launch-Feedback, Bewertungen, Abstürze | – | – | laufend |
-| **1.1** | Mo 26.10. | Pro sichtbar machen · Import-Knopf (Audio + Video) · Klausurtermin + Countdown-Widget | Free + Pro-Hinweise | Notiz (Hinweis), Aufnahmen-Liste (Import), Bereich (Termin) | ▶ geplant |
+| **1.1** | Mo 26.10. | Vorlesungen importieren sichtbar · Pro sichtbar machen · Feinschliff aus dem Launch | Free + Pro-Hinweise | Aufnahmen-Liste (leer), Notiz (Hinweis), Menü „Mehr“ (Abzeichen) | ▶ in Arbeit |
 | **1.2** | Mo 09.11. | **Folien einbinden** (PDF zur Aufnahme, KI kennt Fachbegriffe, Verweis „Folie 12“) | Pro | Aufnahme/Notiz | geplant |
-| **1.3** | Mo 23.11. | Interview-Export (Abschlussarbeit) · Protokoll verschicken · Karteikarten-Stapel teilen | Pro / Pro / Free | Teilen-Menü der Notiz | geplant |
-| 1.4 | Mo 30.11. | Aufräumen (Regel 8): Menüs, Texte, Geschwindigkeit, Akku | – | – | geplant |
+| **1.3** | Mo 23.11. | Interview-Export · Protokoll verschicken · Anki-Export der Karteikarten | Pro / Pro / Free | Teilen-Menü der Notiz | geplant |
+| 1.4 | Mo 30.11. | Aufräumen (Regel 8) | – | – | geplant |
 | **1.5** | Mo 14.12. | **Probeklausur je Fach** mit Korrektur und Verweis auf die Vorlesung | Pro | Klausur-Radar | geplant |
-| 1.6 | Mo 11.01. | Mündliche Prüfung üben · Vorlesung zum Anhören · Lernzettel-Designs | Pro | Klausur-Radar, Abspielleiste, PDF | geplant |
-| 1.7 | Ende Februar | Semester-Rückblick (teilbar) · Aufräumen | Free | Bereich/Teilen | geplant |
-| 1.8+ | März | Tafelfoto, Live-Untertitel iPhone, Fragen über ein Fach, Vorlagen, Apple Watch | gemischt | – | Ideen |
+| 1.6 | Mo 11.01. | Formeln in Notiz und PDF · Stundenplan-Erkennung am iPhone | Free | Notiz, Aufnahme | geplant |
+| 1.7+ | März | Tafelfoto · Live-Untertitel am iPhone · Aufräumen | Free / Pro (OCR) | Aufnahme | geplant |
 
-**Gestrichen:** Lernplan mit Wiederholung (Louis, 07.10.: nicht interessant).
+**Gestrichen (Scope, 07.10.2026):** Lernplan, Klausur-Countdown, Sprechen üben, Vorlesung zum Anhören, Mindmap,
+Lernzettel-Designs, Glossar, Karteikarten-Stapel teilen, Semester-Rückblick, Vorlagen, Kurs-Gruppen.
 
 **Was nie Pro wird:** Aufnehmen, Transkript, Notiz, Export, Abgleich, PDF-Lernzettel, Karteikarten – alles, was
-heute kostenlos ist (entschieden 25.09.2026). Kostenlos bleibt auch alles, was Earnote verbreitet (Teilen, Widgets, Rückblick).
+heute kostenlos ist (entschieden 25.09.2026). Kostenlos bleibt auch alles, was Earnote verbreitet (Teilen, Export, Widgets).
 
-## Phase 9 – Später (Mac App Store, Kurs-Gruppen)
+## Phase 9 – Später (Mac App Store)
 
 **Mac App Store prüfen** – erst nach 1.0, mit offenem Ausgang. Was dagegen spricht:
 - Die Sandbox verlangt für den Systemton (Core-Audio-Process-Tap) und für AppleScript zu Apple Notizen,
@@ -597,8 +600,6 @@ heute kostenlos ist (entschieden 25.09.2026). Kostenlos bleibt auch alles, was E
 - Updates außerhalb des Stores (Sparkle, eigene DMG) fallen weg; jede Fehlerbehebung wartet auf ein Review
 - Nutzen wäre Auffindbarkeit und Vertrauen – bei einer kostenlosen, quelloffenen App kein Geld
 
-**Kurs-Gruppen**
-- [ ] Bereich mit Kommilitonen teilen (iCloud-Freigabe, nur Apple-Geräte)
 
 ## Phase 10 – Organisationen (nach 1.0, auf Zuruf)
 
