@@ -46,7 +46,7 @@ Was nicht überall gleich ist – und warum. Jede Zeile ist entweder **Plattform
 | Pro: Sprecher, Fragen, „Wichtig“ + Klausur-Radar, Übersetzen | frei | Pro | Pro | Plattform: am Mac frei (entschieden 25.09.2026, seit 0.9.26) |
 | Pro-Hinweis nach der Notiz (1.1) | – | ✅ | ✅ | Plattform: am Mac ist Pro frei |
 | Dankeschön-Paket (Designs, App-Symbole) | ✅ (Ko-fi/Sponsors) | ✅ | ✅ | gleich |
-| Live-Mitschrift während der Aufnahme | ✅ | – | – | **Rückstand**: iPhone/iPad (IPHONE.md, 1.2) |
+| Live-Mitschrift während der Aufnahme | ✅ | – | – | **Rückstand**: iPhone/iPad (IPHONE.md, Fahrplan 1.7+) |
 | Transkription | Whisper | Apple-Spracherkennung | Apple-Spracherkennung | Plattform (Whisper auf M-iPads: IPAD.md P3, nach Bedarf) |
 | Systemton, Call-Erkennung, Menüleiste | ✅ | – | – | Plattform |
 | Apple Notizen, Bear, Craft, Things als Ziel | ✅ | Teilen-Menü | Teilen-Menü | Plattform (nur per AppleScript) |
