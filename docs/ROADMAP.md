@@ -35,17 +35,18 @@ auch nach Pro, Designs und iPad.
    oder steht mit Grund in der Tabelle „Gleichstand“. Logik gehört in den Kern (`EarnoteCore`), damit jede Plattform
    nur ihre Oberfläche baut. Eine Version gilt erst als fertig, wenn alle drei gebaut und veröffentlicht sind.
 
-### Gleichstand (Stand 25.09.2026)
+### Gleichstand (Stand 08.10.2026)
 
 Was nicht überall gleich ist – und warum. Jede Zeile ist entweder **Plattform** (geht dort nicht, bleibt so) oder
 **Rückstand** (soll aufholen, mit Ziel-Version).
 
 | Funktion | Mac | iPhone | iPad | Art |
 |---|---|---|---|---|
-| Veröffentlichte Version | 0.9.23 | 0.9.24 (TestFlight) | 0.9.24 (TestFlight) | **Rückstand**: Mac 0.9.24 veröffentlichen |
-| Pro: Sprecher, Fragen, „Wichtig“ + Klausur-Radar, Übersetzen | – | ✅ | ✅ | **Rückstand**: am Mac frei geben (Vorschlag, Offene Entscheidungen), vor Mac 1.0 |
-| Dankeschön-Paket (Designs, App-Symbole) | – | ✅ | ✅ | offen: am Mac frei oder weglassen |
-| Live-Mitschrift während der Aufnahme | ✅ | – | – | **Rückstand**: iPhone/iPad (IPHONE.md, 1.2) |
+| Veröffentlichte Version | 1.0 | 1.0 (App Store) | 1.0 (App Store) | gleich (1.0.1 nur Mac: Absturz-Fix) |
+| Pro: Sprecher, Fragen, „Wichtig“ + Klausur-Radar, Übersetzen | frei | Pro | Pro | Plattform: am Mac frei (entschieden 25.09.2026, seit 0.9.26) |
+| Pro-Hinweis nach der Notiz (1.1) | – | ✅ | ✅ | Plattform: am Mac ist Pro frei |
+| Dankeschön-Paket (Designs, App-Symbole) | ✅ (Ko-fi/Sponsors) | ✅ | ✅ | gleich |
+| Live-Mitschrift während der Aufnahme | ✅ | – | – | **Rückstand**: iPhone/iPad (IPHONE.md, Fahrplan 1.7+) |
 | Transkription | Whisper | Apple-Spracherkennung | Apple-Spracherkennung | Plattform (Whisper auf M-iPads: IPAD.md P3, nach Bedarf) |
 | Systemton, Call-Erkennung, Menüleiste | ✅ | – | – | Plattform |
 | Apple Notizen, Bear, Craft, Things als Ziel | ✅ | Teilen-Menü | Teilen-Menü | Plattform (nur per AppleScript) |
@@ -88,8 +89,8 @@ Was nicht überall gleich ist – und warum. Jede Zeile ist entweder **Plattform
 | 6c | Dankeschön-Paket (Farben, Designs, App-Symbole), „Neu in Earnote“, Bewertung, **Earnote Pro** (Sprecher, Fragen, Klausur-Radar, Übersetzen) | 0.9.24 | ✅ gebaut, ▶ Test auf dem iPhone |
 | **7** | **Prüfen und aufräumen** – 0.9.24 auf Geräten testen, Menüs und Einstellungen ordnen, Einstiegsfrage „Wofür nutzt du Earnote?“ | 0.9.25 | ▶ gebaut ([#29](https://github.com/louiskl/Earnote/pull/29)), Test auf Geräten offen |
 | 🚀 | **Launch: Earnote 1.0 auf Mac, iPhone und iPad** | 1.0 | **Di 13.10.2026** |
-| 8 | Pro, zweite Welle – nur nach Aufräumen und Launch, eine Funktion nach der anderen | 1.2+ | geplant |
-| 9 | Mac App Store prüfen (Sandbox), Kurs-Gruppen teilen | später | nach Launch |
+| 8 | Funktions-Updates im Zwei-Wochen-Takt: Import, Pro sichtbar, Folien, Interview-Export, Probeklausur ([PRODUKTPLAN.md](PRODUKTPLAN.md)) | 1.1–1.8 | ▶ 1.1 in Arbeit |
+| 9 | Mac App Store prüfen (Sandbox) | später | nach Launch |
 | 10 | Organisationen: Lizenz für Kanzleien, Praxen, Firmen – nie ein Server | – | auf Zuruf |
 
 ---
@@ -565,27 +566,33 @@ erst nach dem Aufräumen in 0.9.25, sonst wird doppelt übersetzt, und **gleichz
 beworben wird · 4. weitere Sprachen nur nach den Aufrufen je Land in App Store Connect.
 - [ ] Portugiesisch fehlt noch in Spracherkennung und „Sprache der Notiz“ – erst ergänzen und prüfen, dann eintragen
 
-## Phase 8 – Pro, zweite Welle (1.2+)
+## Phase 8 – Funktions-Updates nach 1.0 (1.1–1.8)
 
-Erst nach Aufräumen und Launch, **eine Funktion nach der anderen**, jede mit festem Platz (Regel 2 und 3).
-Sortiert nach „würden Leute dafür zahlen“ und Aufwand:
+Plan, Ideen und Einordnung: [PRODUKTPLAN.md](PRODUKTPLAN.md) (07.10.2026). Takt **alle zwei Wochen**, einreichen
+montags, live bis Donnerstag · 1.0.x = nur Fehler, jederzeit · nach drei Funktions-Updates eine Aufräum-Version
+(Regel 8) · Klausurphase (ca. 18.01.–28.02.) keine großen Umbauten · jede Funktion auf Mac, iPhone und iPad (Regel 9).
 
-| # | Funktion | Für wen | Platz in der App | Aufwand |
-|---|---|---|---|---|
-| 1 | **Protokoll verschicken** – Aufgaben je Person (aus den erkannten Sprechern), ein Tipp schickt es an alle; „erstellt mit Earnote“ wirbt mit | Arbeit, Lerngruppen | Teilen-Menü der Notiz | klein |
-| 2 | **Vorlesung zum Anhören** – die Notiz als 5-Minuten-Podcast, Stimme vom Gerät, offline | alle, v. a. Pendler | Abspielleiste der Notiz | klein–mittel |
-| 3 | **Probeklausur mit Korrektur** – aus allen Vorlesungen eines Bereichs, Antworten getippt oder gesprochen, KI korrigiert mit Verweis auf die Vorlesung | Uni, Schule | Klausur-Radar | mittel |
-| 4 | **Lernplan bis zur Klausur** – Klausurtermin eintragen, Karteikarten mit wachsenden Abständen, täglich „8 Karten für heute“ | Uni, Schule | Bereich (Klausurtermin), Mitteilung | mittel |
-| 5 | **Apple Watch** – Aufnahme starten und „Wichtig“ am Handgelenk | Uni | eigene Watch-App, sonst nichts Neues | mittel |
-| 6 | **Live-Untertitel** – Text läuft während der Aufnahme mit, „30 s zurück“ (Mac hat Live-Transkription schon) | internationale und schwerhörige Studierende | Aufnahme-Blatt | mittel |
+**Scope:** Earnote schreibt für dich mit – die komplette Kette, lokal, kostenlos, ohne Abo. Neue Funktionen nur,
+wenn sie die Mitschrift besser machen, mehr hereinholen oder den Weg danach kürzen (Filter in PRODUKTPLAN.md).
 
-Weitere Ideen (ohne Reihenfolge): Folien/Skript (PDF) importieren, damit die KI Fachbegriffe kennt und auf
-Folienseiten verweist · Semester-Rückblick als teilbares Bild · Lernzettel-Designs fürs PDF (Cornell, kompakt).
+| Version | Einreichen | Inhalt | Pro/Free | Platz in der App | Status |
+|---|---|---|---|---|---|
+| 1.0.1 | sofort (nur Mac) | Absturz beim Inspector unter macOS 27 | – | – | ▶ gebaut ([#47](https://github.com/louiskl/Earnote/pull/47)) |
+| **1.1** | Mo 26.10. | Vorlesungen importieren sichtbar ([#46](https://github.com/louiskl/Earnote/pull/46)) · Pro sichtbar machen ([#48](https://github.com/louiskl/Earnote/pull/48)) · Feinschliff aus dem Launch | Free + Pro-Hinweise | Aufnahmen-Liste (leer), Notiz (Hinweis), Menü „Mehr“ | ▶ gebaut, Test am Gerät offen |
+| **1.2** | Mo 09.11. | **Folien einbinden** (PDF zur Aufnahme, KI kennt Fachbegriffe, Verweis „Folie 12“) | Pro | Aufnahme/Notiz | geplant |
+| **1.3** | Mo 23.11. | Interview-Export · Protokoll verschicken | Pro / Pro | Teilen-Menü der Notiz | geplant |
+| 1.4 | Mo 30.11. | Aufräumen (Regel 8) | – | – | geplant |
+| **1.5** | Mo 14.12. | **Probeklausur je Fach** mit Korrektur und Verweis auf die Vorlesung | Pro | Klausur-Radar | geplant |
+| 1.6 | Mo 11.01. | Formeln in Notiz und PDF · Stundenplan-Erkennung am iPhone | Free | Notiz, Aufnahme | geplant |
+| 1.7+ | März | Tafelfoto · Live-Untertitel am iPhone · Aufräumen | Free / Pro (OCR) | Aufnahme | geplant |
+
+**Gestrichen (Scope, 07.10.2026):** Lernplan, Klausur-Countdown, Sprechen üben, Vorlesung zum Anhören, Mindmap,
+Lernzettel-Designs, Glossar, Karteikarten-Stapel teilen, Semester-Rückblick, Vorlagen, Kurs-Gruppen.
 
 **Was nie Pro wird:** Aufnehmen, Transkript, Notiz, Export, Abgleich, PDF-Lernzettel, Karteikarten – alles, was
-heute kostenlos ist (entschieden 25.09.2026).
+heute kostenlos ist (entschieden 25.09.2026). Kostenlos bleibt auch alles, was Earnote verbreitet (Teilen, Export, Widgets).
 
-## Phase 9 – Später (Mac App Store, Kurs-Gruppen)
+## Phase 9 – Später (Mac App Store)
 
 **Mac App Store prüfen** – erst nach 1.0, mit offenem Ausgang. Was dagegen spricht:
 - Die Sandbox verlangt für den Systemton (Core-Audio-Process-Tap) und für AppleScript zu Apple Notizen,
@@ -594,8 +601,6 @@ heute kostenlos ist (entschieden 25.09.2026).
 - Updates außerhalb des Stores (Sparkle, eigene DMG) fallen weg; jede Fehlerbehebung wartet auf ein Review
 - Nutzen wäre Auffindbarkeit und Vertrauen – bei einer kostenlosen, quelloffenen App kein Geld
 
-**Kurs-Gruppen**
-- [ ] Bereich mit Kommilitonen teilen (iCloud-Freigabe, nur Apple-Geräte)
 
 ## Phase 10 – Organisationen (nach 1.0, auf Zuruf)
 
