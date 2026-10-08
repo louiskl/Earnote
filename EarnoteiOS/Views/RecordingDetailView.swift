@@ -75,7 +75,14 @@ struct RecordingDetailView: View {
             }
         }
         .sheet(item: $showsPro) { ProSheet(highlight: $0) }
-        .feedbackAfterSuccess(isDone: recording?.status == .done)
+        .feedbackAfterSuccess(isDone: recording?.status == .done, proCandidates: proCandidates) { feature in
+            switch feature {
+            case .translate: translating = true
+            case .chat: chatting = true
+            case .speakers: Task { await detectSpeakers() }
+            case .examRadar: break
+            }
+        }
         .overlay(alignment: .top) {
             if detectingSpeakers {
                 Label("Sprecher werden erkannt …", systemImage: "person.2.wave.2")
@@ -282,7 +289,10 @@ struct RecordingDetailView: View {
                     Section("Lernen") {
                         Button("Lernzettel als PDF", systemImage: "doc.richtext") { sharePDF(note) }
                         flashcardItems(note)
-                        Button("Übersetzen …", systemImage: "character.bubble") { translating = true }
+                        Button { translating = true } label: {
+                            Label("Übersetzen …", systemImage: "character.bubble")
+                            Pro.menuNote(.translate)
+                        }
                     }
                     Section("Bearbeiten") {
                         Button("Notiz bearbeiten", systemImage: "pencil") { editingNote = true }
@@ -314,6 +324,21 @@ struct RecordingDetailView: View {
                 }
             }
         }
+    }
+
+    /// Pro-Funktionen, die bei dieser Aufnahme helfen (`ProSuggestion`) – nur solche, die hier auch gehen
+    private func proCandidates() -> [Pro.Feature] {
+        guard let recording else { return [] }
+        let learning = library.settings.usage?.isLearning ?? true
+        let marks = ImportantMarks.load(in: library.audio.folderURL(for: id))
+        return ProSuggestion.candidates(
+            spokenLanguage: recording.language,
+            readerLanguage: Locale.current.language.languageCode?.identifier ?? "de",
+            isConversation: recording.sourceApp != nil || !learning,
+            speakerCount: transcript.map { Speakers.names(in: $0).count } ?? 0,
+            hasMarks: !marks.isEmpty)
+        .compactMap { Pro.Feature(rawValue: $0.rawValue) }
+        .filter { $0 != .speakers || canDetectSpeakers }
     }
 
     private var canDetectSpeakers: Bool {

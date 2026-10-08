@@ -1691,3 +1691,16 @@
 
 /* iPhone: Dankeschön-Paket von selbst (0.9.26) */
 "Nicht mehr fragen" = "Don’t Ask Again";
+
+/* Pro-Hinweis (1.1) */
+"Zum Beispiel: Aus dem Teammeeting wird „Anna: Angebot bis Freitag · Ben: Folien überarbeiten“." = "For example: the team meeting becomes “Anna: offer by Friday · Ben: revise slides”.";
+"Zum Beispiel: „Was war der Unterschied zwischen Median und Mittelwert?“ – mit der Stelle in der Aufnahme." = "For example: “What was the difference between median and mean?” – with the moment in the recording.";
+"Zum Beispiel: Die Professorin sagt „Das kommt dran“ – du tippst auf „Wichtig“, vor der Prüfung steht es im Radar." = "For example: the professor says “This will be on the exam” – you tap “Important”, and before the exam it’s in the radar.";
+"Zum Beispiel: Die englische Statistik-Vorlesung wird zur deutschen Notiz, die Zeitmarken bleiben." = "For example: a German statistics lecture becomes an English note, and the timestamps stay.";
+"Pro · noch %lld von %lld gratis" = "Pro · %lld of %lld free left";
+"Pro" = "Pro";
+"Passt zu dieser Aufnahme" = "Fits This Recording";
+"Earnote Pro · einmalig, kein Abo" = "Earnote Pro · one-time, no subscription";
+"Mehr über Pro" = "More About Pro";
+"Ausprobieren – noch %lld× gratis" = "Try It – %lld× free left";
+"Bei der nächsten Aufnahme – noch %lld× gratis." = "On your next recording – %lld× free left.";
