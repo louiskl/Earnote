@@ -34,6 +34,16 @@ enum Pro {
             }
         }
 
+        /// Ein konkretes Beispiel – im Pro-Blatt bei der Funktion, von der man kam, und im Pro-Hinweis nach einer Notiz
+        var example: LocalizedStringKey {
+            switch self {
+            case .speakers: "Zum Beispiel: Aus dem Teammeeting wird „Anna: Angebot bis Freitag · Ben: Folien überarbeiten“."
+            case .chat: "Zum Beispiel: „Was war der Unterschied zwischen Median und Mittelwert?“ – mit der Stelle in der Aufnahme."
+            case .examRadar: "Zum Beispiel: Die Professorin sagt „Das kommt dran“ – du tippst auf „Wichtig“, vor der Prüfung steht es im Radar."
+            case .translate: "Zum Beispiel: Die englische Statistik-Vorlesung wird zur deutschen Notiz, die Zeitmarken bleiben."
+            }
+        }
+
         var symbol: String {
             switch self {
             case .speakers: "person.2.wave.2"
@@ -45,6 +55,13 @@ enum Pro {
     }
 
     static var isUnlocked: Bool { UserDefaults.standard.bool(forKey: key) }
+
+    /// Untertitel am Platz der Funktion (Menü): „Pro · noch 2 von 3 gratis“ – mit Pro nichts
+    static func menuNote(_ feature: Feature) -> Text? {
+        guard !isUnlocked else { return nil }
+        let left = triesLeft(feature)
+        return left > 0 ? Text("Pro · noch \(left) von \(freeTries) gratis") : Text("Pro")
+    }
 
     private static func triesKey(_ feature: Feature) -> String { "pro.tries.\(feature.rawValue)" }
 
@@ -126,6 +143,9 @@ struct ProView: View {
                     Label {
                         Text(feature.title).font(.headline)
                         Text(feature.detail)
+                        if feature == highlight {
+                            Text(feature.example).font(.subheadline).foregroundStyle(.secondary)
+                        }
                     } icon: {
                         Image(systemName: feature.symbol).foregroundStyle(.tint)
                     }
@@ -269,3 +289,63 @@ struct ProSheet: View {
         }
     }
 }
+
+/// Pro-Hinweis nach einer fertigen Notiz (`FeedbackMoment.proHint`): die eine Funktion, die bei dieser Aufnahme hilft.
+/// Ohne Foto, ohne Bitte um Unterstützung – nur, was sie bringt, und wie oft sie noch gratis geht.
+struct ProHintSheet: View {
+    let feature: Pro.Feature
+    /// nil: geht erst beim nächsten Aufnehmen (Klausur-Radar)
+    let tryIt: (() -> Void)?
+    @Environment(\.dismiss) private var dismiss
+    @State private var showsPro = false
+
+    var body: some View {
+        NavigationStack {
+            List {
+                Section {
+                    Label {
+                        Text(feature.title).font(.headline)
+                        Text(feature.detail)
+                        Text(feature.example).font(.subheadline).foregroundStyle(.secondary)
+                    } icon: {
+                        Image(systemName: feature.symbol).foregroundStyle(.tint)
+                    }
+                    .padding(.vertical, 4)
+                } footer: {
+                    Text("Earnote Pro · einmalig, kein Abo")
+                }
+            }
+            .navigationTitle("Passt zu dieser Aufnahme")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) { Button("Später") { dismiss() } }
+                ToolbarItem(placement: .bottomBar) { Button("Mehr über Pro") { showsPro = true } }
+            }
+            .safeAreaBar(edge: .bottom) {
+                let left = Pro.triesLeft(feature)
+                Group {
+                    if let tryIt {
+                        Button {
+                            tryIt()
+                            dismiss()
+                        } label: {
+                            Text("Ausprobieren – noch \(left)× gratis").frame(maxWidth: .infinity)
+                        }
+                        .buttonStyle(.glassProminent)
+                        .controlSize(.large)
+                    } else {
+                        Text("Bei der nächsten Aufnahme – noch \(left)× gratis.")
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                .padding(.horizontal, 24)
+                .padding(.bottom, 8)
+                .dynamicTypeSize(...DynamicTypeSize.accessibility2)
+            }
+            .sheet(isPresented: $showsPro) { ProSheet(highlight: feature) }
+        }
+        .presentationDetents([.medium, .large])
+    }
+}
+

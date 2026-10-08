@@ -304,12 +304,18 @@ struct ElapsedText: View {
 }
 
 extension View {
-    /// Bewertung und Dankeschön-Paket im Erfolgsmoment: wenn eine fertige Notiz offen ist
-    func feedbackAfterSuccess(isDone: Bool) -> some View { modifier(FeedbackAfterSuccess(isDone: isDone)) }
+    /// Bewertung, Pro-Hinweis und Dankeschön-Paket im Erfolgsmoment: wenn eine fertige Notiz offen ist.
+    /// `proCandidates`: passende Pro-Funktionen für diese Aufnahme, `tryPro` startet eine davon.
+    func feedbackAfterSuccess(isDone: Bool, proCandidates: @escaping () -> [Pro.Feature] = { [] },
+                              tryPro: @escaping (Pro.Feature) -> Void = { _ in }) -> some View {
+        modifier(FeedbackAfterSuccess(isDone: isDone, proCandidates: proCandidates, tryPro: tryPro))
+    }
 }
 
 private struct FeedbackAfterSuccess: ViewModifier {
     let isDone: Bool
+    let proCandidates: () -> [Pro.Feature]
+    let tryPro: (Pro.Feature) -> Void
     @Environment(LibraryStore.self) private var library
     @Environment(PhoneRecorder.self) private var recorder
     @AppStorage("feedback.lastSeenVersion") private var lastSeenVersion: String?
@@ -318,7 +324,12 @@ private struct FeedbackAfterSuccess: ViewModifier {
     @AppStorage("feedback.supporterAsks") private var supporterAsks = 0
     @AppStorage("feedback.supporterDeclined") private var supporterDeclined = false
     @AppStorage(TipJar.supporterKey) private var isSupporter = false
+    @AppStorage("feedback.proHintAskedAt") private var proHintAskedAt: Double = 0
+    @AppStorage("feedback.proHintAsks") private var proHintAsks = 0
     @State private var showsSupporter = false
+    @State private var proHint: Pro.Feature?
+    /// Erst starten, wenn der Hinweis zu ist – zwei Blätter auf einmal zeigt iOS nicht
+    @State private var tryAfterHint: Pro.Feature?
 
     func body(content: Content) -> some View {
         content
@@ -328,17 +339,26 @@ private struct FeedbackAfterSuccess: ViewModifier {
                 await ask()
             }
             .sheet(isPresented: $showsSupporter) { SupporterSheet(declined: $supporterDeclined) }
+            .sheet(item: $proHint, onDismiss: {
+                if let feature = tryAfterHint { tryAfterHint = nil; tryPro(feature) }
+            }) { feature in
+                ProHintSheet(feature: feature, tryIt: feature == .examRadar ? nil : { tryAfterHint = feature })
+            }
     }
 
     private func ask() async {
         guard !FeedbackSession.done, library.settings.onboardingCompleted, !recorder.isRecording else { return }
         let version = RootView.appVersion
+        let suggestion = Pro.isUnlocked ? nil : proCandidates().first { Pro.triesLeft($0) > 0 }
         switch FeedbackMoment.next(
             afterSuccess: true, version: version, whatsNewVersion: nil,
             finishedNotes: library.recordings.count { $0.status == .done }, isSupporter: isSupporter,
             lastSeenVersion: lastSeenVersion, reviewAskedVersion: reviewAskedVersion,
             supporterAskedAt: supporterAskedAt > 0 ? Date(timeIntervalSince1970: supporterAskedAt) : nil,
-            supporterAsks: supporterAsks, supporterDeclined: supporterDeclined) {
+            supporterAsks: supporterAsks, supporterDeclined: supporterDeclined,
+            proHintAvailable: suggestion != nil,
+            proHintAskedAt: proHintAskedAt > 0 ? Date(timeIntervalSince1970: proHintAskedAt) : nil,
+            proHintAsks: proHintAsks) {
         case .review:
             reviewAskedVersion = version
             // Apples eigener Sterne-Dialog; iOS zeigt ihn höchstens dreimal im Jahr. Mit dem Fenster ausdrücklich –
@@ -346,6 +366,10 @@ private struct FeedbackAfterSuccess: ViewModifier {
             guard let scene = UIApplication.shared.connectedScenes
                 .first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene else { return }
             AppStore.requestReview(in: scene)
+        case .proHint:
+            proHintAskedAt = Date.now.timeIntervalSince1970
+            proHintAsks += 1
+            proHint = suggestion
         case .supporter:
             // Ohne Trinkgelder im Store (kein Netz, Vertrag noch nicht aktiv) gibt es nichts zu zeigen
             guard !(await TipJar.products()).isEmpty else { return }
