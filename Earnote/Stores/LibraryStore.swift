@@ -4,6 +4,7 @@ import AppKit
 import EarnoteCore
 import Foundation
 import Observation
+import UniformTypeIdentifiers
 
 /// Die Bibliothek: Aufnahmen, Bereiche und Einstellungen samt aller Änderungen daran.
 /// Hält den aktuellen Stand im Speicher (für die Oberfläche) und schreibt jede Änderung der Reihe nach
@@ -391,7 +392,25 @@ final class LibraryStore: RecordingLibrary {
             rec.status = .queued
             rec.language = settings.language
             insert(rec)
-            enqueue(rec.id)
+            if UTType(filenameExtension: url.pathExtension)?.conforms(to: .movie) == true {
+                Task { await keepAudioOnly(rec.id, video: fileName); enqueue(rec.id) }
+            } else {
+                enqueue(rec.id)
+            }
+        }
+    }
+
+    /// Video durch seine Tonspur ersetzen, bevor die Transkription beginnt. Klappt das nicht, bleibt das Video –
+    /// transkribieren lässt es sich trotzdem.
+    private func keepAudioOnly(_ id: UUID, video fileName: String) async {
+        let video = audio.importedAudioURL(for: id, fileName: fileName)
+        let m4a = audio.importedAudioURL(for: id, fileName: "import.m4a")
+        do {
+            try await VideoAudio.extract(from: video, to: m4a)
+            try? FileManager.default.removeItem(at: video)
+            await updateAndSave(id) { $0.importedFileName = m4a.lastPathComponent }
+        } catch {
+            Log.error("Tonspur aus Video: \(error.localizedDescription)")
         }
     }
 

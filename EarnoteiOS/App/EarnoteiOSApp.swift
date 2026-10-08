@@ -49,4 +49,6 @@ extension EnvironmentValues {
 
     /// Nur Debug: Beispieldaten laden (Einstellungen › Test)
     @Entry var loadDemoLibrary: (@MainActor () async -> Void)?
+    /// Dateiauswahl für Audio und Video öffnen (Leerzustand der Aufnahmen-Liste); Importe landen im übergebenen Bereich
+    @Entry var importFiles: (@MainActor (RecordingCategory?) -> Void)?
 }

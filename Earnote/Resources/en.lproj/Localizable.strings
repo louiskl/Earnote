@@ -140,7 +140,7 @@
 "Audio, Transkript und Notiz werden entfernt. Das lässt sich nicht rückgängig machen." = "Audio, transcript and note will be removed. This can’t be undone.";
 
 /* No comment provided by engineer. */
-"Audiodatei importieren …" = "Import audio file…";
+"Audio oder Video importieren …" = "Import Audio or Video…";
 
 /* No comment provided by engineer. */
 "Audiodateien nach der Verarbeitung behalten" = "Keep audio files after processing";
@@ -758,7 +758,9 @@
 "Start" = "Launch";
 
 /* No comment provided by engineer. */
-"Starte eine mit ⇧⌘R oder ziehe eine Audiodatei hierher." = "Start one with ⇧⌘R or drag an audio file here.";
+"Starte eine Aufnahme mit ⇧⌘R. Deine Uni lädt Vorlesungen hoch? Importiere das Video oder zieh es hierher." = "Start a recording with ⇧⌘R. Your university uploads lectures? Import the video or drag it here.";
+"Video oder Audio importieren …" = "Import Video or Audio…";
+"Video oder Audio importieren" = "Import Video or Audio";
 
 /* No comment provided by engineer. */
 "Status" = "Status";
@@ -1167,7 +1169,7 @@
 /* 0.9.22: bisher fehlende Übersetzungen */
 "Apple Intelligence benötigt macOS 26 oder neuer." = "Apple Intelligence requires macOS 26 or later.";
 "Apple Notizen: %@. Bitte in Systemeinstellungen › Datenschutz › Automation erlauben." = "Apple Notes: %@. Please allow it in System Settings › Privacy & Security › Automation.";
-"Audiodateien zum Transkribieren auswählen" = "Choose audio files to transcribe";
+"Audio- oder Videodateien zum Transkribieren auswählen, z. B. Vorlesungsaufzeichnungen" = "Choose audio or video files to transcribe, e.g. lecture recordings";
 "Aufnahme beendet" = "Recording stopped";
 "Aufnahme läuft noch" = "Still recording";
 "Aufnahme löschen?" = "Delete recording?";
@@ -1299,7 +1301,7 @@
 "Suche" = "Search";
 "Tempo" = "Speed";
 "Tippe auf Fortsetzen, um weiter aufzunehmen." = "Tap Resume to continue recording.";
-"Tippe unten auf „Aufnehmen“. Danach steht hier deine Notiz." = "Tap “Record” below. Your note will appear here afterwards.";
+"Tippe unten auf „Aufnehmen“. Deine Uni lädt Vorlesungen hoch? Importiere das Video – danach steht hier deine Notiz." = "Tap “Record” below. Your university uploads lectures? Import the video – your note will appear here afterwards.";
 "Tippen für die Antwort" = "Tap for the answer";
 "Titel, Notizen und Transkripte aller Aufnahmen." = "Titles, notes and transcripts of all recordings.";
 "Version" = "Version";
