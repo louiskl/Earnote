@@ -35,16 +35,17 @@ auch nach Pro, Designs und iPad.
    oder steht mit Grund in der Tabelle „Gleichstand“. Logik gehört in den Kern (`EarnoteCore`), damit jede Plattform
    nur ihre Oberfläche baut. Eine Version gilt erst als fertig, wenn alle drei gebaut und veröffentlicht sind.
 
-### Gleichstand (Stand 25.09.2026)
+### Gleichstand (Stand 08.10.2026)
 
 Was nicht überall gleich ist – und warum. Jede Zeile ist entweder **Plattform** (geht dort nicht, bleibt so) oder
 **Rückstand** (soll aufholen, mit Ziel-Version).
 
 | Funktion | Mac | iPhone | iPad | Art |
 |---|---|---|---|---|
-| Veröffentlichte Version | 0.9.23 | 0.9.24 (TestFlight) | 0.9.24 (TestFlight) | **Rückstand**: Mac 0.9.24 veröffentlichen |
-| Pro: Sprecher, Fragen, „Wichtig“ + Klausur-Radar, Übersetzen | – | ✅ | ✅ | **Rückstand**: am Mac frei geben (Vorschlag, Offene Entscheidungen), vor Mac 1.0 |
-| Dankeschön-Paket (Designs, App-Symbole) | – | ✅ | ✅ | offen: am Mac frei oder weglassen |
+| Veröffentlichte Version | 1.0 | 1.0 (App Store) | 1.0 (App Store) | gleich (1.0.1 nur Mac: Absturz-Fix) |
+| Pro: Sprecher, Fragen, „Wichtig“ + Klausur-Radar, Übersetzen | frei | Pro | Pro | Plattform: am Mac frei (entschieden 25.09.2026, seit 0.9.26) |
+| Pro-Hinweis nach der Notiz (1.1) | – | ✅ | ✅ | Plattform: am Mac ist Pro frei |
+| Dankeschön-Paket (Designs, App-Symbole) | ✅ (Ko-fi/Sponsors) | ✅ | ✅ | gleich |
 | Live-Mitschrift während der Aufnahme | ✅ | – | – | **Rückstand**: iPhone/iPad (IPHONE.md, 1.2) |
 | Transkription | Whisper | Apple-Spracherkennung | Apple-Spracherkennung | Plattform (Whisper auf M-iPads: IPAD.md P3, nach Bedarf) |
 | Systemton, Call-Erkennung, Menüleiste | ✅ | – | – | Plattform |
@@ -576,10 +577,10 @@ wenn sie die Mitschrift besser machen, mehr hereinholen oder den Weg danach kür
 
 | Version | Einreichen | Inhalt | Pro/Free | Platz in der App | Status |
 |---|---|---|---|---|---|
-| 1.0.x | laufend | Fehler aus Launch-Feedback, Bewertungen, Abstürze | – | – | laufend |
-| **1.1** | Mo 26.10. | Vorlesungen importieren sichtbar · Pro sichtbar machen · Feinschliff aus dem Launch | Free + Pro-Hinweise | Aufnahmen-Liste (leer), Notiz (Hinweis), Menü „Mehr“ (Abzeichen) | ▶ in Arbeit |
+| 1.0.1 | sofort (nur Mac) | Absturz beim Inspector unter macOS 27 | – | – | ▶ gebaut ([#47](https://github.com/louiskl/Earnote/pull/47)) |
+| **1.1** | Mo 26.10. | Vorlesungen importieren sichtbar ([#46](https://github.com/louiskl/Earnote/pull/46)) · Pro sichtbar machen ([#48](https://github.com/louiskl/Earnote/pull/48)) · Feinschliff aus dem Launch | Free + Pro-Hinweise | Aufnahmen-Liste (leer), Notiz (Hinweis), Menü „Mehr“ | ▶ gebaut, Test am Gerät offen |
 | **1.2** | Mo 09.11. | **Folien einbinden** (PDF zur Aufnahme, KI kennt Fachbegriffe, Verweis „Folie 12“) | Pro | Aufnahme/Notiz | geplant |
-| **1.3** | Mo 23.11. | Interview-Export · Protokoll verschicken · Anki-Export der Karteikarten | Pro / Pro / Free | Teilen-Menü der Notiz | geplant |
+| **1.3** | Mo 23.11. | Interview-Export · Protokoll verschicken | Pro / Pro | Teilen-Menü der Notiz | geplant |
 | 1.4 | Mo 30.11. | Aufräumen (Regel 8) | – | – | geplant |
 | **1.5** | Mo 14.12. | **Probeklausur je Fach** mit Korrektur und Verweis auf die Vorlesung | Pro | Klausur-Radar | geplant |
 | 1.6 | Mo 11.01. | Formeln in Notiz und PDF · Stundenplan-Erkennung am iPhone | Free | Notiz, Aufnahme | geplant |

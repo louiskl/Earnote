@@ -93,7 +93,7 @@ M (≤ 1 Woche) · L (> 1 Woche) · **Prio** A = jetzt, B = dieses Semester, C =
 
 **Bleibt:** Import sichtbar · Pro sichtbar · Folien einbinden · Interview-Export · Protokoll verschicken ·
 Probeklausur je Fach (lernen aus den *eigenen* Vorlesungen, Platz im Klausur-Radar) · Anki-Export der Karteikarten
-(neu, Free) · Formeln in Notiz und PDF (neu, Free) · Stundenplan-Erkennung am iPhone · Tafelfoto · Live-Untertitel
+(**gibt es schon** auf allen drei Geräten – nur bewerben) · Formeln in Notiz und PDF (neu, Free) · Stundenplan-Erkennung am iPhone · Tafelfoto · Live-Untertitel
 am iPhone · später Fragen über ein ganzes Fach, Apple Watch.
 
 **Fliegt raus** (eigenes Lernsystem, Coaching oder nur Beiwerk): Klausurtermin + Countdown-Widget, Mündliche
@@ -117,7 +117,7 @@ Diktat-Modus, Wochenrückblick, Kurs-Gruppen.
 | 1.0.x | laufend | Fehler aus Launch-Feedback, Bewertungen, Abstürze | – | Antworten auf Kommentare |
 | **1.1** | Mo 26.10. (live vor 31.10.) | Vorlesungen importieren sichtbar · Pro sichtbar machen · Feinschliff aus dem Launch-Feedback | Free + Pro-Hinweise | Video „Deine Uni lädt Vorlesungen hoch? So lernst du daraus“ |
 | **1.2** | Mo 09.11. | **Folien einbinden** | Pro | „Folien + Aufnahme = perfekte Notiz“, Presse-Nachfass |
-| **1.3** | Mo 23.11. | Interview-Export (Abschlussarbeit) · Protokoll verschicken · Anki-Export | Pro / Pro / Free | Bachelorarbeit-Videos, Medizin/Jura (Anki) |
+| **1.3** | Mo 23.11. | Interview-Export (Abschlussarbeit) · Protokoll verschicken | Pro / Pro | Bachelorarbeit-Videos; Anki-Export (gibt es schon) für Medizin/Jura bewerben |
 | 1.4 | Mo 30.11. | Aufräumen (Regel 8): Menüs, Texte, Geschwindigkeit, Akku | – | – |
 | **1.5** | Mo 14.12. | **Probeklausur je Fach** | Pro | „Probeklausur aus deinen Vorlesungen“ – über Weihnachten |
 | 1.6 | Mo 11.01. | Formeln in Notiz und PDF · Stundenplan-Erkennung am iPhone | Free | MINT-Content zur Klausurphase |
