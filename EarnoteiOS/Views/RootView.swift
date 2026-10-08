@@ -44,6 +44,8 @@ struct RootView: View {
     @State private var filterPaths: [LibraryFilter: [UUID]] = [:]
     @State private var showsSettings = false
     @State private var importing = false
+    /// Bereich, aus dessen Liste der Import kam (sonst „Ohne Bereich“)
+    @State private var importCategory: RecordingCategory?
     // Beim Start höchstens „Neu in Earnote“ (`FeedbackMoment`); Bewertung und Dankeschön-Paket kommen in der
     // fertigen Notiz (`feedbackAfterSuccess`). Höchstens eins je Start der App (`FeedbackSession`).
     @AppStorage("feedback.lastSeenVersion") private var lastSeenVersion: String?
@@ -91,8 +93,9 @@ struct RootView: View {
         .sheet(isPresented: $showsSettings) { SettingsSheet() }
         // Audio und Video aus der Dateien-App (Sprachmemos, Aufnahmen anderer Apps)
         .fileImporter(isPresented: $importing, allowedContentTypes: [.audio, .movie], allowsMultipleSelection: true) { result in
+            defer { importCategory = nil }
             guard case .success(let urls) = result else { return }
-            AudioImport.run(urls, into: library, category: nil)
+            AudioImport.run(urls, into: library, category: importCategory)
             tab = .recordings
         }
         // Am iPad: Audiodateien ins Fenster ziehen
@@ -104,7 +107,7 @@ struct RootView: View {
             return true
         }
         // Menüleiste und Tastenkürzel am iPad (`PhoneCommands`) – je Fenster
-        .environment(\.importFiles) { importing = true }
+        .environment(\.importFiles) { importCategory = $0; importing = true }
         .focusedSceneValue(\.phoneActions, PhoneActions(
             showSettings: { showsSettings = true },
             importAudio: { importing = true },

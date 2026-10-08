@@ -139,7 +139,7 @@ struct RecordingList: View {
                     .controlSize(.large)
                 }
                 if let importFiles {
-                    Button("Video oder Audio importieren", systemImage: "square.and.arrow.down", action: importFiles)
+                    Button("Video oder Audio importieren", systemImage: "square.and.arrow.down") { importFiles(category) }
                 }
             }
         }
