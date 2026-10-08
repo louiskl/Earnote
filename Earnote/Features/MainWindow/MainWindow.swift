@@ -189,8 +189,10 @@ struct MainWindow: View {
             if !mode.showsTranscript { searchCursor.reset(count: 0) }
         }
         .focusedSceneValue(\.mainWindow, context)
-        // Mit Inspector brauchen vier Spalten mehr Platz; ohne ihn darf das Fenster kleiner werden.
-        .frame(minWidth: inspectorShown ? 1100 : 840, minHeight: 560)
+        // Feste Mindestgröße: Ändert sie sich zur Laufzeit (früher je nach Inspector), meldet der Hosting-View
+        // sie mitten im Constraint-Durchlauf neu → AppKit wirft eine Exception (Absturz 0.9.25, macOS 27).
+        // Die Spaltenbreiten (Seitenleiste, Liste, Inspector) hält die Split-View selbst ein.
+        .frame(minWidth: 840, minHeight: 560)
     }
 
     /// Bereich der Seitenleiste – oder der Bereich der gewählten Aufnahme
