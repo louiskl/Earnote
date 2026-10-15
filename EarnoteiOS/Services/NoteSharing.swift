@@ -122,7 +122,19 @@ enum AnkiExport {
     }
 }
 
-/// Teilen-Blatt für eine erzeugte Datei (PDF, Anki)
+/// Interview-Transkript (Dresing & Pehl) als RTF für Word/MAXQDA oder als Text – nil ohne zwei erkannte Sprecher
+enum InterviewExport {
+    static func file(_ recording: Recording, transcript: Transcript, rtf: Bool) throws -> URL? {
+        let make = rtf ? InterviewTranscript.rtf : InterviewTranscript.text
+        guard let content = make(transcript, recording.displayTitle, recording.startedAt, recording.duration) else { return nil }
+        let url = FileManager.default.temporaryDirectory
+            .appendingPathComponent(NotePDF.fileName(recording.displayTitle) + " – Interview." + (rtf ? "rtf" : "txt"))
+        try content.write(to: url, atomically: true, encoding: .utf8)
+        return url
+    }
+}
+
+/// Teilen-Blatt für eine erzeugte Datei (PDF, Anki, Interview)
 struct ShareFile: Identifiable {
     let url: URL
     var id: URL { url }

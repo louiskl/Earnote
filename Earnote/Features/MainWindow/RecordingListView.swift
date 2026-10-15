@@ -183,6 +183,9 @@ struct RecordingActionItems: View {
         Menu("Weitergeben") {
             Button("Kurzprotokoll kopieren") { ShortMinutes.copy(recordingID, library: library) }
             Button("Als Mail weiterschicken …") { FollowUpMail.compose(recordingID, library: library) }
+            Divider()
+            Button("Interview-Transkript für Word/MAXQDA …") { InterviewExport.save(recordingID, library: library, rtf: true) }
+            Button("Interview-Transkript als Text …") { InterviewExport.save(recordingID, library: library, rtf: false) }
             Button("Kurzprotokoll als Mail …") { FollowUpMail.compose(recordingID, library: library, short: true) }
         }
         .disabled(!hasNote)

@@ -80,7 +80,7 @@ struct RecordingDetailView: View {
             case .translate: translating = true
             case .chat: chatting = true
             case .speakers: Task { await detectSpeakers() }
-            case .examRadar: break
+            case .examRadar, .interview: break
             }
         }
         .overlay(alignment: .top) {
@@ -278,8 +278,19 @@ struct RecordingDetailView: View {
         }
         if let note {
             ToolbarItem(placement: .topBarTrailing) {
-                ShareLink(item: "# \(note.title)\n\n\(note.markdown)", subject: Text(note.title)) {
-                    Label("Teilen", systemImage: "square.and.arrow.up")
+                Menu("Teilen", systemImage: "square.and.arrow.up") {
+                    ShareLink(item: "# \(note.title)\n\n\(note.markdown)", subject: Text(note.title)) {
+                        Label("Notiz teilen", systemImage: "square.and.arrow.up")
+                    }
+                    Button("Lernzettel als PDF", systemImage: "doc.richtext") { sharePDF(note) }
+                    Menu {
+                        Button("Für Word und MAXQDA (RTF)") { shareInterview(rtf: true) }
+                        Button("Als Text (TXT)") { shareInterview(rtf: false) }
+                    } label: {
+                        Label("Interview-Transkript", systemImage: "text.quote")
+                        Pro.menuNote(.interview)
+                    }
+                    .disabled(transcript == nil)
                 }
             }
         }
@@ -287,7 +298,6 @@ struct RecordingDetailView: View {
             Menu("Mehr", systemImage: "ellipsis") {
                 if let note {
                     Section("Lernen") {
-                        Button("Lernzettel als PDF", systemImage: "doc.richtext") { sharePDF(note) }
                         flashcardItems(note)
                         Button { translating = true } label: {
                             Label("Übersetzen …", systemImage: "character.bubble")
@@ -346,6 +356,22 @@ struct RecordingDetailView: View {
     }
 
     private func cards(_ note: Summary) -> [Flashcard] { Flashcards.entries(note.markdown).map(\.card) }
+
+    /// Interview-Transkript für die Abschlussarbeit (Earnote Pro) – braucht erkannte Sprecher
+    private func shareInterview(rtf: Bool) {
+        guard let recording, let transcript else { return }
+        guard Pro.isUnlocked || Pro.triesLeft(.interview) > 0 else { showsPro = .interview; return }
+        do {
+            guard let url = try InterviewExport.file(recording, transcript: transcript, rtf: rtf) else {
+                library.lastError = String(localized: "Für ein Interview-Transkript braucht Earnote mindestens zwei Sprecher. Tippe auf „Mehr › Namen korrigieren …“ und dann auf „Sprecher erkennen“.")
+                return
+            }
+            _ = Pro.use(.interview)
+            shareFile = ShareFile(url: url)
+        } catch {
+            library.lastError = error.localizedDescription
+        }
+    }
 
     private func sharePDF(_ note: Summary) {
         let kicker = recording.flatMap { library.category($0.categoryID)?.name }

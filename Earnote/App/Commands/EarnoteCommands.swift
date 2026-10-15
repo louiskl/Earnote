@@ -110,6 +110,9 @@ struct EarnoteCommands: Commands {
                 Button("Kurzprotokoll kopieren") { if let id { ShortMinutes.copy(id, library: library) } }
                 Button("Als Mail weiterschicken …") { if let id { FollowUpMail.compose(id, library: library) } }
                 Button("Kurzprotokoll als Mail …") { if let id { FollowUpMail.compose(id, library: library, short: true) } }
+                Divider()
+                Button("Interview-Transkript für Word/MAXQDA …") { if let id { InterviewExport.save(id, library: library, rtf: true) } }
+                Button("Interview-Transkript als Text …") { if let id { InterviewExport.save(id, library: library, rtf: false) } }
                 Button("Teilen …") {
                     guard let id, let recording else { return }
                     Task {
