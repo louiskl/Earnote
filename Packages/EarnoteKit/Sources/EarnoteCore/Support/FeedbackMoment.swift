@@ -8,8 +8,10 @@ import Foundation
 public enum FeedbackMoment: Equatable, Sendable {
     case whatsNew, review, proHint, supporter
 
-    /// Bewertung erst, wenn Earnote ein paar Notizen geschrieben hat – dann weiß man, ob die App taugt
-    public static let reviewAfterNotes = 3
+    /// Bewertung nach der ersten fertigen Notiz – aber nicht beim allerersten Start: Wer Earnote ein zweites Mal öffnet,
+    /// ist wiedergekommen und weiß, ob die App taugt
+    public static let reviewAfterNotes = 1
+    public static let reviewAfterLaunches = 2
     public static let supporterAfterNotes = 5
     /// Das Dankeschön-Paket kommt wieder, aber nicht öfter als einmal im Monat …
     public static let supporterPause: TimeInterval = 30 * 24 * 3600
@@ -26,17 +28,18 @@ public enum FeedbackMoment: Equatable, Sendable {
     ///   - whatsNewVersion: Version, zu der es „Neu in Earnote“ gibt (nil = keine)
     ///   - lastSeenVersion: zuletzt gesehenes „Neu in Earnote“ (neue Nutzer bekommen es nach dem Onboarding gesetzt)
     ///   - reviewAskedVersion: Version, in der zuletzt um eine Bewertung gebeten wurde – höchstens einmal je Version
+    ///   - launches: wie oft die App gestartet wurde, dieser Start mitgezählt
     ///   - supporterAsks: wie oft das Dankeschön-Paket schon kam; `supporterDeclined`: „Nicht mehr fragen“ gewählt
     ///   - proHintAvailable: ohne Pro und mit einer passenden Funktion, die noch Probeversuche hat
     public static func next(afterSuccess: Bool, version: String, whatsNewVersion: String?, finishedNotes: Int,
-                            isSupporter: Bool, lastSeenVersion: String?, reviewAskedVersion: String?,
+                            isSupporter: Bool, lastSeenVersion: String?, reviewAskedVersion: String?, launches: Int = 0,
                             supporterAskedAt: Date?, supporterAsks: Int = 0, supporterDeclined: Bool = false,
                             proHintAvailable: Bool = false, proHintAskedAt: Date? = nil, proHintAsks: Int = 0,
                             now: Date = .now) -> FeedbackMoment? {
         guard afterSuccess else {
             return whatsNewVersion == version && lastSeenVersion != version ? .whatsNew : nil
         }
-        if finishedNotes >= reviewAfterNotes && reviewAskedVersion != version { return .review }
+        if finishedNotes >= reviewAfterNotes, launches >= reviewAfterLaunches, reviewAskedVersion != version { return .review }
         let proHintPaused = proHintAskedAt.map { now.timeIntervalSince($0) < proHintPause } ?? false
         if proHintAvailable, finishedNotes >= proHintAfterNotes, proHintAsks < proHintMaxAsks, !proHintPaused {
             return .proHint

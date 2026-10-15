@@ -23,9 +23,13 @@ final class PhoneEnvironment {
     private let repository: any LibraryRepository
     /// Sprechererkennung (Earnote Pro) – für neue Aufnahmen in der Warteschlange und „Sprecher erkennen“ in der Notiz
     let diarizer: any SpeakerDiarizer
+    /// Wie oft die App gestartet wurde, dieser Start mitgezählt – für die Bitte um eine Bewertung (`FeedbackMoment`)
+    let launches: Int
 
     init(storage: Storage = .standard, defaults: UserDefaults = .standard) {
         let settingsRepository = UserDefaultsSettingsRepository(defaults: defaults)
+        launches = defaults.integer(forKey: "app.launches") + 1
+        defaults.set(launches, forKey: "app.launches")
         let container: ModelContainer
         var openError: String?
         // Wird gebraucht, bevor der Store steht – deshalb hier direkt gelesen (wie am Mac)
