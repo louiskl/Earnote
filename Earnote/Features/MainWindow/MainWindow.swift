@@ -88,6 +88,10 @@ struct MainWindow: View {
                                 searchText: searchResults == nil ? "" : searchText,
                                 searchCursor: searchCursor)
                 .safeAreaInset(edge: .bottom, spacing: 0) { PlayerBar() }
+                // Feste Mindestgröße der Detailspalte: Notiz, Nebeneinander-Ansicht, Aufnahme-Bühne und die
+                // Abspielleiste hätten sonst je eigene Mindestmaße, die sich beim Wechsel mitten im
+                // Constraint-Durchlauf melden → Absturz unter macOS 27 (1.0.1).
+                .frame(minWidth: 520, minHeight: 400)
         }
         // Farbe kommt aus dem gewählten Bereich: Auswahl, Haken und Knöpfe übernehmen sie.
         .tint(windowTint)
