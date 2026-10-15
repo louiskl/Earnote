@@ -12,7 +12,7 @@ enum Pro {
     static let freeTries = 3
 
     enum Feature: String, CaseIterable, Identifiable {
-        case speakers, chat, examRadar, translate
+        case speakers, chat, examRadar, translate, interview
 
         var id: Self { self }
 
@@ -22,6 +22,7 @@ enum Pro {
             case .chat: "Fragen zur Notiz"
             case .examRadar: "Klausur-Radar"
             case .translate: "Übersetzen"
+            case .interview: "Interview-Transkript"
             }
         }
 
@@ -31,6 +32,7 @@ enum Pro {
             case .chat: "Frag nach, was du nicht verstanden hast – die KI kennt die Notiz und die passenden Stellen der Aufnahme."
             case .examRadar: "Tippe in der Vorlesung auf „Wichtig“, auch auf dem Sperrbildschirm. Vor der Prüfung siehst du je Fach alles, was drankommt."
             case .translate: "Englische Vorlesung, deutsche Notiz – oder umgekehrt. Übersetzt Notiz und ganzes Transkript in 12 Sprachen."
+            case .interview: "Interviews für die Abschlussarbeit: Transkript nach Dresing & Pehl mit Sprecherkürzeln, Zeitmarken und Zeilennummern – fertig für Word und MAXQDA."
             }
         }
 
@@ -41,6 +43,7 @@ enum Pro {
             case .chat: "Zum Beispiel: „Was war der Unterschied zwischen Median und Mittelwert?“ – mit der Stelle in der Aufnahme."
             case .examRadar: "Zum Beispiel: Die Professorin sagt „Das kommt dran“ – du tippst auf „Wichtig“, vor der Prüfung steht es im Radar."
             case .translate: "Zum Beispiel: Die englische Statistik-Vorlesung wird zur deutschen Notiz, die Zeitmarken bleiben."
+            case .interview: "Zum Beispiel: „I: Wie bist du zum Studium gekommen? #00:00:08-0#“ – „B: Über meine Schwester. #00:00:20-5#“"
             }
         }
 
@@ -50,6 +53,7 @@ enum Pro {
             case .chat: "bubble.left.and.text.bubble.right"
             case .examRadar: "scope"
             case .translate: "character.bubble"
+            case .interview: "text.quote"
             }
         }
     }

@@ -1706,3 +1706,17 @@
 "Mehr über Pro" = "More About Pro";
 "Ausprobieren – noch %lld× gratis" = "Try It – %lld× free left";
 "Bei der nächsten Aufnahme – noch %lld× gratis." = "On your next recording – %lld× free left.";
+
+/* Interview-Transkript (1.1) */
+"Interview-Transkript" = "Interview Transcript";
+"Interviews für die Abschlussarbeit: Transkript nach Dresing & Pehl mit Sprecherkürzeln, Zeitmarken und Zeilennummern – fertig für Word und MAXQDA." = "Interviews for your thesis: a transcript following Dresing & Pehl with speaker codes, timestamps and line numbers – ready for Word and MAXQDA.";
+"Zum Beispiel: „I: Wie bist du zum Studium gekommen? #00:00:08-0#“ – „B: Über meine Schwester. #00:00:20-5#“" = "For example: “I: How did you get into university? #00:00:08-0#” – “B: Through my sister. #00:00:20-5#”";
+"Notiz teilen" = "Share Note";
+"Für Word und MAXQDA (RTF)" = "For Word and MAXQDA (RTF)";
+"Als Text (TXT)" = "As Text (TXT)";
+"Für ein Interview-Transkript braucht Earnote mindestens zwei Sprecher. Tippe auf „Mehr › Namen korrigieren …“ und dann auf „Sprecher erkennen“." = "An interview transcript needs at least two speakers. Tap “More › Fix Names…” and then “Recognize Speakers”.";
+"Für ein Interview-Transkript braucht Earnote mindestens zwei Sprecher. Wähle „Namen korrigieren …“ und dann „Sprecher erkennen“." = "An interview transcript needs at least two speakers. Choose “Fix Names…” and then “Recognize Speakers”.";
+"Transkript nach Dresing & Pehl mit Sprecherkürzeln und Zeitmarken." = "Transcript following Dresing & Pehl with speaker codes and timestamps.";
+"Interview-Transkript sichern: %@" = "Save interview transcript: %@";
+"Interview-Transkript für Word/MAXQDA …" = "Interview Transcript for Word/MAXQDA…";
+"Interview-Transkript als Text …" = "Interview Transcript as Text…";

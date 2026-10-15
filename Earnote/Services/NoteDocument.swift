@@ -394,6 +394,32 @@ enum FlashcardExport {
     }
 }
 
+/// Interview-Transkript für die Abschlussarbeit (Dresing & Pehl): RTF für Word/MAXQDA oder Text
+@MainActor
+enum InterviewExport {
+    static func save(_ recordingID: UUID, library: LibraryStore, rtf: Bool) {
+        Task {
+            guard let recording = library.recording(recordingID),
+                  let transcript = await library.transcript(recordingID) else { return }
+            let make = rtf ? InterviewTranscript.rtf : InterviewTranscript.text
+            guard let content = make(transcript, recording.displayTitle, recording.startedAt, recording.duration) else {
+                library.lastError = String(localized: "Für ein Interview-Transkript braucht Earnote mindestens zwei Sprecher. Wähle „Namen korrigieren …“ und dann „Sprecher erkennen“.")
+                return
+            }
+            let panel = NSSavePanel()
+            panel.allowedContentTypes = [rtf ? .rtf : .plainText]
+            panel.nameFieldStringValue = NoteDocument.fileName(recording.displayTitle + " – Interview", extension: rtf ? "rtf" : "txt")
+            panel.message = String(localized: "Transkript nach Dresing & Pehl mit Sprecherkürzeln und Zeitmarken.")
+            guard panel.runModal() == .OK, let url = panel.url else { return }
+            do {
+                try content.write(to: url, atomically: true, encoding: .utf8)
+            } catch {
+                library.lastError = String(localized: "Interview-Transkript sichern: \(error.localizedDescription)")
+            }
+        }
+    }
+}
+
 /// Kurzprotokoll zum Weiterschicken: öffnet einen Mail-Entwurf mit Titel und Notiz.
 /// Geschickt wird nichts – der Entwurf steht im Mailprogramm und wartet auf den Nutzer.
 @MainActor

@@ -172,3 +172,7 @@
 "Unterricht" = "Class";
 "Schulstunden, Kurse, Berufsschule" = "School lessons, courses, vocational school";
 "Fasse den Unterricht so zusammen, dass man damit für die nächste Arbeit lernen kann: wichtige Begriffe mit kurzer Erklärung, Beispiele, Hausaufgaben und angekündigte Tests." = "Summarise the class so it can be used to study for the next test: key terms with a short explanation, examples, homework and announced tests.";
+
+/* Interview-Transkript */
+"Datum: %@ · Dauer: %@" = "Date: %@ · Duration: %@";
+"Transkription nach Dresing & Pehl (vereinfacht) · %@" = "Transcription following Dresing & Pehl (simplified) · %@";
