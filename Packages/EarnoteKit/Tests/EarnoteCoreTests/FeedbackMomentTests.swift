@@ -3,11 +3,11 @@ import XCTest
 
 final class FeedbackMomentTests: XCTestCase {
     private func next(success: Bool = true, notes: Int = 10, supporter: Bool = false, seen: String? = "1.0",
-                      reviewed: String? = "1.0", asked: Date? = nil, asks: Int = 0, declined: Bool = false,
+                      reviewed: String? = "1.0", launches: Int = 2, asked: Date? = nil, asks: Int = 0, declined: Bool = false,
                       whatsNew: String? = nil, pro: Bool = false, proAsked: Date? = nil,
                       proAsks: Int = 0) -> FeedbackMoment? {
         FeedbackMoment.next(afterSuccess: success, version: "1.0", whatsNewVersion: whatsNew, finishedNotes: notes,
-                            isSupporter: supporter, lastSeenVersion: seen, reviewAskedVersion: reviewed,
+                            isSupporter: supporter, lastSeenVersion: seen, reviewAskedVersion: reviewed, launches: launches,
                             supporterAskedAt: asked, supporterAsks: asks, supporterDeclined: declined,
                             proHintAvailable: pro, proHintAskedAt: proAsked, proHintAsks: proAsks,
                             now: Date(timeIntervalSince1970: 100 * 24 * 3600))
@@ -26,11 +26,13 @@ final class FeedbackMomentTests: XCTestCase {
         XCTAssertNotEqual(next(seen: "0.9", whatsNew: "1.0"), .whatsNew)
     }
 
-    func testReviewAfterThreeNotesOncePerVersion() {
-        XCTAssertNil(next(notes: 2, reviewed: nil))
-        XCTAssertEqual(next(notes: 3, reviewed: nil), .review)
-        XCTAssertEqual(next(notes: 3, reviewed: "0.9"), .review)
-        XCTAssertNil(next(notes: 3, reviewed: "1.0"))
+    func testReviewAfterFirstNoteFromSecondLaunchOncePerVersion() {
+        XCTAssertNotEqual(next(notes: 0, reviewed: nil), .review)
+        XCTAssertEqual(next(notes: 1, reviewed: nil), .review)
+        // Beim allerersten Start nie – auch nicht mit fertiger Notiz
+        XCTAssertNotEqual(next(notes: 1, reviewed: nil, launches: 1), .review)
+        XCTAssertEqual(next(notes: 1, reviewed: "0.9"), .review)
+        XCTAssertNotEqual(next(notes: 1, reviewed: "1.0"), .review)
     }
 
     func testSupporterMonthlyAndNeverForSupporters() {

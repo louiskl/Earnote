@@ -318,6 +318,8 @@ private struct FeedbackAfterSuccess: ViewModifier {
     let tryPro: (Pro.Feature) -> Void
     @Environment(LibraryStore.self) private var library
     @Environment(PhoneRecorder.self) private var recorder
+    @Environment(ProcessingQueue.self) private var queue
+    @Environment(\.launches) private var launches
     @AppStorage("feedback.lastSeenVersion") private var lastSeenVersion: String?
     @AppStorage("feedback.reviewAskedVersion") private var reviewAskedVersion: String?
     @AppStorage("feedback.supporterAskedAt") private var supporterAskedAt: Double = 0
@@ -347,13 +349,15 @@ private struct FeedbackAfterSuccess: ViewModifier {
     }
 
     private func ask() async {
-        guard !FeedbackSession.done, library.settings.onboardingCompleted, !recorder.isRecording else { return }
+        // Nie während einer Aufnahme oder solange noch etwas verarbeitet wird
+        guard !FeedbackSession.done, library.settings.onboardingCompleted, !recorder.isRecording,
+              queue.processingID == nil, queue.pending.isEmpty else { return }
         let version = RootView.appVersion
         let suggestion = Pro.isUnlocked ? nil : proCandidates().first { Pro.triesLeft($0) > 0 }
         switch FeedbackMoment.next(
             afterSuccess: true, version: version, whatsNewVersion: nil,
             finishedNotes: library.recordings.count { $0.status == .done }, isSupporter: isSupporter,
-            lastSeenVersion: lastSeenVersion, reviewAskedVersion: reviewAskedVersion,
+            lastSeenVersion: lastSeenVersion, reviewAskedVersion: reviewAskedVersion, launches: launches,
             supporterAskedAt: supporterAskedAt > 0 ? Date(timeIntervalSince1970: supporterAskedAt) : nil,
             supporterAsks: supporterAsks, supporterDeclined: supporterDeclined,
             proHintAvailable: suggestion != nil,

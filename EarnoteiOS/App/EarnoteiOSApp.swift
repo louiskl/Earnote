@@ -33,7 +33,8 @@ enum NoteWindow {
 extension View {
     /// Dieselben Stores in jedem Fenster
     func earnoteEnvironment(_ environment: PhoneEnvironment) -> some View {
-        self.environment(environment.library)
+        self.environment(\.launches, environment.launches)
+            .environment(environment.library)
             .environment(environment.recorder)
             .environment(environment.queue)
             .environment(environment.power)
@@ -46,6 +47,9 @@ extension View {
 extension EnvironmentValues {
     /// Sprechererkennung für „Sprecher erkennen“ in der Notiz
     @Entry var speakerDiarizer: (any SpeakerDiarizer)?
+
+    /// Wie oft die App gestartet wurde (`PhoneEnvironment.launches`)
+    @Entry var launches = 0
 
     /// Nur Debug: Beispieldaten laden (Einstellungen › Test)
     @Entry var loadDemoLibrary: (@MainActor () async -> Void)?
