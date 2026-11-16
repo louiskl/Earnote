@@ -579,7 +579,7 @@ wenn sie die Mitschrift besser machen, mehr hereinholen oder den Weg danach kür
 |---|---|---|---|---|---|
 | 1.0.1 | 08.10. Mac · 15.10. iPhone/iPad | Absturz am Mac (macOS 27) · Import sichtbar ([#46](https://github.com/louiskl/Earnote/pull/46)) · Pro sichtbar ([#48](https://github.com/louiskl/Earnote/pull/48)) · Bewertung nach der ersten Notiz ([#49](https://github.com/louiskl/Earnote/pull/49)) | Free + Pro-Hinweise | Aufnahmen-Liste, Notiz | ✅ Mac veröffentlicht, iPhone/iPad hochgeladen |
 | **1.1** | Mo 26.10. | **Interview-Transkript** für die Abschlussarbeit (aus 1.3 vorgezogen) · Feinschliff aus dem Launch | Pro | Teilen-Menü der Notiz (iPhone/iPad), „Weitergeben“ (Mac) | ▶ gebaut |
-| **1.2** | Mo 09.11. | **Folien einbinden** (PDF zur Aufnahme, KI kennt Fachbegriffe, Verweis „Folie 12“) | Pro | Aufnahme/Notiz | geplant |
+| **1.2** | Mo 09.11. | **Folien einbinden** (PDF zur Aufnahme, KI kennt Fachbegriffe, Verweis „Folie 12“) | Pro (Mac frei) | Notiz › Mehr, Aufnahme-Blatt (iPhone/iPad); Menü Notiz, Inspector (Mac) | ▶ gebaut |
 | **1.3** | Mo 23.11. | Protokoll verschicken | Pro | Teilen-Menü der Notiz | geplant |
 | 1.4 | Mo 30.11. | Aufräumen (Regel 8) | – | – | geplant |
 | **1.5** | Mo 14.12. | **Probeklausur je Fach** mit Korrektur und Verweis auf die Vorlesung | Pro | Klausur-Radar | geplant |

@@ -47,7 +47,8 @@ final class HandoffSender {
 
     /// Nach dem Stopp: an den Mac übergeben oder hier verarbeiten
     func finish(_ id: UUID) {
-        guard isActive else {
+        // Folien liegen nur auf diesem Gerät – der Mac schriebe die Notiz ohne sie
+        guard isActive, library.slideCount(id) == 0 else {
             library.enqueue(id)
             return
         }

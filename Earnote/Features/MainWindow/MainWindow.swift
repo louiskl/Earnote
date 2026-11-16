@@ -37,6 +37,9 @@ struct MainWindow: View {
     /// Fundstellen der laufenden Suche – gezählt von der Ansicht, weitergeblättert über ⌘G
     @State private var searchCursor = SearchCursor()
     @State private var noteSheet: NoteSheet?
+    @State private var slideViewer: SlidePage?
+    /// Folien kamen zu einer fertigen Notiz dazu: fragen, ob sie neu geschrieben werden soll
+    @State private var rewriteWithSlides: UUID?
     @FocusState private var searchFocused: Bool
 
     private var filter: Binding<LibraryFilter> {
@@ -146,6 +149,14 @@ struct MainWindow: View {
                 }
             }
         }
+        .sheet(item: $slideViewer) { SlideViewer(slide: $0) }
+        .confirmationDialog("Notiz mit den Folien neu schreiben?",
+                            isPresented: Binding(get: { rewriteWithSlides != nil }, set: { if !$0 { rewriteWithSlides = nil } })) {
+            Button("Neu schreiben") { if let id = rewriteWithSlides { library.reprocess(id, retranscribe: false) } }
+            Button("Nicht jetzt", role: .cancel) {}
+        } message: {
+            Text("Die KI schreibt dann Fachbegriffe wie auf den Folien und verweist auf die passende Folie. Die bisherige Notiz bleibt, bis die neue fertig ist.")
+        }
         .sheet(isPresented: $showOnboarding) {
             OnboardingView { showOnboarding = false }
                 .interactiveDismissDisabled()
@@ -241,7 +252,30 @@ struct MainWindow: View {
                     correctTerms: { noteSheet = .correctTerms },
                     restoreGenerated: { if let id = selection.wrappedValue { library.restoreGeneratedNote(id) } },
                     ask: { noteSheet = .ask },
-                    translate: { noteSheet = .translate })
+                    translate: { noteSheet = .translate },
+                    attachSlides: attachSlides,
+                    showSlides: { page in
+                        if let id = selection.wrappedValue, let url = library.slidesURL(id) {
+                            slideViewer = SlidePage(url: url, page: page)
+                        }
+                    })
+    }
+
+    /// PDF wählen und an die gewählte Aufnahme hängen. Gibt es schon eine Notiz, wird gefragt, ob sie neu entstehen soll –
+    /// läuft die Aufnahme noch oder wird sie gerade verarbeitet, nimmt die KI die Folien ohnehin mit.
+    private func attachSlides() {
+        guard let id = selection.wrappedValue, let url = SlidesPanel.pick() else { return }
+        Task {
+            do {
+                try await library.attachSlides(id, from: url)
+                if let recording = library.recording(id), recording.summaryTitle != nil, !recording.status.isBusy,
+                   recording.status != .recording {
+                    rewriteWithSlides = id
+                }
+            } catch {
+                library.lastError = error.localizedDescription
+            }
+        }
     }
 
     #if DEBUG

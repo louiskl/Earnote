@@ -26,6 +26,9 @@ struct RecordingDetailView: View {
     @State private var translating = false
     @State private var detectingSpeakers = false
     @State private var showsPro: Pro.Feature?
+    @State private var pickingSlides = false
+    @State private var slideViewer: SlidePage?
+    @State private var offersRewrite = false
     @Environment(\.speakerDiarizer) private var diarizer
     @Environment(\.horizontalSizeClass) private var sizeClass
 
@@ -79,12 +82,28 @@ struct RecordingDetailView: View {
             }
         }
         .sheet(item: $showsPro) { ProSheet(highlight: $0) }
+        .sheet(item: $slideViewer) { SlideViewer(slide: $0) }
+        .fileImporter(isPresented: $pickingSlides, allowedContentTypes: [.pdf]) { result in
+            if case .success(let url) = result { Task { await attachSlides(url) } }
+        }
+        .confirmationDialog("Notiz mit den Folien neu schreiben?", isPresented: $offersRewrite, titleVisibility: .visible) {
+            Button("Neu schreiben") { library.reprocess(id, retranscribe: false) }
+            Button("Nicht jetzt", role: .cancel) {}
+        } message: {
+            Text("Die KI schreibt dann Fachbegriffe wie auf den Folien und verweist auf die passende Folie. Die bisherige Notiz bleibt, bis die neue fertig ist.")
+        }
+        // „(Folie 12)“ in der Notiz öffnet die Folie
+        .environment(\.openURL, OpenURLAction { url in
+            guard let page = Slides.page(from: url) else { return .systemAction }
+            showSlide(page)
+            return .handled
+        })
         .feedbackAfterSuccess(isDone: recording?.status == .done, proCandidates: proCandidates) { feature in
             switch feature {
             case .translate: translating = true
             case .chat: chatting = true
             case .speakers: Task { await detectSpeakers() }
-            case .examRadar, .interview: break
+            case .examRadar, .interview, .slides: break
             }
         }
         .overlay(alignment: .top) {
@@ -226,10 +245,10 @@ struct RecordingDetailView: View {
                 }
             }
             if let note {
-                NoteContentView(markdown: note.markdown) { line in
+                NoteContentView(markdown: note.markdown, onToggle: { line in
                     library.toggleTask(id, in: note.markdown, line: line)
                     Task { await reload() }
-                }
+                }, slideCount: library.slideCount(id))
             } else {
                 Text("Keine Notiz – nur das Transkript.").foregroundStyle(.secondary)
             }
@@ -307,6 +326,7 @@ struct RecordingDetailView: View {
                             Label("Übersetzen …", systemImage: "character.bubble")
                             Pro.menuNote(.translate)
                         }
+                        slideItems
                     }
                     Section("Bearbeiten") {
                         Button("Notiz bearbeiten", systemImage: "pencil") { editingNote = true }
@@ -319,6 +339,42 @@ struct RecordingDetailView: View {
                     RecordingMenu(id: id, showsCategory: !showsHeader, showsWindow: false, onDelete: { confirmsDeletion = true })
                 }
             }
+        }
+    }
+
+    /// Folien: hinzufügen, solange keine da sind – danach ein Untermenü mit Ansehen, Ersetzen, Entfernen
+    @ViewBuilder private var slideItems: some View {
+        if library.slideCount(id) == 0 {
+            Button { chooseSlides() } label: {
+                Label("Folien hinzufügen …", systemImage: "rectangle.stack")
+                Pro.menuNote(.slides)
+            }
+        } else {
+            Menu("Folien", systemImage: "rectangle.stack") {
+                Button("Ansehen", systemImage: "eye") { showSlide(1) }
+                Button("Andere Folien wählen …", systemImage: "arrow.triangle.2.circlepath") { chooseSlides() }
+                Button("Entfernen", systemImage: "trash", role: .destructive) { library.removeSlides(id) }
+            }
+        }
+    }
+
+    private func chooseSlides() {
+        guard Pro.isUnlocked || Pro.triesLeft(.slides) > 0 else { showsPro = .slides; return }
+        pickingSlides = true
+    }
+
+    private func showSlide(_ page: Int) {
+        if let url = library.slidesURL(id) { slideViewer = SlidePage(url: url, page: page) }
+    }
+
+    /// Anhängen kostet ohne Pro einen Probeversuch – erst, wenn es geklappt hat
+    private func attachSlides(_ url: URL) async {
+        do {
+            try await library.attachSlides(id, from: url)
+            _ = Pro.use(.slides)
+            if note != nil, let recording, !recording.status.isBusy { offersRewrite = true }
+        } catch {
+            library.lastError = error.localizedDescription
         }
     }
 
@@ -485,6 +541,8 @@ private struct ProcessingView: View {
 struct NoteContentView: View {
     let markdown: String
     var onToggle: ((Int) -> Void)?
+    /// Anzahl angehängter Folien: „(Folie 12)“ wird dann zum Link (geöffnet über `openURL` der Notiz)
+    var slideCount = 0
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -541,7 +599,8 @@ struct NoteContentView: View {
 
     /// Fett, kursiv und Code innerhalb einer Zeile
     private func inline(_ text: String) -> AttributedString {
-        (try? AttributedString(markdown: text, options: .init(interpretedSyntax: .inlineOnlyPreservingWhitespace)))
+        let text = Slides.linked(text, pageCount: slideCount)
+        return (try? AttributedString(markdown: text, options: .init(interpretedSyntax: .inlineOnlyPreservingWhitespace)))
             ?? AttributedString(text)
     }
 }

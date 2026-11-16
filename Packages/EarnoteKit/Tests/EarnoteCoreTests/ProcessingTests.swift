@@ -213,6 +213,18 @@ final class ProcessingPipelineTests: XCTestCase {
         XCTAssertEqual(notes.get(), [t("Notizen fertig (mit Export-Fehlern)")])
     }
 
+    func testSlidesReachTheAI() async throws {
+        let rec = try await folder.importedRecording()
+        try Slides.save(pages: ["Eigenwerte und das charakteristische Polynom"], in: folder.audio.folderURL(for: rec.id))
+        let llm = FakeLLMClient(answer: "# Eigenwerte\n\nText (Folie 1)")
+        let state = await run(pipeline(llm: llm), rec)
+        XCTAssertEqual(state.recording.status, .done)
+        let prompt = llm.calls.get().last?.prompt ?? ""
+        XCTAssertTrue(prompt.contains("Folie 1: Eigenwerte und das charakteristische Polynom"), "Folientext steht im Auftrag")
+        let note = try await folder.library.note(for: rec.id)
+        XCTAssertEqual(note?.markdown.contains("(Folie 1)"), true, "Gespeichert wird der reine Verweis, kein Link")
+    }
+
     func testAudioErrorsSayWhatToDo() {
         let unreadable = NSError(domain: "com.apple.coreaudio.avfaudio", code: 2003334207)
         let message = ProcessingPipeline.failure("Transkription", unreadable)

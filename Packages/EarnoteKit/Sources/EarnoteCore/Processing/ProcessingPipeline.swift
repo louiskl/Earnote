@@ -137,7 +137,11 @@ public struct ProcessingPipeline: Sendable {
             let text = transcript?.formatted(includeSpeakers: withSpeakers) ?? ""
             // „Wichtig!“-Markierungen aus der Aufnahme (Earnote Pro) – nur, wenn die Notiz aus dem Transkript entsteht
             let marks = fromNote == nil ? ImportantMarks.load(in: audio.folderURL(for: id)) : []
-            let instructions = [extraInstructions, ImportantMarks.instruction(marks: marks, transcript: transcript)]
+            // Folien (Earnote Pro): ein Viertel dessen, was die KI auf einmal liest – der Rest bleibt fürs Transkript
+            let slides = fromNote == nil ? Slides.pages(in: audio.folderURL(for: id)) : []
+            let slideBudget = min(8_000, settings.ai.provider.chunkCharacters / 4)
+            let instructions = [extraInstructions, ImportantMarks.instruction(marks: marks, transcript: transcript),
+                                Slides.instruction(pages: slides, budget: slideBudget)]
                 .filter { !$0.isEmpty }.joined(separator: "\n\n")
 
             // 2) Zusammenfassung – eine vorhandene Notiz wird erst ersetzt, wenn die neue fertig ist

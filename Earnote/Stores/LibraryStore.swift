@@ -4,6 +4,7 @@ import AppKit
 import EarnoteCore
 import Foundation
 import Observation
+import PDFKit
 import UniformTypeIdentifiers
 
 /// Die Bibliothek: Aufnahmen, Bereiche und Einstellungen samt aller Änderungen daran.
@@ -306,6 +307,66 @@ final class LibraryStore: RecordingLibrary {
         }
     }
 
+    // MARK: Folien
+
+    /// Steigt bei jedem Anhängen oder Entfernen – Ansichten, die `slideCount` lesen, zeichnen dann neu
+    private(set) var slidesRevision = 0
+    @ObservationIgnored private var slideCounts: [UUID: Int] = [:]
+
+    /// Wie viele Folien an der Aufnahme hängen (0 = keine). Liest die Datei einmal und merkt sich die Zahl.
+    func slideCount(_ id: UUID) -> Int {
+        _ = slidesRevision
+        if let count = slideCounts[id] { return count }
+        let count = Slides.pages(in: audio.folderURL(for: id)).count
+        slideCounts[id] = count
+        return count
+    }
+
+    func slidesURL(_ id: UUID) -> URL? {
+        slideCount(id) > 0 ? Slides.pdfURL(in: audio.folderURL(for: id)) : nil
+    }
+
+    /// Folien (PDF) zur Aufnahme legen – ersetzt vorhandene. Die Datei wird kopiert, ihr Text einmal gelesen
+    /// (im Hintergrund, ein Skript mit 200 Seiten dauert ein paar Sekunden). Gibt die Zahl der Seiten zurück.
+    @discardableResult
+    func attachSlides(_ id: UUID, from source: URL) async throws -> Int {
+        let folder = audio.folderURL(for: id)
+        let target = Slides.pdfURL(in: folder)
+        audio.createFolder(for: id)
+        // Aus der Dateien-App kommt die Datei nur mit Zugriffsrecht – solange es gilt, kopieren
+        let scoped = source.startAccessingSecurityScopedResource()
+        defer { if scoped { source.stopAccessingSecurityScopedResource() } }
+        let temporary = folder.appendingPathComponent("slides-new.pdf")
+        try? FileManager.default.removeItem(at: temporary)
+        try FileManager.default.copyItem(at: source, to: temporary)
+        let pages = await Task.detached(priority: .userInitiated) { Self.readPages(temporary) }.value
+        guard let pages else {
+            try? FileManager.default.removeItem(at: temporary)
+            throw SlidesUnreadable()
+        }
+        try? FileManager.default.removeItem(at: target)
+        try FileManager.default.moveItem(at: temporary, to: target)
+        try Slides.save(pages: pages, in: folder)
+        slideCounts[id] = pages.count
+        slidesRevision += 1
+        Log.info("Folien angehängt: \(pages.count) Seiten, \(pages.reduce(0) { $0 + $1.count }) Zeichen Text")
+        if pages.allSatisfy({ $0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }) {
+            lastError = String(localized: "Die Folien enthalten keinen lesbaren Text – vermutlich sind sie eingescannt. Du kannst sie ansehen, die KI kann sie aber nicht lesen.")
+        }
+        return pages.count
+    }
+
+    func removeSlides(_ id: UUID) {
+        Slides.remove(in: audio.folderURL(for: id))
+        slideCounts[id] = 0
+        slidesRevision += 1
+    }
+
+    nonisolated private static func readPages(_ url: URL) -> [String]? {
+        guard let document = PDFDocument(url: url), document.pageCount > 0 else { return nil }
+        return (0..<document.pageCount).map { document.page(at: $0)?.string ?? "" }
+    }
+
     /// Wie viel Platz die Audiodateien belegen
     var audioBytes: Int64 { audio.usedBytes }
 
@@ -533,4 +594,11 @@ final class LibraryStore: RecordingLibrary {
         NSWorkspace.shared.activateFileViewerSelecting([audio.folderURL(for: id)])
     }
     #endif
+}
+
+/// Die gewählte Datei ist kein lesbares PDF
+struct SlidesUnreadable: LocalizedError {
+    var errorDescription: String? {
+        String(localized: "Diese Datei lässt sich nicht als PDF öffnen. PowerPoint und Keynote können Folien als PDF sichern.")
+    }
 }

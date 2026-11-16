@@ -11,6 +11,10 @@ struct NoteActions {
     var restoreGenerated: () -> Void = {}
     var ask: () -> Void = {}
     var translate: () -> Void = {}
+    /// Folien als PDF anhängen (ersetzt vorhandene)
+    var attachSlides: () -> Void = {}
+    /// Folien bei dieser Seite zeigen (1 = erste)
+    var showSlides: (Int) -> Void = { _ in }
 }
 
 extension EnvironmentValues {
