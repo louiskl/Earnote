@@ -340,9 +340,6 @@ final class LibraryStore: RecordingLibrary {
         entry.isTitleCustom = true
         entry.language = settings.language
         insert(entry)
-        let library = self.library
-        let stored = entry
-        write("Übersicht anlegen") { try await library.insertRecording(stored) }
         enqueue(entry.id, instruction: instruction, request: .overview(since: since))
         Log.info("Übersicht für „\(category.name)“ angestoßen")
         return entry.id

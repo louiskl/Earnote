@@ -406,7 +406,15 @@ public struct ProcessingPipeline: Sendable {
     /// Mit `audioSeconds` steht auch das Verhältnis zur Aufnahmedauer im Protokoll („12× Echtzeit“).
     /// „Transkription fehlgeschlagen: …“ – `step` bleibt fürs Protokoll deutsch, die Meldung folgt der Sprache der App.
     static func failure(_ step: String, _ error: Error) -> String {
-        t("\(t(String.LocalizationValue(step))) fehlgeschlagen: \(error.localizedDescription)")
+        t("\(t(String.LocalizationValue(step))) fehlgeschlagen: \(readable(error))")
+    }
+
+    /// Core-Audio-Fehler sagen Einsteigern nichts („avfaudio-Fehler 2003334207“ = Dateityp nicht lesbar) –
+    /// dann lieber sagen, was zu tun ist. Die Nummer bleibt für Rückfragen stehen.
+    static func readable(_ error: Error) -> String {
+        let ns = error as NSError
+        guard ns.domain == "com.apple.coreaudio.avfaudio" else { return error.localizedDescription }
+        return t("Der Ton dieser Aufnahme lässt sich nicht lesen (Fehler \(String(ns.code))). Bei einer importierten Datei hilft es, sie als M4A, MP3 oder WAV zu sichern und neu zu importieren.")
     }
 
     static func logDuration(_ step: String, since start: Date, audioSeconds: Double? = nil) {

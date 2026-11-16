@@ -59,6 +59,8 @@ final class HandoffSender {
         do {
             await library.waitForPendingWrites()
             let data = try await Self.compress(library.audio.micURL(for: id))
+            // Während des Komprimierens gelöscht: nichts mehr nach iCloud legen
+            guard library.recording(id) != nil else { return }
             let handoff = Handoff(recordingID: id, fromDevice: UIDevice.current.model)
             try await handoffs.insertHandoff(handoff, audio: data)
             pending[id] = handoff
@@ -73,11 +75,17 @@ final class HandoffSender {
 
     /// Doch auf dem iPhone verarbeiten: Übergabe zurücknehmen (das Audio verschwindet aus iCloud) und einreihen
     func processHere(_ id: UUID) {
+        cancel(id)
+        library.enqueue(id)
+    }
+
+    /// Übergabe zurücknehmen – auch wenn die Aufnahme gelöscht wird: Sonst bliebe ihr Audio in iCloud liegen,
+    /// der Mac wartete ewig auf die Aufnahme, und das iPhone meldete später „Dein Mac hat die Aufnahme nicht übernommen“.
+    func cancel(_ id: UUID) {
         handedOff.remove(id)
         if let handoff = pending.removeValue(forKey: id) {
             Task { try? await handoffs.deleteHandoff(handoff.id) }
         }
-        library.enqueue(id)
     }
 
     /// Beim Start und nach jedem Empfang aus iCloud: Macs und offene Übergaben neu lesen, Liegengebliebenes melden

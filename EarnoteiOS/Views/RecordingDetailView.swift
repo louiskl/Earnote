@@ -8,6 +8,7 @@ struct RecordingDetailView: View {
     @Environment(LibraryStore.self) private var library
     @Environment(ProcessingQueue.self) private var queue
     @Environment(HandoffSender.self) private var handoffs
+    @Environment(PhoneRecorder.self) private var recorder
     @Environment(\.dismiss) private var dismiss
     @SceneStorage("detail.mode") private var mode = Mode.note
     @State private var note: Summary?
@@ -56,8 +57,11 @@ struct RecordingDetailView: View {
         }
 
         .safeAreaInset(edge: .bottom) {
-            if player.isLoaded { PlayerBar(player: player) }
+            // Während einer Aufnahme nichts anhören: Es käme laut aus dem Lautsprecher, landete in der Mitschrift
+            // und der Wechsel der Audio-Sitzung unterbräche die Aufnahme.
+            if player.isLoaded && !recorder.isRecording { PlayerBar(player: player) }
         }
+        .onChange(of: recorder.isRecording) { _, recording in if recording { player.yieldToRecording() } }
         // Neu laden, sobald die Verarbeitung weiterkommt oder die Notiz sich ändert
         .task(id: reloadKey) { await reload() }
         .onDisappear { player.stop() }
@@ -191,7 +195,7 @@ struct RecordingDetailView: View {
                         }
                         Divider()
                         ScrollView {
-                            TranscriptContentView(transcript: transcript) { player.play(from: $0) }.padding()
+                            TranscriptContentView(transcript: transcript) { play(from: $0) }.padding()
                         }
                         .frame(width: 340)
                         .background(.background.secondary)
@@ -241,7 +245,7 @@ struct RecordingDetailView: View {
                     if mode != .transcript {
                         noteContent
                     } else if let transcript {
-                        TranscriptContentView(transcript: transcript) { player.play(from: $0) }
+                        TranscriptContentView(transcript: transcript) { play(from: $0) }
                     } else {
                         Text("Kein Transkript vorhanden.").foregroundStyle(.secondary)
                     }
@@ -330,7 +334,7 @@ struct RecordingDetailView: View {
             Menu("Karteikarten", systemImage: "rectangle.on.rectangle.angled") {
                 Button("Lernen", systemImage: "play.rectangle") { deck = LearnDeck(title: note.title, cards: cards) }
                 Button("Als Anki-Datei teilen", systemImage: "square.and.arrow.up.on.square") {
-                    if let url = try? AnkiExport.file(title: note.title, cards: cards) { shareFile = ShareFile(url: url) }
+                    share { try AnkiExport.file(title: note.title, cards: cards) }
                 }
             }
         }
@@ -375,14 +379,30 @@ struct RecordingDetailView: View {
 
     private func sharePDF(_ note: Summary) {
         let kicker = recording.flatMap { library.category($0.categoryID)?.name }
-        if let url = try? NotePDF.make(title: note.title, kicker: kicker, meta: subtitle, markdown: note.markdown) {
-            shareFile = ShareFile(url: url)
+        share { try NotePDF.make(title: note.title, kicker: kicker, meta: subtitle, markdown: note.markdown) }
+    }
+
+    /// Datei erzeugen und das Teilen-Blatt zeigen – oder sagen, warum es nicht ging (vorher passierte dann einfach nichts)
+    private func share(_ make: () throws -> URL) {
+        do { shareFile = ShareFile(url: try make()) } catch {
+            library.lastError = String(localized: "Die Datei konnte nicht erstellt werden: \(error.localizedDescription)")
         }
+    }
+
+    /// Sprung aus dem Transkript – nicht, solange aufgenommen wird
+    private func play(from time: TimeInterval) {
+        guard !recorder.isRecording else {
+            library.lastError = String(localized: "Anhören geht erst nach der Aufnahme – sonst wäre es in der Mitschrift zu hören.")
+            return
+        }
+        player.play(from: time)
     }
 
     private func reload() async {
         note = await library.summary(id)
-        if mode != .note || transcript == nil { transcript = await library.transcript(id) }
+        // Immer frisch: Nach „Sprecher erkennen“ oder „Neu transkribieren“ stand sonst das alte Transkript da,
+        // und das Interview-Transkript meldete weiter „mindestens zwei Sprecher“.
+        transcript = await library.transcript(id)
         if let recording, recording.status != .recording, let url = library.audio.playbackURL(for: recording) {
             player.load(url)
         }
@@ -571,6 +591,9 @@ final class AudioPlayer {
     var rate: Float = 1 { didSet { player?.rate = rate } }
     @ObservationIgnored private var player: AVAudioPlayer?
     @ObservationIgnored private var url: URL?
+    @ObservationIgnored private let end = PlaybackEnd()
+    /// Die Audio-Sitzung gehört gerade dem Abspielen (nicht einer Aufnahme) und wird danach wieder freigegeben
+    @ObservationIgnored private var ownsSession = false
 
     var currentTime: TimeInterval { player?.currentTime ?? 0 }
 
@@ -579,6 +602,11 @@ final class AudioPlayer {
         self.url = url
         player = try? AVAudioPlayer(contentsOf: url)
         player?.enableRate = true
+        player?.delegate = end
+        end.onEnd = { [weak self] in
+            self?.isPlaying = false
+            self?.releaseSession()
+        }
         player?.prepareToPlay()
         duration = player?.duration ?? 0
         isLoaded = player != nil
@@ -590,6 +618,7 @@ final class AudioPlayer {
         guard let player else { return }
         try? AVAudioSession.sharedInstance().setCategory(.playback, mode: .spokenAudio)
         try? AVAudioSession.sharedInstance().setActive(true)
+        ownsSession = true
         if let time { player.currentTime = max(0, time) }
         player.rate = rate
         player.play()
@@ -604,6 +633,20 @@ final class AudioPlayer {
     func stop() {
         player?.stop()
         isPlaying = false
+        releaseSession()
+    }
+
+    /// Eine Aufnahme beginnt: still sein und die Audio-Sitzung der Aufnahme überlassen
+    func yieldToRecording() {
+        ownsSession = false
+        stop()
+    }
+
+    /// Musik und Podcasts anderer Apps laufen nach dem Anhören weiter
+    private func releaseSession() {
+        guard ownsSession else { return }
+        ownsSession = false
+        try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
     }
 
     func skip(_ seconds: TimeInterval) {
@@ -612,6 +655,16 @@ final class AudioPlayer {
     }
 
     func seek(_ time: TimeInterval) { player?.currentTime = time }
+}
+
+/// Meldet das Ende der Wiedergabe – sonst bliebe der Knopf auf „Pause“ stehen und man müsste zweimal tippen
+@MainActor
+private final class PlaybackEnd: NSObject, AVAudioPlayerDelegate {
+    var onEnd: (() -> Void)?
+
+    nonisolated func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
+        Task { @MainActor in self.onEnd?() }
+    }
 }
 
 private struct PlayerBar: View {

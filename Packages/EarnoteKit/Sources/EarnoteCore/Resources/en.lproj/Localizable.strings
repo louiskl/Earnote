@@ -176,3 +176,4 @@
 /* Interview-Transkript */
 "Datum: %@ · Dauer: %@" = "Date: %@ · Duration: %@";
 "Transkription nach Dresing & Pehl (vereinfacht) · %@" = "Transcription following Dresing & Pehl (simplified) · %@";
+"Der Ton dieser Aufnahme lässt sich nicht lesen (Fehler %@). Bei einer importierten Datei hilft es, sie als M4A, MP3 oder WAV zu sichern und neu zu importieren." = "The audio of this recording can’t be read (error %@). For an imported file, save it as M4A, MP3 or WAV and import it again.";
