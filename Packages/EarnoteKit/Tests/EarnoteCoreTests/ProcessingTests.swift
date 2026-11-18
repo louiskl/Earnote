@@ -213,6 +213,15 @@ final class ProcessingPipelineTests: XCTestCase {
         XCTAssertEqual(notes.get(), [t("Notizen fertig (mit Export-Fehlern)")])
     }
 
+    func testAudioErrorsSayWhatToDo() {
+        let unreadable = NSError(domain: "com.apple.coreaudio.avfaudio", code: 2003334207)
+        let message = ProcessingPipeline.failure("Transkription", unreadable)
+        XCTAssertTrue(message.contains("2003334207"), "Die Nummer bleibt für Rückfragen stehen")
+        XCTAssertFalse(message.contains("com.apple.coreaudio"), "Keine technische Domain für Einsteiger")
+        // Andere Fehler behalten ihren eigenen Text
+        XCTAssertTrue(ProcessingPipeline.failure("Transkription", TranscriptionError.modelMissing).contains("Whisper"))
+    }
+
     func testEmptyTranscriptReportsNoSpeech() async throws {
         let rec = try await folder.importedRecording()
         let llm = FakeLLMClient(answer: "# X\n\nY")

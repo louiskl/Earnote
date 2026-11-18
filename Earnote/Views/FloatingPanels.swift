@@ -80,7 +80,7 @@ final class FloatingPanels {
         NSAnimationContext.runAnimationGroup({ context in
             context.duration = 0.2
             panel.animator().alphaValue = 0
-        }, completionHandler: { panel.orderOut(nil) })
+        }, completionHandler: { MainActor.assumeIsolated { panel.orderOut(nil) } })   // läuft auf dem Hauptthread
     }
 }
 

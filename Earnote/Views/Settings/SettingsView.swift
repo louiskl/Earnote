@@ -226,7 +226,7 @@ enum Diagnostics {
         if size > 0 {
             var buffer = [CChar](repeating: 0, count: size)
             sysctlbyname("hw.model", &buffer, &size, nil, 0)
-            model = String(cString: buffer)
+            model = String(decoding: buffer.prefix { $0 != 0 }.map { UInt8(bitPattern: $0) }, as: UTF8.self)
         }
         let memory = ProcessInfo.processInfo.physicalMemory / 1_073_741_824
         return """

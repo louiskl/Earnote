@@ -77,6 +77,11 @@ final class PhoneEnvironment {
         background = BackgroundProcessing(queue: queue, library: library)
         background.registerChargingTask()
         recorder.finish = { id in handoffs.finish(id) }
+        // Wie am Mac: Wer die laufende oder eine übergebene Aufnahme löscht, beendet sie damit auch
+        library.willDelete = { [weak recorder] id in
+            recorder?.endIfActive(id)
+            handoffs.cancel(id)
+        }
         cloudSync.onImportFinished = { [weak library] in
             Task {
                 // Neues vom Mac (Notizen, Geräte) sichtbar machen

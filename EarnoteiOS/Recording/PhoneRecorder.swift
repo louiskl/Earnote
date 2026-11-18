@@ -107,6 +107,15 @@ final class PhoneRecorder {
         onStop(id)
     }
 
+    /// Die laufende Aufnahme wurde gelöscht: Mikrofon freigeben, nichts einreihen.
+    /// Ohne das liefe die Aufnahme in einen gelöschten Ordner weiter, bis jemand auf Stopp tippt.
+    func endIfActive(_ id: UUID) {
+        guard activeID == id else { return }
+        tearDown()
+        Log.info("Aufnahme verworfen (iPhone)")
+        onChange()
+    }
+
     /// Die Stelle gerade eben als wichtig markieren. Ohne Pro kostet die erste Markierung einer Aufnahme einen Probeversuch;
     /// sind keine mehr übrig, passiert nichts (`false`).
     @discardableResult

@@ -1720,3 +1720,5 @@
 "Interview-Transkript sichern: %@" = "Save interview transcript: %@";
 "Interview-Transkript für Word/MAXQDA …" = "Interview Transcript for Word/MAXQDA…";
 "Interview-Transkript als Text …" = "Interview Transcript as Text…";
+"Anhören geht erst nach der Aufnahme – sonst wäre es in der Mitschrift zu hören." = "You can listen once the recording has ended – otherwise it would end up in your notes.";
+"Die Datei konnte nicht erstellt werden: %@" = "The file couldn’t be created: %@";

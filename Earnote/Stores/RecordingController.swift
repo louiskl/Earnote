@@ -394,6 +394,8 @@ final class RecordingController {
                 session.startLiveAudio(format: format) { [weak transcriber] buffer in
                     transcriber?.append(buffer)
                 }
+            } catch is CancellationError {
+                // Aufnahme schon wieder gestoppt, bevor die Mitschrift bereit war – kein Fehler
             } catch {
                 live.unavailable = String(localized: "Live-Mitschrift nicht möglich: \(error.localizedDescription)")
                 Log.error("Live-Mitschrift: \(error.localizedDescription)")
