@@ -58,12 +58,13 @@ private struct RecordingDetailContent: View {
                     transcript(recording)
                 case .both:
                     // Nebeneinander: die Breite teilt der Nutzer selbst auf (natives NSSplitView)
+                    // Keine festen Mindestbreiten (früher je 260): Zusammen mit Seitenleiste, Liste und Inspector passten
+                    // sie nicht ins Fenster, das Layout schaukelte sich auf → Absturz unter macOS 27 (siehe NoteView).
                     HSplitView {
                         note(recording)
-                            .frame(minWidth: 260)
                         transcript(recording)
-                            .frame(minWidth: 260)
                     }
+                    .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
                 }
             }
         } else {

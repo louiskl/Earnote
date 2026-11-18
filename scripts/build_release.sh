@@ -102,7 +102,8 @@ fi
 codesign --verify --strict "$APP"
 
 echo "▸ Erzeuge DMG …"
-rm -rf "$DIST"
+# Nur eigene Dateien entfernen – dist/ kann fremde Inhalte enthalten (07.10.: Marketing-Ordner gelöscht).
+rm -rf "$DIST/dmg" "$DMG"
 mkdir -p "$DIST/dmg"
 cp -R "$APP" "$DIST/dmg/"
 ln -s /Applications "$DIST/dmg/Applications"

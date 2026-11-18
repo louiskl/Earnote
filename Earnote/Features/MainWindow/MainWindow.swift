@@ -295,6 +295,8 @@ struct MainWindow: View {
             // Aufnahme, die es in diesem Sandkasten nicht gibt – und die Liste räumt die Auswahl wieder ab.
             selection.wrappedValue = library.recordings.first?.id
             if env["EARNOTE_DEMO_INSPECTOR"] != nil { inspectorShown = true; detailMode.wrappedValue = .note }
+            // `EARNOTE_DEMO_MODE=transcript|both`: diese Ansicht statt der Notiz
+            if let mode = env["EARNOTE_DEMO_MODE"].flatMap(DetailMode.init(rawValue:)) { detailMode.wrappedValue = mode }
             // Nur Debug: Ansicht festlegen („note“, „transcript“, „both“) – für Bildschirmfotos
             if let mode = env["EARNOTE_DEMO_MODE"].flatMap(DetailMode.init(rawValue:)) { detailMode.wrappedValue = mode }
             // Nur Debug: die Vorbereitungs-Zeile zeigen, ohne ein Modell zu laden
