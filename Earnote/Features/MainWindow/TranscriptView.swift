@@ -62,6 +62,8 @@ struct TranscriptView: View {
                         .padding(24)
                         .frame(maxWidth: .infinity, alignment: .leading)
                     }
+                    // Wie in der Notiz: Mindestgröße nicht aus dem Text ableiten (Absturz unter macOS 27, siehe NoteView)
+                    .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
                     .onChange(of: searchText, initial: true) { _, _ in updateHits(proxy) }
                     .onChange(of: paragraphs.count) { _, _ in updateHits(proxy) }
                     // Weitersuchen (⌘G) im Menü zählt hoch, hier wird gescrollt
