@@ -91,6 +91,11 @@ struct NoteView: View {
                     .padding(24)
                     .frame(maxWidth: .infinity, alignment: .leading)
                 }
+                // Minimum 0 in beide Richtungen: Sonst leitet SwiftUI die Mindestgröße der Detailspalte aus dem Text ab.
+                // Mit dauerhaft sichtbaren Rollbalken (Maus angeschlossen) änderte sie sich bei jedem Layout-Durchgang,
+                // Detailspalte und Inspector schaukelten sich auf → Absturz unter macOS 27 („more Update Constraints in
+                // Window passes than there are views in the window“), sobald bei offenem Inspector eine Notiz gewählt war.
+                .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
                 .onChange(of: searchText, initial: true) { _, _ in updateHits(in: markdown, proxy) }
                 .onChange(of: markdown) { _, text in updateHits(in: text, proxy) }
                 // Weitersuchen (⌘G) zählt im Menü hoch, hier wird gescrollt
