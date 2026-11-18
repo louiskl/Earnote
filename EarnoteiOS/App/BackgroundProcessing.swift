@@ -43,8 +43,10 @@ final class BackgroundProcessing {
     private func run(_ task: BGContinuedProcessingTask) {
         active = task
         task.progress.totalUnitCount = 100
+        // iOS ruft den Ablauf auf einer eigenen Warteschlange auf, nicht auf `.main` – `assumeIsolated` stürzte hier ab
+        // (TestFlight 1.2, 18.11.2026). Also auf den Hauptthread wechseln; die Schleife unten beendet die Aufgabe.
         task.expirationHandler = { [weak self] in
-            MainActor.assumeIsolated { self?.active = nil }
+            Task { @MainActor in self?.active = nil }
         }
         Task { [weak self] in
             while let self, self.active === task, self.isWorking {
@@ -82,7 +84,7 @@ final class BackgroundProcessing {
     private func runCharging(_ task: BGTask) {
         charging = task
         task.expirationHandler = { [weak self] in
-            MainActor.assumeIsolated { self?.charging = nil }
+            Task { @MainActor in self?.charging = nil }
         }
         queue.resume()
         Task { [weak self] in
