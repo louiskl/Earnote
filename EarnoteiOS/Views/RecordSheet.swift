@@ -6,6 +6,9 @@ struct RecordSheet: View {
     @Environment(PhoneRecorder.self) private var recorder
     @Environment(\.dismiss) private var dismiss
     @State private var showsPro = false
+    @State private var proFeature: Pro.Feature = .examRadar
+    @State private var pickingSlides = false
+    @Environment(LibraryStore.self) private var library
 
     var body: some View {
         NavigationStack {
@@ -32,16 +35,37 @@ struct RecordSheet: View {
                 }
             }
             .toolbar {
+                // Folien der Vorlesung gleich mit aufnehmen – die Notiz entsteht dann schon mit ihnen
+                ToolbarItem(placement: .topBarLeading) {
+                    Button(slideCount > 0 ? "Folien (\(slideCount))" : "Folien", systemImage: "rectangle.stack") {
+                        guard Pro.isUnlocked || Pro.triesLeft(.slides) > 0 else { proFeature = .slides; showsPro = true; return }
+                        pickingSlides = true
+                    }
+                    .labelStyle(.titleAndIcon)
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Schließen", systemImage: "chevron.down") { dismiss() }
                 }
             }
             .onChange(of: recorder.isRecording) { _, recording in if !recording { dismiss() } }
-            .sheet(isPresented: $showsPro) { ProSheet(highlight: .examRadar) }
+            .sheet(isPresented: $showsPro) { ProSheet(highlight: proFeature) }
+            .fileImporter(isPresented: $pickingSlides, allowedContentTypes: [.pdf]) { result in
+                guard case .success(let url) = result, let id = recorder.activeID else { return }
+                Task {
+                    do {
+                        try await library.attachSlides(id, from: url)
+                        _ = Pro.use(.slides)
+                    } catch {
+                        library.lastError = error.localizedDescription
+                    }
+                }
+            }
         }
         .presentationDragIndicator(.visible)
         .animation(.smooth, value: recorder.isPaused)
     }
+
+    private var slideCount: Int { recorder.activeID.map(library.slideCount) ?? 0 }
 
     private var status: some View {
         HStack(spacing: 8) {
@@ -73,7 +97,7 @@ struct RecordSheet: View {
                 // Klausur-Radar: Stelle markieren – auch vom Sperrbildschirm aus
                 RoundControl(title: recorder.marks > 0 ? "Wichtig (\(recorder.marks))" : "Wichtig",
                              symbol: recorder.marks > 0 ? "star.fill" : "star", size: 76, prominent: false) {
-                    if !recorder.markImportant() { showsPro = true }
+                    if !recorder.markImportant() { proFeature = .examRadar; showsPro = true }
                 }
                 .disabled(recorder.isPaused)
                 RoundControl(title: recorder.isPaused ? "Fortsetzen" : "Pause",

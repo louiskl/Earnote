@@ -22,6 +22,7 @@ private struct InspectorContent: View {
     @Environment(ProcessingQueue.self) private var queue
     @Environment(RecordingController.self) private var recorder
     @Environment(\.openURL) private var openURL
+    @Environment(\.noteActions) private var noteActions
     @Query private var matches: [LibraryRecording]
     @Query(sort: [SortDescriptor(\LibraryCategory.sortIndex), SortDescriptor(\LibraryCategory.createdAt)])
     private var categories: [LibraryCategory]
@@ -36,6 +37,7 @@ private struct InspectorContent: View {
             Form {
                 infoSection(recording)
                 processingSection(recording)
+                slidesSection(recording)
                 exportSection(recording)
                 audioSection(recording)
             }
@@ -131,6 +133,26 @@ private struct InspectorContent: View {
             ExportTarget(id: info.id, name: info.name, export: exports[info.id],
                          isActive: activeIDs.contains(info.id),
                          setupProblem: Destinations.setupProblem(info.id, settings))
+        }
+    }
+
+    private func slidesSection(_ recording: LibraryRecording) -> some View {
+        let count = library.slideCount(recording.id)
+        return Section {
+            if count > 0 {
+                LabeledContent("Folien", value: String(localized: "\(count) Seiten"))
+                Button("Ansehen") { noteActions.showSlides(1) }
+                Button("Andere Folien wählen …") { noteActions.attachSlides() }
+                Button("Entfernen", role: .destructive) { library.removeSlides(recording.id) }
+            } else {
+                Button("Folien hinzufügen …") { noteActions.attachSlides() }
+            }
+        } header: {
+            Text("Folien")
+        } footer: {
+            if count == 0 {
+                Text("PDF mit den Folien oder dem Skript. Die KI schreibt Fachbegriffe dann richtig und verweist auf die Folie.")
+            }
         }
     }
 

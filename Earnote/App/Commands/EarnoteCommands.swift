@@ -106,6 +106,15 @@ struct EarnoteCommands: Commands {
                     .disabled(recording?.summaryTitle == nil)
             }
             .disabled(recording?.summaryTitle == nil)
+            Menu("Folien") {
+                let slides = id.map(library.slideCount) ?? 0
+                Button(slides > 0 ? "Andere Folien wählen …" : "Folien hinzufügen …") { window?.noteActions.attachSlides() }
+                Button("Folien ansehen") { window?.noteActions.showSlides(1) }
+                    .disabled(slides == 0)
+                Button("Folien entfernen") { if let id { library.removeSlides(id) } }
+                    .disabled(slides == 0)
+            }
+            .disabled(recording == nil)
             Menu("Weitergeben") {
                 Button("Kurzprotokoll kopieren") { if let id { ShortMinutes.copy(id, library: library) } }
                 Button("Als Mail weiterschicken …") { if let id { FollowUpMail.compose(id, library: library) } }

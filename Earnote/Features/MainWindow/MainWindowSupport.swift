@@ -164,6 +164,17 @@ enum Recommendation {
     }
 }
 
+/// Auswahl der Folien (PDF)
+@MainActor
+enum SlidesPanel {
+    static func pick() -> URL? {
+        let panel = NSOpenPanel()
+        panel.allowedContentTypes = [.pdf]
+        panel.message = String(localized: "Folien oder Skript als PDF auswählen – aus PowerPoint oder Keynote vorher als PDF sichern")
+        return panel.runModal() == .OK ? panel.url : nil
+    }
+}
+
 /// Auswahl von Audio- und Videodateien für den Import
 @MainActor
 enum AudioImportPanel {

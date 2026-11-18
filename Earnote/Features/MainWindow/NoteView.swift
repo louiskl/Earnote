@@ -5,6 +5,7 @@ import SwiftUI
 struct NoteView: View {
     @Environment(LibraryStore.self) private var library
     @Environment(ProcessingQueue.self) private var queue
+    @Environment(\.noteActions) private var noteActions
     let recording: LibraryRecording
     /// Anfrage aus dem Menü: Ist sie diese Aufnahme, geht der Editor auf.
     let editRequest: UUID?
@@ -24,6 +25,12 @@ struct NoteView: View {
 
     var body: some View {
         content
+            // „(Folie 12)“ öffnet die Folie; alle anderen Links wie gewohnt
+            .environment(\.openURL, OpenURLAction { url in
+                guard let page = Slides.page(from: url) else { return .systemAction }
+                noteActions.showSlides(page)
+                return .handled
+            })
             // Anfrage aus dem Menü entgegennehmen – auch wenn sie gestellt wurde, bevor diese Ansicht da war
             .onChange(of: editRequest, initial: true) { _, request in
                 guard request == recording.id else { return }
@@ -78,7 +85,8 @@ struct NoteView: View {
                         }
                         FlashcardStatus(recordingID: recording.id)
                         ForEach(NoteSection.sections(markdown)) { section in
-                            NoteSectionView(section: section, searchText: searchText) { line in
+                            NoteSectionView(section: section, searchText: searchText,
+                                            slideCount: library.slideCount(recording.id)) { line in
                                 guard let updated = NoteMarkdown.togglingTask(in: markdown, line: line) else { return }
                                 pendingMarkdown = updated
                                 library.updateSummaryText(recording.id, markdown: updated)
@@ -155,6 +163,8 @@ private struct StatusLine: View {
 private struct NoteBlockView: View {
     let block: NoteBlock
     let searchText: String
+    /// Angehängte Folien: „(Folie 12)“ wird zum Link
+    var slideCount = 0
     let onToggleTask: (Int) -> Void
 
     var body: some View {
@@ -212,7 +222,8 @@ private struct NoteBlockView: View {
 
     /// Fett, kursiv und Code innerhalb einer Zeile – und die Fundstellen der Suche
     private func inline(_ text: String) -> AttributedString {
-        SearchHighlight.attributed(text, query: searchText, inlineMarkdown: true)
+        SearchHighlight.attributed(Slides.linked(text, pageCount: slideCount),
+                                   query: searchText, inlineMarkdown: true)
     }
 }
 
@@ -316,12 +327,13 @@ private struct FlashcardTile: View {
 private struct NoteSectionView: View {
     let section: NoteSection
     let searchText: String
+    var slideCount = 0
     let onToggleTask: (Int) -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             ForEach(section.blocks) { block in
-                NoteBlockView(block: block, searchText: searchText,
+                NoteBlockView(block: block, searchText: searchText, slideCount: slideCount,
                               onToggleTask: onToggleTask)
                     .id(block.id)
             }
