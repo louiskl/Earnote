@@ -71,7 +71,8 @@ struct MainWindow: View {
         return nil
     }
 
-    var body: some View {
+    // In zwei Teile geteilt: als ein Ausdruck brauchte die Typprüfung auf der CI zu lange (seit den Folien in 1.2)
+    private var windowWithDialogs: some View {
         NavigationSplitView {
             SidebarView(filter: filter, renamingCategoryID: $renamingCategoryID,
                         onEdit: { id in editingCategory = library.category(id) },
@@ -125,6 +126,10 @@ struct MainWindow: View {
         } message: {
             Text("Die laufende Aufnahme wird beendet und nicht gespeichert.")
         }
+    }
+
+    var body: some View {
+        windowWithDialogs
         .sheet(item: $editingCategory) { category in
             CategoryEditorSheet(category: category) { editingCategory = nil }
         }
