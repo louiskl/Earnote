@@ -121,7 +121,7 @@ enum DemoLibrary {
                   und darum, warum sie für die Diagonalisierbarkeit einer Matrix entscheidend sind.
 
                   ## Rechenweg
-                  - Charakteristisches Polynom aufstellen: det(A − λE) = 0
+                  - Charakteristisches Polynom aufstellen: det(A − λE) = 0 (Folie 3)
                   - Nullstellen bestimmen – das sind die Eigenwerte
                   - Für jeden Eigenwert den Eigenraum berechnen
 
@@ -285,7 +285,7 @@ enum DemoLibrary {
                   and why they decide whether a matrix can be diagonalised.
 
                   ## How to compute them
-                  - Set up the characteristic polynomial: det(A − λI) = 0
+                  - Set up the characteristic polynomial: det(A − λI) = 0 (Slide 3)
                   - Find its roots — those are the eigenvalues
                   - Work out the eigenspace for each eigenvalue
 

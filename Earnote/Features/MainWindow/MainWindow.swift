@@ -297,10 +297,13 @@ struct MainWindow: View {
             if env["EARNOTE_DEMO_INSPECTOR"] != nil { inspectorShown = true; detailMode.wrappedValue = .note }
             // `EARNOTE_DEMO_MODE=transcript|both`: diese Ansicht statt der Notiz
             if let mode = env["EARNOTE_DEMO_MODE"].flatMap(DetailMode.init(rawValue:)) { detailMode.wrappedValue = mode }
-            // Nur Debug: Ansicht festlegen („note“, „transcript“, „both“) – für Bildschirmfotos
-            if let mode = env["EARNOTE_DEMO_MODE"].flatMap(DetailMode.init(rawValue:)) { detailMode.wrappedValue = mode }
             // Nur Debug: die Vorbereitungs-Zeile zeigen, ohne ein Modell zu laden
             if env["EARNOTE_DEMO_PREPARING"] != nil { WhisperModelManager.shared.preparing = "large-v3-v20240930_turbo" }
+            // `EARNOTE_DEMO_SLIDES=<PDF>` hängt Folien an die erste Aufnahme, `EARNOTE_DEMO_SLIDE=<Seite>` öffnet eine
+            if let path = env["EARNOTE_DEMO_SLIDES"], let id = library.recordings.first?.id {
+                _ = try? await library.attachSlides(id, from: URL(fileURLWithPath: path))
+                if let page = env["EARNOTE_DEMO_SLIDE"].flatMap(Int.init) { noteActions.showSlides(page) }
+            }
             if let query = env["EARNOTE_DEMO_SEARCH"] {
                 searchText = query
                 detailMode.wrappedValue = .transcript

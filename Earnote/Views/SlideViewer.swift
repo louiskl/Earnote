@@ -18,7 +18,7 @@ struct SlideViewer: View {
         NavigationStack {
             PDFKitView(url: slide.url, page: slide.page)
                 .ignoresSafeArea(edges: .bottom)
-                .navigationTitle(String(localized: "Folie \(slide.page)"))
+                .navigationTitle("Folien")   // nicht „Folie N“: der Titel folgt dem Blättern nicht
                 #if os(iOS)
                 .navigationBarTitleDisplayMode(.inline)
                 #endif
