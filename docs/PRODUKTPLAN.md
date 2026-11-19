@@ -139,13 +139,12 @@ nie. Plan (ohne Foto, ohne „unterstütz mich“, nur Nutzen):
 4. Dankeschön-Paket-Hinweis nicht mehr gleichzeitig mit Pro-Hinweisen.
 Keine erfundenen Zahlen, keine künstliche Verknappung. Roadmap-Regel 6 („Pro wirbt leise“) gilt weiter.
 
-## Offene Fragen an Louis (vor dem Bauen klären)
+## Entschieden (Louis)
 
-1. Preis: Bleibt Pro bei 9,99 €, wenn Folien und Probeklausur dazukommen? (Vorschlag: ja bis 1.5, dann neu bewerten –
-   Bestandskunden behalten alles.)
-2. Folien einbinden: nur PDF, oder auch PowerPoint/Keynote? (Vorschlag: nur PDF; PPTX → „als PDF exportieren“.)
-3. Probeklausur: Darf die Korrektur auch die Cloud-KI (eigener Google-Schlüssel) nutzen, wenn das Gerät zu schwach ist?
-4. Interview-Export: welches Format zuerst – Dresing & Pehl als DOCX? (Vorschlag: DOCX + TXT.)
+1. Preis: Pro bleibt bei 9,99 €, auch mit Folien und Probeklausur; Bestandskunden behalten alles (19.11.2026).
+2. Folien: nur PDF; PowerPoint/Keynote → „Exportieren › PDF“ (umgesetzt in 1.2).
+3. Probeklausur: Die Korrektur darf die Cloud-KI (eigener Google-Schlüssel) nutzen, wenn das Gerät zu schwach ist (19.11.2026).
+4. Interview-Export: RTF (für Word/MAXQDA) + TXT statt DOCX (umgesetzt, seit 1.0.2).
 
 ## Arbeitsweise für den Entwicklungs-Chat
 
