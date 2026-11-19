@@ -1736,3 +1736,32 @@
 "Diese Datei lässt sich nicht als PDF öffnen. PowerPoint und Keynote können Folien als PDF sichern." = "This file can’t be opened as a PDF. PowerPoint and Keynote can save slides as PDF.";
 "Leg die Folien oder das Skript als PDF zur Vorlesung. Earnote schreibt Fachbegriffe und Formeln wie auf den Folien und verweist in der Notiz auf die passende Folie." = "Add the slides or script of a lecture as PDF. Earnote spells technical terms and formulas as on the slides and refers to the matching slide in the note.";
 "Zum Beispiel: „Eigenwerte über das charakteristische Polynom (Folie 14)“ – ein Tipp, und Folie 14 geht auf." = "For example: “Eigenvalues via the characteristic polynomial (Slide 14)” – one tap opens slide 14.";
+
+/* Probeklausur (1.5) */
+"Probeklausur" = "Mock Exam";
+"Probeklausur …" = "Mock Exam…";
+"Earnote stellt die Fragen …" = "Earnote is writing the questions…";
+"Earnote korrigiert … %lld von %lld" = "Earnote is marking… %lld of %lld";
+"Das hat nicht geklappt" = "That didn’t work";
+"Noch keine Vorlesungen" = "No lectures yet";
+"Sobald es in „%@“ fertige Notizen gibt, stellt Earnote daraus eine Probeklausur zusammen." = "As soon as “%@” has finished notes, Earnote puts a mock exam together from them.";
+"Earnote stellt %lld Fragen aus deinen Notizen in „%@“ – was als prüfungsrelevant gilt, zuerst. Du antwortest in eigenen Worten, danach korrigiert die KI und sagt dir, in welcher Vorlesung die Antwort steht." = "Earnote asks %lld questions from your notes in “%@” – exam-relevant topics first. You answer in your own words, then the AI marks your answers and tells you which lecture covers each one.";
+"Vorlesungen" = "Lectures";
+"Probeklausur starten" = "Start Mock Exam";
+"Deine Antwort" = "Your answer";
+"Fragen und Korrektur über Google (dein Schlüssel) – die KI auf diesem Gerät ist für eine Klausur zu klein." = "Questions and marking via Google (your key) – the AI on this device is too small for an exam.";
+"Ergebnis" = "Result";
+"%lld von %lld Punkten" = "%lld of %lld points";
+"Keine Antwort" = "No answer";
+"Steht in: %@" = "Covered in: %@";
+"Abgeben" = "Submit";
+"Als Notiz sichern" = "Save as Note";
+"Gesichert" = "Saved";
+"Neue Probeklausur" = "New Mock Exam";
+"Frage %lld" = "Question %lld";
+"Frage %lld · %@" = "Question %lld · %@";
+"Für eine Probeklausur braucht es eine KI. Wähle in den Einstellungen unter „KI“ eine aus." = "A mock exam needs an AI. Choose one in Settings under “AI”.";
+"Die KI hat keine Fragen geliefert. Versuch es noch einmal." = "The AI didn’t return any questions. Please try again.";
+"Probeklausur – %@" = "Mock Exam – %@";
+"Earnote stellt dir Prüfungsfragen aus deinen Vorlesungen. Du antwortest, die KI korrigiert und sagt dir, wo die Antwort steht." = "Earnote asks you exam questions from your lectures. You answer, the AI marks your answers and tells you where each answer is covered.";
+"Zum Beispiel: „Warum ist diese Matrix diagonalisierbar?“ – 1 von 2 Punkten, die Begründung steht in der Vorlesung vom 12. November." = "For example: “Why is this matrix diagonalisable?” – 1 of 2 points, the reasoning is in the lecture from 12 November.";

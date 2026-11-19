@@ -25,6 +25,8 @@ struct MainWindowContext {
     var summarizeCategory: (() -> Void)?
     /// Klausur-Radar des gewählten Bereichs (nil = kein Bereich gewählt)
     var examRadar: (() -> Void)?
+    /// Probeklausur des gewählten Bereichs (nil = kein Bereich gewählt)
+    var mockExam: (() -> Void)?
     var focusSearch: () -> Void
     /// Notiz bearbeiten, neu zusammenfassen, korrigieren, zurücksetzen
     var noteActions = NoteActions()

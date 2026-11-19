@@ -177,3 +177,21 @@
 "Datum: %@ · Dauer: %@" = "Date: %@ · Duration: %@";
 "Transkription nach Dresing & Pehl (vereinfacht) · %@" = "Transcription following Dresing & Pehl (simplified) · %@";
 "Der Ton dieser Aufnahme lässt sich nicht lesen (Fehler %@). Bei einer importierten Datei hilft es, sie als M4A, MP3 oder WAV zu sichern und neu zu importieren." = "The audio of this recording can’t be read (error %@). For an imported file, save it as M4A, MP3 or WAV and import it again.";
+
+/* Probeklausur (1.5) */
+"Prüfungsrelevant:" = "Exam-relevant:";
+"Du stellst eine Probeklausur aus den Mitschriften eines Fachs zusammen. Die Studentin oder der Student beantwortet die Fragen schriftlich, danach werden sie korrigiert.\nSchreibe genau %lld Fragen, je Frage genau eine Zeile in diesem Format:\nV<Nummer der Vorlesung> | <Art> | <Frage>\nBeispiel: V2 | Verständnis | Warum ist eine Matrix mit lauter verschiedenen Eigenwerten diagonalisierbar?\nArt ist genau eines von: Wissen, Verständnis, Rechnen. Mische die Arten; Rechnen nur, wenn das Material Rechenwege enthält.\nFrage bevorzugt, was unter „Prüfungsrelevant“ steht, und verteile die Fragen auf möglichst viele Vorlesungen.\nNur, was im Material steht – nichts erfinden. Keine Fragen zu Terminen oder Organisatorischem.\nJede Frage ist in zwei bis fünf Sätzen beantwortbar. Keine Lösungen, keine Einleitung, keine Nummerierung." = "You put together a mock exam from a subject's lecture notes. The student answers the questions in writing; afterwards the answers are marked.\nWrite exactly %lld questions, exactly one line per question in this format:\nV<number of the lecture> | <type> | <question>\nExample: V2 | Understanding | Why is a matrix with all distinct eigenvalues diagonalisable?\nType is exactly one of: Knowledge, Understanding, Calculation. Mix the types; use Calculation only if the material contains calculations.\nPrefer what is listed under “Prüfungsrelevant” (exam-relevant) and spread the questions over as many lectures as possible.\nOnly what is in the material – invent nothing. No questions about dates or organisational matters.\nEach question can be answered in two to five sentences. No solutions, no introduction, no numbering.";
+"Sprache der Fragen: %@" = "Language of the questions: %@";
+"Material:" = "Material:";
+"Du korrigierst eine Antwort in einer Probeklausur – freundlich, ehrlich und knapp.\nGrundlage ist die Mitschrift unten. Antworte in genau zwei Zeilen:\nPunkte: <0, 1 oder 2>\nRückmeldung: <ein bis zwei Sätze: was richtig war und was gefehlt hat>\n2 = richtig und vollständig, 1 = teilweise richtig, 0 = falsch, leer oder am Thema vorbei.\nAndere Formulierungen als in der Mitschrift sind in Ordnung, wenn der Inhalt stimmt.\nWiederholt die Antwort nur die Frage oder sagt nichts Inhaltliches, gibt es 0 Punkte.\nSteht die Lösung nicht in der Mitschrift, bewerte nach allgemeinem Fachwissen und sag das." = "You mark one answer in a mock exam – kindly, honestly and briefly.\nBase it on the lecture notes below. Reply in exactly two lines:\nPoints: <0, 1 or 2>\nFeedback: <one or two sentences: what was right and what was missing>\n2 = correct and complete, 1 = partly correct, 0 = wrong, empty or off topic.\nWording that differs from the notes is fine if the content is right.\nIf the answer only repeats the question or says nothing of substance, give 0 points.\nIf the solution is not in the notes, mark it using general subject knowledge and say so.";
+"Sprache der Rückmeldung: %@" = "Language of the feedback: %@";
+"Keine Antwort." = "No answer.";
+"Mitschrift:" = "Notes:";
+"Frage:" = "Question:";
+"Antwort:" = "Answer:";
+"Die KI hat keine Bewertung geliefert." = "The AI did not return a mark.";
+"Ergebnis: %lld von %lld Punkten" = "Result: %lld of %lld points";
+"Deine Antwort:" = "Your answer:";
+"Bewertung: %lld von %lld" = "Mark: %lld of %lld";
+"Steht in: %@ (%@)" = "Covered in: %@ (%@)";
+"Die Antwort wiederholt nur die Frage." = "The answer only repeats the question.";

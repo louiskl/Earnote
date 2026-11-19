@@ -406,6 +406,61 @@ final class LibraryStore: RecordingLibrary {
         return entry.id
     }
 
+    // MARK: Probeklausur
+
+    /// Welche KI die Probeklausur stellt und korrigiert, und wie viel Text sie auf einmal bekommt
+    struct MockExamAI {
+        let client: any LLMClient
+        let limit: Int
+        /// Über Google statt über die eingestellte KI (deren Kontext für eine Klausur zu klein ist)
+        let viaGoogle: Bool
+    }
+
+    /// Die eingestellte KI – außer sie ist für eine Klausur zu klein (Apple Intelligence, ~4k Token) und es gibt einen
+    /// Google-Schlüssel: dann Google (Louis, 19.11.2026). nil = keine KI eingestellt.
+    func mockExamAI() throws -> MockExamAI? {
+        let provider = settings.ai.provider
+        let small = provider == .appleIntelligence || (provider == .localModel && !DeviceCapabilities.supportsLocalModel)
+        if small, llm.managed.allows(.gemini), !(llm.apiKey(.gemini) ?? "").isEmpty {
+            var google = AIConfig()
+            google.provider = .gemini
+            if let client = try llm.make(google) {
+                return MockExamAI(client: client, limit: 30_000, viaGoogle: true)
+            }
+        }
+        guard let client = try llm.make(settings.ai) else { return nil }
+        // ponytail: höchstens 30.000 Zeichen – mehr Material macht die Fragen nicht besser, nur das lokale Modell langsamer
+        return MockExamAI(client: client, limit: min(30_000, provider.chunkCharacters), viaGoogle: false)
+    }
+
+    /// Notizen der Vorlesungen eines Bereichs (ohne Übersichten und gesicherte Probeklausuren – die haben keinen Ton)
+    func mockExamSources(_ categoryID: UUID) async -> [MockExam.Source] {
+        var sources: [MockExam.Source] = []
+        for recording in recordings where recording.categoryID == categoryID && recording.status == .done
+            && recording.duration >= 1 {
+            guard let note = await summary(recording.id) else { continue }
+            sources.append(MockExam.Source(recordingID: recording.id, title: note.title, date: recording.startedAt,
+                                           markdown: note.markdown))
+        }
+        return sources
+    }
+
+    /// Probeklausur als Notiz im Bereich ablegen – eine Aufnahme ohne Ton wie die Übersicht. Gibt ihre ID zurück.
+    func saveMockExam(categoryID: UUID, title: String, markdown: String, provider: String) -> UUID {
+        var entry = Recording(title: title, categoryID: categoryID, startedAt: Date(), endedAt: Date(), status: .done)
+        entry.isTitleCustom = true
+        entry.language = settings.language
+        let note = Summary(title: title, markdown: markdown, taskCount: 0, provider: provider)
+        entry.summaryTitle = note.title
+        entry.summaryPreview = note.preview
+        insert(entry)
+        let library = self.library
+        let id = entry.id
+        write("Probeklausur sichern") { try await library.saveNote(note, for: id) }
+        Log.info("Probeklausur gesichert: „\(title)“")
+        return id
+    }
+
     /// Wie viele fertige Aufnahmen ein Bereich hat (ab `since`) – eine Übersicht braucht mindestens zwei
     func overviewSourceCount(_ categoryID: UUID, since: Date? = nil) -> Int {
         recordings.filter { recording in

@@ -296,6 +296,8 @@ struct ExamRadarSheet: View {
     let categoryID: UUID
     /// Notiz im Hauptfenster zeigen
     let onOpen: (UUID) -> Void
+    /// Vom Radar zur Probeklausur desselben Bereichs
+    let onMockExam: () -> Void
     @Environment(LibraryStore.self) private var library
     @Environment(\.dismiss) private var dismiss
     @State private var notes: [(id: UUID, title: String, date: Date, items: [String])] = []
@@ -351,6 +353,7 @@ struct ExamRadarSheet: View {
                     }
                 }
                 Spacer()
+                Button("Probeklausur …") { dismiss(); onMockExam() }
                 Button("Fertig") { dismiss() }.keyboardShortcut(.cancelAction)
             }
             .padding(12)
@@ -376,12 +379,41 @@ struct ExamRadarSheet: View {
     }
 }
 
+/// Probeklausur als Blatt: Schließen links, die Schritte der Klausur rechts in der Leiste
+struct MockExamSheet: View {
+    let categoryID: UUID
+    let onOpen: (UUID) -> Void
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        NavigationStack {
+            MockExamView(categoryID: categoryID, onOpen: onOpen)
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) { Button("Schließen") { dismiss() } }
+                }
+        }
+        .frame(minWidth: 620, idealWidth: 680, minHeight: 560, idealHeight: 700)
+    }
+}
+
 extension View {
-    /// Klausur-Radar als Blatt über dem Hauptfenster (eigener Baustein, damit der Fensteraufbau übersichtlich bleibt)
-    func examRadarSheet(categoryID: Binding<UUID?>, onOpen: @escaping (UUID) -> Void) -> some View {
+    /// Klausur-Radar und Probeklausur als Blätter über dem Hauptfenster (eigener Baustein, damit der Fensteraufbau
+    /// übersichtlich bleibt). `onOpen` zeigt eine Notiz im Hauptfenster.
+    func examRadarSheet(categoryID: Binding<UUID?>, mockExamCategoryID: Binding<UUID?>,
+                        onOpen: @escaping (UUID) -> Void) -> some View {
         sheet(item: Binding(get: { categoryID.wrappedValue.map(IdentifiableID.init) },
                             set: { categoryID.wrappedValue = $0?.id })) { wrapped in
-            ExamRadarSheet(categoryID: wrapped.id, onOpen: onOpen)
+            ExamRadarSheet(categoryID: wrapped.id, onOpen: onOpen) {
+                // Erst nach dem Schließen des Radars – zwei Blätter zugleich zeigt macOS nicht
+                DispatchQueue.main.async { mockExamCategoryID.wrappedValue = wrapped.id }
+            }
+        }
+        .sheet(item: Binding(get: { mockExamCategoryID.wrappedValue.map(IdentifiableID.init) },
+                             set: { mockExamCategoryID.wrappedValue = $0?.id })) { wrapped in
+            MockExamSheet(categoryID: wrapped.id) { id in
+                mockExamCategoryID.wrappedValue = nil
+                onOpen(id)
+            }
         }
     }
 }

@@ -8,6 +8,7 @@ struct ExamRadarView: View {
     @Environment(LibraryStore.self) private var library
     @State private var notes: [(id: UUID, title: String, date: Date, items: [String])] = []
     @State private var loaded = false
+    @State private var showsPro = false
 
     var body: some View {
         List {
@@ -51,11 +52,32 @@ struct ExamRadarView: View {
         }
         .navigationTitle("Klausur-Radar")
         .navigationSubtitle(category.name)
+        .sheet(isPresented: $showsPro) { ProSheet(highlight: .mockExam) }
         .toolbar {
+            // Oben, nicht unten: Unten liegen schon „Aufnehmen“ und die Tabs
+            ToolbarItem(placement: .primaryAction) {
+                // Ziel direkt: Das Radar liegt per `isPresented` im Stapel, ein weiteres `navigationDestination` griff dort nicht
+                if Pro.isUnlocked || Pro.triesLeft(.mockExam) > 0 {
+                    NavigationLink {
+                        MockExamView(categoryID: category.id, allowStart: {
+                            // Ein Probeversuch je gestellter Klausur, nicht je Öffnen der Seite
+                            if Pro.use(.mockExam) { return true }
+                            showsPro = true
+                            return false
+                        })
+                    } label: {
+                        Label("Probeklausur", systemImage: "graduationcap")
+                    }
+                } else {
+                    Button("Probeklausur", systemImage: "graduationcap") { showsPro = true }
+                }
+            }
             if !notes.isEmpty {
-                ShareLink(item: ExamRadar.markdown(title: String(localized: "Klausur-Radar: \(category.name)"),
-                                                   notes: notes.map { ($0.title, $0.items) })) {
-                    Label("Teilen", systemImage: "square.and.arrow.up")
+                ToolbarItem(placement: .primaryAction) {
+                    ShareLink(item: ExamRadar.markdown(title: String(localized: "Klausur-Radar: \(category.name)"),
+                                                       notes: notes.map { ($0.title, $0.items) })) {
+                        Label("Teilen", systemImage: "square.and.arrow.up")
+                    }
                 }
             }
         }

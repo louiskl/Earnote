@@ -50,6 +50,8 @@ struct EarnoteCommands: Commands {
             Button("Klausur-Radar …") { window?.examRadar?() }
                 .keyboardShortcut("u", modifiers: [.command, .shift, .option])
                 .disabled(window?.examRadar == nil)
+            Button("Probeklausur …") { window?.mockExam?() }
+                .disabled(window?.mockExam == nil)
             Divider()
             Button(window?.playback?.isPlaying == true ? "Pause" : "Aufnahme anhören") {
                 window?.playback?.playPause()
