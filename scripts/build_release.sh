@@ -128,7 +128,8 @@ VERSION="$(defaults read "$APP/Contents/Info" CFBundleShortVersionString)"
 # Sparkle: Update-Datei (appcast.xml) erzeugen und signieren. Sie liegt unter docs/ und wird
 # über GitHub Pages ausgeliefert – dieselbe Adresse, die in der Info.plist als SUFeedURL steht.
 # Der private Schlüssel liegt im Schlüsselbund (einmalig mit Sparkles `generate_keys` angelegt).
-SPARKLE_BIN="$(find "$HOME/Library/Developer/Xcode/DerivedData" -path "*artifacts/sparkle/Sparkle/bin/generate_appcast" -print -quit 2>/dev/null || true)"
+# Erst im eigenen Build-Ordner (dort lädt xcodebuild die Pakete), dann in Xcodes DerivedData
+SPARKLE_BIN="$(find "$BUILD/SourcePackages" "$HOME/Library/Developer/Xcode/DerivedData" -path "*artifacts/sparkle/Sparkle/bin/generate_appcast" -print -quit 2>/dev/null || true)"
 if [[ -n "$SPARKLE_BIN" ]]; then
     echo "▸ Erzeuge und signiere appcast.xml …"
     APPCAST_DIR="$BUILD/appcast"
