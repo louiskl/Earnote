@@ -3,6 +3,16 @@
     <channel>
         <title>Earnote</title>
         <item>
+            <title>1.2</title>
+            <pubDate>Thu, 19 Nov 2026 09:44:05 +0100</pubDate>
+            <link>https://earnote.dev/</link>
+            <sparkle:fullReleaseNotesLink>https://github.com/louiskl/Earnote/releases</sparkle:fullReleaseNotesLink>
+            <sparkle:version>10200</sparkle:version>
+            <sparkle:shortVersionString>1.2</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>15.0</sparkle:minimumSystemVersion>
+            <enclosure url="https://github.com/louiskl/Earnote/releases/download/v1.2/Earnote.dmg" length="37083136" type="application/octet-stream" sparkle:edSignature="TPTvT8u9YDb/2fsJK5R9ge2pWzgtSCVCKjT1w8Wtl1khbD+A2riQgI29yIvxXpA++7AfYPEOPltgXwoqrYPTDQ=="/>
+        </item>
+        <item>
             <title>1.0.2</title>
             <pubDate>Wed, 18 Nov 2026 14:56:33 +0100</pubDate>
             <link>https://earnote.dev/</link>
@@ -21,16 +31,6 @@
             <sparkle:shortVersionString>1.0.1</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>15.0</sparkle:minimumSystemVersion>
             <enclosure url="https://github.com/louiskl/Earnote/releases/download/v1.0.1/Earnote.dmg" length="36967522" type="application/octet-stream" sparkle:edSignature="GeugLrHz8ELVMxt5caMH3UKxxY9BLn9nyVqpzjyeBvcaQLk20VHwXHO39pDG4SOZH16bR+1VASZiaiRhmxxWCA=="/>
-        </item>
-        <item>
-            <title>0.9.25</title>
-            <pubDate>Fri, 25 Sep 2026 18:21:47 +0200</pubDate>
-            <link>https://earnote.dev/</link>
-            <sparkle:fullReleaseNotesLink>https://github.com/louiskl/Earnote/releases</sparkle:fullReleaseNotesLink>
-            <sparkle:version>925</sparkle:version>
-            <sparkle:shortVersionString>0.9.25</sparkle:shortVersionString>
-            <sparkle:minimumSystemVersion>15.0</sparkle:minimumSystemVersion>
-            <enclosure url="https://github.com/louiskl/Earnote/releases/download/v0.9.25/Earnote.dmg" length="36363621" type="application/octet-stream" sparkle:edSignature="sj17okN5gY3DolsWn1i85DQVbPJ5DQKxOuzQTdloYCOjEbMceW/4aK0rq7m1smrT4+z5Hea6OtLacRX2VNWaAg=="/>
         </item>
     </channel>
 </rss>
