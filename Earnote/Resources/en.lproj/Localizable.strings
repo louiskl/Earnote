@@ -1736,3 +1736,5 @@
 "Diese Datei lässt sich nicht als PDF öffnen. PowerPoint und Keynote können Folien als PDF sichern." = "This file can’t be opened as a PDF. PowerPoint and Keynote can save slides as PDF.";
 "Leg die Folien oder das Skript als PDF zur Vorlesung. Earnote schreibt Fachbegriffe und Formeln wie auf den Folien und verweist in der Notiz auf die passende Folie." = "Add the slides or script of a lecture as PDF. Earnote spells technical terms and formulas as on the slides and refers to the matching slide in the note.";
 "Zum Beispiel: „Eigenwerte über das charakteristische Polynom (Folie 14)“ – ein Tipp, und Folie 14 geht auf." = "For example: “Eigenvalues via the characteristic polynomial (Slide 14)” – one tap opens slide 14.";
+
+"Seiten" = "Pages";
