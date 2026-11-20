@@ -332,6 +332,8 @@ private struct FeedbackAfterSuccess: ViewModifier {
     @State private var proHint: Pro.Feature?
     /// Erst starten, wenn der Hinweis zu ist – zwei Blätter auf einmal zeigt iOS nicht
     @State private var tryAfterHint: Pro.Feature?
+    /// Bewertung beim Verlassen der Notiz statt mitten im Lesen oder Tippen
+    @State private var reviewOnLeave = false
 
     func body(content: Content) -> some View {
         content
@@ -339,6 +341,20 @@ private struct FeedbackAfterSuccess: ViewModifier {
                 // Erst ein paar Sekunden lesen lassen; wer die Notiz vorher verlässt, wird nicht gefragt
                 guard isDone, (try? await Task.sleep(for: .seconds(4))) != nil else { return }
                 await ask()
+            }
+            .onDisappear {
+                guard reviewOnLeave else { return }
+                reviewOnLeave = false
+                reviewAskedVersion = RootView.appVersion
+                Task { @MainActor in
+                    // Kurz warten, bis die Liste wieder steht – sonst verschluckt der Wechsel den Dialog
+                    try? await Task.sleep(for: .milliseconds(700))
+                    // Apples eigener Sterne-Dialog; iOS zeigt ihn höchstens dreimal im Jahr. Mit dem Fenster ausdrücklich –
+                    // `requestReview` aus der Umgebung fand in der Notiz keins („Could not get scene to request a review“)
+                    guard let scene = UIApplication.shared.connectedScenes
+                        .first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene else { return }
+                    AppStore.requestReview(in: scene)
+                }
             }
             .sheet(isPresented: $showsSupporter) { SupporterSheet(declined: $supporterDeclined) }
             .sheet(item: $proHint, onDismiss: {
@@ -364,12 +380,8 @@ private struct FeedbackAfterSuccess: ViewModifier {
             proHintAskedAt: proHintAskedAt > 0 ? Date(timeIntervalSince1970: proHintAskedAt) : nil,
             proHintAsks: proHintAsks) {
         case .review:
-            reviewAskedVersion = version
-            // Apples eigener Sterne-Dialog; iOS zeigt ihn höchstens dreimal im Jahr. Mit dem Fenster ausdrücklich –
-            // `requestReview` aus der Umgebung fand in der Notiz keins („Could not get scene to request a review“)
-            guard let scene = UIApplication.shared.connectedScenes
-                .first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene else { return }
-            AppStore.requestReview(in: scene)
+            // Erst beim Zurück zur Liste (onDisappear) – vorher kam der Dialog mitten in „Mehr“ oder beim Lesen
+            reviewOnLeave = true
         case .proHint:
             proHintAskedAt = Date.now.timeIntervalSince1970
             proHintAsks += 1

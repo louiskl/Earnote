@@ -86,7 +86,8 @@ struct RecordingDetailView: View {
         .fileImporter(isPresented: $pickingSlides, allowedContentTypes: [.pdf]) { result in
             if case .success(let url) = result { Task { await attachSlides(url) } }
         }
-        .confirmationDialog("Notiz mit den Folien neu schreiben?", isPresented: $offersRewrite, titleVisibility: .visible) {
+        // Hinweis statt Auswahl-Blase: Die Blase zeigt unter iOS 26 kein „Nicht jetzt“, man müsste danebentippen
+        .alert("Notiz mit den Folien neu schreiben?", isPresented: $offersRewrite) {
             Button("Neu schreiben") { library.reprocess(id, retranscribe: false) }
             Button("Nicht jetzt", role: .cancel) {}
         } message: {

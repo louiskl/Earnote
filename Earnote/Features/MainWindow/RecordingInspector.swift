@@ -140,7 +140,8 @@ private struct InspectorContent: View {
         let count = library.slideCount(recording.id)
         return Section {
             if count > 0 {
-                LabeledContent("Folien", value: String(localized: "\(count) Seiten"))
+                // Die Überschrift sagt schon „Folien“ – hier nur die Zahl
+                LabeledContent("Seiten", value: "\(count)")
                 Button("Ansehen") { noteActions.showSlides(1) }
                 Button("Andere Folien wählen …") { noteActions.attachSlides() }
                 Button("Entfernen", role: .destructive) { library.removeSlides(recording.id) }
