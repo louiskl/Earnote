@@ -104,7 +104,7 @@ struct RecordingDetailView: View {
             case .translate: translating = true
             case .chat: chatting = true
             case .speakers: Task { await detectSpeakers() }
-            case .examRadar, .interview, .slides: break
+            case .examRadar, .interview, .slides, .mockExam: break
             }
         }
         .overlay(alignment: .top) {

@@ -582,7 +582,7 @@ wenn sie die Mitschrift besser machen, mehr hereinholen oder den Weg danach kür
 | **1.2** | Mo 09.11. | **Folien einbinden** (PDF zur Aufnahme, KI kennt Fachbegriffe, Verweis „Folie 12“) | Pro (Mac frei) | Notiz › Mehr, Aufnahme-Blatt (iPhone/iPad); Menü Notiz, Inspector (Mac) | ▶ gebaut |
 | **1.3** | Mo 23.11. | Protokoll verschicken | Pro | Teilen-Menü der Notiz | geplant |
 | 1.4 | Mo 30.11. | Aufräumen (Regel 8) | – | – | geplant |
-| **1.5** | Mo 14.12. | **Probeklausur je Fach** mit Korrektur und Verweis auf die Vorlesung | Pro | Klausur-Radar | geplant |
+| **1.5** | Mo 14.12. | **Probeklausur je Fach** mit Korrektur und Verweis auf die Vorlesung | Pro | Klausur-Radar | ▶ gebaut, Test offen |
 | 1.6 | Mo 11.01. | Formeln in Notiz und PDF · Stundenplan-Erkennung am iPhone | Free | Notiz, Aufnahme | geplant |
 | 1.7+ | März | Tafelfoto · Live-Untertitel am iPhone · Aufräumen | Free / Pro (OCR) | Aufnahme | geplant |
 

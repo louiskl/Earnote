@@ -65,6 +65,7 @@ SHARED = [
     "Earnote/Services/CloudSyncStatus.swift",
     "Earnote/Destinations/RemindersDestination.swift",
     "Earnote/Views/SlideViewer.swift",
+    "Earnote/Views/MockExamView.swift",
 ]
 # Übersetzungen: dieselbe Tabelle wie am Mac (Deutsch steht im Code)
 LOCALIZED = {"en": "Earnote/Resources/en.lproj/Localizable.strings"}

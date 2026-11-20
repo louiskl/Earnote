@@ -23,6 +23,7 @@ struct MainWindow: View {
     /// Bereich, für den gerade eine Übersicht erstellt wird (Blatt)
     @State private var summarizingCategoryID: UUID?
     @State private var radarCategoryID: UUID?
+    @State private var mockExamCategoryID: UUID?
     // Farbe des Dankeschön-Pakets: beobachten, damit ein Wechsel in den Einstellungen sofort wirkt
     @AppStorage(MacSkin.key) private var skinRaw = ""
     @AppStorage(MacSkin.supporterKey) private var isSupporter = false
@@ -64,6 +65,12 @@ struct MainWindow: View {
     private var radarAction: (() -> Void)? {
         guard let id = selectedCategoryID else { return nil }
         return { radarCategoryID = id }
+    }
+
+    /// Probeklausur des gewählten Bereichs
+    private var mockExamAction: (() -> Void)? {
+        guard let id = selectedCategoryID else { return nil }
+        return { mockExamCategoryID = id }
     }
 
     private var selectedCategoryID: UUID? {
@@ -133,7 +140,7 @@ struct MainWindow: View {
         .sheet(item: $editingCategory) { category in
             CategoryEditorSheet(category: category) { editingCategory = nil }
         }
-        .examRadarSheet(categoryID: $radarCategoryID) { id in
+        .examRadarSheet(categoryID: $radarCategoryID, mockExamCategoryID: $mockExamCategoryID) { id in
             selection.wrappedValue = id
             detailMode.wrappedValue = .note
         }
@@ -234,6 +241,7 @@ struct MainWindow: View {
                           newCategory: newCategory,
                           summarizeCategory: overviewAction,
                           examRadar: radarAction,
+                          mockExam: mockExamAction,
                           focusSearch: { searchFocused = true },
                           noteActions: noteActions,
                           playback: player.hasAudio
@@ -320,6 +328,7 @@ struct MainWindow: View {
             case "ask": noteActions.ask()
             case "translate": noteActions.translate()
             case "radar": radarCategoryID = library.recordings.first?.categoryID
+            case "exam": mockExamCategoryID = library.recordings.first?.categoryID
             case "pdf":
                 // Nur Debug: PDF erzeugen und den Pfad ins Protokoll schreiben
                 if let id = selection.wrappedValue, let url = await NoteDocument.temporaryPDF(id, library: library) {
